@@ -1,0 +1,193 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Kernel">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Pch">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Template">
+      <UniqueIdentifier>{cf61f225-b3b3-4077-9e92-cc9634595845}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource">
+      <UniqueIdentifier>{53e8e918-7dfc-4be0-8fa3-70fd1ef66fc5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Script">
+      <UniqueIdentifier>{bc95f4a2-2422-4d7b-865a-0b6f19f47543}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\..\Source\VePower\VePowerPch.cpp">
+      <Filter>Pch</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Source\VePower\VePower.cpp">
+      <Filter>Kernel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Source\VePower\VeMemory.cpp">
+      <Filter>Kernel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Source\VePower\VeMemObject.cpp">
+      <Filter>Kernel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Source\VePower\VeRefObject.cpp">
+      <Filter>Kernel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Source\VePower\VeString.cpp">
+      <Filter>Kernel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Source\VePower\VeThread.cpp">
+      <Filter>Kernel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Source\VePower\VeLog.cpp">
+      <Filter>Kernel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Source\VePower\VeSystem.cpp">
+      <Filter>Kernel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Source\VePower\VeAllocator.cpp">
+      <Filter>Kernel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Source\VePower\VeBinaryStream.cpp">
+      <Filter>Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Source\VePower\VeMemoryStream.cpp">
+      <Filter>Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Source\VePower\VeDirectory.cpp">
+      <Filter>Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Source\VePower\VeResourceManager.cpp">
+      <Filter>Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Source\VePower\VeTaskQueue.cpp">
+      <Filter>Kernel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Source\VePower\VeFile.cpp">
+      <Filter>Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Source\VePower\VeLua.cpp">
+      <Filter>Script</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Source\VePower\VeAsset.cpp">
+      <Filter>Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Source\VePower\VeLuaBind.cpp">
+      <Filter>Script</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\..\Source\VePower\VePowerPch.h">
+      <Filter>Pch</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\VePower\VePower.h">
+      <Filter>Kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\VePower\VeMemory.h">
+      <Filter>Kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\VePower\VeMemObject.h">
+      <Filter>Kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\VePower\VeRefObject.h">
+      <Filter>Kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\VePower\VeTemplate.h">
+      <Filter>Template</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\VePower\VeRTTI.h">
+      <Filter>Template</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\VePower\VeSmartPointer.h">
+      <Filter>Template</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\VePower\VeSingleton.h">
+      <Filter>Template</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\VePower\VeString.h">
+      <Filter>Kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\VePower\VeThread.h">
+      <Filter>Kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\VePower\VeLog.h">
+      <Filter>Kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\VePower\VeSystem.h">
+      <Filter>Kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\VePower\VeAllocator.h">
+      <Filter>Kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\VePower\VeRefList.h">
+      <Filter>Template</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\VePower\VeBinaryStream.h">
+      <Filter>Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\VePower\VeMemoryStream.h">
+      <Filter>Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\VePower\VeDirectory.h">
+      <Filter>Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\VePower\VeResourceManager.h">
+      <Filter>Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\VePower\VeTaskQueue.h">
+      <Filter>Kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\VePower\VeFile.h">
+      <Filter>Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\VePower\VeLua.h">
+      <Filter>Script</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\VePower\VeAsset.h">
+      <Filter>Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\VePower\VeLuaBind.h">
+      <Filter>Script</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\..\Source\VePower\VeMemory.inl">
+      <Filter>Kernel</Filter>
+    </None>
+    <None Include="..\..\..\..\Source\VePower\VeRefObject.inl">
+      <Filter>Kernel</Filter>
+    </None>
+    <None Include="..\..\..\..\Source\VePower\VeThread.inl">
+      <Filter>Kernel</Filter>
+    </None>
+    <None Include="..\..\..\..\Source\VePower\VeLog.inl">
+      <Filter>Kernel</Filter>
+    </None>
+    <None Include="..\..\..\..\Source\VePower\VeSystem.inl">
+      <Filter>Kernel</Filter>
+    </None>
+    <None Include="..\..\..\..\Source\VePower\VeAllocator.inl">
+      <Filter>Kernel</Filter>
+    </None>
+    <None Include="..\..\..\..\Source\VePower\VeBinaryStream.inl">
+      <Filter>Resource</Filter>
+    </None>
+    <None Include="..\..\..\..\Source\VePower\VeMemoryStream.inl">
+      <Filter>Resource</Filter>
+    </None>
+    <None Include="..\..\..\..\Source\VePower\VeResourceManager.inl">
+      <Filter>Resource</Filter>
+    </None>
+    <None Include="..\..\..\..\Source\VePower\VeTaskQueue.inl">
+      <Filter>Kernel</Filter>
+    </None>
+    <None Include="..\..\..\..\Source\VePower\VeFile.inl">
+      <Filter>Resource</Filter>
+    </None>
+    <None Include="..\..\..\..\Source\VePower\VeLua.inl">
+      <Filter>Script</Filter>
+    </None>
+  </ItemGroup>
+</Project>

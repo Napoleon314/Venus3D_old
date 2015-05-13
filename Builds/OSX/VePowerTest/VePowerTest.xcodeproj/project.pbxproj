@@ -1,0 +1,289 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		65104B081AA6E04500FD510E /* liblualib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 65104B071AA6E04500FD510E /* liblualib.a */; };
+		65AE5F8C1A97A4F1009A841E /* VePowerTestMain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 65AE5F8B1A97A4F1009A841E /* VePowerTestMain.cpp */; };
+		65AE5F921A97A618009A841E /* libVePower.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 65AE5F911A97A618009A841E /* libVePower.a */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		65104B071AA6E04500FD510E /* liblualib.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liblualib.a; path = "../../../../../../Library/Developer/Xcode/DerivedData/Tests-cconpxnbobzrcvebcjzlzwdnxcms/Build/Products/Debug/liblualib.a"; sourceTree = "<group>"; };
+		65AE5F771A97A470009A841E /* VePowerTest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = VePowerTest; sourceTree = BUILT_PRODUCTS_DIR; };
+		65AE5F8B1A97A4F1009A841E /* VePowerTestMain.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = VePowerTestMain.cpp; path = ../../../Tests/VePowerTest/VePowerTestMain.cpp; sourceTree = "<group>"; };
+		65AE5F911A97A618009A841E /* libVePower.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libVePower.a; path = "../../../../../../Library/Developer/Xcode/DerivedData/Tests-cconpxnbobzrcvebcjzlzwdnxcms/Build/Products/Debug/libVePower.a"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		65AE5F741A97A470009A841E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				65104B081AA6E04500FD510E /* liblualib.a in Frameworks */,
+				65AE5F921A97A618009A841E /* libVePower.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		65AE5F6E1A97A470009A841E = {
+			isa = PBXGroup;
+			children = (
+				65AE5F8A1A97A4D0009A841E /* Source Files */,
+				65AE5F931A97A621009A841E /* Frameworks */,
+				65AE5F781A97A470009A841E /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		65AE5F781A97A470009A841E /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				65AE5F771A97A470009A841E /* VePowerTest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		65AE5F8A1A97A4D0009A841E /* Source Files */ = {
+			isa = PBXGroup;
+			children = (
+				65AE5F8B1A97A4F1009A841E /* VePowerTestMain.cpp */,
+			);
+			name = "Source Files";
+			sourceTree = "<group>";
+		};
+		65AE5F931A97A621009A841E /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				65104B071AA6E04500FD510E /* liblualib.a */,
+				65AE5F911A97A618009A841E /* libVePower.a */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		65AE5F761A97A470009A841E /* VePowerTest */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 65AE5F7E1A97A470009A841E /* Build configuration list for PBXNativeTarget "VePowerTest" */;
+			buildPhases = (
+				65AE5F731A97A470009A841E /* Sources */,
+				65AE5F741A97A470009A841E /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = VePowerTest;
+			productName = VePowerTest;
+			productReference = 65AE5F771A97A470009A841E /* VePowerTest */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		65AE5F6F1A97A470009A841E /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0610;
+				ORGANIZATIONNAME = Napoleon;
+				TargetAttributes = {
+					65AE5F761A97A470009A841E = {
+						CreatedOnToolsVersion = 6.1.1;
+					};
+				};
+			};
+			buildConfigurationList = 65AE5F721A97A470009A841E /* Build configuration list for PBXProject "VePowerTest" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 65AE5F6E1A97A470009A841E;
+			productRefGroup = 65AE5F781A97A470009A841E /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				65AE5F761A97A470009A841E /* VePowerTest */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		65AE5F731A97A470009A841E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				65AE5F8C1A97A4F1009A841E /* VePowerTestMain.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		65AE5F7C1A97A470009A841E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		65AE5F7D1A97A470009A841E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		65AE5F7F1A97A470009A841E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					VE_DEBUG,
+					VE_PLATFORM_OSX,
+					VE_CPU_X64,
+					VE_STATIC_LIB,
+					"$(inherited)",
+				);
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					"$(VENUS3D_PATH)/SDK/Include",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(VENUS3D_PATH)/SDK/OSX/${CONFIGURATION}",
+					"$(VENUS3D_PATH)/SDK/Prebuild/OSX/${CONFIGURATION}",
+				);
+				OTHER_CPLUSPLUSFLAGS = (
+					"-O0",
+					"-fno-rtti",
+					"$(OTHER_CFLAGS)",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		65AE5F801A97A470009A841E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					VE_RELEASE,
+					VE_PLATFORM_OSX,
+					VE_CPU_X64,
+					VE_STATIC_LIB,
+					"$(inherited)",
+				);
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					"$(VENUS3D_PATH)/SDK/Include",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(VENUS3D_PATH)/SDK/OSX/${CONFIGURATION}",
+					"$(VENUS3D_PATH)/SDK/Prebuild/OSX/${CONFIGURATION}",
+				);
+				OTHER_CPLUSPLUSFLAGS = (
+					"-O3",
+					"-fno-rtti",
+					"$(OTHER_CFLAGS)",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		65AE5F721A97A470009A841E /* Build configuration list for PBXProject "VePowerTest" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				65AE5F7C1A97A470009A841E /* Debug */,
+				65AE5F7D1A97A470009A841E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		65AE5F7E1A97A470009A841E /* Build configuration list for PBXNativeTarget "VePowerTest" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				65AE5F7F1A97A470009A841E /* Debug */,
+				65AE5F801A97A470009A841E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 65AE5F6F1A97A470009A841E /* Project object */;
+}

@@ -1,0 +1,147 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXContainerItemProxy section */
+		65474B641A97A166009834C9 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 65474B601A97A165009834C9 /* VePower.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 65474B591A97A165009834C9;
+			remoteInfo = VePower;
+		};
+		65AE5F861A97A472009A841E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 65AE5F811A97A470009A841E /* VePowerTest.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 65AE5F771A97A470009A841E;
+			remoteInfo = VePowerTest;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		65104AFF1AA6DFC700FD510E /* Externals.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = Externals.xcodeproj; sourceTree = "<group>"; };
+		65474B601A97A165009834C9 /* VePower.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = VePower.xcodeproj; path = VePower/VePower.xcodeproj; sourceTree = "<group>"; };
+		65AE5F811A97A470009A841E /* VePowerTest.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = VePowerTest.xcodeproj; path = VePowerTest/VePowerTest.xcodeproj; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		65104B001AA6DFC700FD510E /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		65474B491A97A109009834C9 = {
+			isa = PBXGroup;
+			children = (
+				65AE5F811A97A470009A841E /* VePowerTest.xcodeproj */,
+				65474B601A97A165009834C9 /* VePower.xcodeproj */,
+				65104AFF1AA6DFC700FD510E /* Externals.xcodeproj */,
+			);
+			sourceTree = "<group>";
+		};
+		65474B611A97A165009834C9 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				65474B651A97A166009834C9 /* libVePower.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		65AE5F821A97A470009A841E /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				65AE5F871A97A472009A841E /* VePowerTest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXProject section */
+		65474B4A1A97A109009834C9 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0610;
+			};
+			buildConfigurationList = 65474B4D1A97A109009834C9 /* Build configuration list for PBXProject "Tests" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 65474B491A97A109009834C9;
+			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 65104B001AA6DFC700FD510E /* Products */;
+					ProjectRef = 65104AFF1AA6DFC700FD510E /* Externals.xcodeproj */;
+				},
+				{
+					ProductGroup = 65474B611A97A165009834C9 /* Products */;
+					ProjectRef = 65474B601A97A165009834C9 /* VePower.xcodeproj */;
+				},
+				{
+					ProductGroup = 65AE5F821A97A470009A841E /* Products */;
+					ProjectRef = 65AE5F811A97A470009A841E /* VePowerTest.xcodeproj */;
+				},
+			);
+			projectRoot = "";
+			targets = (
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		65474B651A97A166009834C9 /* libVePower.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libVePower.a;
+			remoteRef = 65474B641A97A166009834C9 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		65AE5F871A97A472009A841E /* VePowerTest */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = VePowerTest;
+			remoteRef = 65AE5F861A97A472009A841E /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
+
+/* Begin XCBuildConfiguration section */
+		65474B4E1A97A109009834C9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		65474B4F1A97A109009834C9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		65474B4D1A97A109009834C9 /* Build configuration list for PBXProject "Tests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				65474B4E1A97A109009834C9 /* Debug */,
+				65474B4F1A97A109009834C9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 65474B4A1A97A109009834C9 /* Project object */;
+}

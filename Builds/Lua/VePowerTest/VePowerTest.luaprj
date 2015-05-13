@@ -1,0 +1,5 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+
+<Project Name="VePowerTest.luaprj" >
+    <LuaFile RelativePath=".\..\..\..\Binaries\RunEnv\test.lua" />
+</Project>

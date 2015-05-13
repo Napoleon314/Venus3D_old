@@ -1,0 +1,106 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXContainerItemProxy section */
+		657899F01AA6CEB500220531 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 657899EC1AA6CEB400220531 /* lualib.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 657899E51AA6CEB400220531;
+			remoteInfo = lualib;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		657899EC1AA6CEB400220531 /* lualib.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = lualib.xcodeproj; path = lualib/lualib.xcodeproj; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		657899D51AA6CDF000220531 = {
+			isa = PBXGroup;
+			children = (
+				657899EC1AA6CEB400220531 /* lualib.xcodeproj */,
+			);
+			sourceTree = "<group>";
+		};
+		657899ED1AA6CEB400220531 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				657899F11AA6CEB500220531 /* liblualib.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXProject section */
+		657899D61AA6CDF000220531 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0610;
+			};
+			buildConfigurationList = 657899D91AA6CDF000220531 /* Build configuration list for PBXProject "Externals" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 657899D51AA6CDF000220531;
+			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 657899ED1AA6CEB400220531 /* Products */;
+					ProjectRef = 657899EC1AA6CEB400220531 /* lualib.xcodeproj */;
+				},
+			);
+			projectRoot = "";
+			targets = (
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		657899F11AA6CEB500220531 /* liblualib.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = liblualib.a;
+			remoteRef = 657899F01AA6CEB500220531 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
+
+/* Begin XCBuildConfiguration section */
+		657899DA1AA6CDF000220531 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		657899DB1AA6CDF000220531 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		657899D91AA6CDF000220531 /* Build configuration list for PBXProject "Externals" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				657899DA1AA6CDF000220531 /* Debug */,
+				657899DB1AA6CDF000220531 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 657899D61AA6CDF000220531 /* Project object */;
+}
