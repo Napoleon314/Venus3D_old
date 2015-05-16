@@ -71,9 +71,6 @@
     <ClCompile Include="..\..\..\..\Source\VePower\VeLua.cpp">
       <Filter>Script</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\Source\VePower\VeAsset.cpp">
-      <Filter>Resource</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\Source\VePower\VeLuaBind.cpp">
       <Filter>Script</Filter>
     </ClCompile>
