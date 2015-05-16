@@ -1,1 +1,4 @@
 *.bak
+Binaries/*
+Builds/Windows/VC140/*
+SDK/*
