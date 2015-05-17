@@ -1,3 +1,7 @@
+if [ ! -e ../../../../../SDK ]; then
+	mkdir ../../../../../SDK
+fi
+
 if [ ! -e ../../../../../SDK/Include ]; then
 	mkdir ../../../../../SDK/Include
 fi
