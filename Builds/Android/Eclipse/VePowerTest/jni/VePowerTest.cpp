@@ -9,7 +9,7 @@ void android_main(struct android_app* state)
 {
 	app_dummy();
 
-	/*VeConsoleInit("VePowerTest");
+	VeConsoleInit("VePowerTest");
 
 	AAssetManager* pkManager = state->activity->assetManager;
 	AAssetDir* pkDir = AAssetManager_openDir(pkManager, "");
@@ -43,7 +43,7 @@ void android_main(struct android_app* state)
 		}
 	}
 
-	VeConsoleTerm();*/
-	SetAssetManager(state->activity->assetManager);
-	main();
+	VeConsoleTerm();
+	//SetAssetManager(state->activity->assetManager);
+	//main();
 }
