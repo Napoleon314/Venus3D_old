@@ -49,7 +49,15 @@ public:
 
 	const VePoolAllocatorPtr& GetPoolAllocator(VeSizeT stUnitSize) noexcept;
 
+	void Init() noexcept;
+
+	void Term() noexcept;
+
 private:
+	void InitVideo() noexcept;
+
+	void TermVideo() noexcept;
+
 	const Type m_eType;
 	VeFixedString m_kPakName;
 	VeLog m_kLog;
@@ -57,6 +65,7 @@ private:
 	VeRefList<VeRefObject*> m_kObjCollector;
 	VeStackAllocatorPtr m_spMainStack;
 	PoolAllocatorMap m_kAllocatorMap;
+	VeVideoDevicePtr m_spVideo;
 
 public:
 	VeLog::Pack CORE;

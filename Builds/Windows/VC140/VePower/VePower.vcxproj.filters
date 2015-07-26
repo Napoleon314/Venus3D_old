@@ -21,6 +21,9 @@
     <Filter Include="Video">
       <UniqueIdentifier>{5cb96f26-280d-46f0-83c7-48140d14099f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Video\Windows">
+      <UniqueIdentifier>{69fb2e8b-3378-4927-a268-4c995ee70fdb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\Source\VePower\VePowerPch.cpp">
@@ -85,6 +88,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\..\Source\VePower\VeWindow.cpp">
       <Filter>Video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Source\VePower\Windows\WindowsVideo.cpp">
+      <Filter>Video\Windows</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -169,6 +175,9 @@
     <ClInclude Include="..\..\..\..\Source\VePower\VeWindow.h">
       <Filter>Video</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\VePower\Windows\WindowsVideo.h">
+      <Filter>Video\Windows</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\..\Source\VePower\VeMemory.inl">
@@ -208,6 +217,9 @@
       <Filter>Script</Filter>
     </None>
     <None Include="..\..\..\..\Source\VePower\VeRect.inl">
+      <Filter>Video</Filter>
+    </None>
+    <None Include="..\..\..\..\Source\VePower\VeVideo.inl">
       <Filter>Video</Filter>
     </None>
   </ItemGroup>

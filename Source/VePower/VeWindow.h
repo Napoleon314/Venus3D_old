@@ -23,6 +23,22 @@ struct VeDisplayMode
 	void* m_pvDriverData;
 };
 
+class VeVideoDevice;
+class VeWindow;
+
+struct VeVideoDisplay
+{
+	VeChar8* m_pcName;
+	VeInt32 m_i32MaxDisplayModes;
+	VeVector<VeDisplayMode> m_kDisplayModes;
+	VeDisplayMode m_kDesktopMode;
+	VeDisplayMode m_kCurrentMode;
+	VeWindow* m_pkFullscreenWindow;
+	VeVideoDevice* m_pkDevice;
+
+	void *driverdata;
+};
+
 struct VeWindowUserData
 {
 	VeChar8* m_pcName;

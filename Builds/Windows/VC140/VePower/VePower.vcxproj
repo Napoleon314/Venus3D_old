@@ -323,6 +323,16 @@
     <ClCompile Include="..\..\..\..\Source\VePower\VeThread.cpp" />
     <ClCompile Include="..\..\..\..\Source\VePower\VeVideo.cpp" />
     <ClCompile Include="..\..\..\..\Source\VePower\VeWindow.cpp" />
+    <ClCompile Include="..\..\..\..\Source\VePower\Windows\WindowsVideo.cpp">
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\VePowerPch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ReleaseLib|Win32'">..\VePowerPch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='DebugLib|Win32'">..\VePowerPch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\VePowerPch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\VePowerPch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ReleaseLib|x64'">..\VePowerPch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='DebugLib|x64'">..\VePowerPch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\VePowerPch.h</PrecompiledHeaderFile>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\Source\VePower\VeAllocator.h" />
@@ -352,6 +362,7 @@
     <ClInclude Include="..\..\..\..\Source\VePower\VeThread.h" />
     <ClInclude Include="..\..\..\..\Source\VePower\VeVideo.h" />
     <ClInclude Include="..\..\..\..\Source\VePower\VeWindow.h" />
+    <ClInclude Include="..\..\..\..\Source\VePower\Windows\WindowsVideo.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\..\Source\VePower\VeAllocator.inl" />
@@ -367,6 +378,7 @@
     <None Include="..\..\..\..\Source\VePower\VeResourceManager.inl" />
     <None Include="..\..\..\..\Source\VePower\VeSystem.inl" />
     <None Include="..\..\..\..\Source\VePower\VeThread.inl" />
+    <None Include="..\..\..\..\Source\VePower\VeVideo.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

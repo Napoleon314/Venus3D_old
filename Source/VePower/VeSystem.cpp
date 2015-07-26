@@ -15,6 +15,8 @@
 #include "VePowerPch.h"
 
 //--------------------------------------------------------------------------
+extern VeVideoDevicePtr CreateVideoDevice() noexcept;
+//--------------------------------------------------------------------------
 static const VeChar8* s_apcLogTypeNames[VeLog::TYPE_MAX] =
 {
 	"DEBUG",
@@ -124,5 +126,34 @@ const VePoolAllocatorPtr& VeSystem::GetPoolAllocator(
 		spRes = VE_NEW VePoolAllocator(stUnitSize);
 	}
 	return spRes;
+}
+//--------------------------------------------------------------------------
+void VeSystem::Init() noexcept
+{
+	InitVideo();
+}
+//--------------------------------------------------------------------------
+void VeSystem::Term() noexcept
+{
+	TermVideo();
+}
+//--------------------------------------------------------------------------
+void VeSystem::InitVideo() noexcept
+{
+	if (!m_spVideo)
+	{
+		m_spVideo = CreateVideoDevice();
+		VE_ASSERT(m_spVideo);
+		m_spVideo->Init();
+	}
+}
+//--------------------------------------------------------------------------
+void VeSystem::TermVideo() noexcept
+{
+	if (m_spVideo)
+	{
+		m_spVideo->Term();
+		m_spVideo = nullptr;
+	}
 }
 //--------------------------------------------------------------------------

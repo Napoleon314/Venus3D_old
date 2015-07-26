@@ -14,30 +14,19 @@
 
 #pragma once
 
-class VeVideoDevice;
-
-struct VeVideoDisplay
-{
-	VeChar8* m_pcName;
-	VeInt32 m_i32MaxDisplayModes;
-	VeVector<VeDisplayMode> m_kDisplayModes;
-	VeDisplayMode m_kDesktopMode;
-	VeDisplayMode m_kCurrentMode;
-	VeWindow* m_pkFullscreenWindow;
-	VeVideoDevice* m_pkDevice;
-
-	void *driverdata;
-};
-
 class VE_POWER_API VeVideoDevice : public VeRefObject
 {
 public:
 
-	virtual bool Init() noexcept = 0;
+	inline const VeChar8* GetName() const noexcept;
+
+	inline const VeChar8* GetDesc() const noexcept;
+
+	virtual void Init() noexcept = 0;
 
 	virtual void Term() noexcept = 0;
 
-	virtual VeInt32 GetDisplayBounds(VeVideoDisplay* pkDisplay, VeRect* rect) = 0;
+	//virtual VeInt32 GetDisplayBounds(VeVideoDisplay* pkDisplay, VeRect* rect) = 0;
 
 	///*
 	//* Get a list of the available display modes for a display.
@@ -58,9 +47,13 @@ protected:
 
 	virtual ~VeVideoDevice() noexcept {}
 
-	VeFixedString m_kName;
+	const VeChar8* m_pcName = nullptr;
+	const VeChar8* m_pcDesc = nullptr;
+	VeVector<VeVideoDisplay> m_kDisplayList;
 
 
 };
 
 VeSmartPointer(VeVideoDevice);
+
+#include "VeVideo.inl"
