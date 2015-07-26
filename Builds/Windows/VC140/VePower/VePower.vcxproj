@@ -322,6 +322,7 @@
     <ClCompile Include="..\..\..\..\Source\VePower\VeSystem.cpp" />
     <ClCompile Include="..\..\..\..\Source\VePower\VeThread.cpp" />
     <ClCompile Include="..\..\..\..\Source\VePower\VeVideo.cpp" />
+    <ClCompile Include="..\..\..\..\Source\VePower\VeWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\Source\VePower\VeAllocator.h" />
@@ -350,6 +351,7 @@
     <ClInclude Include="..\..\..\..\Source\VePower\VeTemplate.h" />
     <ClInclude Include="..\..\..\..\Source\VePower\VeThread.h" />
     <ClInclude Include="..\..\..\..\Source\VePower\VeVideo.h" />
+    <ClInclude Include="..\..\..\..\Source\VePower\VeWindow.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\..\Source\VePower\VeAllocator.inl" />

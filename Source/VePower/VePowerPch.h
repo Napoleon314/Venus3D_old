@@ -30,6 +30,7 @@
 #include "VeLog.h"
 #include "VeLua.h"
 #include "VeRect.h"
+#include "VeWindow.h"
 #include "VeVideo.h"
 #include "VeSystem.h"
 #include "VeLuaBind.h"

@@ -14,85 +14,49 @@
 
 #pragma once
 
-struct VeDisplayMode
-{
-	VeUInt32 m_u32Format;
-	VeInt32 m_i32Width;
-	VeInt32 m_i32Height;
-	VeInt32 m_i32RefreshRate;
-	void* m_pvDriverData;
-};
+class VeVideoDevice;
 
-//struct SDL_Window
-//{
-//	const void *magic;
-//	Uint32 id;
-//	char *title;
-//	SDL_Surface *icon;
-//	int x, y;
-//	int w, h;
-//	int min_w, min_h;
-//	int max_w, max_h;
-//	Uint32 flags;
-//	Uint32 last_fullscreen_flags;
-//
-//	/* Stored position and size for windowed mode */
-//	SDL_Rect windowed;
-//
-//	SDL_DisplayMode fullscreen_mode;
-//
-//	float brightness;
-//	Uint16 *gamma;
-//	Uint16 *saved_gamma;        /* (just offset into gamma) */
-//
-//	SDL_Surface *surface;
-//	SDL_bool surface_valid;
-//
-//	SDL_bool is_destroying;
-//
-//	SDL_WindowShaper *shaper;
-//
-//	SDL_WindowUserData *data;
-//
-//	void *driverdata;
-//
-//	SDL_Window *prev;
-//	SDL_Window *next;
-//};
+struct VeVideoDisplay
+{
+	VeChar8* m_pcName;
+	VeInt32 m_i32MaxDisplayModes;
+	VeVector<VeDisplayMode> m_kDisplayModes;
+	VeDisplayMode m_kDesktopMode;
+	VeDisplayMode m_kCurrentMode;
+	VeWindow* m_pkFullscreenWindow;
+	VeVideoDevice* m_pkDevice;
+
+	void *driverdata;
+};
 
 class VE_POWER_API VeVideoDevice : public VeRefObject
 {
 public:
-	
 
-	/*struct Display
-	{
-		VeChar8* m_pcName;
-		VeInt32 m_i32MaxDisplayModes;
-		VeInt32 m_i32NumDisplayModes;
-		SDL_DisplayMode *display_modes;
-		SDL_DisplayMode desktop_mode;
-		SDL_DisplayMode current_mode;
+	virtual bool Init() noexcept = 0;
 
-		SDL_Window *fullscreen_window;
+	virtual void Term() noexcept = 0;
 
-		SDL_VideoDevice *device;
+	virtual VeInt32 GetDisplayBounds(VeVideoDisplay* pkDisplay, VeRect* rect) = 0;
 
-		void *driverdata;
-	};*/
+	///*
+	//* Get a list of the available display modes for a display.
+	//*/
+	//void(*GetDisplayModes) (_THIS, SDL_VideoDisplay * display);
 
-
-	virtual bool Init() = 0;
-
-	virtual void Term() = 0;
-
-
+	///*
+	//* Setting the display mode is independent of creating windows, so
+	//* when the display mode is changed, all existing windows should have
+	//* their data updated accordingly, including the display surfaces
+	//* associated with them.
+	//*/
+	//int(*SetDisplayMode) (_THIS, SDL_VideoDisplay * display, SDL_DisplayMode * mode);
 
 
 protected:
-	VeVideoDevice() {}
+	VeVideoDevice() noexcept {}
 
-	virtual ~VeVideoDevice() {}
+	virtual ~VeVideoDevice() noexcept {}
 
 	VeFixedString m_kName;
 
