@@ -296,6 +296,7 @@
     <ClCompile Include="..\..\..\..\Source\VePower\VeAllocator.cpp" />
     <ClCompile Include="..\..\..\..\Source\VePower\VeFile.cpp" />
     <ClCompile Include="..\..\..\..\Source\VePower\VeLuaBind.cpp" />
+    <ClCompile Include="..\..\..\..\Source\VePower\VeRect.cpp" />
     <ClCompile Include="..\..\..\..\Source\VePower\VeTaskQueue.cpp" />
     <ClCompile Include="..\..\..\..\Source\VePower\VeBinaryStream.cpp" />
     <ClCompile Include="..\..\..\..\Source\VePower\VeDirectory.cpp" />
@@ -320,12 +321,14 @@
     <ClCompile Include="..\..\..\..\Source\VePower\VeString.cpp" />
     <ClCompile Include="..\..\..\..\Source\VePower\VeSystem.cpp" />
     <ClCompile Include="..\..\..\..\Source\VePower\VeThread.cpp" />
+    <ClCompile Include="..\..\..\..\Source\VePower\VeVideo.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\Source\VePower\VeAllocator.h" />
     <ClInclude Include="..\..\..\..\Source\VePower\VeAsset.h" />
     <ClInclude Include="..\..\..\..\Source\VePower\VeFile.h" />
     <ClInclude Include="..\..\..\..\Source\VePower\VeLuaBind.h" />
+    <ClInclude Include="..\..\..\..\Source\VePower\VeRect.h" />
     <ClInclude Include="..\..\..\..\Source\VePower\VeTaskQueue.h" />
     <ClInclude Include="..\..\..\..\Source\VePower\VeBinaryStream.h" />
     <ClInclude Include="..\..\..\..\Source\VePower\VeDirectory.h" />
@@ -346,10 +349,12 @@
     <ClInclude Include="..\..\..\..\Source\VePower\VeSystem.h" />
     <ClInclude Include="..\..\..\..\Source\VePower\VeTemplate.h" />
     <ClInclude Include="..\..\..\..\Source\VePower\VeThread.h" />
+    <ClInclude Include="..\..\..\..\Source\VePower\VeVideo.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\..\Source\VePower\VeAllocator.inl" />
     <None Include="..\..\..\..\Source\VePower\VeFile.inl" />
+    <None Include="..\..\..\..\Source\VePower\VeRect.inl" />
     <None Include="..\..\..\..\Source\VePower\VeTaskQueue.inl" />
     <None Include="..\..\..\..\Source\VePower\VeBinaryStream.inl" />
     <None Include="..\..\..\..\Source\VePower\VeLog.inl" />

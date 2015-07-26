@@ -29,6 +29,8 @@
 #include "VeTaskQueue.h"
 #include "VeLog.h"
 #include "VeLua.h"
+#include "VeRect.h"
+#include "VeVideo.h"
 #include "VeSystem.h"
 #include "VeLuaBind.h"
 #include "VeBinaryStream.h"
