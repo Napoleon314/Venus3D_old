@@ -339,6 +339,7 @@
     <ClInclude Include="..\..\..\..\Source\VePower\VeAsset.h" />
     <ClInclude Include="..\..\..\..\Source\VePower\VeFile.h" />
     <ClInclude Include="..\..\..\..\Source\VePower\VeLuaBind.h" />
+    <ClInclude Include="..\..\..\..\Source\VePower\VeMath.h" />
     <ClInclude Include="..\..\..\..\Source\VePower\VeRect.h" />
     <ClInclude Include="..\..\..\..\Source\VePower\VeTaskQueue.h" />
     <ClInclude Include="..\..\..\..\Source\VePower\VeBinaryStream.h" />

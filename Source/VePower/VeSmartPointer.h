@@ -173,3 +173,5 @@ template<class T> const VePointer<T> VePointer<T>::ms_NULL = nullptr;
 	typedef VePointer<classname> classname##Ptr
 
 #define VeSmartPointerCast(type, smartptr) ((type*)(void*) (smartptr))
+
+VeSmartPointer(VeRefObject);

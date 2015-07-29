@@ -181,6 +181,10 @@ VeInt32 main(VeInt32 i32Argc, VeChar8* apcArgv[])
 		LuaTest();
 	}
 
+	ve_sys.Init();
+
+	ve_sys.Term();
+
 	VeConsoleTerm();
 	return 0;
 }

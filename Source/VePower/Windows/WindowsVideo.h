@@ -14,6 +14,23 @@
 
 #pragma once
 
+struct VeDisplayData : public VeRefObject
+{
+	VeDisplayData() noexcept
+	{
+		VeZero(DeviceName);
+	}
+
+	CHAR DeviceName[32];
+} ;
+
+struct VeDisplayModeData : public VeRefObject
+{
+	DEVMODEA DeviceMode;
+	VeFloat32 ScaleX;
+	VeFloat32 ScaleY;
+};
+
 class WindowsVideoDevice : public VeVideoDevice
 {
 public:
@@ -25,8 +42,17 @@ public:
 
 	virtual void Term() noexcept;
 
+	virtual void GetDisplayBounds(VeRect* pkRect, VeVideoDisplay* pkDisplay) noexcept;
+
+	virtual void GetDisplayModes(VeVideoDisplay* pkDisplay) noexcept;
+
+	virtual bool SetDisplayMode(VeVideoDisplay* pkDisplay, VeDisplayMode* pkMode) noexcept;
+
 protected:
+	bool AddDisplay(const VeChar8* pcDeviceName) noexcept;
+
 	void InitModes() noexcept;
 
-};
+	void TermModes() noexcept;
 
+};

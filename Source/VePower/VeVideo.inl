@@ -15,11 +15,11 @@
 //--------------------------------------------------------------------------
 inline const VeChar8* VeVideoDevice::GetName() const noexcept
 {
-	return m_pcName;
+	return m_kName;
 }
 //--------------------------------------------------------------------------
 inline const VeChar8* VeVideoDevice::GetDesc() const noexcept
 {
-	return m_pcDesc;
+	return m_kDesc;
 }
 //--------------------------------------------------------------------------

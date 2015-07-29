@@ -26,20 +26,11 @@ public:
 
 	virtual void Term() noexcept = 0;
 
-	//virtual VeInt32 GetDisplayBounds(VeVideoDisplay* pkDisplay, VeRect* rect) = 0;
+	virtual void GetDisplayBounds(VeRect* pkRect, VeVideoDisplay* pkDisplay) noexcept = 0;
 
-	///*
-	//* Get a list of the available display modes for a display.
-	//*/
-	//void(*GetDisplayModes) (_THIS, SDL_VideoDisplay * display);
+	virtual void GetDisplayModes(VeVideoDisplay* pkDisplay) noexcept = 0;
 
-	///*
-	//* Setting the display mode is independent of creating windows, so
-	//* when the display mode is changed, all existing windows should have
-	//* their data updated accordingly, including the display surfaces
-	//* associated with them.
-	//*/
-	//int(*SetDisplayMode) (_THIS, SDL_VideoDisplay * display, SDL_DisplayMode * mode);
+	virtual bool SetDisplayMode(VeVideoDisplay* pkDisplay, VeDisplayMode* pkMode) noexcept = 0;
 
 
 protected:
@@ -47,8 +38,8 @@ protected:
 
 	virtual ~VeVideoDevice() noexcept {}
 
-	const VeChar8* m_pcName = nullptr;
-	const VeChar8* m_pcDesc = nullptr;
+	VeFixedString m_kName;
+	VeFixedString m_kDesc;
 	VeVector<VeVideoDisplay> m_kDisplayList;
 
 

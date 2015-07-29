@@ -224,6 +224,7 @@ typedef double VeFloat64;
 #define VeAbort abort
 
 #define VeMemorySet(dst,val,len) (memset(dst,val,len))
+#define VeZero(dst) (memset(dst,0,sizeof(dst)))
 #define VeZeroMemory(dst,len) (memset((dst),0,(len)))
 #define VeZeroMemoryEx(dst,size,count) (VeZeroMemory((dst),(size)*(count)))
 #define VeMemoryCopy(dst,src,len) (memcpy((dst),(src),(len)))

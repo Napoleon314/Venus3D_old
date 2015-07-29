@@ -24,6 +24,9 @@
     <Filter Include="Video\Windows">
       <UniqueIdentifier>{69fb2e8b-3378-4927-a268-4c995ee70fdb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Math">
+      <UniqueIdentifier>{4c869fcd-df13-4c7d-b415-8034d17396e8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\Source\VePower\VePowerPch.cpp">
@@ -177,6 +180,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\Source\VePower\Windows\WindowsVideo.h">
       <Filter>Video\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\VePower\VeMath.h">
+      <Filter>Math</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
