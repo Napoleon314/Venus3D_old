@@ -250,33 +250,39 @@ struct VeWindowUserData
 class VE_POWER_API VeWindow : public VeRefObject
 {
 public:
+	struct Data
+	{
+		const void* m_pvMagic = nullptr;
+		VeUInt32 m_u32Id = 0;
+		VeChar8* m_pcTitle = nullptr;
+		void* icon = nullptr;
+		VeInt32 x = 0, y = 0;
+		VeInt32 w = 0, h = 0;
+		VeInt32 min_w = 0, min_h = 0;
+		VeInt32 max_w = 0, max_h = 0;
+		VeUInt32 m_u32Flags = 0;
+		VeUInt32 m_u32LastFullscreenFlags = 0;
+		VeRect m_kWindowed;
+		VeDisplayMode m_kFullscreenMode;
+		VeFloat32 m_f32Brightness = 0;
+		VeUInt16 m_u16Gamma = 0;
+		VeUInt16 m_u16SavedGamma = 0;
+		void* surface = nullptr;
+		VE_BOOL m_bSurfaceValid = 0;
+		VE_BOOL m_bIsDestorying = 0;
+		void* shaper = nullptr;
+		VeWindowUserData* m_pkData = nullptr;
+		VeRefObjectPtr m_spDriverdata;
+		VeRefNode<VeWindow*> m_kNode;
+	};
+
 	virtual ~VeWindow() noexcept {}
 
 protected:
-	VeWindow() noexcept {}
+	VeWindow() noexcept;
 
-	VeRefNode<VeWindow*> m_kNode;
+	Data m_kData;
 
-	const void* m_pvMagic;
-	VeUInt32 m_u32Id;
-	VeChar8* m_pcTitle;
-	void* icon;
-	VeInt32 x, y;
-	VeInt32 w, h;
-	VeInt32 min_w, min_h;
-	VeInt32 max_w, max_h;
-	VeUInt32 m_u32Flags;
-	VeUInt32 m_u32LastFullscreenFlags;
-	VeRect m_kWindowed;
-	VeDisplayMode m_kFullscreenMode;
-	VeFloat32 m_f32Brightness;
-	VeUInt16 m_u16Gamma;
-	VeUInt16 m_u16SavedGamma;
-	void* surface;
-	VE_BOOL m_bSurfaceValid;
-	VE_BOOL m_bIsDestorying;
-	void* shaper;
-	VeWindowUserData* m_pkData;
-	void* m_pvDriverdata;
+	
 
 };

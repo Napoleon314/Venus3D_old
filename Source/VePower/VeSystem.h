@@ -39,6 +39,8 @@ public:
 
 	inline Type GetType() const noexcept;
 
+	inline const VeChar8* GetPakName() const noexcept;
+
 	inline VeLog& GetLog() noexcept;
 
 	inline VeLua& GetLua() noexcept;

@@ -14,6 +14,7 @@
 
 #include "../VePowerPch.h"
 #include "WindowsVideo.h"
+#include <shellapi.h>
 
 //--------------------------------------------------------------------------
 VeVideoDevicePtr CreateVideoDevice() noexcept
@@ -25,11 +26,12 @@ WindowsVideoDevice::WindowsVideoDevice() noexcept
 {
 	m_kName = "windows";
 	m_kDesc = "Venus3D Windows Video Driver";
+	VE_ASSERT_EQ(RegisterApp(nullptr, 0, nullptr), true);
 }
 //--------------------------------------------------------------------------
 WindowsVideoDevice::~WindowsVideoDevice() noexcept
 {
-
+	UnregisterApp();
 }
 //--------------------------------------------------------------------------
 void WindowsVideoDevice::Init() noexcept
@@ -40,6 +42,73 @@ void WindowsVideoDevice::Init() noexcept
 void WindowsVideoDevice::Term() noexcept
 {
 	TermModes();
+}
+//--------------------------------------------------------------------------
+LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg,
+	WPARAM wParam, LPARAM lParam) noexcept
+{
+	return CallWindowProc(DefWindowProc, hwnd, msg, wParam, lParam);
+}
+//--------------------------------------------------------------------------
+bool WindowsVideoDevice::RegisterApp(const VeChar8* pcName,
+	VeUInt32 u32Style, HINSTANCE hInst) noexcept
+{
+	if (m_i32AppRegistered)
+	{
+		++m_i32AppRegistered;
+		return true;
+	}
+
+	if (!pcName)
+	{
+		pcName = ve_sys.GetPakName();
+#if defined(CS_BYTEALIGNCLIENT) || defined(CS_OWNDC)
+		m_u32AppStyle = (CS_BYTEALIGNCLIENT | CS_OWNDC);
+#endif
+	}
+
+	VE_ASSERT(pcName);
+	m_kAppName = pcName;
+	m_u32AppStyle = u32Style;
+	m_hInstance = hInst ? hInst : GetModuleHandle(nullptr);
+
+	WNDCLASSA kClass;
+	kClass.hCursor = LoadCursor(nullptr, IDC_ARROW);
+	kClass.hIcon = nullptr;
+	kClass.lpszMenuName = nullptr;
+	kClass.lpszClassName = m_kAppName;
+	kClass.hbrBackground = nullptr;
+	kClass.hInstance = m_hInstance;
+	kClass.style = m_u32AppStyle;
+	kClass.lpfnWndProc = WindowProc;
+	kClass.cbWndExtra = 0;
+	kClass.cbClsExtra = 0;
+	if (!RegisterClassA(&kClass))
+	{
+		VeDebugOutputCore("Couldn't register application class");
+		return false;
+	}
+	m_i32AppRegistered = 1;
+	return true;
+}
+//--------------------------------------------------------------------------
+void WindowsVideoDevice::UnregisterApp() noexcept
+{
+	if (!m_i32AppRegistered)
+		return;
+	--m_i32AppRegistered;
+	if (m_i32AppRegistered <= 0)
+	{
+		WNDCLASSA kClass;
+		if (GetClassInfoA(m_hInstance, m_kAppName, &kClass))
+		{
+			UnregisterClassA(m_kAppName, m_hInstance);
+		}
+		m_i32AppRegistered = 0;
+		m_kAppName = "";
+		m_u32AppStyle = 0;
+		m_hInstance = nullptr;
+	}
 }
 //--------------------------------------------------------------------------
 static bool GetDisplayMode(LPCSTR deviceName, DWORD index,
@@ -72,7 +141,7 @@ static bool GetDisplayMode(LPCSTR deviceName, DWORD index,
 	mode->m_spDriverData = data;
 
 	if (index == ENUM_CURRENT_SETTINGS
-		&& (hdc = CreateDCA(deviceName, NULL, NULL, NULL)) != NULL)
+		&& (hdc = CreateDCA(deviceName, nullptr, nullptr, nullptr)) != nullptr)
 	{
 		char bmi_data[sizeof(BITMAPINFOHEADER) + 256 * sizeof(RGBQUAD)];
 		LPBITMAPINFO bmi;
@@ -90,8 +159,8 @@ static bool GetDisplayMode(LPCSTR deviceName, DWORD index,
 		bmi->bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
 
 		hbm = CreateCompatibleBitmap(hdc, 1, 1);
-		GetDIBits(hdc, hbm, 0, 1, NULL, bmi, DIB_RGB_COLORS);
-		GetDIBits(hdc, hbm, 0, 1, NULL, bmi, DIB_RGB_COLORS);
+		GetDIBits(hdc, hbm, 0, 1, nullptr, bmi, DIB_RGB_COLORS);
+		GetDIBits(hdc, hbm, 0, 1, nullptr, bmi, DIB_RGB_COLORS);
 		DeleteObject(hbm);
 		DeleteDC(hdc);
 		if (bmi->bmiHeader.biCompression == BI_BITFIELDS)
@@ -194,7 +263,7 @@ void WindowsVideoDevice::InitModes() noexcept
 		{
 			CHAR DeviceName[32];
 
-			if (!EnumDisplayDevicesA(NULL, i, &device, 0))
+			if (!EnumDisplayDevicesA(nullptr, i, &device, 0))
 			{
 				break;
 			}
@@ -304,7 +373,7 @@ bool WindowsVideoDevice::SetDisplayMode(VeVideoDisplay* pkDisplay,
 	LONG status;
 
 	status = ChangeDisplaySettingsExA(pkDisplayData->DeviceName,
-		&pkData->DeviceMode, NULL, CDS_FULLSCREEN, NULL);
+		&pkData->DeviceMode, nullptr, CDS_FULLSCREEN, nullptr);
 	if (status != DISP_CHANGE_SUCCESSFUL)
 	{
 		const VeChar8* pcReason = "Unknown reason";
@@ -326,6 +395,266 @@ bool WindowsVideoDevice::SetDisplayMode(VeVideoDisplay* pkDisplay,
 		return false;
 	}
 	EnumDisplaySettingsA(pkDisplayData->DeviceName, ENUM_CURRENT_SETTINGS, &pkData->DeviceMode);
+	return true;
+}
+//--------------------------------------------------------------------------
+#define TICKS_PASSED(A, B)  ((VeInt32)((B) - (A)) <= 0)
+//--------------------------------------------------------------------------
+void WindowsVideoDevice::PumpEvents() noexcept
+{
+	MSG msg;
+	DWORD dwStartTicks = GetTickCount();
+	while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
+	{
+		TranslateMessage(&msg);
+		DispatchMessage(&msg);
+		if (TICKS_PASSED(msg.time, dwStartTicks))
+		{
+			break;
+		}
+	}
+}
+//--------------------------------------------------------------------------
+#define STYLE_BASIC         (WS_CLIPSIBLINGS | WS_CLIPCHILDREN)
+#define STYLE_FULLSCREEN    (WS_POPUP)
+#define STYLE_BORDERLESS    (WS_POPUP)
+#define STYLE_NORMAL        (WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX)
+#define STYLE_RESIZABLE     (WS_THICKFRAME | WS_MAXIMIZEBOX)
+#define STYLE_MASK          (STYLE_FULLSCREEN | STYLE_BORDERLESS | STYLE_NORMAL | STYLE_RESIZABLE)
+//--------------------------------------------------------------------------
+static DWORD GetWindowStyle(VeWindow::Data* pkWindow) noexcept
+{
+	DWORD style = 0;
+
+	if (pkWindow->m_u32Flags & VE_WINDOW_FULLSCREEN)
+	{
+		style |= STYLE_FULLSCREEN;
+	}
+	else
+	{
+		if (pkWindow->m_u32Flags & VE_WINDOW_BORDERLESS)
+		{
+			style |= STYLE_BORDERLESS;
+		}
+		else {
+			style |= STYLE_NORMAL;
+		}
+		if (pkWindow->m_u32Flags & VE_WINDOW_RESIZABLE)
+		{
+			style |= STYLE_RESIZABLE;
+		}
+	}
+	return style;
+}
+//--------------------------------------------------------------------------
+void WindowsVideoDevice::SetWindowPositionInternal(
+	VeWindow::Data* pkWindow, VeUInt32 u32Flags) noexcept
+{
+	VeWindowData* pkData = (VeWindowData*)pkWindow->m_spDriverdata;
+	HWND hwnd = pkData->m_hWnd;
+	RECT rect;
+	DWORD style;
+	HWND top;
+	BOOL menu;
+	VeInt32 x, y;
+	VeInt32 w, h;
+
+	if ((pkWindow->m_u32Flags & (VE_WINDOW_FULLSCREEN | VE_WINDOW_INPUT_FOCUS))
+		== (VE_WINDOW_FULLSCREEN | VE_WINDOW_INPUT_FOCUS))
+	{
+		top = HWND_TOPMOST;
+	}
+	else
+	{
+		top = HWND_NOTOPMOST;
+	}
+
+	style = GetWindowLong(hwnd, GWL_STYLE);
+	rect.left = 0;
+	rect.top = 0;
+	rect.right = pkWindow->w;
+	rect.bottom = pkWindow->h;
+	menu = (style & WS_CHILDWINDOW) ? FALSE : (GetMenu(hwnd) != NULL);
+	AdjustWindowRectEx(&rect, style, menu, 0);
+	w = (rect.right - rect.left);
+	h = (rect.bottom - rect.top);
+	x = pkWindow->x + rect.left;
+	y = pkWindow->y + rect.top;
+
+	pkData->m_bExpectedResize = TRUE;
+	SetWindowPos(hwnd, top, x, y, w, h, u32Flags);
+	pkData->m_bExpectedResize = FALSE;
+}
+//--------------------------------------------------------------------------
+bool WindowsVideoDevice::SetupWindowData(VeWindow::Data* pkWindow,
+	HWND hWnd, VE_BOOL bCreated) noexcept
+{
+	VE_ASSERT(pkWindow);
+	VeWindowData* pkData = VE_NEW VeWindowData;
+	VE_ASSERT(pkData);
+	pkData->m_pkWindow = pkWindow;
+	pkData->m_hWnd = hWnd;
+	pkData->m_hDc = GetDC(hWnd);
+	pkData->m_bCreated = bCreated;
+	pkData->m_u32MouseButtonFlags = 0;
+	pkWindow->m_spDriverdata = pkData;
+
+	if (!SetProp(hWnd, TEXT("VeWindowData"), pkData))
+	{
+		ReleaseDC(hWnd, pkData->m_hDc);
+		pkWindow->m_spDriverdata = nullptr;
+		pkData = nullptr;
+		return false;
+	}
+
+	pkData->m_pfuncWndProc = (WNDPROC)GetWindowLongPtr(hWnd, GWLP_WNDPROC);
+	if (pkData->m_pfuncWndProc == WindowProc)
+	{
+		pkData->m_pfuncWndProc = nullptr;
+	}
+	else
+	{
+		SetWindowLongPtr(hWnd, GWLP_WNDPROC, (LONG_PTR)WindowProc);
+	}
+
+	{
+		RECT rect;
+		if (GetClientRect(hWnd, &rect))
+		{
+			VeInt32 w = rect.right;
+			VeInt32 h = rect.bottom;
+			if ((pkWindow->w && pkWindow->w != w) || (pkWindow->h && pkWindow->h != h))
+			{
+				SetWindowPositionInternal(pkWindow,
+					SWP_NOCOPYBITS | SWP_NOZORDER | SWP_NOACTIVATE);
+			}
+			else
+			{
+				pkWindow->w = w;
+				pkWindow->h = h;
+			}
+		}
+	}
+
+	{
+		POINT point;
+		point.x = 0;
+		point.y = 0;
+		if (ClientToScreen(hWnd, &point))
+		{
+			pkWindow->x = point.x;
+			pkWindow->y = point.y;
+		}
+	}
+
+	{
+		DWORD style = GetWindowLong(hWnd, GWL_STYLE);
+		if (style & WS_VISIBLE)
+		{
+			pkWindow->m_u32Flags |= VE_WINDOW_SHOWN;
+		}
+		else
+		{
+			pkWindow->m_u32Flags &= ~VE_WINDOW_SHOWN;
+		}
+		if (style & (WS_BORDER | WS_THICKFRAME))
+		{
+			pkWindow->m_u32Flags &= ~VE_WINDOW_BORDERLESS;
+		}
+		else
+		{
+			pkWindow->m_u32Flags |= VE_WINDOW_BORDERLESS;
+		}
+		if (style & WS_THICKFRAME)
+		{
+			pkWindow->m_u32Flags |= VE_WINDOW_RESIZABLE;
+		}
+		else
+		{
+			pkWindow->m_u32Flags &= ~VE_WINDOW_RESIZABLE;
+		}
+#		ifdef WS_MAXIMIZE
+		if (style & WS_MAXIMIZE)
+		{
+			pkWindow->m_u32Flags |= VE_WINDOW_MAXIMIZED;
+		}
+		else
+#		endif
+		{
+			pkWindow->m_u32Flags &= ~VE_WINDOW_MAXIMIZED;
+		}
+#		ifdef WS_MINIMIZE
+		if (style & WS_MINIMIZE)
+		{
+			pkWindow->m_u32Flags |= VE_WINDOW_MINIMIZED;
+		}
+		else
+#		endif
+		{
+			pkWindow->m_u32Flags &= ~VE_WINDOW_MINIMIZED;
+		}
+	}
+
+	if (GetFocus() == hWnd)
+	{
+		pkWindow->m_u32Flags |= VE_WINDOW_INPUT_FOCUS;
+		//SDL_SetKeyboardFocus(data->window);
+
+		if (pkWindow->m_u32Flags & VE_WINDOW_INPUT_GRABBED)
+		{
+			RECT rect;
+			GetClientRect(hWnd, &rect);
+			ClientToScreen(hWnd, (LPPOINT)& rect);
+			ClientToScreen(hWnd, (LPPOINT)& rect + 1);
+			ClipCursor(&rect);
+		}
+	}
+
+	/*if (videodata->RegisterTouchWindow)
+	{
+		videodata->RegisterTouchWindow(hwnd, (TWF_FINETOUCH | TWF_WANTPALM));
+	}*/
+
+	DragAcceptFiles(hWnd, TRUE);
+
+	return true;
+}
+//--------------------------------------------------------------------------
+bool WindowsVideoDevice::_CreateWindow(VeWindow::Data* pkWindow) noexcept
+{
+	HWND hwnd;
+	RECT rect;
+	DWORD style = STYLE_BASIC;
+	VeInt32 x, y;
+	VeInt32 w, h;
+
+	style |= GetWindowStyle(pkWindow);
+
+	rect.left = pkWindow->x;
+	rect.top = pkWindow->y;
+	rect.right = pkWindow->x + pkWindow->w;
+	rect.bottom = pkWindow->y + pkWindow->h;
+	AdjustWindowRectEx(&rect, style, FALSE, 0);
+	x = rect.left;
+	y = rect.top;
+	w = (rect.right - rect.left);
+	h = (rect.bottom - rect.top);
+
+	hwnd = CreateWindowA(m_kAppName, "", style, x, y, w, h,
+		NULL, NULL, m_hInstance, NULL);
+	if (!hwnd)
+	{
+		return false;
+	}
+
+	PumpEvents();
+
+	if (!SetupWindowData(pkWindow, hwnd, VE_TRUE))
+	{
+		DestroyWindow(hwnd);
+		return false;
+	}
+
 	return true;
 }
 //--------------------------------------------------------------------------

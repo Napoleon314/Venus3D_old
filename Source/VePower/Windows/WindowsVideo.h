@@ -31,6 +31,23 @@ struct VeDisplayModeData : public VeRefObject
 	VeFloat32 ScaleY;
 };
 
+class WindowsVideoDevice;
+
+struct VeWindowData : public VeRefObject
+{
+	VeWindow::Data* m_pkWindow = nullptr;
+	HWND m_hWnd = nullptr;
+	HDC m_hDc = nullptr;
+	HDC m_mDc = nullptr;
+	HBITMAP m_hBitMap = nullptr;
+	WNDPROC m_pfuncWndProc = nullptr;
+	VE_BOOL m_bCreated = VE_FALSE;
+	WPARAM m_u32MouseButtonFlags = 0;
+	BOOL m_bExpectedResize = FALSE;
+	VE_BOOL m_bInTitleClick = VE_FALSE;
+	VE_BOOL m_bInModalLoop = VE_FALSE;
+};
+
 class WindowsVideoDevice : public VeVideoDevice
 {
 public:
@@ -48,11 +65,28 @@ public:
 
 	virtual bool SetDisplayMode(VeVideoDisplay* pkDisplay, VeDisplayMode* pkMode) noexcept;
 
+	virtual void PumpEvents() noexcept;
+
+	virtual bool _CreateWindow(VeWindow::Data* pkWindow) noexcept;
+
 protected:
+	bool RegisterApp(const VeChar8* pcName, VeUInt32 u32Style, HINSTANCE hInst) noexcept;
+
+	void UnregisterApp() noexcept;
+
 	bool AddDisplay(const VeChar8* pcDeviceName) noexcept;
 
 	void InitModes() noexcept;
 
 	void TermModes() noexcept;
+
+	void SetWindowPositionInternal(VeWindow::Data* pkWindow, VeUInt32 u32Flags) noexcept;
+
+	bool SetupWindowData(VeWindow::Data* pkWindow, HWND hWnd, VE_BOOL bCreated) noexcept;
+
+	VeInt32 m_i32AppRegistered = 0;
+	VeFixedString m_kAppName;
+	VeUInt32 m_u32AppStyle = 0;
+	HINSTANCE m_hInstance = nullptr;
 
 };

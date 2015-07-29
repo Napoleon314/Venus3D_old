@@ -18,6 +18,11 @@ inline VeSystem::Type VeSystem::GetType() const noexcept
 	return m_eType;
 }
 //--------------------------------------------------------------------------
+inline const VeChar8* VeSystem::GetPakName() const noexcept
+{
+	return m_kPakName;
+}
+//--------------------------------------------------------------------------
 inline VeLog& VeSystem::GetLog() noexcept
 {
 	return m_kLog;
