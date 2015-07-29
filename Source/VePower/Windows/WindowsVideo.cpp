@@ -261,7 +261,7 @@ void WindowsVideoDevice::TermModes() noexcept
 	m_kDisplayList.clear();
 }
 //--------------------------------------------------------------------------
-void WindowsVideoDevice::GetDisplayBounds(VeRect* pkRect,
+bool WindowsVideoDevice::GetDisplayBounds(VeRect* pkRect,
 	VeVideoDisplay* pkDisplay) noexcept
 {
 	VE_ASSERT(pkDisplay);
@@ -271,6 +271,7 @@ void WindowsVideoDevice::GetDisplayBounds(VeRect* pkRect,
 	pkRect->y = (VeInt32)VeCeilf(pkData->DeviceMode.dmPosition.y * pkData->ScaleY);
 	pkRect->w = (VeInt32)VeCeilf(pkData->DeviceMode.dmPelsWidth * pkData->ScaleX);
 	pkRect->h = (VeInt32)VeCeilf(pkData->DeviceMode.dmPelsHeight * pkData->ScaleY);
+	return true;
 }
 //--------------------------------------------------------------------------
 void WindowsVideoDevice::GetDisplayModes(VeVideoDisplay* pkDisplay) noexcept

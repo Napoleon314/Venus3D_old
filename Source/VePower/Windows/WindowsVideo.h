@@ -42,7 +42,7 @@ public:
 
 	virtual void Term() noexcept;
 
-	virtual void GetDisplayBounds(VeRect* pkRect, VeVideoDisplay* pkDisplay) noexcept;
+	virtual bool GetDisplayBounds(VeRect* pkRect, VeVideoDisplay* pkDisplay) noexcept;
 
 	virtual void GetDisplayModes(VeVideoDisplay* pkDisplay) noexcept;
 
