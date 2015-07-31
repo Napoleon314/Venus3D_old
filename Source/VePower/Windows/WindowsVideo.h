@@ -69,6 +69,32 @@ public:
 
 	virtual bool _CreateWindow(VeWindow::Data* pkWindow) noexcept;
 
+	virtual bool _CreateWindowFrom(VeWindow::Data* pkWindow, const void* pvData) noexcept;
+
+	virtual void _SetWindowTitle(VeWindow::Data* pkWindow) noexcept;
+
+	virtual void _SetWindowPosition(VeWindow::Data* pkWindow) noexcept;
+
+	virtual void _SetWindowSize(VeWindow::Data* pkWindow) noexcept;
+
+	virtual void _ShowWindow(VeWindow::Data* pkWindow) noexcept;
+
+	virtual void _HideWindow(VeWindow::Data* pkWindow) noexcept;
+
+	virtual void _RaiseWindow(VeWindow::Data* pkWindow) noexcept;
+
+	virtual void _MaximizeWindow(VeWindow::Data* pkWindow) noexcept;
+
+	virtual void _MinimizeWindow(VeWindow::Data* pkWindow) noexcept;
+
+	virtual void _RestoreWindow(VeWindow::Data* pkWindow) noexcept;
+
+	virtual void _SetWindowBordered(VeWindow::Data* pkWindow, VE_BOOL bBordered) noexcept;
+
+	virtual void _SetWindowFullscreen(VeWindow::Data* pkWindow, VeVideoDisplay* pkDisplay, VE_BOOL bFullscreen) noexcept;
+
+	virtual void _DestroyWindow(VeWindow::Data* pkWindow) noexcept;
+
 protected:
 	bool RegisterApp(const VeChar8* pcName, VeUInt32 u32Style, HINSTANCE hInst) noexcept;
 

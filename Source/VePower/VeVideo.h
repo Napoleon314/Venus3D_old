@@ -39,19 +39,51 @@ public:
 
 	inline const VeChar8* GetDesc() const noexcept;
 
-	virtual void Init() noexcept = 0;
+	virtual void Init() noexcept {}
 
-	virtual void Term() noexcept = 0;
+	virtual void Term() noexcept {}
 
-	virtual bool GetDisplayBounds(VeRect* pkRect, VeVideoDisplay* pkDisplay) noexcept = 0;
+	virtual bool GetDisplayBounds(VeRect* pkRect, VeVideoDisplay* pkDisplay) noexcept { return false; }
 
-	virtual void GetDisplayModes(VeVideoDisplay* pkDisplay) noexcept = 0;
+	virtual void GetDisplayModes(VeVideoDisplay* pkDisplay) noexcept {}
 
-	virtual bool SetDisplayMode(VeVideoDisplay* pkDisplay, VeDisplayMode* pkMode) noexcept = 0;
+	virtual bool SetDisplayMode(VeVideoDisplay* pkDisplay, VeDisplayMode* pkMode) noexcept { return false; }
 
-	virtual void PumpEvents() noexcept = 0;
+	virtual void PumpEvents() noexcept {}
 
-	virtual bool _CreateWindow(VeWindow::Data* pkWindow) noexcept = 0;
+	virtual bool _CreateWindow(VeWindow::Data* pkWindow) noexcept { return false; }
+
+	virtual bool _CreateWindowFrom(VeWindow::Data* pkWindow, const void* pvData) noexcept { return false; }
+
+	virtual void _SetWindowTitle(VeWindow::Data* pkWindow) noexcept {}
+
+	//void(*SetWindowIcon) (_THIS, SDL_Window * window, SDL_Surface * icon);
+
+	virtual void _SetWindowPosition(VeWindow::Data* pkWindow) noexcept {}
+
+	virtual void _SetWindowSize(VeWindow::Data* pkWindow) noexcept {}
+
+	virtual void _SetWindowMinimumSize(VeWindow::Data* pkWindow) noexcept {}
+
+	virtual void _SetWindowMaximumSize(VeWindow::Data* pkWindow) noexcept {}
+
+	virtual void _ShowWindow(VeWindow::Data* pkWindow) noexcept {}
+
+	virtual void _HideWindow(VeWindow::Data* pkWindow) noexcept {}
+
+	virtual void _RaiseWindow(VeWindow::Data* pkWindow) noexcept {}
+
+	virtual void _MaximizeWindow(VeWindow::Data* pkWindow) noexcept {}
+
+	virtual void _MinimizeWindow(VeWindow::Data* pkWindow) noexcept {}
+
+	virtual void _RestoreWindow(VeWindow::Data* pkWindow) noexcept {}
+
+	virtual void _SetWindowBordered(VeWindow::Data* pkWindow, VE_BOOL bBordered) noexcept {}
+
+	virtual void _SetWindowFullscreen(VeWindow::Data* pkWindow, VeVideoDisplay* pkDisplay, VE_BOOL bFullscreen) noexcept {}
+
+	virtual void _DestroyWindow(VeWindow::Data* pkWindow) noexcept {}
 
 protected:
 	VeVideoDevice() noexcept {}

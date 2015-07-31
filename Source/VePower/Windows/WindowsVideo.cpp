@@ -622,6 +622,7 @@ bool WindowsVideoDevice::SetupWindowData(VeWindow::Data* pkWindow,
 //--------------------------------------------------------------------------
 bool WindowsVideoDevice::_CreateWindow(VeWindow::Data* pkWindow) noexcept
 {
+	VE_ASSERT(pkWindow);
 	HWND hwnd;
 	RECT rect;
 	DWORD style = STYLE_BASIC;
@@ -656,5 +657,145 @@ bool WindowsVideoDevice::_CreateWindow(VeWindow::Data* pkWindow) noexcept
 	}
 
 	return true;
+}
+//--------------------------------------------------------------------------
+bool WindowsVideoDevice::_CreateWindowFrom(VeWindow::Data* pkWindow,
+	const void* pvData) noexcept
+{
+	VE_ASSERT(pkWindow && pvData);
+	HWND hWnd = (HWND)pvData;
+	VeInt32 i32TitleLen = GetWindowTextLengthA(hWnd);
+	if (i32TitleLen > 0)
+	{
+		VeChar8* pcTitle = VeStackAlloc(VeChar8, i32TitleLen + 1);
+		VE_ASSERT(pcTitle);
+		i32TitleLen = GetWindowTextA(hWnd, pcTitle, i32TitleLen);
+		VE_ASSERT(i32TitleLen > 0);
+		pkWindow->m_kTitle = pcTitle;
+		VeStackFree(pcTitle);
+	}
+
+	if (!SetupWindowData(pkWindow, hWnd, VE_FALSE))
+	{
+		return false;
+	}
+
+	return true;
+}
+//--------------------------------------------------------------------------
+void WindowsVideoDevice::_SetWindowTitle(VeWindow::Data* pkWindow) noexcept
+{
+	VE_ASSERT(pkWindow);
+	HWND hWnd = ((VeWindowData*)pkWindow->m_spDriverdata)->m_hWnd;
+	SetWindowTextA(hWnd, pkWindow->m_kTitle);
+}
+//--------------------------------------------------------------------------
+void WindowsVideoDevice::_SetWindowPosition(
+	VeWindow::Data* pkWindow) noexcept
+{
+	SetWindowPositionInternal(pkWindow, SWP_NOCOPYBITS | SWP_NOSIZE | SWP_NOACTIVATE);
+}
+//--------------------------------------------------------------------------
+void WindowsVideoDevice::_SetWindowSize(VeWindow::Data* pkWindow) noexcept
+{
+	SetWindowPositionInternal(pkWindow, SWP_NOCOPYBITS | SWP_NOSIZE | SWP_NOACTIVATE);
+}
+//--------------------------------------------------------------------------
+void WindowsVideoDevice::_ShowWindow(VeWindow::Data* pkWindow) noexcept
+{
+	VE_ASSERT(pkWindow);
+	HWND hWnd = ((VeWindowData*)pkWindow->m_spDriverdata)->m_hWnd;
+	ShowWindow(hWnd, SW_SHOW);
+}
+//--------------------------------------------------------------------------
+void WindowsVideoDevice::_HideWindow(VeWindow::Data* pkWindow) noexcept
+{
+	VE_ASSERT(pkWindow);
+	HWND hWnd = ((VeWindowData*)pkWindow->m_spDriverdata)->m_hWnd;
+	ShowWindow(hWnd, SW_HIDE);
+}
+//--------------------------------------------------------------------------
+void WindowsVideoDevice::_RaiseWindow(VeWindow::Data* pkWindow) noexcept
+{
+	SetWindowPositionInternal(pkWindow, SWP_NOCOPYBITS | SWP_NOMOVE | SWP_NOSIZE);
+}
+//--------------------------------------------------------------------------
+void WindowsVideoDevice::_MaximizeWindow(VeWindow::Data* pkWindow) noexcept
+{
+	VE_ASSERT(pkWindow);
+	VeWindowData* pkData = (VeWindowData*)pkWindow->m_spDriverdata;
+	HWND hWnd = pkData->m_hWnd;
+	pkData->m_bExpectedResize = TRUE;
+	ShowWindow(hWnd, SW_MAXIMIZE);
+	pkData->m_bExpectedResize = FALSE;
+}
+//--------------------------------------------------------------------------
+void WindowsVideoDevice::_MinimizeWindow(VeWindow::Data* pkWindow) noexcept
+{
+	VE_ASSERT(pkWindow);
+	HWND hWnd = ((VeWindowData*)pkWindow->m_spDriverdata)->m_hWnd;
+	ShowWindow(hWnd, SW_MINIMIZE);
+}
+//--------------------------------------------------------------------------
+void WindowsVideoDevice::_RestoreWindow(VeWindow::Data* pkWindow) noexcept
+{
+	VE_ASSERT(pkWindow);
+	VeWindowData* pkData = (VeWindowData*)pkWindow->m_spDriverdata;
+	HWND hWnd = pkData->m_hWnd;
+	pkData->m_bExpectedResize = TRUE;
+	ShowWindow(hWnd, SW_RESTORE);
+	pkData->m_bExpectedResize = FALSE;
+}
+//--------------------------------------------------------------------------
+void WindowsVideoDevice::_SetWindowBordered(VeWindow::Data* pkWindow,
+	VE_BOOL bBordered) noexcept
+{
+	VE_ASSERT(pkWindow);
+	HWND hWnd = ((VeWindowData*)pkWindow->m_spDriverdata)->m_hWnd;
+	DWORD dwStyle = GetWindowLongA(hWnd, GWL_STYLE);
+
+	if (bBordered)
+	{
+		dwStyle &= ~STYLE_BORDERLESS;
+		dwStyle |= STYLE_NORMAL;
+	}
+	else {
+		dwStyle &= ~STYLE_NORMAL;
+		dwStyle |= STYLE_BORDERLESS;
+	}
+
+	SetWindowLongA(hWnd, GWL_STYLE, dwStyle);
+	SetWindowPositionInternal(pkWindow, SWP_NOCOPYBITS | SWP_FRAMECHANGED
+		| SWP_NOREPOSITION | SWP_NOZORDER | SWP_NOACTIVATE | SWP_NOSENDCHANGING);
+}
+//--------------------------------------------------------------------------
+void WindowsVideoDevice::_SetWindowFullscreen(VeWindow::Data* pkWindow,
+	VeVideoDisplay* pkDisplay, VE_BOOL bFullscreen) noexcept
+{
+	
+}
+//--------------------------------------------------------------------------
+void WindowsVideoDevice::_DestroyWindow(VeWindow::Data* pkWindow) noexcept
+{
+	VE_ASSERT(pkWindow);
+	VeWindowData* pkData = (VeWindowData*)pkWindow->m_spDriverdata;
+
+	if (pkData)
+	{
+		ReleaseDC(pkData->m_hWnd, pkData->m_hDc);
+		if (pkData->m_bCreated)
+		{
+			DestroyWindow(pkData->m_hWnd);
+		}
+		else
+		{
+			if (pkData->m_pfuncWndProc)
+			{
+				SetWindowLongPtr(pkData->m_hWnd, GWLP_WNDPROC,
+					(LONG_PTR)pkData->m_pfuncWndProc);
+			}
+		}
+		pkWindow->m_spDriverdata = nullptr;
+	}
 }
 //--------------------------------------------------------------------------
