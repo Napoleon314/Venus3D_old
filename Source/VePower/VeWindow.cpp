@@ -102,3 +102,8 @@ VeVideoDisplay* VeWindow::GetDisplayForWindow() noexcept
 	}
 }
 //--------------------------------------------------------------------------
+VeWindow* VeWindow::Cast(Data* pkData) noexcept
+{
+	return VeMemberCast(&VeWindow::m_kData, pkData);
+}
+//--------------------------------------------------------------------------

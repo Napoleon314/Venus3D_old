@@ -828,22 +828,23 @@ void WindowsVideoDevice::_SetWindowFullscreen(VeWindow::Data* pkWindow,
 bool WindowsVideoDevice::_SetWindowGammaRamp(VeWindow::Data* pkWindow,
 	const VeUInt16* pu16Ramp) noexcept
 {
-	/*VeVideoDisplay* pkDisplay = VeGetDisplayForWindow(window);
-	SDL_DisplayData *data = (SDL_DisplayData *)display->driverdata;
-	HDC hdc;
-	BOOL succeeded = FALSE;
+	VE_ASSERT(pkWindow);
+	VeVideoDisplay* pkDisplay = VeWindow::Cast(pkWindow)->GetDisplayForWindow();
+	VeDisplayData* pkData = (VeDisplayData*)pkDisplay->m_spDriverData;
+	
+	BOOL bSucceeded = FALSE;
 
-	hdc = CreateDC(data->DeviceName, NULL, NULL, NULL);
-	if (hdc) {
-		succeeded = SetDeviceGammaRamp(hdc, (LPVOID)ramp);
-		if (!succeeded) {
-			WIN_SetError("SetDeviceGammaRamp()");
+	HDC hDc = CreateDCA(pkData->DeviceName, nullptr, nullptr, nullptr);
+	if (hDc)
+	{
+		bSucceeded = SetDeviceGammaRamp(hDc, (LPVOID)pu16Ramp);
+		if (!bSucceeded)
+		{
+			VeDebugOutputCore("SetDeviceGammaRamp()");
 		}
-		DeleteDC(hdc);
+		DeleteDC(hDc);
 	}
-	return succeeded ? 0 : -1;*/
-
-	return false;
+	return bSucceeded ? true : false;
 }
 //--------------------------------------------------------------------------
 void WindowsVideoDevice::_DestroyWindow(VeWindow::Data* pkWindow) noexcept

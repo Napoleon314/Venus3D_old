@@ -275,17 +275,19 @@ public:
 		VeRefNode<VeWindow*> m_kNode;
 	};
 
+	
+
 	virtual ~VeWindow() noexcept {}
 
 	VeInt32 GetWindowDisplayIndex() noexcept;
 
 	VeVideoDisplay* GetDisplayForWindow() noexcept;
 
+	static VeWindow* Cast(VeWindow::Data* pkData) noexcept;
+
 protected:
 	VeWindow() noexcept;
 
 	Data m_kData;
-
-	
 
 };

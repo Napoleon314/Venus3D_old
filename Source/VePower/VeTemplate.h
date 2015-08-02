@@ -25,9 +25,9 @@ inline _Ty VeClamp(_Ty a, _Ty l, _Ty h) noexcept
 }
 
 template <class _Class, class _Member>
-inline _Class& VeMemberCast(_Member _Class::*offset, const _Member* child) noexcept
+inline _Class* VeMemberCast(_Member _Class::*offset, const _Member* child) noexcept
 {
-	return *(_Class*)(void*)((VeSizeT)(child) - (VeSizeT)(&((*(const _Class*)0).*offset)));
+	return (_Class*)(void*)((VeSizeT)(child) - (VeSizeT)(&((*(const _Class*)0).*offset)));
 }
 
 template <class _Base, class _Der>
