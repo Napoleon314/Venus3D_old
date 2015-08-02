@@ -205,15 +205,15 @@ enum
 	VE_DEFINE_PIXELFORMAT(VE_PIXELTYPE_PACKED32, VE_PACKEDORDER_ARGB,
 		VE_PACKEDLAYOUT_2101010, 32, 4),
 
-	VE_PIXELFORMAT_YV12 =      /**< Planar mode: Y + V + U  (3 planes) */
+	VE_PIXELFORMAT_YV12 =
 	VE_FOURCC('Y', 'V', '1', '2'),
-	VE_PIXELFORMAT_IYUV =      /**< Planar mode: Y + U + V  (3 planes) */
+	VE_PIXELFORMAT_IYUV =
 	VE_FOURCC('I', 'Y', 'U', 'V'),
-	VE_PIXELFORMAT_YUY2 =      /**< Packed mode: Y0+U0+Y1+V0 (1 plane) */
+	VE_PIXELFORMAT_YUY2 =
 	VE_FOURCC('Y', 'U', 'Y', '2'),
-	VE_PIXELFORMAT_UYVY =      /**< Packed mode: U0+Y0+V0+Y1 (1 plane) */
+	VE_PIXELFORMAT_UYVY =
 	VE_FOURCC('U', 'Y', 'V', 'Y'),
-	VE_PIXELFORMAT_YVYU =      /**< Packed mode: Y0+V0+Y1+U0 (1 plane) */
+	VE_PIXELFORMAT_YVYU =
 	VE_FOURCC('Y', 'V', 'Y', 'U')
 };
 
@@ -252,7 +252,6 @@ class VE_POWER_API VeWindow : public VeRefObject
 public:
 	struct Data
 	{
-		const void* m_pvMagic = nullptr;
 		VeUInt32 m_u32Id = 0;
 		VeFixedString m_kTitle;
 		void* icon = nullptr;
@@ -277,6 +276,10 @@ public:
 	};
 
 	virtual ~VeWindow() noexcept {}
+
+	VeInt32 GetWindowDisplayIndex() noexcept;
+
+	VeVideoDisplay* GetDisplayForWindow() noexcept;
 
 protected:
 	VeWindow() noexcept;

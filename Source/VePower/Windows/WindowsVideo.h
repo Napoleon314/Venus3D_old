@@ -55,43 +55,46 @@ public:
 
 	virtual ~WindowsVideoDevice() noexcept;
 
-	virtual void Init() noexcept;
+	virtual void _Init() noexcept override;
 
-	virtual void Term() noexcept;
+	virtual void _Term() noexcept override;
 
-	virtual bool GetDisplayBounds(VeRect* pkRect, VeVideoDisplay* pkDisplay) noexcept;
+	virtual bool _GetDisplayBounds(VeVideoDisplay* pkDisplay, VeRect* pkRect) noexcept override;
 
-	virtual void GetDisplayModes(VeVideoDisplay* pkDisplay) noexcept;
+	virtual void _GetDisplayModes(VeVideoDisplay* pkDisplay) noexcept override;
 
-	virtual bool SetDisplayMode(VeVideoDisplay* pkDisplay, VeDisplayMode* pkMode) noexcept;
+	virtual bool _SetDisplayMode(VeVideoDisplay* pkDisplay, VeDisplayMode* pkMode) noexcept override;
 
-	virtual void PumpEvents() noexcept;
+	virtual void _PumpEvents() noexcept override;
 
-	virtual bool _CreateWindow(VeWindow::Data* pkWindow) noexcept;
+	virtual bool _CreateWindow(VeWindow::Data* pkWindow) noexcept override;
 
-	virtual bool _CreateWindowFrom(VeWindow::Data* pkWindow, const void* pvData) noexcept;
+	virtual bool _CreateWindowFrom(VeWindow::Data* pkWindow, const void* pvData) noexcept override;
 
-	virtual void _SetWindowTitle(VeWindow::Data* pkWindow) noexcept;
+	virtual void _SetWindowTitle(VeWindow::Data* pkWindow) noexcept override;
 
-	virtual void _SetWindowPosition(VeWindow::Data* pkWindow) noexcept;
+	virtual void _SetWindowPosition(VeWindow::Data* pkWindow) noexcept override;
 
-	virtual void _SetWindowSize(VeWindow::Data* pkWindow) noexcept;
+	virtual void _SetWindowSize(VeWindow::Data* pkWindow) noexcept override;
 
-	virtual void _ShowWindow(VeWindow::Data* pkWindow) noexcept;
+	virtual void _ShowWindow(VeWindow::Data* pkWindow) noexcept override;
 
-	virtual void _HideWindow(VeWindow::Data* pkWindow) noexcept;
+	virtual void _HideWindow(VeWindow::Data* pkWindow) noexcept override;
 
-	virtual void _RaiseWindow(VeWindow::Data* pkWindow) noexcept;
+	virtual void _RaiseWindow(VeWindow::Data* pkWindow) noexcept override;
 
-	virtual void _MaximizeWindow(VeWindow::Data* pkWindow) noexcept;
+	virtual void _MaximizeWindow(VeWindow::Data* pkWindow) noexcept override;
 
-	virtual void _MinimizeWindow(VeWindow::Data* pkWindow) noexcept;
+	virtual void _MinimizeWindow(VeWindow::Data* pkWindow) noexcept override;
 
-	virtual void _RestoreWindow(VeWindow::Data* pkWindow) noexcept;
+	virtual void _RestoreWindow(VeWindow::Data* pkWindow) noexcept override;
 
-	virtual void _SetWindowBordered(VeWindow::Data* pkWindow, VE_BOOL bBordered) noexcept;
+	virtual void _SetWindowBordered(VeWindow::Data* pkWindow, VE_BOOL bBordered) noexcept override;
 
-	virtual void _SetWindowFullscreen(VeWindow::Data* pkWindow, VeVideoDisplay* pkDisplay, VE_BOOL bFullscreen) noexcept;
+	virtual void _SetWindowFullscreen(VeWindow::Data* pkWindow, VeVideoDisplay* pkDisplay, VE_BOOL bFullscreen) noexcept override;
+
+	virtual bool _SetWindowGammaRamp(VeWindow::Data* pkWindow, const VeUInt16* pu16Ramp) noexcept override;
+	//int(*GetWindowGammaRamp) (_THIS, SDL_Window * window, Uint16 * ramp);
 
 	virtual void _DestroyWindow(VeWindow::Data* pkWindow) noexcept;
 

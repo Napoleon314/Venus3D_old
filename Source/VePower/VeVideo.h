@@ -16,40 +16,53 @@
 
 enum VeWindowFlags
 {
-	VE_WINDOW_FULLSCREEN = 0x00000001,         /**< fullscreen window */
-	VE_WINDOW_OPENGL = 0x00000002,             /**< window usable with OpenGL context */
-	VE_WINDOW_SHOWN = 0x00000004,              /**< window is visible */
-	VE_WINDOW_HIDDEN = 0x00000008,             /**< window is not visible */
-	VE_WINDOW_BORDERLESS = 0x00000010,         /**< no window decoration */
-	VE_WINDOW_RESIZABLE = 0x00000020,          /**< window can be resized */
-	VE_WINDOW_MINIMIZED = 0x00000040,          /**< window is minimized */
-	VE_WINDOW_MAXIMIZED = 0x00000080,          /**< window is maximized */
-	VE_WINDOW_INPUT_GRABBED = 0x00000100,      /**< window has grabbed input focus */
-	VE_WINDOW_INPUT_FOCUS = 0x00000200,        /**< window has input focus */
-	VE_WINDOW_MOUSE_FOCUS = 0x00000400,        /**< window has mouse focus */
+	VE_WINDOW_FULLSCREEN = 0x00000001,
+	VE_WINDOW_OPENGL = 0x00000002,
+	VE_WINDOW_SHOWN = 0x00000004,
+	VE_WINDOW_HIDDEN = 0x00000008,
+	VE_WINDOW_BORDERLESS = 0x00000010,
+	VE_WINDOW_RESIZABLE = 0x00000020,
+	VE_WINDOW_MINIMIZED = 0x00000040,
+	VE_WINDOW_MAXIMIZED = 0x00000080,
+	VE_WINDOW_INPUT_GRABBED = 0x00000100,
+	VE_WINDOW_INPUT_FOCUS = 0x00000200,
+	VE_WINDOW_MOUSE_FOCUS = 0x00000400,
 	VE_WINDOW_FULLSCREEN_DESKTOP = (VE_WINDOW_FULLSCREEN | 0x00001000),
-	VE_WINDOW_FOREIGN = 0x00000800,            /**< window not created by SDL */
-	VE_WINDOW_ALLOW_HIGHDPI = 0x00002000       /**< window should be created in high-DPI mode if supported */
+	VE_WINDOW_FOREIGN = 0x00000800,
+	VE_WINDOW_ALLOW_HIGHDPI = 0x00002000
 };
+
+#define VE_WINDOWPOS_UNDEFINED_MASK			0x1FFF0000
+#define VE_WINDOWPOS_UNDEFINED_DISPLAY(X)	(VE_WINDOWPOS_UNDEFINED_MASK|(X))
+#define VE_WINDOWPOS_UNDEFINED				VE_WINDOWPOS_UNDEFINED_DISPLAY(0)
+#define VE_WINDOWPOS_ISUNDEFINED(X)			(((X)&0xFFFF0000) == VE_WINDOWPOS_UNDEFINED_MASK)
+
+
+#define VE_WINDOWPOS_CENTERED_MASK			0x2FFF0000
+#define VE_WINDOWPOS_CENTERED_DISPLAY(X)	(VE_WINDOWPOS_CENTERED_MASK|(X))
+#define VE_WINDOWPOS_CENTERED				VE_WINDOWPOS_CENTERED_DISPLAY(0)
+#define VE_WINDOWPOS_ISCENTERED(X)			(((X)&0xFFFF0000) == VE_WINDOWPOS_CENTERED_MASK)
 
 class VE_POWER_API VeVideoDevice : public VeRefObject
 {
 public:
-	inline const VeChar8* GetName() const noexcept;
+	inline const VeChar8* GetDriverName() const noexcept;
 
-	inline const VeChar8* GetDesc() const noexcept;
+	inline const VeChar8* GetDriverDesc() const noexcept;
 
-	virtual void Init() noexcept {}
+	void GetDisplayBounds(VeInt32 i32DisplayIndex, VeRect* pkRect) noexcept;
 
-	virtual void Term() noexcept {}
+	virtual void _Init() noexcept {}
 
-	virtual bool GetDisplayBounds(VeRect* pkRect, VeVideoDisplay* pkDisplay) noexcept { return false; }
+	virtual void _Term() noexcept {}
 
-	virtual void GetDisplayModes(VeVideoDisplay* pkDisplay) noexcept {}
+	virtual bool _GetDisplayBounds(VeVideoDisplay* pkDisplay, VeRect* pkRect) noexcept { return false; }
 
-	virtual bool SetDisplayMode(VeVideoDisplay* pkDisplay, VeDisplayMode* pkMode) noexcept { return false; }
+	virtual void _GetDisplayModes(VeVideoDisplay* pkDisplay) noexcept {}
 
-	virtual void PumpEvents() noexcept {}
+	virtual bool _SetDisplayMode(VeVideoDisplay* pkDisplay, VeDisplayMode* pkMode) noexcept { return false; }
+
+	virtual void _PumpEvents() noexcept {}
 
 	virtual bool _CreateWindow(VeWindow::Data* pkWindow) noexcept { return false; }
 
@@ -83,9 +96,12 @@ public:
 
 	virtual void _SetWindowFullscreen(VeWindow::Data* pkWindow, VeVideoDisplay* pkDisplay, VE_BOOL bFullscreen) noexcept {}
 
+	virtual bool _SetWindowGammaRamp(VeWindow::Data* pkWindow, const VeUInt16* pu16Ramp) noexcept { return false; }
+
 	virtual void _DestroyWindow(VeWindow::Data* pkWindow) noexcept {}
 
 protected:
+	friend class VeWindow;
 	VeVideoDevice() noexcept {}
 
 	virtual ~VeVideoDevice() noexcept {}

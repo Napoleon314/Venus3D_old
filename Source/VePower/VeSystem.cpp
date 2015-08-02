@@ -144,7 +144,7 @@ void VeSystem::InitVideo() noexcept
 	{
 		m_spVideo = CreateVideoDevice();
 		VE_ASSERT(m_spVideo);
-		m_spVideo->Init();
+		m_spVideo->_Init();
 	}
 }
 //--------------------------------------------------------------------------
@@ -152,7 +152,7 @@ void VeSystem::TermVideo() noexcept
 {
 	if (m_spVideo)
 	{
-		m_spVideo->Term();
+		m_spVideo->_Term();
 		m_spVideo = nullptr;
 	}
 }

@@ -34,12 +34,12 @@ WindowsVideoDevice::~WindowsVideoDevice() noexcept
 	UnregisterApp();
 }
 //--------------------------------------------------------------------------
-void WindowsVideoDevice::Init() noexcept
+void WindowsVideoDevice::_Init() noexcept
 {
 	InitModes();
 }
 //--------------------------------------------------------------------------
-void WindowsVideoDevice::Term() noexcept
+void WindowsVideoDevice::_Term() noexcept
 {
 	TermModes();
 }
@@ -330,8 +330,8 @@ void WindowsVideoDevice::TermModes() noexcept
 	m_kDisplayList.clear();
 }
 //--------------------------------------------------------------------------
-bool WindowsVideoDevice::GetDisplayBounds(VeRect* pkRect,
-	VeVideoDisplay* pkDisplay) noexcept
+bool WindowsVideoDevice::_GetDisplayBounds(VeVideoDisplay* pkDisplay,
+	VeRect* pkRect) noexcept
 {
 	VE_ASSERT(pkDisplay);
 	VeDisplayModeData* pkData = (VeDisplayModeData*)pkDisplay->m_kCurrentMode.m_spDriverData;
@@ -343,7 +343,7 @@ bool WindowsVideoDevice::GetDisplayBounds(VeRect* pkRect,
 	return true;
 }
 //--------------------------------------------------------------------------
-void WindowsVideoDevice::GetDisplayModes(VeVideoDisplay* pkDisplay) noexcept
+void WindowsVideoDevice::_GetDisplayModes(VeVideoDisplay* pkDisplay) noexcept
 {
 	VeDisplayData* data = (VeDisplayData*)pkDisplay->m_spDriverData;
 	VeDisplayMode mode;
@@ -365,7 +365,7 @@ void WindowsVideoDevice::GetDisplayModes(VeVideoDisplay* pkDisplay) noexcept
 	}
 }
 //--------------------------------------------------------------------------
-bool WindowsVideoDevice::SetDisplayMode(VeVideoDisplay* pkDisplay,
+bool WindowsVideoDevice::_SetDisplayMode(VeVideoDisplay* pkDisplay,
 	VeDisplayMode* pkMode) noexcept
 {
 	VeDisplayData* pkDisplayData = (VeDisplayData*)pkDisplay->m_spDriverData;
@@ -400,7 +400,7 @@ bool WindowsVideoDevice::SetDisplayMode(VeVideoDisplay* pkDisplay,
 //--------------------------------------------------------------------------
 #define TICKS_PASSED(A, B)  ((VeInt32)((B) - (A)) <= 0)
 //--------------------------------------------------------------------------
-void WindowsVideoDevice::PumpEvents() noexcept
+void WindowsVideoDevice::_PumpEvents() noexcept
 {
 	MSG msg;
 	DWORD dwStartTicks = GetTickCount();
@@ -474,7 +474,7 @@ void WindowsVideoDevice::SetWindowPositionInternal(
 	rect.top = 0;
 	rect.right = pkWindow->w;
 	rect.bottom = pkWindow->h;
-	menu = (style & WS_CHILDWINDOW) ? FALSE : (GetMenu(hwnd) != NULL);
+	menu = (style & WS_CHILDWINDOW) ? FALSE : (GetMenu(hwnd) != nullptr);
 	AdjustWindowRectEx(&rect, style, menu, 0);
 	w = (rect.right - rect.left);
 	h = (rect.bottom - rect.top);
@@ -642,13 +642,13 @@ bool WindowsVideoDevice::_CreateWindow(VeWindow::Data* pkWindow) noexcept
 	h = (rect.bottom - rect.top);
 
 	hwnd = CreateWindowA(m_kAppName, "", style, x, y, w, h,
-		NULL, NULL, m_hInstance, NULL);
+		nullptr, nullptr, m_hInstance, nullptr);
 	if (!hwnd)
 	{
 		return false;
 	}
 
-	PumpEvents();
+	_PumpEvents();
 
 	if (!SetupWindowData(pkWindow, hwnd, VE_TRUE))
 	{
@@ -772,7 +772,78 @@ void WindowsVideoDevice::_SetWindowBordered(VeWindow::Data* pkWindow,
 void WindowsVideoDevice::_SetWindowFullscreen(VeWindow::Data* pkWindow,
 	VeVideoDisplay* pkDisplay, VE_BOOL bFullscreen) noexcept
 {
-	
+	VE_ASSERT(pkWindow);
+	VeWindowData* pkData = (VeWindowData*)pkWindow->m_spDriverdata;
+	HWND hWnd = pkData->m_hWnd;
+	RECT kRect;
+	VeRect kBounds;
+	DWORD dwStyle;
+	HWND hTop;
+	BOOL bMenu;
+	VeInt32 x, y;
+	VeInt32 w, h;
+
+	if ((pkWindow->m_u32Flags & (VE_WINDOW_FULLSCREEN | VE_WINDOW_INPUT_FOCUS))
+		== (VE_WINDOW_FULLSCREEN | VE_WINDOW_INPUT_FOCUS))
+	{
+		hTop = HWND_TOPMOST;
+	}
+	else
+	{
+		hTop = HWND_NOTOPMOST;
+	}
+
+	dwStyle = GetWindowLong(hWnd, GWL_STYLE);
+	dwStyle &= ~STYLE_MASK;
+	dwStyle |= GetWindowStyle(pkWindow);
+
+	_GetDisplayBounds(pkDisplay, &kBounds);
+
+	if (bFullscreen)
+	{
+		x = kBounds.x;
+		y = kBounds.y;
+		w = kBounds.w;
+		h = kBounds.h;
+	}
+	else
+	{
+		kRect.left = 0;
+		kRect.top = 0;
+		kRect.right = pkWindow->m_kWindowed.w;
+		kRect.bottom = pkWindow->m_kWindowed.h;
+		bMenu = (dwStyle & WS_CHILDWINDOW) ? FALSE : (GetMenu(hWnd) != nullptr);
+		AdjustWindowRectEx(&kRect, dwStyle, bMenu, 0);
+		w = (kRect.right - kRect.left);
+		h = (kRect.bottom - kRect.top);
+		x = pkWindow->m_kWindowed.x + kRect.left;
+		y = pkWindow->m_kWindowed.y + kRect.top;
+	}
+	SetWindowLong(hWnd, GWL_STYLE, dwStyle);
+	pkData->m_bExpectedResize = TRUE;
+	SetWindowPos(hWnd, hTop, x, y, w, h, SWP_NOCOPYBITS | SWP_NOACTIVATE);
+	pkData->m_bExpectedResize = FALSE;
+}
+//--------------------------------------------------------------------------
+bool WindowsVideoDevice::_SetWindowGammaRamp(VeWindow::Data* pkWindow,
+	const VeUInt16* pu16Ramp) noexcept
+{
+	/*VeVideoDisplay* pkDisplay = VeGetDisplayForWindow(window);
+	SDL_DisplayData *data = (SDL_DisplayData *)display->driverdata;
+	HDC hdc;
+	BOOL succeeded = FALSE;
+
+	hdc = CreateDC(data->DeviceName, NULL, NULL, NULL);
+	if (hdc) {
+		succeeded = SetDeviceGammaRamp(hdc, (LPVOID)ramp);
+		if (!succeeded) {
+			WIN_SetError("SetDeviceGammaRamp()");
+		}
+		DeleteDC(hdc);
+	}
+	return succeeded ? 0 : -1;*/
+
+	return false;
 }
 //--------------------------------------------------------------------------
 void WindowsVideoDevice::_DestroyWindow(VeWindow::Data* pkWindow) noexcept

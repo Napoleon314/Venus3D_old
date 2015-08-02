@@ -13,12 +13,12 @@
 ////////////////////////////////////////////////////////////////////////////
 
 //--------------------------------------------------------------------------
-inline const VeChar8* VeVideoDevice::GetName() const noexcept
+inline const VeChar8* VeVideoDevice::GetDriverName() const noexcept
 {
 	return m_kName;
 }
 //--------------------------------------------------------------------------
-inline const VeChar8* VeVideoDevice::GetDesc() const noexcept
+inline const VeChar8* VeVideoDevice::GetDriverDesc() const noexcept
 {
 	return m_kDesc;
 }

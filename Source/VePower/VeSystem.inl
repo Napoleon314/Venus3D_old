@@ -44,3 +44,8 @@ inline const VeStackAllocatorPtr& VeSystem::GetStackAllocator() noexcept
 	return m_spMainStack;
 }
 //--------------------------------------------------------------------------
+inline const VeVideoDevicePtr& VeSystem::GetVideoDevice() noexcept
+{
+	return m_spVideo;
+}
+//--------------------------------------------------------------------------
