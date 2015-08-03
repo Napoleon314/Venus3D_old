@@ -50,7 +50,24 @@ public:
 
 	inline const VeChar8* GetDriverDesc() const noexcept;
 
+	void Init() noexcept;
+
+	void Term() noexcept;
+	
 	void GetDisplayBounds(VeInt32 i32DisplayIndex, VeRect* pkRect) noexcept;
+
+	VeWindowPtr CreateWindowBy(const VeChar8* pcTitle, VeInt32 x, VeInt32 y,
+		VeInt32 w, VeInt32 h, VeUInt32 u32Flags) noexcept;
+
+	void DestroyWindow(VeWindowPtr& spWindow) noexcept;
+
+	void ShowWindow(VeWindow::Data* pkWindow) noexcept;
+
+	void HideWindow(VeWindow::Data* pkWindow) noexcept;
+
+	void SetWindowTitle(VeWindow::Data* pkWindow, const VeChar8* pcTitle) noexcept;
+
+	const VeChar8* GetWindowTitle(VeWindow::Data* pkWindow) noexcept;
 
 	virtual void _Init() noexcept {}
 
@@ -98,10 +115,21 @@ public:
 
 	virtual bool _SetWindowGammaRamp(VeWindow::Data* pkWindow, const VeUInt16* pu16Ramp) noexcept { return false; }
 
+	virtual bool _GetWindowGammaRamp(VeWindow::Data* pkWindow, VeUInt16* pu16Ramp) noexcept { return false; }
+
+	virtual void _SetWindowGrab(VeWindow::Data* pkWindow, VE_BOOL bGrabbed) noexcept {};
+
 	virtual void _DestroyWindow(VeWindow::Data* pkWindow) noexcept {}
 
 protected:
-	friend class VeWindow;
+	VeInt32 GetWindowDisplayIndex(VeWindow::Data* pkWindow) noexcept;
+
+	VeVideoDisplay* GetDisplayForWindow(VeWindow::Data* pkWindow) noexcept;
+
+	void UpdateFullscreenMode(VeWindow::Data* pkWindow, VE_BOOL bFullscreen) noexcept;
+
+	void FinishWindowCreation(VeWindow::Data* pkWindow, VeUInt32 u32Flags) noexcept;
+
 	VeVideoDevice() noexcept {}
 
 	virtual ~VeVideoDevice() noexcept {}
@@ -109,6 +137,8 @@ protected:
 	VeFixedString m_kName;
 	VeFixedString m_kDesc;
 	VeVector<VeVideoDisplay> m_kDisplayList;
+	VeRefList<VeWindow*> m_kWindowList;
+	VeUInt32 m_u32NextObjectID;
 
 
 };

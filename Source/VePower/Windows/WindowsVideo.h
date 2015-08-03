@@ -94,9 +94,12 @@ public:
 	virtual void _SetWindowFullscreen(VeWindow::Data* pkWindow, VeVideoDisplay* pkDisplay, VE_BOOL bFullscreen) noexcept override;
 
 	virtual bool _SetWindowGammaRamp(VeWindow::Data* pkWindow, const VeUInt16* pu16Ramp) noexcept override;
-	//int(*GetWindowGammaRamp) (_THIS, SDL_Window * window, Uint16 * ramp);
+	
+	virtual bool _GetWindowGammaRamp(VeWindow::Data* pkWindow, VeUInt16* pu16Ramp) noexcept override;
 
-	virtual void _DestroyWindow(VeWindow::Data* pkWindow) noexcept;
+	virtual void _SetWindowGrab(VeWindow::Data* pkWindow, VE_BOOL bGrabbed) noexcept override;
+
+	virtual void _DestroyWindow(VeWindow::Data* pkWindow) noexcept override;
 
 protected:
 	bool RegisterApp(const VeChar8* pcName, VeUInt32 u32Style, HINSTANCE hInst) noexcept;

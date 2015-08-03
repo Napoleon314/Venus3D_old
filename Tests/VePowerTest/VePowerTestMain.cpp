@@ -183,6 +183,15 @@ VeInt32 main(VeInt32 i32Argc, VeChar8* apcArgv[])
 
 	ve_sys.Init();
 
+	ve_video_ptr->CreateWindowBy("Test", VE_WINDOWPOS_CENTERED, VE_WINDOWPOS_CENTERED,
+		1024, 768, 0);
+
+	for (VeInt32 i(0); i < 1000; ++i)
+	{
+		ve_video_ptr->_PumpEvents();
+		VeSleep(10);
+	}
+
 	ve_sys.Term();
 
 	VeConsoleTerm();

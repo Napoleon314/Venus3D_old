@@ -272,22 +272,18 @@ public:
 		void* shaper = nullptr;
 		VeWindowUserData* m_pkData = nullptr;
 		VeRefObjectPtr m_spDriverdata;
-		VeRefNode<VeWindow*> m_kNode;
+		
 	};
 
-	
-
-	virtual ~VeWindow() noexcept {}
-
-	VeInt32 GetWindowDisplayIndex() noexcept;
-
-	VeVideoDisplay* GetDisplayForWindow() noexcept;
+	virtual ~VeWindow() noexcept;
 
 	static VeWindow* Cast(VeWindow::Data* pkData) noexcept;
 
 protected:
+	friend class VeVideoDevice;
 	VeWindow() noexcept;
 
+	VeRefNode<VeWindow*> m_kNode;
 	Data m_kData;
 
 };

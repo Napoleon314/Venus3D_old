@@ -652,7 +652,7 @@ bool WindowsVideoDevice::_CreateWindow(VeWindow::Data* pkWindow) noexcept
 
 	if (!SetupWindowData(pkWindow, hwnd, VE_TRUE))
 	{
-		DestroyWindow(hwnd);
+		::DestroyWindow(hwnd);
 		return false;
 	}
 
@@ -705,14 +705,14 @@ void WindowsVideoDevice::_ShowWindow(VeWindow::Data* pkWindow) noexcept
 {
 	VE_ASSERT(pkWindow);
 	HWND hWnd = ((VeWindowData*)pkWindow->m_spDriverdata)->m_hWnd;
-	ShowWindow(hWnd, SW_SHOW);
+	::ShowWindow(hWnd, SW_SHOW);
 }
 //--------------------------------------------------------------------------
 void WindowsVideoDevice::_HideWindow(VeWindow::Data* pkWindow) noexcept
 {
 	VE_ASSERT(pkWindow);
 	HWND hWnd = ((VeWindowData*)pkWindow->m_spDriverdata)->m_hWnd;
-	ShowWindow(hWnd, SW_HIDE);
+	::ShowWindow(hWnd, SW_HIDE);
 }
 //--------------------------------------------------------------------------
 void WindowsVideoDevice::_RaiseWindow(VeWindow::Data* pkWindow) noexcept
@@ -726,7 +726,7 @@ void WindowsVideoDevice::_MaximizeWindow(VeWindow::Data* pkWindow) noexcept
 	VeWindowData* pkData = (VeWindowData*)pkWindow->m_spDriverdata;
 	HWND hWnd = pkData->m_hWnd;
 	pkData->m_bExpectedResize = TRUE;
-	ShowWindow(hWnd, SW_MAXIMIZE);
+	::ShowWindow(hWnd, SW_MAXIMIZE);
 	pkData->m_bExpectedResize = FALSE;
 }
 //--------------------------------------------------------------------------
@@ -734,7 +734,7 @@ void WindowsVideoDevice::_MinimizeWindow(VeWindow::Data* pkWindow) noexcept
 {
 	VE_ASSERT(pkWindow);
 	HWND hWnd = ((VeWindowData*)pkWindow->m_spDriverdata)->m_hWnd;
-	ShowWindow(hWnd, SW_MINIMIZE);
+	::ShowWindow(hWnd, SW_MINIMIZE);
 }
 //--------------------------------------------------------------------------
 void WindowsVideoDevice::_RestoreWindow(VeWindow::Data* pkWindow) noexcept
@@ -743,7 +743,7 @@ void WindowsVideoDevice::_RestoreWindow(VeWindow::Data* pkWindow) noexcept
 	VeWindowData* pkData = (VeWindowData*)pkWindow->m_spDriverdata;
 	HWND hWnd = pkData->m_hWnd;
 	pkData->m_bExpectedResize = TRUE;
-	ShowWindow(hWnd, SW_RESTORE);
+	::ShowWindow(hWnd, SW_RESTORE);
 	pkData->m_bExpectedResize = FALSE;
 }
 //--------------------------------------------------------------------------
@@ -829,7 +829,7 @@ bool WindowsVideoDevice::_SetWindowGammaRamp(VeWindow::Data* pkWindow,
 	const VeUInt16* pu16Ramp) noexcept
 {
 	VE_ASSERT(pkWindow);
-	VeVideoDisplay* pkDisplay = VeWindow::Cast(pkWindow)->GetDisplayForWindow();
+	VeVideoDisplay* pkDisplay = GetDisplayForWindow(pkWindow);
 	VeDisplayData* pkData = (VeDisplayData*)pkDisplay->m_spDriverData;
 	
 	BOOL bSucceeded = FALSE;
@@ -847,6 +847,34 @@ bool WindowsVideoDevice::_SetWindowGammaRamp(VeWindow::Data* pkWindow,
 	return bSucceeded ? true : false;
 }
 //--------------------------------------------------------------------------
+bool WindowsVideoDevice::_GetWindowGammaRamp(VeWindow::Data* pkWindow,
+	VeUInt16* pu16Ramp) noexcept
+{
+	VE_ASSERT(pkWindow);
+	VeVideoDisplay* pkDisplay = GetDisplayForWindow(pkWindow);
+	VeDisplayData* pkData = (VeDisplayData*)pkDisplay->m_spDriverData;
+	
+	BOOL bSucceeded = FALSE;
+
+	HDC hDc = CreateDCA(pkData->DeviceName, nullptr, nullptr, nullptr);
+	if (hDc)
+	{
+		bSucceeded = GetDeviceGammaRamp(hDc, (LPVOID)pu16Ramp);
+		if (!bSucceeded)
+		{
+			VeDebugOutputCore("GetDeviceGammaRamp()");
+		}
+		DeleteDC(hDc);
+	}
+	return bSucceeded ? true : false;
+}
+//--------------------------------------------------------------------------
+void WindowsVideoDevice::_SetWindowGrab(VeWindow::Data* pkWindow,
+	VE_BOOL bGrabbed) noexcept
+{
+
+}
+//--------------------------------------------------------------------------
 void WindowsVideoDevice::_DestroyWindow(VeWindow::Data* pkWindow) noexcept
 {
 	VE_ASSERT(pkWindow);
@@ -857,7 +885,7 @@ void WindowsVideoDevice::_DestroyWindow(VeWindow::Data* pkWindow) noexcept
 		ReleaseDC(pkData->m_hWnd, pkData->m_hDc);
 		if (pkData->m_bCreated)
 		{
-			DestroyWindow(pkData->m_hWnd);
+			::DestroyWindow(pkData->m_hWnd);
 		}
 		else
 		{
