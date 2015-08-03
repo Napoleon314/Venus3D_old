@@ -31,6 +31,7 @@
 #include "VeLua.h"
 #include "VeRect.h"
 #include "VeMath.h"
+#include "VeEvents.h"
 #include "VeWindow.h"
 #include "VeVideo.h"
 #include "VeSystem.h"

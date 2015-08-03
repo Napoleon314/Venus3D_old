@@ -27,6 +27,9 @@
     <Filter Include="Math">
       <UniqueIdentifier>{4c869fcd-df13-4c7d-b415-8034d17396e8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Events">
+      <UniqueIdentifier>{423fd687-69e5-4f64-bd2a-99e23b518e85}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\Source\VePower\VePowerPch.cpp">
@@ -94,6 +97,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\..\Source\VePower\Windows\WindowsVideo.cpp">
       <Filter>Video\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Source\VePower\VeEvents.cpp">
+      <Filter>Events</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -183,6 +189,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\Source\VePower\VeMath.h">
       <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\VePower\VeEvents.h">
+      <Filter>Events</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
