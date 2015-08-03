@@ -89,9 +89,6 @@
     <ClCompile Include="..\..\..\..\Source\VePower\VeVideo.cpp">
       <Filter>Video</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\Source\VePower\VeRect.cpp">
-      <Filter>Video</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\Source\VePower\VeWindow.cpp">
       <Filter>Video</Filter>
     </ClCompile>
@@ -100,6 +97,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\..\Source\VePower\VeEvents.cpp">
       <Filter>Events</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Source\VePower\VeRect.cpp">
+      <Filter>Math</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -178,9 +178,6 @@
     <ClInclude Include="..\..\..\..\Source\VePower\VeVideo.h">
       <Filter>Video</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\Source\VePower\VeRect.h">
-      <Filter>Video</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\Source\VePower\VeWindow.h">
       <Filter>Video</Filter>
     </ClInclude>
@@ -192,6 +189,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\Source\VePower\VeEvents.h">
       <Filter>Events</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\VePower\VeRect.h">
+      <Filter>Math</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -231,11 +231,11 @@
     <None Include="..\..\..\..\Source\VePower\VeLua.inl">
       <Filter>Script</Filter>
     </None>
-    <None Include="..\..\..\..\Source\VePower\VeRect.inl">
-      <Filter>Video</Filter>
-    </None>
     <None Include="..\..\..\..\Source\VePower\VeVideo.inl">
       <Filter>Video</Filter>
+    </None>
+    <None Include="..\..\..\..\Source\VePower\VeRect.inl">
+      <Filter>Math</Filter>
     </None>
   </ItemGroup>
 </Project>
