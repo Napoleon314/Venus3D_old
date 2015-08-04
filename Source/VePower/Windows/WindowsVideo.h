@@ -21,12 +21,12 @@ struct VeDisplayData : public VeRefObject
 		VeZero(DeviceName);
 	}
 
-	CHAR DeviceName[32];
+	TCHAR DeviceName[32];
 } ;
 
 struct VeDisplayModeData : public VeRefObject
 {
-	DEVMODEA DeviceMode;
+	DEVMODE DeviceMode;
 	VeFloat32 ScaleX;
 	VeFloat32 ScaleY;
 };
@@ -106,7 +106,7 @@ protected:
 
 	void UnregisterApp() noexcept;
 
-	bool AddDisplay(const VeChar8* pcDeviceName) noexcept;
+	bool AddDisplay(LPCTSTR DeviceName) noexcept;
 
 	void InitModes() noexcept;
 

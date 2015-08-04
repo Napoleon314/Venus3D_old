@@ -17,6 +17,38 @@
 #include <shellapi.h>
 
 //--------------------------------------------------------------------------
+struct TempTextA
+{
+	TempTextA(VeSizeT stLen) noexcept
+	{
+		m_lpstrText = VeStackAlloc(CHAR, stLen);
+		VE_ASSERT(m_lpstrText);
+	}
+
+	~TempTextA() noexcept
+	{
+		VeStackFree(m_lpstrText);
+	}
+
+	LPSTR m_lpstrText = nullptr;
+};
+//--------------------------------------------------------------------------
+struct TempTextW
+{
+	TempTextW(VeSizeT stLen) noexcept
+	{
+		m_lpwstrText = VeStackAlloc(WCHAR, stLen);
+		VE_ASSERT(m_lpwstrText);
+	}
+
+	~TempTextW() noexcept
+	{
+		VeStackFree(m_lpwstrText);
+	}
+
+	LPWSTR m_lpwstrText = nullptr;
+};
+//--------------------------------------------------------------------------
 VeVideoDevicePtr CreateVideoDevice() noexcept
 {
 	return VE_NEW WindowsVideoDevice();
@@ -70,20 +102,37 @@ bool WindowsVideoDevice::RegisterApp(const VeChar8* pcName,
 	VE_ASSERT(pcName);
 	m_kAppName = pcName;
 	m_u32AppStyle = u32Style;
-	m_hInstance = hInst ? hInst : GetModuleHandleA(nullptr);
+	m_hInstance = hInst ? hInst : GetModuleHandle(nullptr);
 
-	WNDCLASSA kClass;
+	LPTSTR lptstrAppName = nullptr;
+#	ifdef _UNICODE
+	VeInt32 i32Num = MultiByteToWideChar(CP_UTF8, 0, m_kAppName,
+		-1, nullptr, 0);
+	TempTextW kAppName((VeSizeT)i32Num + 1);
+	kAppName.m_lpwstrText[i32Num] = 0;
+	if (i32Num)
+	{
+		MultiByteToWideChar(CP_UTF8, 0, m_kAppName,
+			-1, kAppName.m_lpwstrText, i32Num);
+	}
+	lptstrAppName = kAppName.m_lpwstrText;
+#	else
+	lptstrAppName = m_kAppName;
+#	endif
+
+	WNDCLASS kClass;
 	kClass.hCursor = LoadCursor(nullptr, IDC_ARROW);
 	kClass.hIcon = nullptr;
 	kClass.lpszMenuName = nullptr;
-	kClass.lpszClassName = m_kAppName;
+	kClass.lpszClassName = lptstrAppName;
 	kClass.hbrBackground = nullptr;
 	kClass.hInstance = m_hInstance;
 	kClass.style = m_u32AppStyle;
 	kClass.lpfnWndProc = WindowProc;
 	kClass.cbWndExtra = 0;
 	kClass.cbClsExtra = 0;
-	if (!RegisterClassA(&kClass))
+
+	if (!RegisterClass(&kClass))
 	{
 		VeDebugOutputCore("Couldn't register application class");
 		return false;
@@ -99,10 +148,26 @@ void WindowsVideoDevice::UnregisterApp() noexcept
 	--m_i32AppRegistered;
 	if (m_i32AppRegistered <= 0)
 	{
-		WNDCLASSA kClass;
-		if (GetClassInfoA(m_hInstance, m_kAppName, &kClass))
+		LPTSTR lptstrAppName = nullptr;
+#		ifdef _UNICODE
+		VeInt32 i32Num = MultiByteToWideChar(CP_UTF8, 0, m_kAppName,
+			-1, nullptr, 0);
+		TempTextW kAppName((VeSizeT)i32Num + 1);
+		kAppName.m_lpwstrText[i32Num] = 0;
+		if (i32Num)
 		{
-			UnregisterClassA(m_kAppName, m_hInstance);
+			MultiByteToWideChar(CP_UTF8, 0, m_kAppName,
+				-1, kAppName.m_lpwstrText, i32Num);
+		}
+		lptstrAppName = kAppName.m_lpwstrText;
+#		else
+		lptstrAppName = m_kAppName;
+#		endif
+
+		WNDCLASS kClass;
+		if (GetClassInfo(m_hInstance, lptstrAppName, &kClass))
+		{
+			UnregisterClass(lptstrAppName, m_hInstance);
 		}
 		m_i32AppRegistered = 0;
 		m_kAppName = "";
@@ -111,16 +176,16 @@ void WindowsVideoDevice::UnregisterApp() noexcept
 	}
 }
 //--------------------------------------------------------------------------
-static bool GetDisplayMode(LPCSTR deviceName, DWORD index,
+static bool GetDisplayMode(LPCTSTR deviceName, DWORD index,
 	VeDisplayMode* mode) noexcept
 {
 	VeDisplayModeData* data;
-	DEVMODEA devmode;
+	DEVMODE devmode;
 	HDC hdc;
 
 	devmode.dmSize = sizeof(devmode);
 	devmode.dmDriverExtra = 0;
-	if (!EnumDisplaySettingsA(deviceName, index, &devmode))
+	if (!EnumDisplaySettings(deviceName, index, &devmode))
 	{
 		return false;
 	}
@@ -141,7 +206,7 @@ static bool GetDisplayMode(LPCSTR deviceName, DWORD index,
 	mode->m_spDriverData = data;
 
 	if (index == ENUM_CURRENT_SETTINGS
-		&& (hdc = CreateDCA(deviceName, nullptr, nullptr, nullptr)) != nullptr)
+		&& (hdc = CreateDC(deviceName, nullptr, nullptr, nullptr)) != nullptr)
 	{
 		char bmi_data[sizeof(BITMAPINFOHEADER) + 256 * sizeof(RGBQUAD)];
 		LPBITMAPINFO bmi;
@@ -220,13 +285,11 @@ static bool GetDisplayMode(LPCSTR deviceName, DWORD index,
 	return true;
 }
 //--------------------------------------------------------------------------
-bool WindowsVideoDevice::AddDisplay(const VeChar8* pcDeviceName) noexcept
+bool WindowsVideoDevice::AddDisplay(LPCTSTR DeviceName) noexcept
 {
-	VeDebugOutputCore("Display: %s\n", pcDeviceName);
-
 	VeDisplayMode kMode;
 	
-	if (!GetDisplayMode(pcDeviceName, ENUM_CURRENT_SETTINGS, &kMode))
+	if (!GetDisplayMode(DeviceName, ENUM_CURRENT_SETTINGS, &kMode))
 	{
 		return false;
 	}
@@ -236,11 +299,24 @@ bool WindowsVideoDevice::AddDisplay(const VeChar8* pcDeviceName) noexcept
 
 	VeDisplayData* pkDisplayData = VE_NEW VeDisplayData;
 	VE_ASSERT(pkDisplayData);
-	DISPLAY_DEVICEA device;
+	DISPLAY_DEVICE device;
 	device.cb = sizeof(device);
-	if (EnumDisplayDevicesA(pcDeviceName, 0, &device, 0))
+	if (EnumDisplayDevices(DeviceName, 0, &device, 0))
 	{
+#		ifdef _UNICODE
+		VeInt32 i32Num = WideCharToMultiByte(CP_UTF8, 0,
+			device.DeviceString, -1, 0, 0, 0, FALSE);
+		TempTextA kDisplayName((VeSizeT)i32Num + 1);
+		kDisplayName.m_lpstrText[i32Num] = 0;
+		if (i32Num)
+		{
+			WideCharToMultiByte(CP_UTF8, 0, device.DeviceString,
+				-1, kDisplayName.m_lpstrText, i32Num, 0, FALSE);
+		}
+		kDisplay.m_kName = kDisplayName.m_lpstrText;
+#		else
 		kDisplay.m_kName = device.DeviceString;
+#		endif
 	}
 
 	kDisplay.m_kDesktopMode = kMode;
@@ -253,7 +329,7 @@ void WindowsVideoDevice::InitModes() noexcept
 {
 	VeInt32 pass;
 	DWORD i, j, count;
-	DISPLAY_DEVICEA device;
+	DISPLAY_DEVICE device;
 
 	device.cb = sizeof(device);
 
@@ -261,9 +337,9 @@ void WindowsVideoDevice::InitModes() noexcept
 	{
 		for (i = 0;; ++i)
 		{
-			CHAR DeviceName[32];
+			TCHAR DeviceName[32];
 
-			if (!EnumDisplayDevicesA(nullptr, i, &device, 0))
+			if (!EnumDisplayDevices(nullptr, i, &device, 0))
 			{
 				break;
 			}
@@ -287,12 +363,10 @@ void WindowsVideoDevice::InitModes() noexcept
 			}
 			VeMemoryCopy(DeviceName, device.DeviceName, sizeof(DeviceName));
 
-			VeDebugOutputCore("Device: %s\n", DeviceName);
-
 			count = 0;
 			for (j = 0;; ++j)
 			{
-				if (!EnumDisplayDevicesA(DeviceName, j, &device, 0))
+				if (!EnumDisplayDevices(DeviceName, j, &device, 0))
 				{
 					break;
 				}
@@ -372,7 +446,7 @@ bool WindowsVideoDevice::_SetDisplayMode(VeVideoDisplay* pkDisplay,
 	VeDisplayModeData* pkData = (VeDisplayModeData*)pkMode->m_spDriverData;
 	LONG status;
 
-	status = ChangeDisplaySettingsExA(pkDisplayData->DeviceName,
+	status = ChangeDisplaySettingsEx(pkDisplayData->DeviceName,
 		&pkData->DeviceMode, nullptr, CDS_FULLSCREEN, nullptr);
 	if (status != DISP_CHANGE_SUCCESSFUL)
 	{
@@ -394,7 +468,7 @@ bool WindowsVideoDevice::_SetDisplayMode(VeVideoDisplay* pkDisplay,
 		VeDebugOutputCore("ChangeDisplaySettingsEx() failed: %s", pcReason);
 		return false;
 	}
-	EnumDisplaySettingsA(pkDisplayData->DeviceName, ENUM_CURRENT_SETTINGS, &pkData->DeviceMode);
+	EnumDisplaySettings(pkDisplayData->DeviceName, ENUM_CURRENT_SETTINGS, &pkData->DeviceMode);
 	return true;
 }
 //--------------------------------------------------------------------------
@@ -641,8 +715,24 @@ bool WindowsVideoDevice::_CreateWindow(VeWindow::Data* pkWindow) noexcept
 	w = (rect.right - rect.left);
 	h = (rect.bottom - rect.top);
 
-	hwnd = CreateWindowA(m_kAppName, "", style, x, y, w, h,
-		nullptr, nullptr, m_hInstance, nullptr);
+	LPTSTR lptstrAppName = nullptr;
+#	ifdef _UNICODE
+	VeInt32 i32Num = MultiByteToWideChar(CP_UTF8, 0, m_kAppName,
+		-1, nullptr, 0);
+	TempTextW kAppName((VeSizeT)i32Num + 1);
+	kAppName.m_lpwstrText[i32Num] = 0;
+	if (i32Num)
+	{
+		MultiByteToWideChar(CP_UTF8, 0, m_kAppName,
+			-1, kAppName.m_lpwstrText, i32Num);
+	}
+	lptstrAppName = kAppName.m_lpwstrText;
+#	else
+	lptstrAppName = m_kAppName;
+#	endif
+
+	hwnd = CreateWindow(lptstrAppName, L"", style, x, y, w, h,
+		0, 0, m_hInstance, 0);
 	if (!hwnd)
 	{
 		return false;
@@ -834,7 +924,7 @@ bool WindowsVideoDevice::_SetWindowGammaRamp(VeWindow::Data* pkWindow,
 	
 	BOOL bSucceeded = FALSE;
 
-	HDC hDc = CreateDCA(pkData->DeviceName, nullptr, nullptr, nullptr);
+	HDC hDc = CreateDC(pkData->DeviceName, nullptr, nullptr, nullptr);
 	if (hDc)
 	{
 		bSucceeded = SetDeviceGammaRamp(hDc, (LPVOID)pu16Ramp);
@@ -856,7 +946,7 @@ bool WindowsVideoDevice::_GetWindowGammaRamp(VeWindow::Data* pkWindow,
 	
 	BOOL bSucceeded = FALSE;
 
-	HDC hDc = CreateDCA(pkData->DeviceName, nullptr, nullptr, nullptr);
+	HDC hDc = CreateDC(pkData->DeviceName, nullptr, nullptr, nullptr);
 	if (hDc)
 	{
 		bSucceeded = GetDeviceGammaRamp(hDc, (LPVOID)pu16Ramp);
