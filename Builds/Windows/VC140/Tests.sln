@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.22310.1
+VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VePower", "VePower\VePower.vcxproj", "{19C0B3E0-E67A-46C3-BAF5-7A83461D3199}"
 EndProject
@@ -9,6 +9,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VePowerTest", "VePowerTest\
 	ProjectSection(ProjectDependencies) = postProject
 		{19C0B3E0-E67A-46C3-BAF5-7A83461D3199} = {19C0B3E0-E67A-46C3-BAF5-7A83461D3199}
 	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VeRenderTest", "VeRenderTest\VeRenderTest.vcxproj", "{73014E62-45F3-4390-8619-A39552047793}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -54,6 +56,22 @@ Global
 		{478F2F73-F8D4-40D1-B9CC-8B385FAAA60F}.ReleaseLib|Win32.Build.0 = ReleaseLib|Win32
 		{478F2F73-F8D4-40D1-B9CC-8B385FAAA60F}.ReleaseLib|x64.ActiveCfg = ReleaseLib|x64
 		{478F2F73-F8D4-40D1-B9CC-8B385FAAA60F}.ReleaseLib|x64.Build.0 = ReleaseLib|x64
+		{73014E62-45F3-4390-8619-A39552047793}.Debug|Win32.ActiveCfg = Debug|Win32
+		{73014E62-45F3-4390-8619-A39552047793}.Debug|Win32.Build.0 = Debug|Win32
+		{73014E62-45F3-4390-8619-A39552047793}.Debug|x64.ActiveCfg = Debug|x64
+		{73014E62-45F3-4390-8619-A39552047793}.Debug|x64.Build.0 = Debug|x64
+		{73014E62-45F3-4390-8619-A39552047793}.DebugLib|Win32.ActiveCfg = DebugLib|Win32
+		{73014E62-45F3-4390-8619-A39552047793}.DebugLib|Win32.Build.0 = DebugLib|Win32
+		{73014E62-45F3-4390-8619-A39552047793}.DebugLib|x64.ActiveCfg = DebugLib|x64
+		{73014E62-45F3-4390-8619-A39552047793}.DebugLib|x64.Build.0 = DebugLib|x64
+		{73014E62-45F3-4390-8619-A39552047793}.Release|Win32.ActiveCfg = Release|Win32
+		{73014E62-45F3-4390-8619-A39552047793}.Release|Win32.Build.0 = Release|Win32
+		{73014E62-45F3-4390-8619-A39552047793}.Release|x64.ActiveCfg = Release|x64
+		{73014E62-45F3-4390-8619-A39552047793}.Release|x64.Build.0 = Release|x64
+		{73014E62-45F3-4390-8619-A39552047793}.ReleaseLib|Win32.ActiveCfg = ReleaseLib|Win32
+		{73014E62-45F3-4390-8619-A39552047793}.ReleaseLib|Win32.Build.0 = ReleaseLib|Win32
+		{73014E62-45F3-4390-8619-A39552047793}.ReleaseLib|x64.ActiveCfg = ReleaseLib|x64
+		{73014E62-45F3-4390-8619-A39552047793}.ReleaseLib|x64.Build.0 = ReleaseLib|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
