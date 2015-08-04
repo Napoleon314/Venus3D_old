@@ -70,7 +70,7 @@ bool WindowsVideoDevice::RegisterApp(const VeChar8* pcName,
 	VE_ASSERT(pcName);
 	m_kAppName = pcName;
 	m_u32AppStyle = u32Style;
-	m_hInstance = hInst ? hInst : GetModuleHandle(nullptr);
+	m_hInstance = hInst ? hInst : GetModuleHandleA(nullptr);
 
 	WNDCLASSA kClass;
 	kClass.hCursor = LoadCursor(nullptr, IDC_ARROW);

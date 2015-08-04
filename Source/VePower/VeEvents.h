@@ -103,19 +103,58 @@ union VeEvent
 	VeCommonEvent m_kCommon;
 	VeWindowEvent m_kWindow;
 	VeQuitEvent m_kQuit;
-
-	VeUInt8 m_au8Padding[56];
 };
 
 class VE_POWER_API VeEventQueue : public VeRefObject
 {
 public:
+	struct EventEntry
+	{
+		EventEntry() noexcept
+		{
+			m_kNode.m_Content = this;
+		}
+
+		VeRefNode<EventEntry*> m_kNode;
+		VeEvent m_kEvent;
+	};
+
 	VeEventQueue() noexcept;
 
 	~VeEventQueue() noexcept;
 
-protected:
+	void Init() noexcept;
 
+	void Term() noexcept;
+
+	void EnableEventType(VeUInt32 u32Type) noexcept;
+
+	void DisableEventType(VeUInt32 u32Type) noexcept;
+
+	bool IsEventTypeEnable(VeUInt32 u32Type) noexcept;
+
+	void PushEvent(VeEvent& kEvent) noexcept;
+
+	bool GetEvent(VeEvent& kEvent) noexcept;
+
+	VeUInt32 GetEventNumber() noexcept;
+
+	VeEvent* AddEvent() noexcept;
+
+	void PeekEvent(VeVector<VeEvent*>& kOutput) noexcept;
+
+	void FlushEvent(VeUInt32 u32Event) noexcept;
+
+	void FlushEvents(VeUInt32 u32Min, VeUInt32 u32Max) noexcept;
+
+	void FlushEvents() noexcept;
+
+protected:
+	VeUnorderedSet<VeUInt32> m_kDisabledEvents;
+	VePoolAllocatorPtr m_spMemPool;
+	VeRefList<EventEntry*> m_kFreeList;
+	VeRefList<EventEntry*> m_kEventQueue;
+	//VeRefList
 
 };
 
