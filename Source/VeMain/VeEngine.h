@@ -23,4 +23,15 @@ public:
 
 	~VeEngine() noexcept;
 
+	void Init() noexcept;
+
+	void Term() noexcept;
+
+protected:
+	void InitRenderer() noexcept;
+
+	void TermRenderer() noexcept;
+
+	VeRendererPtr m_spRenderer;
+
 };

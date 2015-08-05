@@ -16,7 +16,7 @@
 
 #ifdef VE_ENABLE_D3D12
 
-//#include <>
+
 
 class VeRendererD3D12 : public VeRenderer
 {
@@ -30,7 +30,7 @@ public:
 	virtual void Term() noexcept;
 
 protected:
-
+	VeSharedLibPtr m_spLib;
 
 };
 

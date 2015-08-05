@@ -57,4 +57,6 @@ protected:
 
 };
 
+VeSmartPointer(VeSharedLib);
+
 #endif

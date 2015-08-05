@@ -38,6 +38,7 @@
     <ProjectGuid>{19C0B3E0-E67A-46C3-BAF5-7A83461D3199}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>VePower</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.10240.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
