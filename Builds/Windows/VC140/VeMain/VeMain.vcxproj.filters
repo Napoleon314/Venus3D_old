@@ -11,4 +11,9 @@
       <Filter>Kernel</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\..\Source\VeMain\VeMain.cpp">
+      <Filter>Kernel</Filter>
+    </ClCompile>
+  </ItemGroup>
 </Project>

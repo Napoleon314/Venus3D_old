@@ -148,6 +148,9 @@
   <ItemGroup>
     <ClInclude Include="..\..\..\..\Source\VeMain\VeMain.h" />
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\..\Source\VeMain\VeMain.cpp" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
