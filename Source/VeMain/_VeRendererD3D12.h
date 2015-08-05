@@ -16,10 +16,10 @@
 
 #ifdef VE_ENABLE_D3D12
 
+#include <wrl.h>
 #include <d3d12.h>
 #include <dxgi1_4.h>
 #include <D3Dcompiler.h>
-#include <wrl.h>
 
 using namespace Microsoft::WRL;
 

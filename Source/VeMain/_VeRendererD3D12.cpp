@@ -15,11 +15,6 @@
 #include "VeMainPch.h"
 #include "_VeRendererD3D12.h"
 
-
-//#include <D3Dcompiler.h>
-//#include <DirectXMath.h>
-
-
 //--------------------------------------------------------------------------
 #ifdef VE_ENABLE_D3D12
 //--------------------------------------------------------------------------
