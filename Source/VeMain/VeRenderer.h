@@ -30,7 +30,7 @@ public:
 
 	inline API GetAPI() const noexcept;
 
-	virtual void Init() noexcept = 0;
+	virtual bool Init() noexcept = 0;
 
 	virtual void Term() noexcept = 0;
 

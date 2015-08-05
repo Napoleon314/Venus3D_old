@@ -319,6 +319,7 @@
     <ClCompile Include="..\..\..\..\Source\VeMain\_VeRendererD3D12.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\..\..\Source\VeMain\VeEngine.inl" />
     <None Include="..\..\..\..\Source\VeMain\VeRenderer.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

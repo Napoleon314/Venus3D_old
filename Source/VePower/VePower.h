@@ -35,6 +35,7 @@
 
 #ifdef VE_PLATFORM_WIN
 #	define VE_ENABLE_D3D11
+#	define VE_ENABLE_D3D12
 #endif
 #ifdef VE_PLATFORM_ANDROID
 #	define VE_USE_SLES
@@ -47,10 +48,6 @@
 #elif defined(VE_PLATFORM_MOBILE)
 #	define VE_ENABLE_GLES2
 #	define VE_NEON
-#endif
-
-#ifdef VE_PLATFORM_WIN
-#	define VE_ENABLE_D3D12
 #endif
 
 #define VE_OK (0)

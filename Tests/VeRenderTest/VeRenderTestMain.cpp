@@ -21,11 +21,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
 
 	VE_NEW VeStringTable();
-	VE_NEW VeSystem(VeSystem::TYPE_CONSOLE, "com.VenusIE.VeRenderTest");
+	VE_NEW VeSystem(VeSystem::TYPE_DEFAULT, "com.VenusIE.VeRenderTest");
 	VE_NEW VeResourceManager();
 	VE_NEW VeEngine();
 
 	ve_sys.Init();
+	ve_engine.Init();
 
 	VeWindowPtr spWindow = ve_video_ptr->CreateWindowBy("Render Test",
 		VE_WINDOWPOS_CENTERED, VE_WINDOWPOS_CENTERED, 1024, 768, 0);
@@ -54,6 +55,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
 	spWindow = nullptr;
 
+	ve_engine.Term();
 	ve_sys.Term();
 
 	VeEngine::Destory();

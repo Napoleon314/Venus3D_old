@@ -23,6 +23,8 @@ public:
 
 	~VeEngine() noexcept;
 
+	inline const VeRendererPtr& GetRenderer() noexcept;
+
 	void Init() noexcept;
 
 	void Term() noexcept;
@@ -35,3 +37,8 @@ protected:
 	VeRendererPtr m_spRenderer;
 
 };
+
+#define ve_engine VeEngine::GetSingleton()
+#define ve_renderer_ptr ve_engine->GetRenderer()
+
+#include "VeEngine.inl"

@@ -13,6 +13,7 @@
 ////////////////////////////////////////////////////////////////////////////
 
 #include "VeMainPch.h"
+#include "_VeRendererD3D12.h"
 
 //--------------------------------------------------------------------------
 VeEngine::VeEngine() noexcept
@@ -29,21 +30,35 @@ VeEngine::~VeEngine() noexcept
 //--------------------------------------------------------------------------
 void VeEngine::Init() noexcept
 {
-
+	InitRenderer();
 }
 //--------------------------------------------------------------------------
 void VeEngine::Term() noexcept
 {
-
+	TermRenderer();
 }
 //--------------------------------------------------------------------------
-void InitRenderer() noexcept
+void VeEngine::InitRenderer() noexcept
 {
-
+#	ifdef VE_ENABLE_D3D12
+	if (!m_spRenderer)
+	{
+		m_spRenderer = VE_NEW VeRendererD3D12();
+		if (!m_spRenderer->Init())
+		{
+			m_spRenderer->Term();
+			m_spRenderer = nullptr;
+		}
+	}
+#	endif
 }
 //--------------------------------------------------------------------------
-void TermRenderer() noexcept
+void VeEngine::TermRenderer() noexcept
 {
-
+	if (m_spRenderer)
+	{
+		m_spRenderer->Term();
+		m_spRenderer = nullptr;
+	}
 }
 //--------------------------------------------------------------------------
