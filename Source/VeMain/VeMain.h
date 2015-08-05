@@ -13,3 +13,16 @@
 ////////////////////////////////////////////////////////////////////////////
 
 #pragma once
+
+
+#if defined(VE_PLATFORM_WIN) && defined(VE_DYNAMIC_LIB)
+#	ifdef VE_MAIN_EXPORT
+#		define VE_MAIN_API __declspec (dllexport)
+#	else
+#		define VE_MAIN_API __declspec (dllimport)
+#	endif
+#else
+#	define VE_MAIN_API
+#endif
+
+VE_MAIN_API void VeMain();

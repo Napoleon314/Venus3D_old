@@ -5,15 +5,24 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
+    <Filter Include="Pch">
+      <UniqueIdentifier>{6b4dab2b-c255-45c8-85ed-f16c856c9c12}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\Source\VeMain\VeMain.h">
       <Filter>Kernel</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\VeMain\VeMainPch.h">
+      <Filter>Pch</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\Source\VeMain\VeMain.cpp">
       <Filter>Kernel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Source\VeMain\VeMainPch.cpp">
+      <Filter>Pch</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
