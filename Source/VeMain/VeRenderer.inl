@@ -1,10 +1,10 @@
 ////////////////////////////////////////////////////////////////////////////
 //
-//  Venus Engine Header File.
+//  Venus Engine Inline File.
 //  Copyright (C), Venus Interactive Entertainment.2012
 // -------------------------------------------------------------------------
 //  Module:      VeMain
-//  File name:   VeMainPch.h
+//  File name:   VeRenderer.inl
 //  Created:     2015/08/05 by Napoleon
 //  Description: 
 // -------------------------------------------------------------------------
@@ -12,9 +12,9 @@
 //  http://www.venusie.com
 ////////////////////////////////////////////////////////////////////////////
 
-#pragma once
-
-#include <VePowerPch.h>
-#include "VeMain.h"
-#include "VeEngine.h"
-#include "VeRenderer.h"
+//--------------------------------------------------------------------------
+inline VeRenderer::API VeRenderer::GetAPI() const noexcept
+{
+	return m_eType;
+}
+//--------------------------------------------------------------------------

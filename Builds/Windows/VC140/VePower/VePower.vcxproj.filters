@@ -101,6 +101,9 @@
     <ClCompile Include="..\..\..\..\Source\VePower\VeRect.cpp">
       <Filter>Math</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\Source\VePower\VeSharedLib.cpp">
+      <Filter>Kernel</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\Source\VePower\VePowerPch.h">
@@ -192,6 +195,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\Source\VePower\VeRect.h">
       <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\VePower\VeSharedLib.h">
+      <Filter>Kernel</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

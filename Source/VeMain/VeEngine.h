@@ -4,7 +4,7 @@
 //  Copyright (C), Venus Interactive Entertainment.2012
 // -------------------------------------------------------------------------
 //  Module:      VeMain
-//  File name:   VeMainPch.h
+//  File name:   VeEngine.h
 //  Created:     2015/08/05 by Napoleon
 //  Description: 
 // -------------------------------------------------------------------------
@@ -14,7 +14,13 @@
 
 #pragma once
 
-#include <VePowerPch.h>
-#include "VeMain.h"
-#include "VeEngine.h"
-#include "VeRenderer.h"
+VeSmartPointer(VeRenderer);
+
+class VE_MAIN_API VeEngine : public VeSingleton<VeEngine>
+{
+public:
+	VeEngine() noexcept;
+
+	~VeEngine() noexcept;
+
+};

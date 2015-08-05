@@ -12,34 +12,43 @@
 //  http://www.venusie.com
 ////////////////////////////////////////////////////////////////////////////
 
-#include <VePowerPch.h>
-#include <vld.h>
+#include <VeMainPch.h>
+#ifdef VE_PLATFORM_WIN
+#	include<vld.h>
+#endif
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
-	VeConsoleInit("Render", false);
+
+	VE_NEW VeStringTable();
+	VE_NEW VeSystem(VeSystem::TYPE_CONSOLE, "com.VenusIE.VeRenderTest");
+	VE_NEW VeResourceManager();
+	VE_NEW VeEngine();
 
 	ve_sys.Init();
 
 	VeWindowPtr spWindow = ve_video_ptr->CreateWindowBy("Render Test",
 		VE_WINDOWPOS_CENTERED, VE_WINDOWPOS_CENTERED, 1024, 768, 0);
 
-	bool bLoop(true);
-	while (bLoop)
 	{
+		bool bLoop(true);
 		VeVector<VeEvent*> kEventCache;
-		ve_video_ptr->PeekEvents(kEventCache);
-		for (auto kEvent : kEventCache)
+		while (bLoop)
 		{
-			VE_ASSERT(kEvent->m_u32Type);
-			switch (kEvent->m_u32Type)
+			ve_video_ptr->PeekEvents(kEventCache);
+			for (auto kEvent : kEventCache)
 			{
-			case VE_QUIT:
-				bLoop = false;
-				break;
-			default:
-				break;
+				VE_ASSERT(kEvent->m_u32Type);
+				switch (kEvent->m_u32Type)
+				{
+				case VE_QUIT:
+					bLoop = false;
+					break;
+				default:
+					break;
+				}
 			}
+			kEventCache.clear();
 		}
 	}
 
@@ -47,7 +56,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
 	ve_sys.Term();
 
-	VeConsoleTerm();
+	VeEngine::Destory();
+	VeResourceManager::Destory();
+	VeSystem::Destory();
+	VeStringTable::Destory();
+#	ifdef VE_MEM_DEBUG
+	_VeMemoryExit();
+#	endif
 
 	return 0;
 }

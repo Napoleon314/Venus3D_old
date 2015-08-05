@@ -49,6 +49,10 @@
 #	define VE_NEON
 #endif
 
+#ifdef VE_PLATFORM_WIN
+#	define VE_ENABLE_D3D12
+#endif
+
 #define VE_OK (0)
 #define VE_ELF (-1)
 #define VE_INFINITE (0xFFFFFFFF)

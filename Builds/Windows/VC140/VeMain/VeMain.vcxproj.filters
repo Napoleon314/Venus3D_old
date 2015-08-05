@@ -8,6 +8,12 @@
     <Filter Include="Pch">
       <UniqueIdentifier>{6b4dab2b-c255-45c8-85ed-f16c856c9c12}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Renderer">
+      <UniqueIdentifier>{fed6f588-c149-4340-8737-01f4b8b1439b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Renderer\D3D12">
+      <UniqueIdentifier>{1a1b891c-de74-420f-a524-4d74a6e04c64}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\Source\VeMain\VeMain.h">
@@ -15,6 +21,15 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\Source\VeMain\VeMainPch.h">
       <Filter>Pch</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\VeMain\VeEngine.h">
+      <Filter>Kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\VeMain\VeRenderer.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\VeMain\_VeRendererD3D12.h">
+      <Filter>Renderer\D3D12</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -24,5 +39,19 @@
     <ClCompile Include="..\..\..\..\Source\VeMain\VeMainPch.cpp">
       <Filter>Pch</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\Source\VeMain\VeEngine.cpp">
+      <Filter>Kernel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Source\VeMain\VeRenderer.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Source\VeMain\_VeRendererD3D12.cpp">
+      <Filter>Renderer\D3D12</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\..\Source\VeMain\VeRenderer.inl">
+      <Filter>Renderer</Filter>
+    </None>
   </ItemGroup>
 </Project>

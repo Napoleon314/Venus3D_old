@@ -92,6 +92,7 @@ public:
 
 	void PeekEvents(VeVector<VeEvent*>& kOutput) noexcept;
 
+protected:
 	virtual void _Init() noexcept {}
 
 	virtual void _Term() noexcept {}
@@ -182,7 +183,6 @@ protected:
 	VeVector<VeVideoDisplay> m_kDisplayList;
 	VeRefList<VeWindow*> m_kWindowList;
 	VeUInt32 m_u32NextObjectID;
-
 
 };
 

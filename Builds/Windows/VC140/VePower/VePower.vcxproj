@@ -298,6 +298,7 @@
     <ClCompile Include="..\..\..\..\Source\VePower\VeFile.cpp" />
     <ClCompile Include="..\..\..\..\Source\VePower\VeLuaBind.cpp" />
     <ClCompile Include="..\..\..\..\Source\VePower\VeRect.cpp" />
+    <ClCompile Include="..\..\..\..\Source\VePower\VeSharedLib.cpp" />
     <ClCompile Include="..\..\..\..\Source\VePower\VeTaskQueue.cpp" />
     <ClCompile Include="..\..\..\..\Source\VePower\VeBinaryStream.cpp" />
     <ClCompile Include="..\..\..\..\Source\VePower\VeDirectory.cpp" />
@@ -343,6 +344,7 @@
     <ClInclude Include="..\..\..\..\Source\VePower\VeLuaBind.h" />
     <ClInclude Include="..\..\..\..\Source\VePower\VeMath.h" />
     <ClInclude Include="..\..\..\..\Source\VePower\VeRect.h" />
+    <ClInclude Include="..\..\..\..\Source\VePower\VeSharedLib.h" />
     <ClInclude Include="..\..\..\..\Source\VePower\VeTaskQueue.h" />
     <ClInclude Include="..\..\..\..\Source\VePower\VeBinaryStream.h" />
     <ClInclude Include="..\..\..\..\Source\VePower\VeDirectory.h" />

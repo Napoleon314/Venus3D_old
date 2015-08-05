@@ -16,8 +16,6 @@
 
 #define VE_STACK_SIZE (524288)
 
-VeSmartPointer(VeResourceManager);
-
 class VE_POWER_API VeSystem : public VeSingleton<VeSystem>
 {
 public:
