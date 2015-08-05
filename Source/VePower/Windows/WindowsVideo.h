@@ -102,6 +102,8 @@ public:
 	virtual void _DestroyWindow(VeWindow::Data* pkWindow) noexcept override;
 
 protected:
+	static LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
+
 	bool RegisterApp(const VeChar8* pcName, VeUInt32 u32Style, HINSTANCE hInst) noexcept;
 
 	void UnregisterApp() noexcept;

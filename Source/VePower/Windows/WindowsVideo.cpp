@@ -76,9 +76,24 @@ void WindowsVideoDevice::_Term() noexcept
 	TermModes();
 }
 //--------------------------------------------------------------------------
-LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg,
+LRESULT CALLBACK WindowsVideoDevice::WindowProc(HWND hwnd, UINT msg,
 	WPARAM wParam, LPARAM lParam) noexcept
 {
+	VE_ASSERT(ve_video_ptr);
+	VeWindowData* pkData = (VeWindowData*)GetProp(hwnd, TEXT("VeWindowData"));
+	if (pkData)
+	{
+		switch (msg)
+		{
+		case WM_CLOSE:
+			((WindowsVideoDevice*)ve_video_ptr)->SendWindowEvent(
+				pkData->m_pkWindow, VE_WINDOWEVENT_CLOSE, 0, 0);
+			return 0;
+		default:
+			break;
+		}
+	}
+
 	return CallWindowProc(DefWindowProc, hwnd, msg, wParam, lParam);
 }
 //--------------------------------------------------------------------------
@@ -754,15 +769,30 @@ bool WindowsVideoDevice::_CreateWindowFrom(VeWindow::Data* pkWindow,
 {
 	VE_ASSERT(pkWindow && pvData);
 	HWND hWnd = (HWND)pvData;
-	VeInt32 i32TitleLen = GetWindowTextLengthA(hWnd);
+
+	VeInt32 i32TitleLen = GetWindowTextLength(hWnd);
 	if (i32TitleLen > 0)
 	{
-		VeChar8* pcTitle = VeStackAlloc(VeChar8, i32TitleLen + 1);
-		VE_ASSERT(pcTitle);
-		i32TitleLen = GetWindowTextA(hWnd, pcTitle, i32TitleLen);
+		LPTSTR lpTitle = VeStackAlloc(TCHAR, i32TitleLen + 1);
+		VE_ASSERT(lpTitle);
+		lpTitle[i32TitleLen] = 0;
+		i32TitleLen = GetWindowText(hWnd, lpTitle, i32TitleLen);
 		VE_ASSERT(i32TitleLen > 0);
-		pkWindow->m_kTitle = pcTitle;
-		VeStackFree(pcTitle);
+#		ifdef _UNICODE
+		VeInt32 i32Num = WideCharToMultiByte(CP_UTF8, 0,
+			lpTitle, -1, 0, 0, 0, FALSE);
+		TempTextA kTitle((VeSizeT)i32Num + 1);
+		kTitle.m_lpstrText[i32Num] = 0;
+		if (i32Num)
+		{
+			WideCharToMultiByte(CP_UTF8, 0, lpTitle,
+				-1, kTitle.m_lpstrText, i32Num, 0, FALSE);
+		}
+		pkWindow->m_kTitle = kTitle.m_lpstrText;
+#		else
+		pkWindow->m_kTitle = lpTitle;
+#		endif
+		VeStackFree(lpTitle);
 	}
 
 	if (!SetupWindowData(pkWindow, hWnd, VE_FALSE))
@@ -777,7 +807,23 @@ void WindowsVideoDevice::_SetWindowTitle(VeWindow::Data* pkWindow) noexcept
 {
 	VE_ASSERT(pkWindow);
 	HWND hWnd = ((VeWindowData*)pkWindow->m_spDriverdata)->m_hWnd;
-	SetWindowTextA(hWnd, pkWindow->m_kTitle);
+
+	LPTSTR lptstrTitleAppName = nullptr;
+#	ifdef _UNICODE
+	VeInt32 i32Num = MultiByteToWideChar(CP_UTF8, 0, pkWindow->m_kTitle,
+		-1, nullptr, 0);
+	TempTextW kTitle((VeSizeT)i32Num + 1);
+	kTitle.m_lpwstrText[i32Num] = 0;
+	if (i32Num)
+	{
+		MultiByteToWideChar(CP_UTF8, 0, pkWindow->m_kTitle,
+			-1, kTitle.m_lpwstrText, i32Num);
+	}
+	lptstrTitleAppName = kTitle.m_lpwstrText;
+#	else
+	lptstrTitleAppName = pkWindow->m_kTitle;
+#	endif
+	SetWindowText(hWnd, lptstrTitleAppName);
 }
 //--------------------------------------------------------------------------
 void WindowsVideoDevice::_SetWindowPosition(
@@ -842,7 +888,7 @@ void WindowsVideoDevice::_SetWindowBordered(VeWindow::Data* pkWindow,
 {
 	VE_ASSERT(pkWindow);
 	HWND hWnd = ((VeWindowData*)pkWindow->m_spDriverdata)->m_hWnd;
-	DWORD dwStyle = GetWindowLongA(hWnd, GWL_STYLE);
+	DWORD dwStyle = GetWindowLong(hWnd, GWL_STYLE);
 
 	if (bBordered)
 	{
@@ -854,7 +900,7 @@ void WindowsVideoDevice::_SetWindowBordered(VeWindow::Data* pkWindow,
 		dwStyle |= STYLE_BORDERLESS;
 	}
 
-	SetWindowLongA(hWnd, GWL_STYLE, dwStyle);
+	SetWindowLong(hWnd, GWL_STYLE, dwStyle);
 	SetWindowPositionInternal(pkWindow, SWP_NOCOPYBITS | SWP_FRAMECHANGED
 		| SWP_NOREPOSITION | SWP_NOZORDER | SWP_NOACTIVATE | SWP_NOSENDCHANGING);
 }

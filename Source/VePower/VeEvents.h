@@ -119,6 +119,8 @@ public:
 		VeEvent m_kEvent;
 	};
 
+	typedef std::function<bool(VeEvent&)> EventFilter;
+
 	VeEventQueue() noexcept;
 
 	~VeEventQueue() noexcept;
@@ -149,12 +151,15 @@ public:
 
 	void FlushEvents() noexcept;
 
+	void FilterEvents(EventFilter funcFilter) noexcept;
+
+	void SendAppEvent(VeEventType eType) noexcept;
+
 protected:
 	VeUnorderedSet<VeUInt32> m_kDisabledEvents;
 	VePoolAllocatorPtr m_spMemPool;
 	VeRefList<EventEntry*> m_kFreeList;
 	VeRefList<EventEntry*> m_kEventQueue;
-	//VeRefList
 
 };
 

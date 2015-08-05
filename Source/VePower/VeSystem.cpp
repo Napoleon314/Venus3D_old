@@ -130,12 +130,26 @@ const VePoolAllocatorPtr& VeSystem::GetPoolAllocator(
 //--------------------------------------------------------------------------
 void VeSystem::Init() noexcept
 {
+	InitEventQueue();
 	InitVideo();
 }
 //--------------------------------------------------------------------------
 void VeSystem::Term() noexcept
 {
 	TermVideo();
+	TermEventQueue();
+}
+//--------------------------------------------------------------------------
+void VeSystem::InitEventQueue() noexcept
+{
+	m_spEventQueue = VE_NEW VeEventQueue();
+	m_spEventQueue->Init();
+}
+//--------------------------------------------------------------------------
+void VeSystem::TermEventQueue() noexcept
+{
+	m_spEventQueue->Term();
+	m_spEventQueue = nullptr;
 }
 //--------------------------------------------------------------------------
 void VeSystem::InitVideo() noexcept

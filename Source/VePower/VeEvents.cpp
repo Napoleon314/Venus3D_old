@@ -141,3 +141,23 @@ void VeEventQueue::FlushEvents() noexcept
 	VE_ASSERT(m_kEventQueue.empty());
 }
 //--------------------------------------------------------------------------
+void VeEventQueue::FilterEvents(EventFilter funcFilter) noexcept
+{
+	for (auto obj : m_kEventQueue)
+	{
+		if (!funcFilter(obj->m_kEvent))
+		{
+			m_kFreeList.attach_back(obj->m_kNode);
+		}		
+	}
+}
+//--------------------------------------------------------------------------
+void VeEventQueue::SendAppEvent(VeEventType eType) noexcept
+{
+	if (IsEventTypeEnable(eType))
+	{
+		VeEvent* pkNew = AddEvent();
+		pkNew->m_u32Type = eType;
+	}
+}
+//--------------------------------------------------------------------------

@@ -43,6 +43,25 @@ enum VeWindowFlags
 #define VE_WINDOWPOS_CENTERED				VE_WINDOWPOS_CENTERED_DISPLAY(0)
 #define VE_WINDOWPOS_ISCENTERED(X)			(((X)&0xFFFF0000) == VE_WINDOWPOS_CENTERED_MASK)
 
+enum VeWindowEventID
+{
+	VE_WINDOWEVENT_NONE,
+	VE_WINDOWEVENT_SHOWN,
+	VE_WINDOWEVENT_HIDDEN,
+	VE_WINDOWEVENT_EXPOSED,
+	VE_WINDOWEVENT_MOVED,
+	VE_WINDOWEVENT_RESIZED,
+	VE_WINDOWEVENT_SIZE_CHANGED,
+	VE_WINDOWEVENT_MINIMIZED,
+	VE_WINDOWEVENT_MAXIMIZED,
+	VE_WINDOWEVENT_RESTORED,
+	VE_WINDOWEVENT_ENTER,
+	VE_WINDOWEVENT_LEAVE,
+	VE_WINDOWEVENT_FOCUS_GAINED,
+	VE_WINDOWEVENT_FOCUS_LOST,
+	VE_WINDOWEVENT_CLOSE
+};
+
 class VE_POWER_API VeVideoDevice : public VeRefObject
 {
 public:
@@ -64,6 +83,8 @@ public:
 	void ShowWindow(VeWindow::Data* pkWindow) noexcept;
 
 	void HideWindow(VeWindow::Data* pkWindow) noexcept;
+
+	void RaiseWindow(VeWindow::Data* pkWindow) noexcept;
 
 	void SetWindowTitle(VeWindow::Data* pkWindow, const VeChar8* pcTitle) noexcept;
 
@@ -129,6 +150,26 @@ protected:
 	void UpdateFullscreenMode(VeWindow::Data* pkWindow, VE_BOOL bFullscreen) noexcept;
 
 	void FinishWindowCreation(VeWindow::Data* pkWindow, VeUInt32 u32Flags) noexcept;
+
+	void SendWindowEvent(VeWindow::Data* pkWindow, VeUInt8 u8Event, VeInt32 i32Data1, VeInt32 i32Data2) noexcept;
+
+	void OnWindowShown(VeWindow::Data* pkWindow) noexcept;
+
+	void OnWindowHidden(VeWindow::Data* pkWindow) noexcept;
+
+	void OnWindowResized(VeWindow::Data* pkWindow) noexcept;
+
+	void OnWindowMinimized(VeWindow::Data* pkWindow) noexcept;
+
+	void OnWindowRestored(VeWindow::Data* pkWindow) noexcept;
+
+	void OnWindowEnter(VeWindow::Data* pkWindow) noexcept;
+
+	void OnWindowLeave(VeWindow::Data* pkWindow) noexcept;
+
+	void OnWindowFocusGained(VeWindow::Data* pkWindow) noexcept;
+
+	void OnWindowFocusLost(VeWindow::Data* pkWindow) noexcept;
 
 	VeVideoDevice() noexcept {}
 

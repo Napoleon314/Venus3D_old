@@ -49,6 +49,8 @@ public:
 
 	inline const VeStackAllocatorPtr& GetStackAllocator() noexcept;
 
+	inline const VeEventQueuePtr& GetEventQueue() noexcept;
+
 	inline const VeVideoDevicePtr& GetVideoDevice() noexcept;
 
 	const VePoolAllocatorPtr& GetPoolAllocator(VeSizeT stUnitSize) noexcept;
@@ -58,6 +60,10 @@ public:
 	void Term() noexcept;
 
 private:
+	void InitEventQueue() noexcept;
+
+	void TermEventQueue() noexcept;
+
 	void InitVideo() noexcept;
 
 	void TermVideo() noexcept;
@@ -69,6 +75,7 @@ private:
 	VeRefList<VeRefObject*> m_kObjCollector;
 	VeStackAllocatorPtr m_spMainStack;
 	PoolAllocatorMap m_kAllocatorMap;
+	VeEventQueuePtr m_spEventQueue;
 	VeVideoDevicePtr m_spVideo;
 
 public:
@@ -80,6 +87,7 @@ public:
 #define ve_sys VeSystem::GetSingleton()
 #define ve_log ve_sys.GetLog()
 #define ve_lua ve_sys.GetLua()
+#define ve_event_queue_ptr ve_sys.GetEventQueue()
 #define ve_video_ptr ve_sys.GetVideoDevice()
 #define VeStackMalloc(s) (ve_sys.GetStackAllocator()->Allocate(s))
 #define VeStackAlloc(t,s) (t*)(ve_sys.GetStackAllocator()->Allocate(s))

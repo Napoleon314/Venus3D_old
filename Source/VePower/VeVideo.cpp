@@ -161,7 +161,7 @@ void VeVideoDevice::ShowWindow(VeWindow::Data* pkWindow) noexcept
 
 	_ShowWindow(pkWindow);
 
-	//SDL_SendWindowEvent(window, SDL_WINDOWEVENT_SHOWN, 0, 0);
+	SendWindowEvent(pkWindow, VE_WINDOWEVENT_SHOWN, 0, 0);
 }
 //--------------------------------------------------------------------------
 void VeVideoDevice::HideWindow(VeWindow::Data* pkWindow) noexcept
@@ -175,7 +175,18 @@ void VeVideoDevice::HideWindow(VeWindow::Data* pkWindow) noexcept
 	UpdateFullscreenMode(pkWindow, VE_FALSE);
 	_HideWindow(pkWindow);
 
-	//SDL_SendWindowEvent(window, SDL_WINDOWEVENT_HIDDEN, 0, 0);
+	SendWindowEvent(pkWindow, VE_WINDOWEVENT_HIDDEN, 0, 0);
+}
+//--------------------------------------------------------------------------
+void VeVideoDevice::RaiseWindow(VeWindow::Data* pkWindow) noexcept
+{
+	VE_ASSERT(pkWindow);
+	if (!(pkWindow->m_u32Flags & VE_WINDOW_SHOWN))
+	{
+		return;
+	}
+
+	_RaiseWindow(pkWindow);
 }
 //--------------------------------------------------------------------------
 void VeVideoDevice::SetWindowTitle(VeWindow::Data* pkWindow,
@@ -327,5 +338,204 @@ void VeVideoDevice::FinishWindowCreation(VeWindow::Data* pkWindow,
 	{
 		ShowWindow(pkWindow);
 	}
+}
+//--------------------------------------------------------------------------
+void VeVideoDevice::SendWindowEvent(VeWindow::Data* pkWindow,
+	VeUInt8 u8Event, VeInt32 i32Data1, VeInt32 i32Data2) noexcept
+{
+	VE_ASSERT(pkWindow);
+
+	switch (u8Event)
+	{
+	case VE_WINDOWEVENT_SHOWN:
+		if (pkWindow->m_u32Flags & VE_WINDOW_SHOWN)
+		{
+			return;
+		}
+		pkWindow->m_u32Flags &= ~VE_WINDOW_HIDDEN;
+		pkWindow->m_u32Flags |= VE_WINDOW_SHOWN;
+		OnWindowShown(pkWindow);
+		break;
+	case VE_WINDOWEVENT_HIDDEN:
+		if (!(pkWindow->m_u32Flags & VE_WINDOW_SHOWN))
+		{
+			return;
+		}
+		pkWindow->m_u32Flags &= ~VE_WINDOW_SHOWN;
+		pkWindow->m_u32Flags |= VE_WINDOW_HIDDEN;
+		OnWindowHidden(pkWindow);
+		break;
+	case VE_WINDOWEVENT_MOVED:
+		if (VE_WINDOWPOS_ISUNDEFINED(i32Data1) ||
+			VE_WINDOWPOS_ISUNDEFINED(i32Data2))
+		{
+			return;
+		}
+		if (!(pkWindow->m_u32Flags & VE_WINDOW_FULLSCREEN))
+		{
+			pkWindow->m_kWindowed.x = i32Data1;
+			pkWindow->m_kWindowed.y = i32Data2;
+		}
+		if (i32Data1 == pkWindow->x && i32Data2 == pkWindow->y)
+		{
+			return;
+		}
+		pkWindow->x = i32Data1;
+		pkWindow->y = i32Data2;
+		break;
+	case VE_WINDOWEVENT_RESIZED:
+		if (!(pkWindow->m_u32Flags & VE_WINDOW_FULLSCREEN))
+		{
+			pkWindow->m_kWindowed.w = i32Data1;
+			pkWindow->m_kWindowed.h = i32Data2;
+		}
+		if (i32Data1 == pkWindow->w && i32Data2 == pkWindow->h)
+		{
+			return;
+		}
+		pkWindow->w = i32Data1;
+		pkWindow->h = i32Data2;
+		OnWindowResized(pkWindow);
+		break;
+	case VE_WINDOWEVENT_MINIMIZED:
+		if (pkWindow->m_u32Flags & VE_WINDOW_MINIMIZED)
+		{
+			return;
+		}
+		pkWindow->m_u32Flags |= VE_WINDOW_MINIMIZED;
+		OnWindowMinimized(pkWindow);
+		break;
+	case VE_WINDOWEVENT_MAXIMIZED:
+		if (pkWindow->m_u32Flags & VE_WINDOW_MAXIMIZED)
+		{
+			return;
+		}
+		pkWindow->m_u32Flags |= VE_WINDOW_MAXIMIZED;
+		break;
+	case VE_WINDOWEVENT_RESTORED:
+		if (!(pkWindow->m_u32Flags & (VE_WINDOW_MINIMIZED | VE_WINDOW_MAXIMIZED)))
+		{
+			return;
+		}
+		pkWindow->m_u32Flags &= ~(VE_WINDOW_MINIMIZED | VE_WINDOW_MAXIMIZED);
+		OnWindowRestored(pkWindow);
+		break;
+	case VE_WINDOWEVENT_ENTER:
+		if (pkWindow->m_u32Flags & VE_WINDOW_MOUSE_FOCUS)
+		{
+			return;
+		}
+		pkWindow->m_u32Flags |= VE_WINDOW_MOUSE_FOCUS;
+		OnWindowEnter(pkWindow);
+		break;
+	case VE_WINDOWEVENT_LEAVE:
+		if (!(pkWindow->m_u32Flags & VE_WINDOW_MOUSE_FOCUS))
+		{
+			return;
+		}
+		pkWindow->m_u32Flags &= ~VE_WINDOW_MOUSE_FOCUS;
+		OnWindowLeave(pkWindow);
+		break;
+	case VE_WINDOWEVENT_FOCUS_GAINED:
+		if (pkWindow->m_u32Flags & VE_WINDOW_INPUT_FOCUS)
+		{
+			return;
+		}
+		pkWindow->m_u32Flags |= VE_WINDOW_INPUT_FOCUS;
+		OnWindowFocusGained(pkWindow);
+		break;
+	case VE_WINDOWEVENT_FOCUS_LOST:
+		if (!(pkWindow->m_u32Flags & VE_WINDOW_INPUT_FOCUS))
+		{
+			return;
+		}
+		pkWindow->m_u32Flags &= ~VE_WINDOW_INPUT_FOCUS;
+		OnWindowFocusLost(pkWindow);
+		break;
+	}
+
+	VE_ASSERT(ve_event_queue_ptr);
+	if (ve_event_queue_ptr->IsEventTypeEnable(VE_WINDOWEVENT))
+	{
+		switch (u8Event)
+		{
+		case VE_WINDOWEVENT_RESIZED:
+		case VE_WINDOWEVENT_SIZE_CHANGED:
+		case VE_WINDOWEVENT_MOVED:
+			ve_event_queue_ptr->FilterEvents([u8Event, pkWindow](VeEvent& kEvent) noexcept
+			{
+				if (kEvent.m_u32Type == VE_WINDOWEVENT
+					&& kEvent.m_kWindow.m_u8Event == u8Event
+					&& kEvent.m_kWindow.m_u32WindowID == pkWindow->m_u32Id)
+				{
+					return false;
+				}
+				return true;
+			});
+			break;
+		default:
+			break;
+		}
+
+		VeEvent* pkNew = ve_event_queue_ptr->AddEvent();
+		pkNew->m_u32Type = VE_WINDOWEVENT;
+		pkNew->m_kWindow.m_u8Event = u8Event;
+		pkNew->m_kWindow.m_i32Data1 = i32Data1;
+		pkNew->m_kWindow.m_i32Data2 = i32Data2;
+		pkNew->m_kWindow.m_u32WindowID = pkWindow->m_u32Id;
+	}
+
+	if (u8Event == VE_WINDOWEVENT_CLOSE)
+	{
+		if (m_kWindowList.size() == 1)
+		{
+			ve_event_queue_ptr->SendAppEvent(VE_QUIT);
+		}
+	}
+}
+//--------------------------------------------------------------------------
+void VeVideoDevice::OnWindowShown(VeWindow::Data* pkWindow) noexcept
+{
+
+}
+//--------------------------------------------------------------------------
+void VeVideoDevice::OnWindowHidden(VeWindow::Data* pkWindow) noexcept
+{
+
+}
+//--------------------------------------------------------------------------
+void VeVideoDevice::OnWindowResized(VeWindow::Data* pkWindow) noexcept
+{
+
+}
+//--------------------------------------------------------------------------
+void VeVideoDevice::OnWindowMinimized(VeWindow::Data* pkWindow) noexcept
+{
+
+}
+//--------------------------------------------------------------------------
+void VeVideoDevice::OnWindowRestored(VeWindow::Data* pkWindow) noexcept
+{
+
+}
+//--------------------------------------------------------------------------
+void VeVideoDevice::OnWindowEnter(VeWindow::Data* pkWindow) noexcept
+{
+
+}
+//--------------------------------------------------------------------------
+void VeVideoDevice::OnWindowLeave(VeWindow::Data* pkWindow) noexcept
+{
+
+}
+//--------------------------------------------------------------------------
+void VeVideoDevice::OnWindowFocusGained(VeWindow::Data* pkWindow) noexcept
+{
+
+}
+//--------------------------------------------------------------------------
+void VeVideoDevice::OnWindowFocusLost(VeWindow::Data* pkWindow) noexcept
+{
+
 }
 //--------------------------------------------------------------------------
