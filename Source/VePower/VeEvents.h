@@ -143,7 +143,7 @@ public:
 
 	VeEvent* AddEvent() noexcept;
 
-	void PeekEvent(VeVector<VeEvent*>& kOutput) noexcept;
+	void PeekEvents(VeVector<VeEvent*>& kOutput) noexcept;
 
 	void FlushEvent(VeUInt32 u32Event) noexcept;
 

@@ -208,6 +208,13 @@ const VeChar8* VeVideoDevice::GetWindowTitle(
 	return pkWindow->m_kTitle;
 }
 //--------------------------------------------------------------------------
+void VeVideoDevice::PeekEvents(VeVector<VeEvent*>& kOutput) noexcept
+{
+	VE_ASSERT(ve_event_queue_ptr);
+	_PumpEvents();
+	ve_event_queue_ptr->PeekEvents(kOutput);
+}
+//--------------------------------------------------------------------------
 VeInt32 VeVideoDevice::GetWindowDisplayIndex(
 	VeWindow::Data* pkWindow) noexcept
 {

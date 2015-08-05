@@ -90,6 +90,8 @@ public:
 
 	const VeChar8* GetWindowTitle(VeWindow::Data* pkWindow) noexcept;
 
+	void PeekEvents(VeVector<VeEvent*>& kOutput) noexcept;
+
 	virtual void _Init() noexcept {}
 
 	virtual void _Term() noexcept {}

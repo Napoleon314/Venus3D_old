@@ -34,8 +34,16 @@ void VeEventQueue::Init() noexcept
 void VeEventQueue::Term() noexcept
 {
 	m_kDisabledEvents.clear();
-	m_kFreeList.clear();
-	m_kEventQueue.clear();
+	for (auto obj : m_kEventQueue)
+	{
+		obj->m_kNode.detach();
+		m_spMemPool->Deallocate(obj);
+	}
+	for (auto obj : m_kFreeList)
+	{
+		obj->m_kNode.detach();
+		m_spMemPool->Deallocate(obj);
+	}
 	m_spMemPool = nullptr;
 }
 //--------------------------------------------------------------------------
@@ -100,7 +108,7 @@ VeEvent* VeEventQueue::AddEvent() noexcept
 	return &(pkEntry->m_kEvent);
 }
 //--------------------------------------------------------------------------
-void VeEventQueue::PeekEvent(VeVector<VeEvent*>& kOutput) noexcept
+void VeEventQueue::PeekEvents(VeVector<VeEvent*>& kOutput) noexcept
 {
 	kOutput.clear();
 	for (auto obj : m_kEventQueue)

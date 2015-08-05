@@ -21,16 +21,29 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
 	ve_sys.Init();
 
-	//VeUInt32 style = 113901568;//440 125 1040 807
+	VeWindowPtr spWindow = ve_video_ptr->CreateWindowBy("Render Test",
+		VE_WINDOWPOS_CENTERED, VE_WINDOWPOS_CENTERED, 1024, 768, 0);
 
-	ve_video_ptr->CreateWindowBy("Test", VE_WINDOWPOS_CENTERED, VE_WINDOWPOS_CENTERED,
-		1024, 768, 0);
-
-	while (true)
+	bool bLoop(true);
+	while (bLoop)
 	{
-		ve_video_ptr->_PumpEvents();
-		VeSleep(10);
+		VeVector<VeEvent*> kEventCache;
+		ve_video_ptr->PeekEvents(kEventCache);
+		for (auto kEvent : kEventCache)
+		{
+			VE_ASSERT(kEvent->m_u32Type);
+			switch (kEvent->m_u32Type)
+			{
+			case VE_QUIT:
+				bLoop = false;
+				break;
+			default:
+				break;
+			}
+		}
 	}
+
+	spWindow = nullptr;
 
 	ve_sys.Term();
 
