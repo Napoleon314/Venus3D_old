@@ -522,6 +522,13 @@ void VeVideoDevice::DestroyWindow(VeWindow::Data* pkWindow) noexcept
 	pkWindow->m_kNode.detach();
 }
 //--------------------------------------------------------------------------
+void VeVideoDevice::GetWindowWMInfo(VeWindow::Data* pkWindow,
+	VeSysWMInfo* pkInfo) noexcept
+{
+	VE_ASSERT(pkWindow && pkWindow->m_kNode.is_attach(m_kWindowList));
+	_GetWindowWMInfo(pkWindow, pkInfo);
+}
+//--------------------------------------------------------------------------
 void VeVideoDevice::PeekEvents(VeVector<VeEvent*>& kOutput) noexcept
 {
 	VE_ASSERT(ve_event_queue_ptr);
@@ -860,9 +867,7 @@ void VeVideoDevice::OnWindowRestored(VeWindow::Data* pkWindow) noexcept
 //--------------------------------------------------------------------------
 void VeVideoDevice::OnWindowEnter(VeWindow::Data* pkWindow) noexcept
 {
-	/*if (_this->OnWindowEnter) {
-		_this->OnWindowEnter(_this, window);
-	}*/
+	_OnWindowEnter(pkWindow);
 }
 //--------------------------------------------------------------------------
 void VeVideoDevice::OnWindowLeave(VeWindow::Data* pkWindow) noexcept

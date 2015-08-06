@@ -118,6 +118,8 @@ public:
 
 	void DestroyWindow(VeWindow::Data* pkWindow) noexcept;
 
+	void GetWindowWMInfo(VeWindow::Data* pkWindow, VeSysWMInfo* pkInfo) noexcept;
+
 	void PeekEvents(VeVector<VeEvent*>& kOutput) noexcept;
 
 protected:
@@ -169,9 +171,13 @@ protected:
 
 	virtual bool _GetWindowGammaRamp(VeWindow::Data* pkWindow, VeUInt16* pu16Ramp) noexcept;
 
-	virtual void _SetWindowGrab(VeWindow::Data* pkWindow, VE_BOOL bGrabbed) noexcept {};
+	virtual void _SetWindowGrab(VeWindow::Data* pkWindow, VE_BOOL bGrabbed) noexcept {}
 
 	virtual void _DestroyWindow(VeWindow::Data* pkWindow) noexcept {}
+
+	virtual void _OnWindowEnter(VeWindow::Data* pkWindow) noexcept {}
+
+	virtual void _GetWindowWMInfo(VeWindow::Data* pkWindow, VeSysWMInfo* pkInfo) noexcept {}
 
 	static void CalculateGammaRamp(VeFloat32 f32Gamma, VeUInt16* pu16Ramp) noexcept;
 

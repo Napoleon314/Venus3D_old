@@ -243,6 +243,54 @@ struct VeWindowUserData
 	VeWindowUserData* m_pkNext = nullptr;
 };
 
+enum VeSysWMType
+{
+	VE_SYSWM_UNKNOWN,
+	VE_SYSWM_WINDOWS,
+	VE_SYSWM_X11,
+	VE_SYSWM_COCOA,
+	VE_SYSWM_UIKIT,
+	VE_SYSWM_ANDROID
+};
+
+#ifdef VE_PLATFORM_WIN
+#	define VE_VIDEO_DRIVER_WINDOWS
+#endif
+
+struct VeSysWMInfo
+{
+	VeSysWMType m_eType = VE_SYSWM_UNKNOWN;
+	union
+	{
+#		if defined(VE_VIDEO_DRIVER_WINDOWS)
+		struct
+		{
+			HWND window;
+		} win;
+#		endif
+#		if defined(VE_VIDEO_DRIVER_X11)
+		struct
+		{
+			Display *display;
+			Window window;
+		} x11;
+#		endif
+#		if defined(VE_VIDEO_DRIVER_COCOA)
+		struct
+		{
+			NSWindow *window;
+		} cocoa;
+#		endif
+#		if defined(VE_VIDEO_DRIVER_UIKIT)
+		struct
+		{
+			UIWindow *window;
+		} uikit;
+#		endif
+		VeInt32 dummy = 0;
+	};
+};
+
 class VE_POWER_API VeWindow : public VeRefObject
 {
 public:
@@ -334,7 +382,9 @@ public:
 
 	void SetGrab(bool bGrabbed) noexcept;
 
-	void Destory();
+	void Destory() noexcept;
+
+	VeSysWMInfo GetWMInfo() noexcept;
 
 	static VeWindow* Cast(VeWindow::Data* pkData) noexcept;
 

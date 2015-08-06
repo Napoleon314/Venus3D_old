@@ -101,6 +101,10 @@ public:
 
 	virtual void _DestroyWindow(VeWindow::Data* pkWindow) noexcept override;
 
+	virtual void _OnWindowEnter(VeWindow::Data* pkWindow) noexcept override;
+
+	virtual void _GetWindowWMInfo(VeWindow::Data* pkWindow, VeSysWMInfo* pkInfo) noexcept override;
+
 protected:
 	static LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
 

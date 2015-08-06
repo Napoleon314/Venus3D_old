@@ -161,12 +161,22 @@ void VeWindow::SetGrab(bool bGrabbed) noexcept
 	}
 }
 //--------------------------------------------------------------------------
-void VeWindow::Destory()
+void VeWindow::Destory() noexcept
 {
 	if (ve_video_ptr && IsValid())
 	{
 		ve_video_ptr->DestroyWindow(&m_kData);
 	}
+}
+//--------------------------------------------------------------------------
+VeSysWMInfo VeWindow::GetWMInfo() noexcept
+{
+	VeSysWMInfo kInfo;
+	if (ve_video_ptr && IsValid())
+	{
+		ve_video_ptr->GetWindowWMInfo(&m_kData, &kInfo);
+	}
+	return kInfo;
 }
 //--------------------------------------------------------------------------
 VeWindow* VeWindow::Cast(Data* pkData) noexcept

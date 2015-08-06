@@ -1035,3 +1035,31 @@ void WindowsVideoDevice::_DestroyWindow(VeWindow::Data* pkWindow) noexcept
 	}
 }
 //--------------------------------------------------------------------------
+void WindowsVideoDevice::_OnWindowEnter(VeWindow::Data* pkWindow) noexcept
+{
+#	ifdef WM_MOUSELEAVE
+	VeWindowData* pkData = (VeWindowData*)pkWindow->m_spDriverdata;
+	TRACKMOUSEEVENT trackMouseEvent;
+
+	if (!pkData || !pkData->m_hWnd)
+	{
+		return;
+	}
+
+	trackMouseEvent.cbSize = sizeof(TRACKMOUSEEVENT);
+	trackMouseEvent.dwFlags = TME_LEAVE;
+	trackMouseEvent.hwndTrack = pkData->m_hWnd;
+
+	TrackMouseEvent(&trackMouseEvent);
+#	endif
+}
+//--------------------------------------------------------------------------
+void WindowsVideoDevice::_GetWindowWMInfo(VeWindow::Data* pkWindow,
+	VeSysWMInfo* pkInfo) noexcept
+{
+	VE_ASSERT(pkWindow && pkInfo);
+	HWND hwnd = ((VeWindowData*)pkWindow->m_spDriverdata)->m_hWnd;
+	pkInfo->m_eType = VE_SYSWM_WINDOWS;
+	pkInfo->win.window = hwnd;
+}
+//--------------------------------------------------------------------------
