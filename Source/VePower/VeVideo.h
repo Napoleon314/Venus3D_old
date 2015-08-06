@@ -78,7 +78,17 @@ public:
 	bool CreateWindowBy(VeWindow::Data* pkWindow, const VeChar8* pcTitle,
 		VeInt32 x, VeInt32 y, VeInt32 w, VeInt32 h, VeUInt32 u32Flags) noexcept;
 
-	void DestroyWindow(VeWindow::Data* pkWindow) noexcept;
+	bool CreateWindowFrom(VeWindow::Data* pkWindow, const void* pvData) noexcept;
+
+	void SetWindowTitle(VeWindow::Data* pkWindow, const VeChar8* pcTitle) noexcept;
+
+	void SetWindowPosition(VeWindow::Data* pkWindow, VeInt32 x, VeInt32 y) noexcept;
+
+	void SetWindowSize(VeWindow::Data* pkWindow, VeInt32 w, VeInt32 h) noexcept;
+
+	void SetWindowMinimumSize(VeWindow::Data* pkWindow, VeInt32 min_w, VeInt32 min_h) noexcept;
+
+	void SetWindowMaximumSize(VeWindow::Data* pkWindow, VeInt32 max_w, VeInt32 max_h) noexcept;
 
 	void ShowWindow(VeWindow::Data* pkWindow) noexcept;
 
@@ -86,9 +96,27 @@ public:
 
 	void RaiseWindow(VeWindow::Data* pkWindow) noexcept;
 
-	void SetWindowTitle(VeWindow::Data* pkWindow, const VeChar8* pcTitle) noexcept;
+	void MaximizeWindow(VeWindow::Data* pkWindow) noexcept;
 
-	const VeChar8* GetWindowTitle(VeWindow::Data* pkWindow) noexcept;
+	void MinimizeWindow(VeWindow::Data* pkWindow) noexcept;
+
+	void RestoreWindow(VeWindow::Data* pkWindow) noexcept;
+
+	void SetWindowBordered(VeWindow::Data* pkWindow, VE_BOOL bBordered) noexcept;
+
+	void SetWindowFullscreen(VeWindow::Data* pkWindow, VeUInt32 u32Flags) noexcept;
+
+	bool SetWindowGammaRamp(VeWindow::Data* pkWindow, const VeUInt16* red,
+		const VeUInt16* green, const VeUInt16* blue) noexcept;
+
+	bool GetWindowGammaRamp(VeWindow::Data* pkWindow, VeUInt16* red,
+		VeUInt16* green, VeUInt16* blue) noexcept;
+
+	bool SetWindowBrightness(VeWindow::Data* pkWindow, VeFloat32 f32Brightness) noexcept;
+
+	void SetWindowGrab(VeWindow::Data* pkWindow, VE_BOOL bGrabbed) noexcept;
+
+	void DestroyWindow(VeWindow::Data* pkWindow) noexcept;
 
 	void PeekEvents(VeVector<VeEvent*>& kOutput) noexcept;
 
@@ -139,16 +167,20 @@ protected:
 
 	virtual bool _SetWindowGammaRamp(VeWindow::Data* pkWindow, const VeUInt16* pu16Ramp) noexcept { return false; }
 
-	virtual bool _GetWindowGammaRamp(VeWindow::Data* pkWindow, VeUInt16* pu16Ramp) noexcept { return false; }
+	virtual bool _GetWindowGammaRamp(VeWindow::Data* pkWindow, VeUInt16* pu16Ramp) noexcept;
 
 	virtual void _SetWindowGrab(VeWindow::Data* pkWindow, VE_BOOL bGrabbed) noexcept {};
 
 	virtual void _DestroyWindow(VeWindow::Data* pkWindow) noexcept {}
 
+	static void CalculateGammaRamp(VeFloat32 f32Gamma, VeUInt16* pu16Ramp) noexcept;
+
 protected:
 	VeInt32 GetWindowDisplayIndex(VeWindow::Data* pkWindow) noexcept;
 
 	VeVideoDisplay* GetDisplayForWindow(VeWindow::Data* pkWindow) noexcept;
+
+	VeInt32 GetIndexOfDisplay(VeVideoDisplay* pkDisplay) noexcept;
 
 	void UpdateFullscreenMode(VeWindow::Data* pkWindow, VE_BOOL bFullscreen) noexcept;
 

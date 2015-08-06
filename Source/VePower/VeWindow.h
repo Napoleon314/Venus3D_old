@@ -261,8 +261,8 @@ public:
 		VeRect m_kWindowed;
 		VeDisplayMode m_kFullscreenMode;
 		VeFloat32 m_f32Brightness = 0;
-		VeUInt16 m_u16Gamma = 0;
-		VeUInt16 m_u16SavedGamma = 0;
+		VeUInt16* m_pu16Gamma = nullptr;
+		VeUInt16* m_pu16SavedGamma = nullptr;
 		void* surface = nullptr;
 		VE_BOOL m_bSurfaceValid = 0;
 		VE_BOOL m_bIsDestorying = 0;
@@ -281,8 +281,58 @@ public:
 
 	inline const VeChar8* GetTitle() const noexcept;
 
+	inline VeInt32 GetPosX() const noexcept;
+
+	inline VeInt32 GetPosY() const noexcept;
+
+	inline VeInt32 GetWidth() const noexcept;
+
+	inline VeInt32 GetHeight() const noexcept;
+
+	inline VeInt32 GetMinimumWidth() const noexcept;
+
+	inline VeInt32 GetMinimumHeight() const noexcept;
+
+	inline VeInt32 GetMaximumWidth() const noexcept;
+
+	inline VeInt32 GetMaximumHeight() const noexcept;
+
+	inline VeFloat32 GetBrightness() const noexcept;
+
 	bool Create(const VeChar8* pcTitle, VeInt32 x, VeInt32 y,
 		VeInt32 w, VeInt32 h, VeUInt32 u32Flags) noexcept;
+
+	bool Create(const void* pvData) noexcept;
+
+	void SetTitle(const VeChar8* pcTitle) noexcept;
+
+	void SetPosition(VeInt32 x, VeInt32 y) noexcept;
+
+	void SetSize(VeInt32 w, VeInt32 h) noexcept;
+
+	void SetMinimumSize(VeInt32 min_w, VeInt32 min_h) noexcept;
+
+	void SetMaximumSize(VeInt32 max_w, VeInt32 max_h) noexcept;
+
+	void Show() noexcept;
+
+	void Hide() noexcept;
+
+	void Raise() noexcept;
+
+	void Maximize() noexcept;
+
+	void Minimize() noexcept;
+
+	void Restore() noexcept;
+
+	void SetBordered(bool bBordered) noexcept;
+
+	void SetFullscreen(VeUInt32 u32Flags) noexcept;
+
+	bool SetBrightness(VeFloat32 f32Brightness) noexcept;
+
+	void SetGrab(bool bGrabbed) noexcept;
 
 	void Destory();
 
