@@ -75,10 +75,10 @@ public:
 	
 	void GetDisplayBounds(VeInt32 i32DisplayIndex, VeRect* pkRect) noexcept;
 
-	VeWindowPtr CreateWindowBy(const VeChar8* pcTitle, VeInt32 x, VeInt32 y,
-		VeInt32 w, VeInt32 h, VeUInt32 u32Flags) noexcept;
+	bool CreateWindowBy(VeWindow::Data* pkWindow, const VeChar8* pcTitle,
+		VeInt32 x, VeInt32 y, VeInt32 w, VeInt32 h, VeUInt32 u32Flags) noexcept;
 
-	void DestroyWindow(VeWindowPtr& spWindow) noexcept;
+	void DestroyWindow(VeWindow::Data* pkWindow) noexcept;
 
 	void ShowWindow(VeWindow::Data* pkWindow) noexcept;
 
@@ -181,7 +181,7 @@ protected:
 	VeFixedString m_kName;
 	VeFixedString m_kDesc;
 	VeVector<VeVideoDisplay> m_kDisplayList;
-	VeRefList<VeWindow*> m_kWindowList;
+	VeRefList<VeWindow::Data*> m_kWindowList;
 	VeUInt32 m_u32NextObjectID;
 
 };

@@ -243,5 +243,8 @@
     <None Include="..\..\..\..\Source\VePower\VeRect.inl">
       <Filter>Math</Filter>
     </None>
+    <None Include="..\..\..\..\Source\VePower\VeWindow.inl">
+      <Filter>Video</Filter>
+    </None>
   </ItemGroup>
 </Project>

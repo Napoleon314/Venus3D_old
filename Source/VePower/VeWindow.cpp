@@ -17,14 +17,28 @@
 //--------------------------------------------------------------------------
 VeWindow::VeWindow() noexcept
 {
-	m_kNode.m_Content = this;
+	m_kData.m_kNode.m_Content = &m_kData;
 }
 //--------------------------------------------------------------------------
 VeWindow::~VeWindow() noexcept
 {
-
-	
-
+	Destory();
+}
+//--------------------------------------------------------------------------
+bool VeWindow::Create(const VeChar8* pcTitle, VeInt32 x, VeInt32 y,
+	VeInt32 w, VeInt32 h, VeUInt32 u32Flags) noexcept
+{
+	if (!ve_video_ptr) return false;
+	if (IsValid()) return false;
+	return ve_video_ptr->CreateWindowBy(&m_kData, pcTitle, x, y, w, h, u32Flags);
+}
+//--------------------------------------------------------------------------
+void VeWindow::Destory()
+{
+	if (ve_video_ptr && IsValid())
+	{
+		ve_video_ptr->DestroyWindow(&m_kData);
+	}
 }
 //--------------------------------------------------------------------------
 VeWindow* VeWindow::Cast(Data* pkData) noexcept

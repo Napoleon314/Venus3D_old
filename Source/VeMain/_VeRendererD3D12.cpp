@@ -62,15 +62,7 @@ bool VeRendererD3D12::Init() noexcept
 	}
 #	endif
 
-	ComPtr<IDXGIFactory4> cpFactory;
-	if (VE_FAILED(CreateDXGIFactory1(IID_PPV_ARGS(&cpFactory))))
-		return false;
-
-	ComPtr<IDXGIAdapter> cpAdapter;
-	if (VE_FAILED(cpFactory->EnumWarpAdapter(IID_PPV_ARGS(&cpAdapter))))
-		return false;
-
-	if (VE_FAILED(D3D12CreateDevice(cpAdapter.Get(),
+	if (VE_FAILED(D3D12CreateDevice(nullptr,
 		D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&m_cpDevice))))
 		return false;
 

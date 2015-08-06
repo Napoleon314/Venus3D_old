@@ -28,8 +28,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 	ve_sys.Init();
 	ve_engine.Init();
 
-	VeWindowPtr spWindow = ve_video_ptr->CreateWindowBy("Render Test",
-		VE_WINDOWPOS_CENTERED, VE_WINDOWPOS_CENTERED, 1024, 768, 0);
+	VeWindowPtr spWindow1 = VE_NEW VeWindow();
+	spWindow1->Create("Render Test1", 80, VE_WINDOWPOS_CENTERED, 800, 600, 0);
+		
+	VeWindowPtr spWindow2 = VE_NEW VeWindow();
+	spWindow2->Create("Render Test2", 960, VE_WINDOWPOS_CENTERED, 800, 600, 0);
 
 	{
 		bool bLoop(true);
@@ -42,6 +45,19 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 				VE_ASSERT(kEvent->m_u32Type);
 				switch (kEvent->m_u32Type)
 				{
+				case VE_WINDOWEVENT:
+					if (kEvent->m_kWindow.m_u8Event == VE_WINDOWEVENT_CLOSE)
+					{
+						if (spWindow1 && kEvent->m_kWindow.m_u32WindowID == spWindow1->GetID())
+						{
+							spWindow1 = nullptr;
+						}
+						if (spWindow2 && kEvent->m_kWindow.m_u32WindowID == spWindow2->GetID())
+						{
+							spWindow2 = nullptr;
+						}
+					}
+					break;
 				case VE_QUIT:
 					bLoop = false;
 					break;
@@ -54,7 +70,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 		}
 	}
 
-	spWindow = nullptr;
+	VE_ASSERT(!(spWindow1 || spWindow2));
 
 	ve_engine.Term();
 	ve_sys.Term();

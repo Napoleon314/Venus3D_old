@@ -385,6 +385,7 @@
     <None Include="..\..\..\..\Source\VePower\VeSystem.inl" />
     <None Include="..\..\..\..\Source\VePower\VeThread.inl" />
     <None Include="..\..\..\..\Source\VePower\VeVideo.inl" />
+    <None Include="..\..\..\..\Source\VePower\VeWindow.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

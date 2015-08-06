@@ -25,8 +25,8 @@ void VeVideoDevice::Term() noexcept
 {
 	while (m_kWindowList.size())
 	{
-		VeWindowPtr spWindow = m_kWindowList.get_head_node()->m_Content;
-		DestroyWindow(spWindow);
+		//VeWindowPtr spWindow = m_kWindowList.get_head_node()->m_Content;
+		//DestroyWindow(spWindow);
 	}
 	_Term();
 }
@@ -66,69 +66,67 @@ void VeVideoDevice::GetDisplayBounds(VeInt32 i32DisplayIndex,
      ((W)->m_u32Flags & VE_WINDOW_SHOWN) &&			\
      !((W)->m_u32Flags & VE_WINDOW_MINIMIZED))
 //--------------------------------------------------------------------------
-VeWindowPtr VeVideoDevice::CreateWindowBy(const VeChar8* pcTitle,
-	VeInt32 x, VeInt32 y, VeInt32 w, VeInt32 h, VeUInt32 u32Flags) noexcept
+bool VeVideoDevice::CreateWindowBy(VeWindow::Data* pkWindow,
+	const VeChar8* pcTitle,	VeInt32 x, VeInt32 y, VeInt32 w, VeInt32 h,
+	VeUInt32 u32Flags) noexcept
 {
-	VeWindowPtr spWindow;
+	VE_ASSERT(pkWindow);
 	
 	if (w < 1) w = 1;
 	if (h < 1) h = 1;
 
-	spWindow = VE_NEW VeWindow();
-	VE_ASSERT(spWindow);
-	spWindow->m_kData.m_u32Id = m_u32NextObjectID++;
-	spWindow->m_kData.x = x;
-	spWindow->m_kData.y = y;
-	spWindow->m_kData.w = w;
-	spWindow->m_kData.h = h;
+	pkWindow->m_u32Id = m_u32NextObjectID++;
+	pkWindow->x = x;
+	pkWindow->y = y;
+	pkWindow->w = w;
+	pkWindow->h = h;
 
 	if (VE_WINDOWPOS_ISUNDEFINED(x) || VE_WINDOWPOS_ISUNDEFINED(y)
 		|| VE_WINDOWPOS_ISCENTERED(x) || VE_WINDOWPOS_ISCENTERED(y))
 	{
-		VeVideoDisplay* pkDisplay = GetDisplayForWindow(&(spWindow->m_kData));
-		VeInt32 i32DisplayIndex = GetWindowDisplayIndex(&(spWindow->m_kData));
+		VeVideoDisplay* pkDisplay = GetDisplayForWindow(pkWindow);
+		VeInt32 i32DisplayIndex = GetWindowDisplayIndex(pkWindow);
 		VeRect kBounds;
 		GetDisplayBounds(i32DisplayIndex, &kBounds);
 
 		if (VE_WINDOWPOS_ISUNDEFINED(x) || VE_WINDOWPOS_ISCENTERED(x))
 		{
-			spWindow->m_kData.x = kBounds.x + ((kBounds.w - w) >> 1);
+			pkWindow->x = kBounds.x + ((kBounds.w - w) >> 1);
 		}
 		if (VE_WINDOWPOS_ISUNDEFINED(y) || VE_WINDOWPOS_ISCENTERED(y))
 		{
-			spWindow->m_kData.y = kBounds.y + ((kBounds.h - h) >> 1);
+			pkWindow->y = kBounds.y + ((kBounds.h - h) >> 1);
 		}
 	}
 
-	spWindow->m_kData.m_u32Flags = ((u32Flags & CREATE_FLAGS) | VE_WINDOW_HIDDEN);
-	spWindow->m_kData.m_u32LastFullscreenFlags = spWindow->m_kData.m_u32Flags;
-	spWindow->m_kData.m_f32Brightness = 1.0f;
-	spWindow->m_kData.m_bIsDestorying = VE_FALSE;
-	spWindow->IncRefCount();
-	m_kWindowList.attach_back(spWindow->m_kNode);
+	pkWindow->m_u32Flags = ((u32Flags & CREATE_FLAGS) | VE_WINDOW_HIDDEN);
+	pkWindow->m_u32LastFullscreenFlags = pkWindow->m_u32Flags;
+	pkWindow->m_f32Brightness = 1.0f;
+	pkWindow->m_bIsDestorying = VE_FALSE;
+	m_kWindowList.attach_back(pkWindow->m_kNode);
 	
 
-	if (!_CreateWindow(&(spWindow->m_kData)))
+	if (!_CreateWindow(pkWindow))
 	{
-		DestroyWindow(spWindow);
-		return nullptr;
+		DestroyWindow(pkWindow);
+		return false;
 	}
 
-	SetWindowTitle(&(spWindow->m_kData), pcTitle);
+	SetWindowTitle(pkWindow, pcTitle);
 
-	FinishWindowCreation(&(spWindow->m_kData), u32Flags);
+	FinishWindowCreation(pkWindow, u32Flags);
 
-	UpdateFullscreenMode(&(spWindow->m_kData), FULLSCREEN_VISIBLE(&(spWindow->m_kData)));
+	UpdateFullscreenMode(pkWindow, FULLSCREEN_VISIBLE(pkWindow));
 
-	return spWindow;
+	return true;
 }
 //--------------------------------------------------------------------------
-void VeVideoDevice::DestroyWindow(VeWindowPtr& spWindow) noexcept
+void VeVideoDevice::DestroyWindow(VeWindow::Data* pkWindow) noexcept
 {
-	VE_ASSERT(spWindow && spWindow->GetRefCount() == 2);
-	spWindow->m_kData.m_bIsDestorying = VE_TRUE;
+	VE_ASSERT(pkWindow);
+	pkWindow->m_bIsDestorying = VE_TRUE;
 
-	HideWindow(&(spWindow->m_kData));
+	HideWindow(pkWindow);
 
 	/*if (SDL_GetKeyboardFocus() == window)
 	{
@@ -138,17 +136,15 @@ void VeVideoDevice::DestroyWindow(VeWindowPtr& spWindow) noexcept
 		SDL_SetMouseFocus(NULL);
 	}*/
 
-	_DestroyWindow(&(spWindow->m_kData));
+	_DestroyWindow(pkWindow);
 
-	VeVideoDisplay* pkDisplay = GetDisplayForWindow(&(spWindow->m_kData));
-	if (pkDisplay->m_spFullscreenWindow == spWindow)
+	VeVideoDisplay* pkDisplay = GetDisplayForWindow(pkWindow);
+	if ((VeWindow::Data*)(pkDisplay->m_pvFullscreenWindow) == pkWindow)
 	{
-		pkDisplay->m_spFullscreenWindow = nullptr;
+		pkDisplay->m_pvFullscreenWindow = nullptr;
 	}
 
-	spWindow->m_kNode.detach();
-	spWindow->DecRefCount();
-	spWindow = nullptr;
+	pkWindow->m_kNode.detach();
 }
 //--------------------------------------------------------------------------
 void VeVideoDevice::ShowWindow(VeWindow::Data* pkWindow) noexcept
@@ -254,7 +250,7 @@ VeInt32 VeVideoDevice::GetWindowDisplayIndex(
 	{
 		VeVideoDisplay* display = &m_kDisplayList[i];
 
-		if (display->m_spFullscreenWindow == VeWindow::Cast(pkWindow))
+		if (display->m_pvFullscreenWindow == pkWindow)
 		{
 			return i;
 		}

@@ -226,17 +226,13 @@ struct VeDisplayMode
 	VeRefObjectPtr m_spDriverData;
 };
 
-VeSmartPointer(VeVideoDevice);
-VeSmartPointer(VeWindow);
-
 struct VeVideoDisplay
 {
 	VeFixedString m_kName;
 	VeVector<VeDisplayMode> m_kDisplayModes;
 	VeDisplayMode m_kDesktopMode;
 	VeDisplayMode m_kCurrentMode;
-	VeWindowPtr m_spFullscreenWindow;
-	VeVideoDevicePtr m_spDevice;
+	void* m_pvFullscreenWindow = nullptr;
 	VeRefObjectPtr m_spDriverData;
 };
 
@@ -252,6 +248,7 @@ class VE_POWER_API VeWindow : public VeRefObject
 public:
 	struct Data
 	{
+		VeRefNode<Data*> m_kNode;
 		VeUInt32 m_u32Id = 0;
 		VeFixedString m_kTitle;
 		void* icon = nullptr;
@@ -272,18 +269,30 @@ public:
 		void* shaper = nullptr;
 		VeWindowUserData* m_pkData = nullptr;
 		VeRefObjectPtr m_spDriverdata;
-		
 	};
 
+	VeWindow() noexcept;
+
 	virtual ~VeWindow() noexcept;
+
+	inline bool IsValid() const noexcept;
+
+	inline VeUInt32 GetID() const noexcept;
+
+	inline const VeChar8* GetTitle() const noexcept;
+
+	bool Create(const VeChar8* pcTitle, VeInt32 x, VeInt32 y,
+		VeInt32 w, VeInt32 h, VeUInt32 u32Flags) noexcept;
+
+	void Destory();
 
 	static VeWindow* Cast(VeWindow::Data* pkData) noexcept;
 
 protected:
-	friend class VeVideoDevice;
-	VeWindow() noexcept;
-
-	VeRefNode<VeWindow*> m_kNode;
 	Data m_kData;
 
 };
+
+VeSmartPointer(VeWindow);
+
+#include "VeWindow.inl"
