@@ -297,6 +297,7 @@
     <ClCompile Include="..\..\..\..\Source\VePower\VeAllocator.cpp" />
     <ClCompile Include="..\..\..\..\Source\VePower\VeEvents.cpp" />
     <ClCompile Include="..\..\..\..\Source\VePower\VeFile.cpp" />
+    <ClCompile Include="..\..\..\..\Source\VePower\VeKeyboard.cpp" />
     <ClCompile Include="..\..\..\..\Source\VePower\VeLuaBind.cpp" />
     <ClCompile Include="..\..\..\..\Source\VePower\VeRect.cpp" />
     <ClCompile Include="..\..\..\..\Source\VePower\VeSharedLib.cpp" />
@@ -342,6 +343,7 @@
     <ClInclude Include="..\..\..\..\Source\VePower\VeAsset.h" />
     <ClInclude Include="..\..\..\..\Source\VePower\VeEvents.h" />
     <ClInclude Include="..\..\..\..\Source\VePower\VeFile.h" />
+    <ClInclude Include="..\..\..\..\Source\VePower\VeKeyboard.h" />
     <ClInclude Include="..\..\..\..\Source\VePower\VeLuaBind.h" />
     <ClInclude Include="..\..\..\..\Source\VePower\VeMath.h" />
     <ClInclude Include="..\..\..\..\Source\VePower\VeRect.h" />

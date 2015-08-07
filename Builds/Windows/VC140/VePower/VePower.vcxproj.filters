@@ -104,6 +104,9 @@
     <ClCompile Include="..\..\..\..\Source\VePower\VeSharedLib.cpp">
       <Filter>Kernel</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\Source\VePower\VeKeyboard.cpp">
+      <Filter>Events</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\Source\VePower\VePowerPch.h">
@@ -198,6 +201,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\Source\VePower\VeSharedLib.h">
       <Filter>Kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\VePower\VeKeyboard.h">
+      <Filter>Events</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

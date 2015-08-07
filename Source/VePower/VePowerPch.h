@@ -33,6 +33,7 @@
 #include "VeMath.h"
 #include "VeSharedLib.h"
 #include "VeEvents.h"
+#include "VeKeyboard.h"
 #include "VeWindow.h"
 #include "VeVideo.h"
 #include "VeSystem.h"
