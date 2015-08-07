@@ -50,6 +50,10 @@
 #	define VE_NEON
 #endif
 
+#ifdef VE_ENABLE_SSE
+#	include <xmmintrin.h>
+#endif
+
 #define VE_OK (0)
 #define VE_ELF (-1)
 #define VE_INFINITE (0xFFFFFFFF)

@@ -19,7 +19,6 @@
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
-
 	VE_NEW VeStringTable();
 	VE_NEW VeSystem(VeSystem::TYPE_DEFAULT, "com.VenusIE.VeRenderTest");
 	VE_NEW VeResourceManager();

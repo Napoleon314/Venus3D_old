@@ -97,3 +97,14 @@
 
 #define VeClampEx(min,val,max)	((val) < (min) ? (min) : ((val) > (max) ? (max) : (val)))
 #define VeClamp(mag,val)		(VeClampEx(-(mag),(val),(mag)))
+#define VeSat(a) VeClampEx(0.0f, a, 1.0f)
+
+#define VE_FLOAT_POINT(p) ((VeFloat32*)p)
+#define VE_FLOAT_POINT_CONST(p) ((const VeFloat32*)p)
+#define VE_FLOAT_POINT_THIS ((VeFloat32*)this)
+
+#if defined(VE_ENABLE_SSE)
+#	include "VeMathSSE.inl"
+#else
+#	include "VeMath.inl"
+#endif

@@ -98,14 +98,20 @@
     <ClCompile Include="..\..\..\..\Source\VePower\VeEvents.cpp">
       <Filter>Events</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\Source\VePower\VeRect.cpp">
-      <Filter>Math</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\Source\VePower\VeSharedLib.cpp">
       <Filter>Kernel</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\Source\VePower\VeKeyboard.cpp">
       <Filter>Events</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Source\VePower\VeRect.cpp">
+      <Filter>Video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Source\VePower\VePixel.cpp">
+      <Filter>Video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Source\VePower\VeMath.cpp">
+      <Filter>Math</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -196,14 +202,17 @@
     <ClInclude Include="..\..\..\..\Source\VePower\VeEvents.h">
       <Filter>Events</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\Source\VePower\VeRect.h">
-      <Filter>Math</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\Source\VePower\VeSharedLib.h">
       <Filter>Kernel</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\Source\VePower\VeKeyboard.h">
       <Filter>Events</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\VePower\VeRect.h">
+      <Filter>Video</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\VePower\VePixel.h">
+      <Filter>Video</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -246,14 +255,23 @@
     <None Include="..\..\..\..\Source\VePower\VeVideo.inl">
       <Filter>Video</Filter>
     </None>
-    <None Include="..\..\..\..\Source\VePower\VeRect.inl">
-      <Filter>Math</Filter>
-    </None>
     <None Include="..\..\..\..\Source\VePower\VeWindow.inl">
       <Filter>Video</Filter>
     </None>
     <None Include="..\..\..\..\Source\VePower\VeKeyboard.inl">
       <Filter>Events</Filter>
+    </None>
+    <None Include="..\..\..\..\Source\VePower\VeRect.inl">
+      <Filter>Video</Filter>
+    </None>
+    <None Include="..\..\..\..\Source\VePower\VePixel.inl">
+      <Filter>Video</Filter>
+    </None>
+    <None Include="..\..\..\..\Source\VePower\VeMathSSE.inl">
+      <Filter>Math</Filter>
+    </None>
+    <None Include="..\..\..\..\Source\VePower\VeMath.inl">
+      <Filter>Math</Filter>
     </None>
   </ItemGroup>
 </Project>

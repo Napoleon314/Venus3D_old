@@ -299,6 +299,8 @@
     <ClCompile Include="..\..\..\..\Source\VePower\VeFile.cpp" />
     <ClCompile Include="..\..\..\..\Source\VePower\VeKeyboard.cpp" />
     <ClCompile Include="..\..\..\..\Source\VePower\VeLuaBind.cpp" />
+    <ClCompile Include="..\..\..\..\Source\VePower\VeMath.cpp" />
+    <ClCompile Include="..\..\..\..\Source\VePower\VePixel.cpp" />
     <ClCompile Include="..\..\..\..\Source\VePower\VeRect.cpp" />
     <ClCompile Include="..\..\..\..\Source\VePower\VeSharedLib.cpp" />
     <ClCompile Include="..\..\..\..\Source\VePower\VeTaskQueue.cpp" />
@@ -346,6 +348,7 @@
     <ClInclude Include="..\..\..\..\Source\VePower\VeKeyboard.h" />
     <ClInclude Include="..\..\..\..\Source\VePower\VeLuaBind.h" />
     <ClInclude Include="..\..\..\..\Source\VePower\VeMath.h" />
+    <ClInclude Include="..\..\..\..\Source\VePower\VePixel.h" />
     <ClInclude Include="..\..\..\..\Source\VePower\VeRect.h" />
     <ClInclude Include="..\..\..\..\Source\VePower\VeSharedLib.h" />
     <ClInclude Include="..\..\..\..\Source\VePower\VeTaskQueue.h" />
@@ -376,6 +379,9 @@
     <None Include="..\..\..\..\Source\VePower\VeAllocator.inl" />
     <None Include="..\..\..\..\Source\VePower\VeFile.inl" />
     <None Include="..\..\..\..\Source\VePower\VeKeyboard.inl" />
+    <None Include="..\..\..\..\Source\VePower\VeMath.inl" />
+    <None Include="..\..\..\..\Source\VePower\VeMathSSE.inl" />
+    <None Include="..\..\..\..\Source\VePower\VePixel.inl" />
     <None Include="..\..\..\..\Source\VePower\VeRect.inl" />
     <None Include="..\..\..\..\Source\VePower\VeTaskQueue.inl" />
     <None Include="..\..\..\..\Source\VePower\VeBinaryStream.inl" />
