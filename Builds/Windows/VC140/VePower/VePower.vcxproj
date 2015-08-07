@@ -375,6 +375,7 @@
   <ItemGroup>
     <None Include="..\..\..\..\Source\VePower\VeAllocator.inl" />
     <None Include="..\..\..\..\Source\VePower\VeFile.inl" />
+    <None Include="..\..\..\..\Source\VePower\VeKeyboard.inl" />
     <None Include="..\..\..\..\Source\VePower\VeRect.inl" />
     <None Include="..\..\..\..\Source\VePower\VeTaskQueue.inl" />
     <None Include="..\..\..\..\Source\VePower\VeBinaryStream.inl" />

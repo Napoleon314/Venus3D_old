@@ -91,6 +91,18 @@ struct VeWindowEvent
 	VeInt32 m_i32Data2;
 };
 
+struct VeKeyboardEvent
+{
+	VeUInt32 m_u32Type;
+	VeUInt32 m_u32TimeStamp;
+	VeUInt32 m_u32WindowID;
+	VeUInt8 m_u8State;
+	VeUInt8 m_u8Repeat;
+	VeUInt8 m_u8Padding2;
+	VeUInt8 m_u8Padding3;
+	VeKeysym m_kKeysym;
+} SDL_KeyboardEvent;
+
 struct VeQuitEvent
 {
 	VeUInt32 m_u32Type;
@@ -102,6 +114,7 @@ union VeEvent
 	VeUInt32 m_u32Type;
 	VeCommonEvent m_kCommon;
 	VeWindowEvent m_kWindow;
+	VeKeyboardEvent m_kKey;
 	VeQuitEvent m_kQuit;
 };
 

@@ -182,6 +182,8 @@ protected:
 	static void CalculateGammaRamp(VeFloat32 f32Gamma, VeUInt16* pu16Ramp) noexcept;
 
 protected:
+	friend class VeKeyboard;
+
 	VeInt32 GetWindowDisplayIndex(VeWindow::Data* pkWindow) noexcept;
 
 	VeVideoDisplay* GetDisplayForWindow(VeWindow::Data* pkWindow) noexcept;

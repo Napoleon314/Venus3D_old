@@ -252,5 +252,8 @@
     <None Include="..\..\..\..\Source\VePower\VeWindow.inl">
       <Filter>Video</Filter>
     </None>
+    <None Include="..\..\..\..\Source\VePower\VeKeyboard.inl">
+      <Filter>Events</Filter>
+    </None>
   </ItemGroup>
 </Project>
