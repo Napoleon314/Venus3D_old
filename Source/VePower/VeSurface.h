@@ -35,6 +35,8 @@ public:
 
 	inline VeInt32 GetPitch() noexcept;
 
+	inline VePixelFormatPtr GetFormat() noexcept;
+
 	void* GetBuffer() noexcept;
 	
 	static VeSurfacePtr CreateRGBSurface(VeUInt32 u32Flags,

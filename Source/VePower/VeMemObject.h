@@ -45,3 +45,31 @@ public:
 	static void operator delete[](void* pvMem) noexcept;
 
 };
+
+class VE_POWER_API VeMemA16Object
+{
+public:
+
+#ifdef VE_MEM_DEBUG
+
+	static void* operator new (VeSizeT stSize, const VeChar8* pcSourceFile, VeInt32 i32SourceLine, const VeChar8* pcFunction) noexcept;
+
+	static void* operator new[](VeSizeT stSize, const VeChar8* pcSourceFile, VeInt32 i32SourceLine, const VeChar8* pcFunction) noexcept;
+
+	static void operator delete (void* pvMem, const VeChar8* pcSourceFile, VeInt32 i32SourceLine, const VeChar8* pcFunction) noexcept;
+
+	static void operator delete[](void* pvMem, const VeChar8* pcSourceFile, VeInt32 i32SourceLine, const VeChar8* pcFunction) noexcept;
+
+#endif
+
+	static void* operator new (VeSizeT stSize) noexcept;
+
+	static void* operator new[](VeSizeT stSize) noexcept;
+
+	static void* operator new (VeSizeT stSize, void* pvMemory) noexcept;
+
+	static void operator delete (void* pvMem) noexcept;
+
+	static void operator delete[](void* pvMem) noexcept;
+
+};

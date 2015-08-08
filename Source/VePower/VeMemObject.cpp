@@ -17,8 +17,6 @@
 //--------------------------------------------------------------------------
 #ifdef VE_MEM_DEBUG
 //--------------------------------------------------------------------------
-#include <vector>
-//--------------------------------------------------------------------------
 struct VeDeleteCallParams
 {
 	const VeChar8* m_pcSourceFile;
@@ -103,6 +101,45 @@ void VeMemObject::operator delete [](void* pvMem) noexcept
 	_VeFree(pvMem, kParams.m_pcSourceFile, kParams.m_i32SourceLine, kParams.m_pcFunction);
 }
 //--------------------------------------------------------------------------
+void* VeMemA16Object::operator new (VeSizeT stSize,
+	const VeChar8* pcSourceFile, VeInt32 i32SourceLine,
+	const VeChar8* pcFunction) noexcept
+{
+	return _VeAlignedMalloc(stSize, 16, pcSourceFile, i32SourceLine, pcFunction);
+}
+//--------------------------------------------------------------------------
+void* VeMemA16Object::operator new[](VeSizeT stSize,
+	const VeChar8* pcSourceFile, VeInt32 i32SourceLine,
+	const VeChar8* pcFunction) noexcept
+{
+	return _VeAlignedMalloc(stSize, 16, pcSourceFile, i32SourceLine, pcFunction);
+}
+//--------------------------------------------------------------------------
+void VeMemA16Object::operator delete (void* pvMem,
+	const VeChar8* pcSourceFile, VeInt32 i32SourceLine,
+	const VeChar8* pcFunction) noexcept
+{
+	_VeAlignedFree(pvMem, pcSourceFile, i32SourceLine, pcFunction);
+}
+//--------------------------------------------------------------------------
+void VeMemA16Object::operator delete[](void* pvMem,
+	const VeChar8* pcSourceFile, VeInt32 i32SourceLine,
+	const VeChar8* pcFunction) noexcept
+{
+	_VeAlignedFree(pvMem, pcSourceFile, i32SourceLine, pcFunction);
+}
+//--------------------------------------------------------------------------
+void VeMemA16Object::operator delete (void* pvMem) noexcept
+{
+	VeDeleteCallParams& kParams = s_kDeleteCallParamsStack.back();
+	_VeAlignedFree(pvMem, kParams.m_pcSourceFile, kParams.m_i32SourceLine, kParams.m_pcFunction);
+}
+//--------------------------------------------------------------------------
+void VeMemA16Object::operator delete [](void* pvMem) noexcept
+{
+	VeDeleteCallParams& kParams = s_kDeleteCallParamsStack.back();
+	_VeAlignedFree(pvMem, kParams.m_pcSourceFile, kParams.m_i32SourceLine, kParams.m_pcFunction);
+}
 #else
 //--------------------------------------------------------------------------
 void VeMemObject::operator delete (void* pvMem) noexcept
@@ -115,11 +152,21 @@ void VeMemObject::operator delete [](void* pvMem) noexcept
 	_VeFree(pvMem);
 }
 //--------------------------------------------------------------------------
+void VeMemA16Object::operator delete (void* pvMem) noexcept
+{
+	_VeAlignedFree(pvMem);
+}
+//--------------------------------------------------------------------------
+void VeMemA16Object::operator delete [](void* pvMem) noexcept
+{
+	_VeAlignedFree(pvMem);
+}
+//--------------------------------------------------------------------------
 #endif
 //--------------------------------------------------------------------------
 void* VeMemObject::operator new (VeSizeT stSize) noexcept
 {
-	return VeMalloc(stSize);
+	return VeAlignedMalloc(stSize, 16);
 }
 //--------------------------------------------------------------------------
 void* VeMemObject::operator new (VeSizeT stSize, void* pvMemory) noexcept
@@ -129,6 +176,21 @@ void* VeMemObject::operator new (VeSizeT stSize, void* pvMemory) noexcept
 //--------------------------------------------------------------------------
 void* VeMemObject::operator new [](VeSizeT stSize) noexcept
 {
-	return VeMalloc(stSize);
+	return VeAlignedMalloc(stSize, 16);
+}
+//--------------------------------------------------------------------------
+void* VeMemA16Object::operator new (VeSizeT stSize) noexcept
+{
+	return VeAlignedMalloc(stSize, 16);
+}
+//--------------------------------------------------------------------------
+void* VeMemA16Object::operator new (VeSizeT stSize, void* pvMemory) noexcept
+{
+	return pvMemory;
+}
+//--------------------------------------------------------------------------
+void* VeMemA16Object::operator new [](VeSizeT stSize) noexcept
+{
+	return VeAlignedMalloc(stSize, 16);
 }
 //--------------------------------------------------------------------------

@@ -219,7 +219,7 @@ enum
 
 class VeRGBA;
 
-class VE_POWER_API alignas(16) VeColor : public VeMemObject
+class VE_POWER_API alignas(16) VeColor : public VeMemA16Object
 {
 public:
 	VeFloat32 r, g, b, a;

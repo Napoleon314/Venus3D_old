@@ -826,20 +826,46 @@ void WindowsVideoDevice::_SetWindowTitle(VeWindow::Data* pkWindow) noexcept
 	SetWindowText(hWnd, lptstrTitleAppName);
 }
 //--------------------------------------------------------------------------
+#define WRITE_BYTE_BUF(buf, t,val) (*(t*)buf) = (val); buf += sizeof(val)
+//--------------------------------------------------------------------------
 void WindowsVideoDevice::_SetWindowIcon(VeWindow::Data* pkWindow,
 	const VeSurfacePtr& spIcon) noexcept
 {
 	VE_ASSERT(pkWindow && spIcon);
 	HWND hWnd = ((VeWindowData*)pkWindow->m_spDriverdata)->m_hWnd;
-	//HICON hicon = nullptr;
-	//BYTE *icon_bmp;
-	//int icon_len, y;
-	//SDL_RWops *dst;
 
-	//icon_len = 40 + spIcon->h * icon->w * 4;
+	VeInt32 i32IconLen = 40 + spIcon->GetHeight() * spIcon->GetWidth() * 4;
+	BYTE* pbyIconBmp = VeStackAlloc(BYTE, i32IconLen);
+	
+	BYTE* pbyPointer(pbyIconBmp);
 
+	WRITE_BYTE_BUF(pbyPointer, VeUInt32, 40);
+	WRITE_BYTE_BUF(pbyPointer, VeUInt32, spIcon->GetWidth());
+	WRITE_BYTE_BUF(pbyPointer, VeUInt32, spIcon->GetHeight() * 2);
+	WRITE_BYTE_BUF(pbyPointer, VeUInt16, 1);
+	WRITE_BYTE_BUF(pbyPointer, VeUInt16, 32);
+	WRITE_BYTE_BUF(pbyPointer, VeUInt32, BI_RGB);
+	WRITE_BYTE_BUF(pbyPointer, VeUInt32, spIcon->GetWidth() * spIcon->GetHeight() * 4);
+	WRITE_BYTE_BUF(pbyPointer, VeUInt32, 0);
+	WRITE_BYTE_BUF(pbyPointer, VeUInt32, 0);
+	WRITE_BYTE_BUF(pbyPointer, VeUInt32, 0);
+	WRITE_BYTE_BUF(pbyPointer, VeUInt32, 0);
+	
+	VE_ASSERT(spIcon->GetFormat()->m_u32Format == VE_PIXELFORMAT_ARGB8888);
+	VeInt32 y = spIcon->GetHeight();
+	while (y--)
+	{
+		VeUInt8* pu8Src = (VeUInt8*)spIcon->GetBuffer() + y * spIcon->GetPitch();
+		VeMemoryCopy(pbyPointer, pu8Src, spIcon->GetPitch());
+	}
 
-	//CreateIconFromResource
+	HICON hIcon = CreateIconFromResource(pbyIconBmp, i32IconLen, TRUE, 0x00030000);
+	
+	VeStackFree(pbyIconBmp);
+
+	SendMessage(hWnd, WM_SETICON, ICON_SMALL, (LPARAM)hIcon);
+
+	SendMessage(hWnd, WM_SETICON, ICON_BIG, (LPARAM)hIcon);
 }
 //--------------------------------------------------------------------------
 void WindowsVideoDevice::_SetWindowPosition(

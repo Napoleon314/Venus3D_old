@@ -37,3 +37,8 @@ inline VeInt32 VeSurface::GetPitch() noexcept
 	return m_i32Pitch;
 }
 //--------------------------------------------------------------------------
+inline VePixelFormatPtr VeSurface::GetFormat() noexcept
+{
+	return m_spFormat;
+}
+//--------------------------------------------------------------------------
