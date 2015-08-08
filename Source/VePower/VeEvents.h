@@ -136,7 +136,7 @@ public:
 
 	VeEventQueue() noexcept;
 
-	~VeEventQueue() noexcept;
+	virtual ~VeEventQueue() noexcept;
 
 	void Init() noexcept;
 

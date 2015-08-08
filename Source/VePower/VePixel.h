@@ -372,12 +372,15 @@ public:
 
 struct VePalette : public VeRefObject
 {
+	VePalette(VeInt32 i32NumColors) noexcept;
+
 	VeVector<VeRGBA> m_kColors;
 	VeUInt32 m_u32Version;
 };
 
-VeSmartPointer(VePalette);
-VeSmartPointer(VePixelFormat);
+typedef VePointer<VePalette> VePalettePtr;
+struct VePixelFormat;
+typedef VePointer<VePixelFormat> VePixelFormatPtr;
 
 struct VePixelFormat : public VeRefObject
 {
@@ -385,8 +388,8 @@ struct VePixelFormat : public VeRefObject
 	VePalettePtr m_spPalette;
 	VeUInt8 m_u8BitsPerPixel;
 	VeUInt8 m_u8BytesPerPixel;
-	VeUInt8 m_u8Padding1;
-	VeUInt8 m_u8Padding2;
+	VeUInt8 m_u8Padding1 = 0;
+	VeUInt8 m_u8Padding2 = 0;
 	VeUInt32 m_u32Rmask;
 	VeUInt32 m_u32Gmask;
 	VeUInt32 m_u32Bmask;
@@ -399,9 +402,28 @@ struct VePixelFormat : public VeRefObject
 	VeUInt8 m_u8Gshift;
 	VeUInt8 m_u8Bshift;
 	VeUInt8 m_u8Ashift;
-	VePixelFormatPtr m_spNext;
+
+	inline bool SetPalette(const VePalettePtr& spPalette) noexcept;
+	
+	static VePixelFormatPtr Create(VeUInt32 u32PixelFormat) noexcept;
+
+protected:
+	VePixelFormat();
+
+	bool Init(VeUInt32 u32PixelFormat) noexcept;
+
+	VeRefNode<VePixelFormat*> m_kNode;
+
+	static VeRefList<VePixelFormat*> ms_kList;
+
 };
 
+const VeChar8* VeGetPixelFormatName(VeUInt32 u32Format) noexcept;
 
+bool VePixelFormatEnumToMasks(VeUInt32 u32Format, VeInt32& i32Bpp, VeUInt32& u32Rmask,
+	VeUInt32& u32Gmask, VeUInt32& u32Bmask, VeUInt32& u32Amask) noexcept;
+
+VeUInt32 VeMasksToPixelFormatEnum(VeInt32 i32Bpp, VeUInt32 u32Rmask,
+	VeUInt32 u32Gmask, VeUInt32 u32Bmask, VeUInt32 u32Amask) noexcept;
 
 #include "VePixel.inl"

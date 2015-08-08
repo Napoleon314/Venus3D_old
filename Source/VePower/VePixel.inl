@@ -373,3 +373,15 @@ inline void VeRGBA::GetAs(VeColor& kColor) const noexcept
 	kColor.a = ((VeFloat32)a() / 255.0f);
 }
 //--------------------------------------------------------------------------
+inline bool VePixelFormat::SetPalette(
+	const VePalettePtr& spPalette) noexcept
+{
+	if (spPalette && spPalette->m_kColors.size() != (VeSizeT)(1 << m_u8BitsPerPixel))
+	{
+		return false;
+	}
+
+	m_spPalette = spPalette;
+	return true;
+}
+//--------------------------------------------------------------------------

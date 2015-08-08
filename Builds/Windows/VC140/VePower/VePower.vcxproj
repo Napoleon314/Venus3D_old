@@ -303,6 +303,7 @@
     <ClCompile Include="..\..\..\..\Source\VePower\VePixel.cpp" />
     <ClCompile Include="..\..\..\..\Source\VePower\VeRect.cpp" />
     <ClCompile Include="..\..\..\..\Source\VePower\VeSharedLib.cpp" />
+    <ClCompile Include="..\..\..\..\Source\VePower\VeSurface.cpp" />
     <ClCompile Include="..\..\..\..\Source\VePower\VeTaskQueue.cpp" />
     <ClCompile Include="..\..\..\..\Source\VePower\VeBinaryStream.cpp" />
     <ClCompile Include="..\..\..\..\Source\VePower\VeDirectory.cpp" />
@@ -351,6 +352,7 @@
     <ClInclude Include="..\..\..\..\Source\VePower\VePixel.h" />
     <ClInclude Include="..\..\..\..\Source\VePower\VeRect.h" />
     <ClInclude Include="..\..\..\..\Source\VePower\VeSharedLib.h" />
+    <ClInclude Include="..\..\..\..\Source\VePower\VeSurface.h" />
     <ClInclude Include="..\..\..\..\Source\VePower\VeTaskQueue.h" />
     <ClInclude Include="..\..\..\..\Source\VePower\VeBinaryStream.h" />
     <ClInclude Include="..\..\..\..\Source\VePower\VeDirectory.h" />
@@ -383,6 +385,7 @@
     <None Include="..\..\..\..\Source\VePower\VeMathSSE.inl" />
     <None Include="..\..\..\..\Source\VePower\VePixel.inl" />
     <None Include="..\..\..\..\Source\VePower\VeRect.inl" />
+    <None Include="..\..\..\..\Source\VePower\VeSurface.inl" />
     <None Include="..\..\..\..\Source\VePower\VeTaskQueue.inl" />
     <None Include="..\..\..\..\Source\VePower\VeBinaryStream.inl" />
     <None Include="..\..\..\..\Source\VePower\VeLog.inl" />

@@ -585,7 +585,7 @@ class VE_POWER_API VeKeyboard : public VeRefObject
 public:
 	VeKeyboard() noexcept;
 
-	~VeKeyboard() noexcept;
+	virtual ~VeKeyboard() noexcept;
 
 	inline VeWindowPtr GetFocus() noexcept;
 

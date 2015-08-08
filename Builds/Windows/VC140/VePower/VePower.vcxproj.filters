@@ -113,6 +113,9 @@
     <ClCompile Include="..\..\..\..\Source\VePower\VeMath.cpp">
       <Filter>Math</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\Source\VePower\VeSurface.cpp">
+      <Filter>Video</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\Source\VePower\VePowerPch.h">
@@ -214,6 +217,9 @@
     <ClInclude Include="..\..\..\..\Source\VePower\VePixel.h">
       <Filter>Video</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\VePower\VeSurface.h">
+      <Filter>Video</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\..\Source\VePower\VeMemory.inl">
@@ -272,6 +278,9 @@
     </None>
     <None Include="..\..\..\..\Source\VePower\VeMath.inl">
       <Filter>Math</Filter>
+    </None>
+    <None Include="..\..\..\..\Source\VePower\VeSurface.inl">
+      <Filter>Video</Filter>
     </None>
   </ItemGroup>
 </Project>

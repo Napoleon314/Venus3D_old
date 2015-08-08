@@ -826,6 +826,22 @@ void WindowsVideoDevice::_SetWindowTitle(VeWindow::Data* pkWindow) noexcept
 	SetWindowText(hWnd, lptstrTitleAppName);
 }
 //--------------------------------------------------------------------------
+void WindowsVideoDevice::_SetWindowIcon(VeWindow::Data* pkWindow,
+	const VeSurfacePtr& spIcon) noexcept
+{
+	VE_ASSERT(pkWindow && spIcon);
+	HWND hWnd = ((VeWindowData*)pkWindow->m_spDriverdata)->m_hWnd;
+	//HICON hicon = nullptr;
+	//BYTE *icon_bmp;
+	//int icon_len, y;
+	//SDL_RWops *dst;
+
+	//icon_len = 40 + spIcon->h * icon->w * 4;
+
+
+	//CreateIconFromResource
+}
+//--------------------------------------------------------------------------
 void WindowsVideoDevice::_SetWindowPosition(
 	VeWindow::Data* pkWindow) noexcept
 {

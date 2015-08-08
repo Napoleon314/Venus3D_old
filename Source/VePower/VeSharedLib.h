@@ -41,7 +41,7 @@ class VE_POWER_API VeSharedLib : public VeRefObject
 public:
 	VeSharedLib(const VeChar8* pcLibName) noexcept;
 
-	~VeSharedLib() noexcept;
+	virtual ~VeSharedLib() noexcept;
 
 	bool Load() noexcept;
 

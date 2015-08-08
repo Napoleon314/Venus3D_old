@@ -73,6 +73,8 @@ public:
 
 	virtual void _SetWindowTitle(VeWindow::Data* pkWindow) noexcept override;
 
+	virtual void _SetWindowIcon(VeWindow::Data* pkWindow, const VeSurfacePtr& spIcon) noexcept override;
+
 	virtual void _SetWindowPosition(VeWindow::Data* pkWindow) noexcept override;
 
 	virtual void _SetWindowSize(VeWindow::Data* pkWindow) noexcept override;

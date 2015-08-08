@@ -141,7 +141,7 @@ protected:
 
 	virtual void _SetWindowTitle(VeWindow::Data* pkWindow) noexcept {}
 
-	//void(*SetWindowIcon) (_THIS, SDL_Window * window, SDL_Surface * icon);
+	virtual void _SetWindowIcon(VeWindow::Data* pkWindow, const VeSurfacePtr& spIcon) noexcept {}
 
 	virtual void _SetWindowPosition(VeWindow::Data* pkWindow) noexcept {}
 
