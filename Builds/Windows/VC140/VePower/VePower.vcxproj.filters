@@ -116,6 +116,9 @@
     <ClCompile Include="..\..\..\..\Source\VePower\VeSurface.cpp">
       <Filter>Video</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\Source\VePower\VeMouse.cpp">
+      <Filter>Events</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\Source\VePower\VePowerPch.h">
@@ -219,6 +222,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\Source\VePower\VeSurface.h">
       <Filter>Video</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\VePower\VeMouse.h">
+      <Filter>Events</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

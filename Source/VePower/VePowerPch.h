@@ -36,6 +36,7 @@
 #include "VeSurface.h"
 #include "VeWindow.h"
 #include "VeKeyboard.h"
+#include "VeMouse.h"
 #include "VeEvents.h"
 #include "VeVideo.h"
 #include "VeSystem.h"
