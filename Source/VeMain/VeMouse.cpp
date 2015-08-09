@@ -334,8 +334,8 @@ void VeMouse::SendMouseButton(VeWindow::Data* pkWindow,
 			VeUInt32 now = VeEventQueue::GetTicks();
 
 			if (VE_TICKS_PASSED(now, clickstate->m_u32LastTimeStamp + m_u32DoubleClickTime)
-				|| VeFabsf(m_i32PosX - clickstate->m_i32LastX) > m_u32DoubleClickRadius
-				|| VeFabsf(m_i32PosY - clickstate->m_i32LastY) > m_u32DoubleClickRadius)
+				|| VeAbs(m_i32PosX - clickstate->m_i32LastX) > m_i32DoubleClickRadius
+				|| VeAbs(m_i32PosY - clickstate->m_i32LastY) > m_i32DoubleClickRadius)
 			{
 				clickstate->m_u8ClickCount = 0;
 			}

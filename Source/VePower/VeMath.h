@@ -99,6 +99,8 @@
 #define VeClamp(mag,val)		(VeClampEx(-(mag),(val),(mag)))
 #define VeSat(a) VeClampEx(0.0f, a, 1.0f)
 
+#define VeAbs(x) ((x) < 0 ? -(x) : (x))
+
 #define VE_FLOAT_POINT(p) ((VeFloat32*)p)
 #define VE_FLOAT_POINT_CONST(p) ((const VeFloat32*)p)
 #define VE_FLOAT_POINT_THIS ((VeFloat32*)this)

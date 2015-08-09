@@ -151,7 +151,7 @@ protected:
 	VeInt32 m_i32LastY = 0;
 	VeUInt32 m_u32ButtonState = 0;
 	VeUInt32 m_u32DoubleClickTime = 500;
-	VeUInt32 m_u32DoubleClickRadius = 1;
+	VeInt32 m_i32DoubleClickRadius = 1;
 	VE_BOOL m_bRelativeMode = VE_FALSE;
 	VE_BOOL m_bRelativeModeWarp = VE_FALSE;
 	VeVector<VeMouseClickState> m_kClickStateList;

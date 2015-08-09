@@ -639,11 +639,11 @@ VeVideoDisplay* VeVideoDevice::GetDisplayForWindow(
 //--------------------------------------------------------------------------
 VeInt32 VeVideoDevice::GetIndexOfDisplay(VeVideoDisplay* pkDisplay) noexcept
 {
-	for (VeInt32 i32Index(0); i32Index < m_kDisplayList.size(); ++i32Index)
+	for (VeUInt32 u32Index(0); u32Index < m_kDisplayList.size(); ++u32Index)
 	{
-		if (pkDisplay == &m_kDisplayList[i32Index])
+		if (pkDisplay == &m_kDisplayList[u32Index])
 		{
-			return i32Index;
+			return u32Index;
 		}
 	}
 	return 0;
