@@ -96,7 +96,7 @@ public:
 		VeRefNode<Data*> m_kNode;
 		VeUInt32 m_u32Id = 0;
 		VeFixedString m_kTitle;
-		void* icon = nullptr;
+		VeSurfacePtr m_spIcon;
 		VeInt32 x = 0, y = 0;
 		VeInt32 w = 0, h = 0;
 		VeInt32 min_w = 0, min_h = 0;

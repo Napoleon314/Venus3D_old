@@ -82,6 +82,8 @@ public:
 
 	void SetWindowTitle(VeWindow::Data* pkWindow, const VeChar8* pcTitle) noexcept;
 
+	void SetWindowIcon(VeWindow::Data* pkWindow, const VeSurfacePtr& spIcon) noexcept;
+
 	void SetWindowPosition(VeWindow::Data* pkWindow, VeInt32 x, VeInt32 y) noexcept;
 
 	void SetWindowSize(VeWindow::Data* pkWindow, VeInt32 w, VeInt32 h) noexcept;

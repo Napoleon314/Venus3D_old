@@ -155,6 +155,22 @@ void VeVideoDevice::SetWindowTitle(VeWindow::Data* pkWindow,
 	}
 }
 //--------------------------------------------------------------------------
+void VeVideoDevice::SetWindowIcon(VeWindow::Data* pkWindow,
+	const VeSurfacePtr& spIcon) noexcept
+{
+	VE_ASSERT(pkWindow && pkWindow->m_kNode.is_attach(m_kWindowList));
+
+	if (!spIcon) return;
+
+	pkWindow->m_spIcon = nullptr;
+
+	//pkWindow->m_spIcon = VeConvertSurfaceFormat(icon, SDL_PIXELFORMAT_ARGB8888, 0);
+	
+	if (!pkWindow->m_spIcon) return;
+
+	_SetWindowIcon(pkWindow, pkWindow->m_spIcon);
+}
+//--------------------------------------------------------------------------
 void VeVideoDevice::SetWindowPosition(VeWindow::Data* pkWindow,
 	VeInt32 x, VeInt32 y) noexcept
 {
@@ -512,6 +528,9 @@ void VeVideoDevice::DestroyWindow(VeWindow::Data* pkWindow) noexcept
 	{
 		pkDisplay->m_pvFullscreenWindow = nullptr;
 	}
+
+	pkWindow->m_kTitle = "";
+	pkWindow->m_spIcon = nullptr;
 
 	if (pkWindow->m_pu16Gamma)
 	{
