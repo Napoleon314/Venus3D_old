@@ -162,9 +162,7 @@ void VeVideoDevice::SetWindowIcon(VeWindow::Data* pkWindow,
 
 	if (!spIcon) return;
 
-	pkWindow->m_spIcon = nullptr;
-
-	//pkWindow->m_spIcon = VeConvertSurfaceFormat(icon, SDL_PIXELFORMAT_ARGB8888, 0);
+	pkWindow->m_spIcon = spIcon;
 	
 	if (!pkWindow->m_spIcon) return;
 
