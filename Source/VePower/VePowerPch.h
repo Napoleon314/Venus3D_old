@@ -31,6 +31,7 @@
 #include "VeLua.h"
 #include "VeMath.h"
 #include "VeSharedLib.h"
+#include "VeTime.h"
 #include "VeRect.h"
 #include "VePixel.h"
 #include "VeSurface.h"

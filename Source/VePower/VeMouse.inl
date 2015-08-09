@@ -4,8 +4,8 @@
 //  Copyright (C), Venus Interactive Entertainment.2012
 // -------------------------------------------------------------------------
 //  Module:      VePower
-//  File name:   VeKeyboard.inl
-//  Created:     2015/08/07 by Napoleon
+//  File name:   VeMouse.inl
+//  Created:     2015/08/09 by Napoleon
 //  Description: 
 // -------------------------------------------------------------------------
 //  History:
@@ -13,18 +13,18 @@
 ////////////////////////////////////////////////////////////////////////////
 
 //--------------------------------------------------------------------------
-inline VeWindowPtr VeKeyboard::GetFocus() noexcept
+inline VeWindowPtr VeMouse::GetFocus() noexcept
 {
 	return m_pkFocus ? VeWindow::Cast(m_pkFocus) : nullptr;
 }
 //--------------------------------------------------------------------------
-inline const VeUInt8* VeKeyboard::GetState() noexcept
+inline VeCursorPtr VeMouse::GetCursor() noexcept
 {
-	return m_au8KeyState;
+	return m_spCurCursor;
 }
 //--------------------------------------------------------------------------
-inline VeUInt16 VeKeyboard::GetModState() noexcept
+inline VeCursorPtr VeMouse::GetDefaultCursor() noexcept
 {
-	return m_u16ModState;
+	return m_spDefCursor;
 }
 //--------------------------------------------------------------------------

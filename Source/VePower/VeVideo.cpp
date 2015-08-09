@@ -834,12 +834,12 @@ void VeVideoDevice::SendWindowEvent(VeWindow::Data* pkWindow,
 			break;
 		}
 
-		VeEvent* pkNew = ve_event_queue_ptr->AddEvent();
-		pkNew->m_u32Type = VE_WINDOWEVENT;
-		pkNew->m_kWindow.m_u8Event = u8Event;
-		pkNew->m_kWindow.m_i32Data1 = i32Data1;
-		pkNew->m_kWindow.m_i32Data2 = i32Data2;
-		pkNew->m_kWindow.m_u32WindowID = pkWindow->m_u32Id;
+		VeEvent* pkEvent = ve_event_queue_ptr->AddEvent();
+		pkEvent->m_u32Type = VE_WINDOWEVENT;
+		pkEvent->m_kWindow.m_u8Event = u8Event;
+		pkEvent->m_kWindow.m_i32Data1 = i32Data1;
+		pkEvent->m_kWindow.m_i32Data2 = i32Data2;
+		pkEvent->m_kWindow.m_u32WindowID = pkWindow->m_u32Id;
 	}
 
 	if (u8Event == VE_WINDOWEVENT_CLOSE)

@@ -185,6 +185,7 @@ protected:
 
 protected:
 	friend class VeKeyboard;
+	friend class VeMouse;
 
 	VeInt32 GetWindowDisplayIndex(VeWindow::Data* pkWindow) noexcept;
 

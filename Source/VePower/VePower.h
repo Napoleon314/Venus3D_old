@@ -45,6 +45,8 @@
 #if defined(VE_PLATFORM_PC)
 #	define VE_ENABLE_GL
 #	define VE_ENABLE_SSE
+#	define VE_ENABLE_KEYBOARD
+#	define VE_ENABLE_MOUSE
 #elif defined(VE_PLATFORM_MOBILE)
 #	define VE_ENABLE_GLES2
 #	define VE_NEON

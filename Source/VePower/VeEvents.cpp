@@ -27,8 +27,7 @@ VeEventQueue::~VeEventQueue() noexcept
 //--------------------------------------------------------------------------
 void VeEventQueue::Init() noexcept
 {
-	static_assert(sizeof(EventEntry) <= 64, "struct VeEvent is too large");
-	m_spMemPool = VE_NEW VePoolAllocator(64, 64);
+	m_spMemPool = VE_NEW VePoolAllocator(sizeof(EventEntry), 64);
 }
 //--------------------------------------------------------------------------
 void VeEventQueue::Term() noexcept
@@ -167,5 +166,11 @@ void VeEventQueue::SendAppEvent(VeEventType eType) noexcept
 		VeEvent* pkNew = AddEvent();
 		pkNew->m_u32Type = eType;
 	}
+}
+//--------------------------------------------------------------------------
+VeUInt32 VeEventQueue::GetTicks() noexcept
+{
+	VE_ASSERT(ve_time_ptr);
+	return ve_time_ptr->GetTimeUInt();
 }
 //--------------------------------------------------------------------------

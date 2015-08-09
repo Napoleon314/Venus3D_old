@@ -617,4 +617,6 @@ protected:
 
 };
 
+VeSmartPointer(VeKeyboard);
+
 #include "VeKeyboard.inl"

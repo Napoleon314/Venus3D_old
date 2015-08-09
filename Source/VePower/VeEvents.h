@@ -101,7 +101,44 @@ struct VeKeyboardEvent
 	VeUInt8 m_u8Padding2;
 	VeUInt8 m_u8Padding3;
 	VeKeysym m_kKeysym;
-} SDL_KeyboardEvent;
+};
+
+struct VeMouseMotionEvent
+{
+	VeUInt32 m_u32Type;
+	VeUInt32 m_u32TimeStamp;
+	VeUInt32 m_u32WindowID;
+	VeUInt32 m_u32Which;
+	VeUInt32 m_u32State;
+	VeInt32 x;
+	VeInt32 y;
+	VeInt32 xrel;
+	VeInt32 yrel;
+};
+
+struct VeMouseButtonEvent
+{
+	VeUInt32 m_u32Type;
+	VeUInt32 m_u32TimeStamp;
+	VeUInt32 m_u32WindowID;
+	VeUInt32 m_u32Which;
+	VeUInt8 m_u8Button;
+	VeUInt8 m_u8State;
+	VeUInt8 m_u8Clicks;
+	VeUInt8 m_u8Padding1;
+	VeInt32 x;
+	VeInt32 y;
+};
+
+struct VeMouseWheelEvent
+{
+	VeUInt32 m_u32Type;
+	VeUInt32 m_u32TimeStamp;
+	VeUInt32 m_u32WindowID;
+	VeUInt32 m_u32Which;
+	VeInt32 x;
+	VeInt32 y;
+};
 
 struct VeQuitEvent
 {
@@ -115,8 +152,13 @@ union VeEvent
 	VeCommonEvent m_kCommon;
 	VeWindowEvent m_kWindow;
 	VeKeyboardEvent m_kKey;
+	VeMouseMotionEvent m_kMotion;
+	VeMouseButtonEvent m_kButton;
+	VeMouseWheelEvent m_kWheel;
 	VeQuitEvent m_kQuit;
 };
+
+#define VE_TICKS_PASSED(A, B)  ((VeInt32)((B) - (A)) <= 0)
 
 class VE_POWER_API VeEventQueue : public VeRefObject
 {
@@ -167,6 +209,8 @@ public:
 	void FilterEvents(EventFilter funcFilter) noexcept;
 
 	void SendAppEvent(VeEventType eType) noexcept;
+
+	static VeUInt32 GetTicks() noexcept;
 
 protected:
 	VeUnorderedSet<VeUInt32> m_kDisabledEvents;

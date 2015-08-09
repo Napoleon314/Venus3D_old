@@ -329,8 +329,19 @@
     <ClCompile Include="..\..\..\..\Source\VePower\VeString.cpp" />
     <ClCompile Include="..\..\..\..\Source\VePower\VeSystem.cpp" />
     <ClCompile Include="..\..\..\..\Source\VePower\VeThread.cpp" />
+    <ClCompile Include="..\..\..\..\Source\VePower\VeTime.cpp" />
     <ClCompile Include="..\..\..\..\Source\VePower\VeVideo.cpp" />
     <ClCompile Include="..\..\..\..\Source\VePower\VeWindow.cpp" />
+    <ClCompile Include="..\..\..\..\Source\VePower\Windows\WindowsMouse.cpp">
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../VePowerPch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ReleaseLib|Win32'">../VePowerPch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='DebugLib|Win32'">../VePowerPch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../VePowerPch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../VePowerPch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ReleaseLib|x64'">../VePowerPch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='DebugLib|x64'">../VePowerPch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../VePowerPch.h</PrecompiledHeaderFile>
+    </ClCompile>
     <ClCompile Include="..\..\..\..\Source\VePower\Windows\WindowsVideo.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\VePowerPch.h</PrecompiledHeaderFile>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ReleaseLib|Win32'">..\VePowerPch.h</PrecompiledHeaderFile>
@@ -375,8 +386,10 @@
     <ClInclude Include="..\..\..\..\Source\VePower\VeSystem.h" />
     <ClInclude Include="..\..\..\..\Source\VePower\VeTemplate.h" />
     <ClInclude Include="..\..\..\..\Source\VePower\VeThread.h" />
+    <ClInclude Include="..\..\..\..\Source\VePower\VeTime.h" />
     <ClInclude Include="..\..\..\..\Source\VePower\VeVideo.h" />
     <ClInclude Include="..\..\..\..\Source\VePower\VeWindow.h" />
+    <ClInclude Include="..\..\..\..\Source\VePower\Windows\WindowsMouse.h" />
     <ClInclude Include="..\..\..\..\Source\VePower\Windows\WindowsVideo.h" />
   </ItemGroup>
   <ItemGroup>
@@ -385,6 +398,7 @@
     <None Include="..\..\..\..\Source\VePower\VeKeyboard.inl" />
     <None Include="..\..\..\..\Source\VePower\VeMath.inl" />
     <None Include="..\..\..\..\Source\VePower\VeMathSSE.inl" />
+    <None Include="..\..\..\..\Source\VePower\VeMouse.inl" />
     <None Include="..\..\..\..\Source\VePower\VePixel.inl" />
     <None Include="..\..\..\..\Source\VePower\VeRect.inl" />
     <None Include="..\..\..\..\Source\VePower\VeSurface.inl" />
@@ -398,6 +412,7 @@
     <None Include="..\..\..\..\Source\VePower\VeResourceManager.inl" />
     <None Include="..\..\..\..\Source\VePower\VeSystem.inl" />
     <None Include="..\..\..\..\Source\VePower\VeThread.inl" />
+    <None Include="..\..\..\..\Source\VePower\VeTime.inl" />
     <None Include="..\..\..\..\Source\VePower\VeVideo.inl" />
     <None Include="..\..\..\..\Source\VePower\VeWindow.inl" />
   </ItemGroup>

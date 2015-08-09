@@ -181,6 +181,6 @@ VeSysWMInfo VeWindow::GetWMInfo() noexcept
 //--------------------------------------------------------------------------
 VeWindow* VeWindow::Cast(Data* pkData) noexcept
 {
-	return VeMemberCast(&VeWindow::m_kData, pkData);
+	return pkData ? VeMemberCast(&VeWindow::m_kData, pkData) : nullptr;
 }
 //--------------------------------------------------------------------------

@@ -4,8 +4,8 @@
 //  Copyright (C), Venus Interactive Entertainment.2012
 // -------------------------------------------------------------------------
 //  Module:      VePower
-//  File name:   VeSystem.inl
-//  Created:     2015/03/03 by Napoleon
+//  File name:   VeTime.inl
+//  Created:     2015/08/09 by Napoleon
 //  Description: 
 // -------------------------------------------------------------------------
 //  History:
@@ -13,59 +13,53 @@
 ////////////////////////////////////////////////////////////////////////////
 
 //--------------------------------------------------------------------------
-inline VeSystem::Type VeSystem::GetType() const noexcept
+inline VeFloat32 VeTime::GetDeltaTime() noexcept
 {
-	return m_eType;
+	return (VeFloat32)m_f64DeltaTime;
 }
 //--------------------------------------------------------------------------
-inline const VeChar8* VeSystem::GetPakName() const noexcept
+inline VeFloat64 VeTime::GetDeltaTime64() noexcept
 {
-	return m_kPakName;
+	return m_f64DeltaTime;
 }
 //--------------------------------------------------------------------------
-inline VeLog& VeSystem::GetLog() noexcept
+inline VeFloat64 VeTime::GetTime() noexcept
 {
-	return m_kLog;
+	return m_f64Time;
 }
 //--------------------------------------------------------------------------
-inline VeLua& VeSystem::GetLua() noexcept
+inline VeUInt32 VeTime::GetTimeUInt() noexcept
 {
-	VE_ASSERT(m_spLua);
-	return *m_spLua;
+	return (VeUInt32)(m_f64Time * 100);
 }
 //--------------------------------------------------------------------------
-inline void VeSystem::Collect(VeRefNode<VeRefObject*>& kNode) noexcept
+inline VeUInt64 VeTime::GetCurrentCount() noexcept
 {
-	m_kObjCollector.attach_back(kNode);
+	return m_u64CurrentCount;
 }
 //--------------------------------------------------------------------------
-inline const VeStackAllocatorPtr& VeSystem::GetStackAllocator() noexcept
+inline void VeTime::Pause() noexcept
 {
-	return m_spMainStack;
+	m_bPaused = true;
 }
 //--------------------------------------------------------------------------
-inline const VeTimePtr& VeSystem::GetTime() noexcept
+inline void VeTime::Resume() noexcept
 {
-	return m_spTime;
+	m_bPaused = false;
 }
 //--------------------------------------------------------------------------
-inline const VeEventQueuePtr& VeSystem::GetEventQueue() noexcept
+inline bool VeTime::GetPaused() noexcept
 {
-	return m_spEventQueue;
+	return m_bPaused;
 }
 //--------------------------------------------------------------------------
-inline const VeVideoDevicePtr& VeSystem::GetVideoDevice() noexcept
+inline void VeTime::SetInvert(bool bInv) noexcept
 {
-	return m_spVideo;
+	m_bInvert = bInv;
 }
 //--------------------------------------------------------------------------
-inline const VeKeyboardPtr& VeSystem::GetKeyboard() noexcept
+inline bool VeTime::GetInvert() noexcept
 {
-	return m_spKeyboard;
-}
-//--------------------------------------------------------------------------
-inline const VeMousePtr& VeSystem::GetMouse() noexcept
-{
-	return m_spMouse;
+	return m_bInvert;
 }
 //--------------------------------------------------------------------------

@@ -46,7 +46,7 @@ void VeSharedLib::Unload() noexcept
 	if (m_hSharedLib)
 	{
 		VE_ASSERT_EQ(VE_SHARED_LIB_UNLOAD(m_hSharedLib), VE_OK);
-		m_hSharedLib = NULL;
+		m_hSharedLib = nullptr;
 	}
 }
 //--------------------------------------------------------------------------

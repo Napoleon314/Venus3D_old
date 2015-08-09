@@ -30,6 +30,9 @@
     <Filter Include="Events">
       <UniqueIdentifier>{423fd687-69e5-4f64-bd2a-99e23b518e85}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Events\Windows">
+      <UniqueIdentifier>{4e0c5f65-6bb5-40a8-8d80-ad8fcf5a8626}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\Source\VePower\VePowerPch.cpp">
@@ -118,6 +121,12 @@
     </ClCompile>
     <ClCompile Include="..\..\..\..\Source\VePower\VeMouse.cpp">
       <Filter>Events</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Source\VePower\Windows\WindowsMouse.cpp">
+      <Filter>Events\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Source\VePower\VeTime.cpp">
+      <Filter>Kernel</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -226,6 +235,12 @@
     <ClInclude Include="..\..\..\..\Source\VePower\VeMouse.h">
       <Filter>Events</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\VePower\Windows\WindowsMouse.h">
+      <Filter>Events\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\VePower\VeTime.h">
+      <Filter>Kernel</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\..\Source\VePower\VeMemory.inl">
@@ -287,6 +302,12 @@
     </None>
     <None Include="..\..\..\..\Source\VePower\VeSurface.inl">
       <Filter>Video</Filter>
+    </None>
+    <None Include="..\..\..\..\Source\VePower\VeMouse.inl">
+      <Filter>Events</Filter>
+    </None>
+    <None Include="..\..\..\..\Source\VePower\VeTime.inl">
+      <Filter>Kernel</Filter>
     </None>
   </ItemGroup>
 </Project>

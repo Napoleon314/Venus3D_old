@@ -17,6 +17,14 @@
 //--------------------------------------------------------------------------
 extern VeVideoDevicePtr CreateVideoDevice() noexcept;
 //--------------------------------------------------------------------------
+#ifdef VE_ENABLE_KEYBOARD
+extern VeKeyboardPtr CreateKeyboard() noexcept;
+#endif
+//--------------------------------------------------------------------------
+#ifdef VE_ENABLE_MOUSE
+extern VeMousePtr CreateMouse() noexcept;
+#endif
+//--------------------------------------------------------------------------
 static const VeChar8* s_apcLogTypeNames[VeLog::TYPE_MAX] =
 {
 	"DEBUG",
@@ -132,12 +140,24 @@ void VeSystem::Init() noexcept
 {
 	InitEventQueue();
 	InitVideo();
+	InitInputSystem();
 }
 //--------------------------------------------------------------------------
 void VeSystem::Term() noexcept
 {
+	TermInputSystem();
 	TermVideo();
 	TermEventQueue();
+}
+//--------------------------------------------------------------------------
+void VeSystem::InitTime() noexcept
+{
+	m_spTime = VE_NEW VeTime();
+}
+//--------------------------------------------------------------------------
+void VeSystem::TermTime() noexcept
+{
+	m_spTime = nullptr;
 }
 //--------------------------------------------------------------------------
 void VeSystem::InitEventQueue() noexcept
@@ -169,5 +189,43 @@ void VeSystem::TermVideo() noexcept
 		m_spVideo->Term();
 		m_spVideo = nullptr;
 	}
+}
+//--------------------------------------------------------------------------
+void VeSystem::InitInputSystem() noexcept
+{
+#	ifdef VE_ENABLE_KEYBOARD
+	if (!m_spKeyboard)
+	{
+		m_spKeyboard = CreateKeyboard();
+		VE_ASSERT(m_spKeyboard);
+		m_spKeyboard->Init();
+	}
+#	endif
+#	ifdef VE_ENABLE_MOUSE
+	if (!m_spMouse)
+	{
+		m_spMouse = CreateMouse();
+		VE_ASSERT(m_spMouse);
+		m_spMouse->Init();
+	}
+#	endif
+}
+//--------------------------------------------------------------------------
+void VeSystem::TermInputSystem() noexcept
+{
+#	ifdef VE_ENABLE_KEYBOARD
+	if (m_spKeyboard)
+	{
+		m_spKeyboard->Term();
+		m_spKeyboard = nullptr;
+	}
+#	endif
+#	ifdef VE_ENABLE_MOUSE
+	if (m_spMouse)
+	{
+		m_spMouse->Term();
+		m_spMouse = nullptr;
+	}
+#	endif
 }
 //--------------------------------------------------------------------------
