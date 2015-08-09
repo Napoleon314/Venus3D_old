@@ -88,7 +88,7 @@ struct VeSysWMInfo
 	};
 };
 
-class VE_POWER_API VeWindow : public VeRefObject
+class VE_MAIN_API VeWindow : public VeRefObject
 {
 public:
 	struct Data

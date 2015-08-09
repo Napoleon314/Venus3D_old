@@ -24,7 +24,7 @@
 VeSmartPointer(VeSurface);
 VeSmartPointer(VeBlob);
 
-class VE_POWER_API VeSurface : public VeRefObject
+class VE_MAIN_API VeSurface : public VeRefObject
 {
 public:
 	inline bool SetPalette(const VePalettePtr& spPalette) noexcept;

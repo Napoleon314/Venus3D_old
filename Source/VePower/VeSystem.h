@@ -49,37 +49,9 @@ public:
 
 	inline const VeTimePtr& GetTime() noexcept;
 
-	inline const VeEventQueuePtr& GetEventQueue() noexcept;
-
-	inline const VeVideoDevicePtr& GetVideoDevice() noexcept;
-
-	inline const VeKeyboardPtr& GetKeyboard() noexcept;
-
-	inline const VeMousePtr& GetMouse() noexcept;
-
 	const VePoolAllocatorPtr& GetPoolAllocator(VeSizeT stUnitSize) noexcept;
 
-	void Init() noexcept;
-
-	void Term() noexcept;
-
 private:
-	void InitTime() noexcept;
-
-	void TermTime() noexcept;
-
-	void InitEventQueue() noexcept;
-
-	void TermEventQueue() noexcept;
-
-	void InitVideo() noexcept;
-
-	void TermVideo() noexcept;
-
-	void InitInputSystem() noexcept;
-
-	void TermInputSystem() noexcept;
-
 	const Type m_eType;
 	VeFixedString m_kPakName;
 	VeLog m_kLog;
@@ -88,10 +60,6 @@ private:
 	VeStackAllocatorPtr m_spMainStack;
 	PoolAllocatorMap m_kAllocatorMap;
 	VeTimePtr m_spTime;
-	VeEventQueuePtr m_spEventQueue;
-	VeVideoDevicePtr m_spVideo;
-	VeKeyboardPtr m_spKeyboard;
-	VeMousePtr m_spMouse;
 
 public:
 	VeLog::Pack CORE;
@@ -103,10 +71,6 @@ public:
 #define ve_log ve_sys.GetLog()
 #define ve_lua ve_sys.GetLua()
 #define ve_time_ptr ve_sys.GetTime()
-#define ve_event_queue_ptr ve_sys.GetEventQueue()
-#define ve_video_ptr ve_sys.GetVideoDevice()
-#define ve_keyboard_ptr ve_sys.GetKeyboard()
-#define ve_mouse_ptr ve_sys.GetMouse()
 #define VeStackMalloc(s) (ve_sys.GetStackAllocator()->Allocate(s))
 #define VeStackAlloc(t,s) (t*)(ve_sys.GetStackAllocator()->Allocate(s))
 #define VeStackFree(p) ve_sys.GetStackAllocator()->Deallocate(); p = nullptr

@@ -16,5 +16,13 @@
 
 #include <VePowerPch.h>
 #include "VeMain.h"
+#include "VeRect.h"
+#include "VePixel.h"
+#include "VeSurface.h"
+#include "VeWindow.h"
+#include "VeKeyboard.h"
+#include "VeMouse.h"
+#include "VeEvents.h"
+#include "VeVideo.h"
 #include "VeEngine.h"
 #include "VeRenderer.h"

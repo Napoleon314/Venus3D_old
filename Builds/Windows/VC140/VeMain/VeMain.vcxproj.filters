@@ -14,6 +14,18 @@
     <Filter Include="Renderer\D3D12">
       <UniqueIdentifier>{1a1b891c-de74-420f-a524-4d74a6e04c64}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Events">
+      <UniqueIdentifier>{a41cdc50-d387-484b-b181-f5f118607dd7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Video">
+      <UniqueIdentifier>{942ad8de-80f6-4ddc-b8c7-cc93e5d9fa80}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Events\Windows">
+      <UniqueIdentifier>{9bbe7f33-27a6-437c-80b8-e757eabc21d3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Video\Windows">
+      <UniqueIdentifier>{3ee0f218-bf41-4cbf-8ccf-277b0e3d2da0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\Source\VeMain\VeMain.h">
@@ -30,6 +42,36 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\Source\VeMain\_VeRendererD3D12.h">
       <Filter>Renderer\D3D12</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\VeMain\Windows\WindowsMouse.h">
+      <Filter>Events\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\VeMain\VeEvents.h">
+      <Filter>Events</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\VeMain\VeKeyboard.h">
+      <Filter>Events</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\VeMain\VeMouse.h">
+      <Filter>Events</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\VeMain\Windows\WindowsVideo.h">
+      <Filter>Video\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\VeMain\VePixel.h">
+      <Filter>Video</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\VeMain\VeSurface.h">
+      <Filter>Video</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\VeMain\VeVideo.h">
+      <Filter>Video</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\VeMain\VeWindow.h">
+      <Filter>Video</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\VeMain\VeRect.h">
+      <Filter>Video</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -48,6 +90,36 @@
     <ClCompile Include="..\..\..\..\Source\VeMain\_VeRendererD3D12.cpp">
       <Filter>Renderer\D3D12</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\Source\VeMain\Windows\WindowsMouse.cpp">
+      <Filter>Events\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Source\VeMain\VeEvents.cpp">
+      <Filter>Events</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Source\VeMain\VeKeyboard.cpp">
+      <Filter>Events</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Source\VeMain\VeMouse.cpp">
+      <Filter>Events</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Source\VeMain\Windows\WindowsVideo.cpp">
+      <Filter>Video\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Source\VeMain\VePixel.cpp">
+      <Filter>Video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Source\VeMain\VeSurface.cpp">
+      <Filter>Video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Source\VeMain\VeVideo.cpp">
+      <Filter>Video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Source\VeMain\VeWindow.cpp">
+      <Filter>Video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Source\VeMain\VeRect.cpp">
+      <Filter>Video</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\..\Source\VeMain\VeRenderer.inl">
@@ -55,6 +127,27 @@
     </None>
     <None Include="..\..\..\..\Source\VeMain\VeEngine.inl">
       <Filter>Kernel</Filter>
+    </None>
+    <None Include="..\..\..\..\Source\VeMain\VeKeyboard.inl">
+      <Filter>Events</Filter>
+    </None>
+    <None Include="..\..\..\..\Source\VeMain\VeMouse.inl">
+      <Filter>Events</Filter>
+    </None>
+    <None Include="..\..\..\..\Source\VeMain\VePixel.inl">
+      <Filter>Video</Filter>
+    </None>
+    <None Include="..\..\..\..\Source\VeMain\VeSurface.inl">
+      <Filter>Video</Filter>
+    </None>
+    <None Include="..\..\..\..\Source\VeMain\VeVideo.inl">
+      <Filter>Video</Filter>
+    </None>
+    <None Include="..\..\..\..\Source\VeMain\VeWindow.inl">
+      <Filter>Video</Filter>
+    </None>
+    <None Include="..\..\..\..\Source\VeMain\VeRect.inl">
+      <Filter>Video</Filter>
     </None>
   </ItemGroup>
 </Project>

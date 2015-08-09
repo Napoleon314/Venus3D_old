@@ -62,7 +62,7 @@ enum VeWindowEventID
 	VE_WINDOWEVENT_CLOSE
 };
 
-class VE_POWER_API VeVideoDevice : public VeRefObject
+class VE_MAIN_API VeVideoDevice : public VeRefObject
 {
 public:
 	inline const VeChar8* GetDriverName() const noexcept;

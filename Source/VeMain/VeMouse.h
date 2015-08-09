@@ -26,7 +26,7 @@
 #define VE_BUTTON_X1MASK   VE_BUTTON(VE_BUTTON_X1)
 #define VE_BUTTON_X2MASK   VE_BUTTON(VE_BUTTON_X2)
 
-class VE_POWER_API VeCursor : public VeRefObject
+class VE_MAIN_API VeCursor : public VeRefObject
 {
 public:
 	struct Data
@@ -77,7 +77,7 @@ enum VeSystemCursor
 	VE_NUM_SYSTEM_CURSORS
 };
 
-class VE_POWER_API VeMouse : public VeRefObject
+class VE_MAIN_API VeMouse : public VeRefObject
 {
 public:
 	VeMouse() noexcept;

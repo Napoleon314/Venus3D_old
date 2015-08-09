@@ -580,7 +580,7 @@ struct VeKeysym
 	VeUInt16 m_u16Mod;
 };
 
-class VE_POWER_API VeKeyboard : public VeRefObject
+class VE_MAIN_API VeKeyboard : public VeRefObject
 {
 public:
 	VeKeyboard() noexcept;

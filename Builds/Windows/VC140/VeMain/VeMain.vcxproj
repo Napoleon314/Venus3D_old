@@ -297,13 +297,25 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\Source\VeMain\VeEngine.h" />
+    <ClInclude Include="..\..\..\..\Source\VeMain\VeEvents.h" />
+    <ClInclude Include="..\..\..\..\Source\VeMain\VeKeyboard.h" />
     <ClInclude Include="..\..\..\..\Source\VeMain\VeMain.h" />
     <ClInclude Include="..\..\..\..\Source\VeMain\VeMainPch.h" />
+    <ClInclude Include="..\..\..\..\Source\VeMain\VeMouse.h" />
+    <ClInclude Include="..\..\..\..\Source\VeMain\VePixel.h" />
+    <ClInclude Include="..\..\..\..\Source\VeMain\VeRect.h" />
     <ClInclude Include="..\..\..\..\Source\VeMain\VeRenderer.h" />
+    <ClInclude Include="..\..\..\..\Source\VeMain\VeSurface.h" />
+    <ClInclude Include="..\..\..\..\Source\VeMain\VeVideo.h" />
+    <ClInclude Include="..\..\..\..\Source\VeMain\VeWindow.h" />
+    <ClInclude Include="..\..\..\..\Source\VeMain\Windows\WindowsMouse.h" />
+    <ClInclude Include="..\..\..\..\Source\VeMain\Windows\WindowsVideo.h" />
     <ClInclude Include="..\..\..\..\Source\VeMain\_VeRendererD3D12.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\Source\VeMain\VeEngine.cpp" />
+    <ClCompile Include="..\..\..\..\Source\VeMain\VeEvents.cpp" />
+    <ClCompile Include="..\..\..\..\Source\VeMain\VeKeyboard.cpp" />
     <ClCompile Include="..\..\..\..\Source\VeMain\VeMain.cpp" />
     <ClCompile Include="..\..\..\..\Source\VeMain\VeMainPch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -315,12 +327,45 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugLib|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\Source\VeMain\VeMouse.cpp" />
+    <ClCompile Include="..\..\..\..\Source\VeMain\VePixel.cpp" />
+    <ClCompile Include="..\..\..\..\Source\VeMain\VeRect.cpp" />
     <ClCompile Include="..\..\..\..\Source\VeMain\VeRenderer.cpp" />
+    <ClCompile Include="..\..\..\..\Source\VeMain\VeSurface.cpp" />
+    <ClCompile Include="..\..\..\..\Source\VeMain\VeVideo.cpp" />
+    <ClCompile Include="..\..\..\..\Source\VeMain\VeWindow.cpp" />
+    <ClCompile Include="..\..\..\..\Source\VeMain\Windows\WindowsMouse.cpp">
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../VeMainPch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ReleaseLib|Win32'">../VeMainPch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='DebugLib|Win32'">../VeMainPch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../VeMainPch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../VeMainPch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ReleaseLib|x64'">../VeMainPch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='DebugLib|x64'">../VeMainPch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../VeMainPch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Source\VeMain\Windows\WindowsVideo.cpp">
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../VeMainPch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ReleaseLib|Win32'">../VeMainPch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='DebugLib|Win32'">../VeMainPch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../VeMainPch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../VeMainPch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ReleaseLib|x64'">../VeMainPch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='DebugLib|x64'">../VeMainPch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../VeMainPch.h</PrecompiledHeaderFile>
+    </ClCompile>
     <ClCompile Include="..\..\..\..\Source\VeMain\_VeRendererD3D12.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\..\Source\VeMain\VeEngine.inl" />
+    <None Include="..\..\..\..\Source\VeMain\VeKeyboard.inl" />
+    <None Include="..\..\..\..\Source\VeMain\VeMouse.inl" />
+    <None Include="..\..\..\..\Source\VeMain\VePixel.inl" />
+    <None Include="..\..\..\..\Source\VeMain\VeRect.inl" />
     <None Include="..\..\..\..\Source\VeMain\VeRenderer.inl" />
+    <None Include="..\..\..\..\Source\VeMain\VeSurface.inl" />
+    <None Include="..\..\..\..\Source\VeMain\VeVideo.inl" />
+    <None Include="..\..\..\..\Source\VeMain\VeWindow.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

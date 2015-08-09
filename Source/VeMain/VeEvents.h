@@ -160,7 +160,7 @@ union VeEvent
 
 #define VE_TICKS_PASSED(A, B)  ((VeInt32)((B) - (A)) <= 0)
 
-class VE_POWER_API VeEventQueue : public VeRefObject
+class VE_MAIN_API VeEventQueue : public VeRefObject
 {
 public:
 	struct EventEntry

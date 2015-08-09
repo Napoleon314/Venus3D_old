@@ -49,23 +49,3 @@ inline const VeTimePtr& VeSystem::GetTime() noexcept
 	return m_spTime;
 }
 //--------------------------------------------------------------------------
-inline const VeEventQueuePtr& VeSystem::GetEventQueue() noexcept
-{
-	return m_spEventQueue;
-}
-//--------------------------------------------------------------------------
-inline const VeVideoDevicePtr& VeSystem::GetVideoDevice() noexcept
-{
-	return m_spVideo;
-}
-//--------------------------------------------------------------------------
-inline const VeKeyboardPtr& VeSystem::GetKeyboard() noexcept
-{
-	return m_spKeyboard;
-}
-//--------------------------------------------------------------------------
-inline const VeMousePtr& VeSystem::GetMouse() noexcept
-{
-	return m_spMouse;
-}
-//--------------------------------------------------------------------------

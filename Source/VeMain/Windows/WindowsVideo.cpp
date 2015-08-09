@@ -12,7 +12,7 @@
 //  http://www.venusie.com
 ////////////////////////////////////////////////////////////////////////////
 
-#include "../VePowerPch.h"
+#include "../VeMainPch.h"
 #include "WindowsVideo.h"
 #include <shellapi.h>
 

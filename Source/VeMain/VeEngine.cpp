@@ -16,6 +16,16 @@
 #include "_VeRendererD3D12.h"
 
 //--------------------------------------------------------------------------
+extern VeVideoDevicePtr CreateVideoDevice() noexcept;
+//--------------------------------------------------------------------------
+#ifdef VE_ENABLE_KEYBOARD
+extern VeKeyboardPtr CreateKeyboard() noexcept;
+#endif
+//--------------------------------------------------------------------------
+#ifdef VE_ENABLE_MOUSE
+extern VeMousePtr CreateMouse() noexcept;
+#endif
+//--------------------------------------------------------------------------
 VeEngine::VeEngine() noexcept
 {
 
@@ -30,12 +40,87 @@ VeEngine::~VeEngine() noexcept
 //--------------------------------------------------------------------------
 void VeEngine::Init() noexcept
 {
+	InitEventQueue();
+	InitVideo();
+	InitInputSystem();
 	InitRenderer();
 }
 //--------------------------------------------------------------------------
 void VeEngine::Term() noexcept
 {
 	TermRenderer();
+	TermInputSystem();
+	TermVideo();
+	TermEventQueue();
+}
+//--------------------------------------------------------------------------
+void VeEngine::InitEventQueue() noexcept
+{
+	m_spEventQueue = VE_NEW VeEventQueue();
+	m_spEventQueue->Init();
+}
+//--------------------------------------------------------------------------
+void VeEngine::TermEventQueue() noexcept
+{
+	m_spEventQueue->Term();
+	m_spEventQueue = nullptr;
+}
+//--------------------------------------------------------------------------
+void VeEngine::InitVideo() noexcept
+{
+	if (!m_spVideo)
+	{
+		m_spVideo = CreateVideoDevice();
+		VE_ASSERT(m_spVideo);
+		m_spVideo->Init();
+	}
+}
+//--------------------------------------------------------------------------
+void VeEngine::TermVideo() noexcept
+{
+	if (m_spVideo)
+	{
+		m_spVideo->Term();
+		m_spVideo = nullptr;
+	}
+}
+//--------------------------------------------------------------------------
+void VeEngine::InitInputSystem() noexcept
+{
+#	ifdef VE_ENABLE_KEYBOARD
+	if (!m_spKeyboard)
+	{
+		m_spKeyboard = CreateKeyboard();
+		VE_ASSERT(m_spKeyboard);
+		m_spKeyboard->Init();
+	}
+#	endif
+#	ifdef VE_ENABLE_MOUSE
+	if (!m_spMouse)
+	{
+		m_spMouse = CreateMouse();
+		VE_ASSERT(m_spMouse);
+		m_spMouse->Init();
+	}
+#	endif
+}
+//--------------------------------------------------------------------------
+void VeEngine::TermInputSystem() noexcept
+{
+#	ifdef VE_ENABLE_KEYBOARD
+	if (m_spKeyboard)
+	{
+		m_spKeyboard->Term();
+		m_spKeyboard = nullptr;
+	}
+#	endif
+#	ifdef VE_ENABLE_MOUSE
+	if (m_spMouse)
+	{
+		m_spMouse->Term();
+		m_spMouse = nullptr;
+	}
+#	endif
 }
 //--------------------------------------------------------------------------
 void VeEngine::InitRenderer() noexcept

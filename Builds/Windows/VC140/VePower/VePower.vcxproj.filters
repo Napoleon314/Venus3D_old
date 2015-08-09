@@ -18,20 +18,8 @@
     <Filter Include="Script">
       <UniqueIdentifier>{bc95f4a2-2422-4d7b-865a-0b6f19f47543}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Video">
-      <UniqueIdentifier>{5cb96f26-280d-46f0-83c7-48140d14099f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Video\Windows">
-      <UniqueIdentifier>{69fb2e8b-3378-4927-a268-4c995ee70fdb}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Math">
       <UniqueIdentifier>{4c869fcd-df13-4c7d-b415-8034d17396e8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Events">
-      <UniqueIdentifier>{423fd687-69e5-4f64-bd2a-99e23b518e85}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Events\Windows">
-      <UniqueIdentifier>{4e0c5f65-6bb5-40a8-8d80-ad8fcf5a8626}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -89,41 +77,11 @@
     <ClCompile Include="..\..\..\..\Source\VePower\VeLuaBind.cpp">
       <Filter>Script</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\Source\VePower\VeVideo.cpp">
-      <Filter>Video</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\Source\VePower\VeWindow.cpp">
-      <Filter>Video</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\Source\VePower\Windows\WindowsVideo.cpp">
-      <Filter>Video\Windows</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\Source\VePower\VeEvents.cpp">
-      <Filter>Events</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\Source\VePower\VeSharedLib.cpp">
       <Filter>Kernel</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\Source\VePower\VeKeyboard.cpp">
-      <Filter>Events</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\Source\VePower\VeRect.cpp">
-      <Filter>Video</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\Source\VePower\VePixel.cpp">
-      <Filter>Video</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\Source\VePower\VeMath.cpp">
       <Filter>Math</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\Source\VePower\VeSurface.cpp">
-      <Filter>Video</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\Source\VePower\VeMouse.cpp">
-      <Filter>Events</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\Source\VePower\Windows\WindowsMouse.cpp">
-      <Filter>Events\Windows</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\Source\VePower\VeTime.cpp">
       <Filter>Kernel</Filter>
@@ -202,41 +160,11 @@
     <ClInclude Include="..\..\..\..\Source\VePower\VeLuaBind.h">
       <Filter>Script</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\Source\VePower\VeVideo.h">
-      <Filter>Video</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\Source\VePower\VeWindow.h">
-      <Filter>Video</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\Source\VePower\Windows\WindowsVideo.h">
-      <Filter>Video\Windows</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\Source\VePower\VeMath.h">
       <Filter>Math</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\Source\VePower\VeEvents.h">
-      <Filter>Events</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\Source\VePower\VeSharedLib.h">
       <Filter>Kernel</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\Source\VePower\VeKeyboard.h">
-      <Filter>Events</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\Source\VePower\VeRect.h">
-      <Filter>Video</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\Source\VePower\VePixel.h">
-      <Filter>Video</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\Source\VePower\VeSurface.h">
-      <Filter>Video</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\Source\VePower\VeMouse.h">
-      <Filter>Events</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\Source\VePower\Windows\WindowsMouse.h">
-      <Filter>Events\Windows</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\Source\VePower\VeTime.h">
       <Filter>Kernel</Filter>
@@ -279,32 +207,11 @@
     <None Include="..\..\..\..\Source\VePower\VeLua.inl">
       <Filter>Script</Filter>
     </None>
-    <None Include="..\..\..\..\Source\VePower\VeVideo.inl">
-      <Filter>Video</Filter>
-    </None>
-    <None Include="..\..\..\..\Source\VePower\VeWindow.inl">
-      <Filter>Video</Filter>
-    </None>
-    <None Include="..\..\..\..\Source\VePower\VeKeyboard.inl">
-      <Filter>Events</Filter>
-    </None>
-    <None Include="..\..\..\..\Source\VePower\VeRect.inl">
-      <Filter>Video</Filter>
-    </None>
-    <None Include="..\..\..\..\Source\VePower\VePixel.inl">
-      <Filter>Video</Filter>
-    </None>
     <None Include="..\..\..\..\Source\VePower\VeMathSSE.inl">
       <Filter>Math</Filter>
     </None>
     <None Include="..\..\..\..\Source\VePower\VeMath.inl">
       <Filter>Math</Filter>
-    </None>
-    <None Include="..\..\..\..\Source\VePower\VeSurface.inl">
-      <Filter>Video</Filter>
-    </None>
-    <None Include="..\..\..\..\Source\VePower\VeMouse.inl">
-      <Filter>Events</Filter>
     </None>
     <None Include="..\..\..\..\Source\VePower\VeTime.inl">
       <Filter>Kernel</Filter>

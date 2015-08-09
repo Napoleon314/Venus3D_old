@@ -24,7 +24,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 	VE_NEW VeResourceManager();
 	VE_NEW VeEngine();
 
-	ve_sys.Init();
 	ve_engine.Init();
 
 	VeWindowPtr spWindow1 = VE_NEW VeWindow();
@@ -72,7 +71,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 	VE_ASSERT(!(spWindow1 || spWindow2));
 
 	ve_engine.Term();
-	ve_sys.Term();
 
 	VeEngine::Destory();
 	VeResourceManager::Destory();

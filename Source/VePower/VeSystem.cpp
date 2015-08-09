@@ -15,16 +15,6 @@
 #include "VePowerPch.h"
 
 //--------------------------------------------------------------------------
-extern VeVideoDevicePtr CreateVideoDevice() noexcept;
-//--------------------------------------------------------------------------
-#ifdef VE_ENABLE_KEYBOARD
-extern VeKeyboardPtr CreateKeyboard() noexcept;
-#endif
-//--------------------------------------------------------------------------
-#ifdef VE_ENABLE_MOUSE
-extern VeMousePtr CreateMouse() noexcept;
-#endif
-//--------------------------------------------------------------------------
 static const VeChar8* s_apcLogTypeNames[VeLog::TYPE_MAX] =
 {
 	"DEBUG",
@@ -112,10 +102,12 @@ VeSystem::VeSystem(Type eType, const VeChar8* pcPakName) noexcept
 	}
 	m_spLua = VE_NEW VeLua();
 	m_spMainStack = VE_NEW VeStackAllocator(VE_STACK_SIZE);
+	m_spTime = VE_NEW VeTime();
 }
 //--------------------------------------------------------------------------
 VeSystem::~VeSystem() noexcept
 {
+	m_spTime = nullptr;
 	for (auto obj : m_kObjCollector)
 	{
 		obj->DecRefCount();
@@ -134,98 +126,5 @@ const VePoolAllocatorPtr& VeSystem::GetPoolAllocator(
 		spRes = VE_NEW VePoolAllocator(stUnitSize);
 	}
 	return spRes;
-}
-//--------------------------------------------------------------------------
-void VeSystem::Init() noexcept
-{
-	InitEventQueue();
-	InitVideo();
-	InitInputSystem();
-}
-//--------------------------------------------------------------------------
-void VeSystem::Term() noexcept
-{
-	TermInputSystem();
-	TermVideo();
-	TermEventQueue();
-}
-//--------------------------------------------------------------------------
-void VeSystem::InitTime() noexcept
-{
-	m_spTime = VE_NEW VeTime();
-}
-//--------------------------------------------------------------------------
-void VeSystem::TermTime() noexcept
-{
-	m_spTime = nullptr;
-}
-//--------------------------------------------------------------------------
-void VeSystem::InitEventQueue() noexcept
-{
-	m_spEventQueue = VE_NEW VeEventQueue();
-	m_spEventQueue->Init();
-}
-//--------------------------------------------------------------------------
-void VeSystem::TermEventQueue() noexcept
-{
-	m_spEventQueue->Term();
-	m_spEventQueue = nullptr;
-}
-//--------------------------------------------------------------------------
-void VeSystem::InitVideo() noexcept
-{
-	if (!m_spVideo)
-	{
-		m_spVideo = CreateVideoDevice();
-		VE_ASSERT(m_spVideo);
-		m_spVideo->Init();
-	}
-}
-//--------------------------------------------------------------------------
-void VeSystem::TermVideo() noexcept
-{
-	if (m_spVideo)
-	{
-		m_spVideo->Term();
-		m_spVideo = nullptr;
-	}
-}
-//--------------------------------------------------------------------------
-void VeSystem::InitInputSystem() noexcept
-{
-#	ifdef VE_ENABLE_KEYBOARD
-	if (!m_spKeyboard)
-	{
-		m_spKeyboard = CreateKeyboard();
-		VE_ASSERT(m_spKeyboard);
-		m_spKeyboard->Init();
-	}
-#	endif
-#	ifdef VE_ENABLE_MOUSE
-	if (!m_spMouse)
-	{
-		m_spMouse = CreateMouse();
-		VE_ASSERT(m_spMouse);
-		m_spMouse->Init();
-	}
-#	endif
-}
-//--------------------------------------------------------------------------
-void VeSystem::TermInputSystem() noexcept
-{
-#	ifdef VE_ENABLE_KEYBOARD
-	if (m_spKeyboard)
-	{
-		m_spKeyboard->Term();
-		m_spKeyboard = nullptr;
-	}
-#	endif
-#	ifdef VE_ENABLE_MOUSE
-	if (m_spMouse)
-	{
-		m_spMouse->Term();
-		m_spMouse = nullptr;
-	}
-#	endif
 }
 //--------------------------------------------------------------------------
