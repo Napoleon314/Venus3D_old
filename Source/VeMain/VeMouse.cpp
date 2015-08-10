@@ -87,6 +87,72 @@ void VeMouse::WarpInWindow(VeWindow::Data* pkWindow,
 	_WarpMouse(pkWindow, x, y);
 }
 //--------------------------------------------------------------------------
+void VeMouse::SetRelativeMouseMode(bool bEnabled) noexcept
+{
+	VE_ASSERT(ve_keyboard_ptr && ve_video_ptr && ve_event_queue_ptr);
+	VeWindow::Data* pkFocusWindow = ve_keyboard_ptr->m_pkFocus;
+
+	if ((bEnabled ? 1 : 0) == m_bRelativeMode)
+	{
+		return;
+	}
+
+	if (bEnabled && pkFocusWindow)
+	{
+		SetMouseFocus(pkFocusWindow);
+		WarpInWindow(pkFocusWindow, pkFocusWindow->w >> 1, pkFocusWindow->h >> 1);
+	}
+
+	if (!bEnabled && m_bRelativeModeWarp)
+	{
+		m_bRelativeModeWarp = VE_FALSE;
+	}
+	else if (bEnabled)
+	{
+		m_bRelativeModeWarp = VE_TRUE;
+	}
+	else if (!_SetRelativeMouseMode(bEnabled))
+	{
+		if (bEnabled)
+		{
+			m_bRelativeModeWarp = VE_TRUE;
+		}
+	}
+	m_bRelativeMode = bEnabled;
+
+	if (m_pkFocus)
+	{
+		//UpdateWindowGrab(m_pkFocus);
+
+		if (!bEnabled)
+		{
+			WarpInWindow(m_pkFocus, m_i32PosX, m_i32PosY);
+		}
+	}
+
+	ve_event_queue_ptr->FlushEvent(VE_MOUSEMOTION);
+
+	SetCursor(nullptr);
+}
+//--------------------------------------------------------------------------
+void VeMouse::ShowCursor(bool bToggle) noexcept
+{
+	VE_BOOL bShown = m_bCursorShown;
+	if (bToggle)
+	{
+		m_bCursorShown = VE_TRUE;
+	}
+	else
+	{
+		m_bCursorShown = VE_FALSE;
+	}
+
+	if (m_bCursorShown != bShown)
+	{
+		SetCursor(nullptr);
+	}
+}
+//--------------------------------------------------------------------------
 void VeMouse::Init() noexcept
 {
 	m_bCursorShown = VE_TRUE;
@@ -95,7 +161,34 @@ void VeMouse::Init() noexcept
 //--------------------------------------------------------------------------
 void VeMouse::Term() noexcept
 {
-	
+	SetRelativeMouseMode(false);
+	ShowCursor(true);
+
+	m_kCursorList.clear();
+
+	if (m_spDefCursor)
+	{
+		_FreeCursor(&(m_spDefCursor->m_kData));
+	}
+
+	m_kClickStateList.clear();
+
+	m_u32MouseID = 0;
+	m_pkFocus = nullptr;
+	m_i32PosX = 0;
+	m_i32PosY = 0;
+	m_i32DeltaX = 0;
+	m_i32DeltaY = 0;
+	m_i32LastX = 0;
+	m_i32LastY = 0;
+	m_u32ButtonState = 0;
+	m_u32DoubleClickTime = 500;
+	m_i32DoubleClickRadius = 1;
+	m_bRelativeMode = VE_FALSE;
+	m_bRelativeModeWarp = VE_FALSE;
+	m_spDefCursor = nullptr;
+	m_spCurCursor = nullptr;
+	m_bCursorShown = VE_FALSE;
 
 	_Term();
 }
@@ -242,8 +335,8 @@ void VeMouse::PrivateSendMouseMotion(VeWindow::Data* pkWindow,
 		m_i32PosY = 0;
 	}
 
-	m_i32XDelta += xrel;
-	m_i32YDelta += yrel;
+	m_i32DeltaX += xrel;
+	m_i32DeltaY += yrel;
 
 	if (m_bCursorShown && !m_bRelativeMode && m_spCurCursor)
 	{
@@ -256,6 +349,7 @@ void VeMouse::PrivateSendMouseMotion(VeWindow::Data* pkWindow,
 	{
 		VeEvent* pkEvent = ve_event_queue_ptr->AddEvent();
 		pkEvent->m_kMotion.m_u32Type = VE_MOUSEMOTION;
+		pkEvent->m_kMotion.m_u32TimeStamp = VeEventQueue::GetTicks();
 		pkEvent->m_kMotion.m_u32WindowID = m_pkFocus ? m_pkFocus->m_u32Id : 0;
 		pkEvent->m_kMotion.m_u32Which = m_u32MouseID;
 		pkEvent->m_kMotion.m_u32State = m_u32ButtonState;
@@ -358,7 +452,8 @@ void VeMouse::SendMouseButton(VeWindow::Data* pkWindow,
 	if (ve_event_queue_ptr->IsEventTypeEnable(type))
 	{
 		VeEvent* pkEvent = ve_event_queue_ptr->AddEvent();
-		pkEvent->m_u32Type = type;
+		pkEvent->m_kButton.m_u32Type = type;
+		pkEvent->m_kButton.m_u32TimeStamp = VeEventQueue::GetTicks();
 		pkEvent->m_kButton.m_u32WindowID = m_pkFocus ? m_pkFocus->m_u32Id : 0;
 		pkEvent->m_kButton.m_u32Which = m_u32MouseID;
 		pkEvent->m_kButton.m_u8State = u8State;
@@ -371,6 +466,32 @@ void VeMouse::SendMouseButton(VeWindow::Data* pkWindow,
 	if (pkWindow && u8State == VE_RELEASED)
 	{
 		UpdateMouseFocus(pkWindow, m_i32PosX, m_i32PosY, buttonstate);
+	}
+}
+//--------------------------------------------------------------------------
+void VeMouse::SendMouseWheel(VeWindow::Data* pkWindow, VeMouseID u32MouseID,
+	VeInt32 x, VeInt32 y) noexcept
+{
+	if (pkWindow)
+	{
+		SetMouseFocus(pkWindow);
+	}
+
+	if (!x && !y)
+	{
+		return;
+	}
+
+	VE_ASSERT(ve_event_queue_ptr);
+	if (ve_event_queue_ptr->IsEventTypeEnable(VE_MOUSEWHEEL))
+	{
+		VeEvent* pkEvent = ve_event_queue_ptr->AddEvent();
+		pkEvent->m_kWheel.m_u32Type = VE_MOUSEWHEEL;
+		pkEvent->m_kWheel.m_u32TimeStamp = VeEventQueue::GetTicks();
+		pkEvent->m_kWheel.m_u32WindowID = m_pkFocus ? m_pkFocus->m_u32Id : 0;
+		pkEvent->m_kWheel.m_u32Which = m_u32MouseID;
+		pkEvent->m_kWheel.x = x;
+		pkEvent->m_kWheel.y = y;
 	}
 }
 //--------------------------------------------------------------------------

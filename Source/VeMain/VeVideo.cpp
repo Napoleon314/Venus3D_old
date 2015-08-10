@@ -835,7 +835,8 @@ void VeVideoDevice::SendWindowEvent(VeWindow::Data* pkWindow,
 		}
 
 		VeEvent* pkEvent = ve_event_queue_ptr->AddEvent();
-		pkEvent->m_u32Type = VE_WINDOWEVENT;
+		pkEvent->m_kWindow.m_u32Type = VE_WINDOWEVENT;
+		pkEvent->m_kWindow.m_u32TimeStamp = VeEventQueue::GetTicks();
 		pkEvent->m_kWindow.m_u8Event = u8Event;
 		pkEvent->m_kWindow.m_i32Data1 = i32Data1;
 		pkEvent->m_kWindow.m_i32Data2 = i32Data2;

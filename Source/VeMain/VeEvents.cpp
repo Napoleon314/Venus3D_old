@@ -161,10 +161,12 @@ void VeEventQueue::FilterEvents(EventFilter funcFilter) noexcept
 //--------------------------------------------------------------------------
 void VeEventQueue::SendAppEvent(VeEventType eType) noexcept
 {
+	VE_ASSERT(ve_time_ptr);
 	if (IsEventTypeEnable(eType))
 	{
 		VeEvent* pkNew = AddEvent();
-		pkNew->m_u32Type = eType;
+		pkNew->m_kCommon.m_u32Type = eType;
+		pkNew->m_kCommon.m_u32TimeStamp = GetTicks();
 	}
 }
 //--------------------------------------------------------------------------

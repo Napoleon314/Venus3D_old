@@ -18,6 +18,28 @@ inline VeWindowPtr VeMouse::GetFocus() noexcept
 	return m_pkFocus ? VeWindow::Cast(m_pkFocus) : nullptr;
 }
 //--------------------------------------------------------------------------
+inline VeUInt32 VeMouse::GetMouseState(VeInt32& x, VeInt32& y) noexcept
+{
+	x = m_i32PosX;
+	y = m_i32PosY;
+	return m_u32ButtonState;
+}
+//--------------------------------------------------------------------------
+inline VeUInt32 VeMouse::GetRelativeMouseState(
+	VeInt32& x, VeInt32& y) noexcept
+{
+	x = m_i32DeltaX;
+	y = m_i32DeltaY;
+	m_i32DeltaX = 0;
+	m_i32DeltaY = 0;
+	return m_u32ButtonState;
+}
+//--------------------------------------------------------------------------
+inline bool VeMouse::IsRelativeModeEnable() noexcept
+{
+	return m_bRelativeMode ? true : false;
+}
+//--------------------------------------------------------------------------
 inline VeCursorPtr VeMouse::GetCursor() noexcept
 {
 	return m_spCurCursor;

@@ -610,6 +610,7 @@ public:
 	static void GetDefaultKeymap(VeKeycode* pkKeymap) noexcept;	
 
 protected:
+	friend class VeMouse;
 	VeWindow::Data* m_pkFocus = nullptr;
 	VeUInt16 m_u16ModState = 0;
 	VeUInt8 m_au8KeyState[VE_NUM_SCANCODES];

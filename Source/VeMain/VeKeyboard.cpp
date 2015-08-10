@@ -685,6 +685,7 @@ void VeKeyboard::SendKey(VeUInt8 u8State,
 	{
 		VeEvent* pkEvent = ve_event_queue_ptr->AddEvent();
 		pkEvent->m_kKey.m_u32Type = type;
+		pkEvent->m_kKey.m_u32TimeStamp = VeEventQueue::GetTicks();
 		pkEvent->m_kKey.m_u8State = u8State;
 		pkEvent->m_kKey.m_u8Repeat = repeat;
 		pkEvent->m_kKey.m_kKeysym.m_eScancode = eScancode;

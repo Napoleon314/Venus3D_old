@@ -86,6 +86,12 @@ public:
 
 	inline VeWindowPtr GetFocus() noexcept;
 
+	inline VeUInt32 GetMouseState(VeInt32& x, VeInt32& y) noexcept;
+
+	inline VeUInt32 GetRelativeMouseState(VeInt32& x, VeInt32& y) noexcept;
+
+	inline bool IsRelativeModeEnable() noexcept;
+
 	inline VeCursorPtr GetCursor() noexcept;
 
 	inline VeCursorPtr GetDefaultCursor() noexcept;
@@ -93,6 +99,15 @@ public:
 	void SetCursor(VeCursor::Data* pkCursor) noexcept;
 
 	void WarpInWindow(VeWindow::Data* pkWindow, VeInt32 x, VeInt32 y) noexcept;
+
+	void SetRelativeMouseMode(bool bEnabled) noexcept;
+
+	/*VeCursorPtr CreateCursor(const VeByte* pbyData,
+		const Uint8 * mask,
+		int w, int h, int hot_x,
+		int hot_y);*/
+
+	void ShowCursor(bool bToggle) noexcept;
 
 public:
 	void Init() noexcept;
@@ -110,6 +125,9 @@ public:
 
 	void SendMouseButton(VeWindow::Data* pkWindow, VeMouseID u32MouseID,
 		VeUInt8 u8State, VeUInt8 u8Button) noexcept;
+
+	void SendMouseWheel(VeWindow::Data* pkWindow, VeMouseID u32MouseID,
+		VeInt32 x, VeInt32 y) noexcept;
 
 protected:
 	bool UpdateMouseFocus(VeWindow::Data* pkWindow, VeInt32 x, VeInt32 y,
@@ -145,8 +163,8 @@ protected:
 	VeWindow::Data* m_pkFocus = nullptr;
 	VeInt32 m_i32PosX = 0;
 	VeInt32 m_i32PosY = 0;
-	VeInt32 m_i32XDelta = 0;
-	VeInt32 m_i32YDelta = 0;
+	VeInt32 m_i32DeltaX = 0;
+	VeInt32 m_i32DeltaY = 0;
 	VeInt32 m_i32LastX = 0;
 	VeInt32 m_i32LastY = 0;
 	VeUInt32 m_u32ButtonState = 0;
@@ -159,7 +177,6 @@ protected:
 	VeCursorPtr m_spDefCursor;
 	VeCursorPtr m_spCurCursor;
 	VE_BOOL m_bCursorShown = VE_FALSE;
-	VeRefObjectPtr m_spDriverdata;
 
 };
 
