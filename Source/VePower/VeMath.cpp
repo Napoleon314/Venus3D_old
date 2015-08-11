@@ -14,3 +14,7 @@
 
 #include "VePowerPch.h"
 
+int VeMath() noexcept
+{
+	return 0;
+}

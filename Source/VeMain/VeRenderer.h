@@ -35,9 +35,9 @@ public:
 	virtual void Term() noexcept = 0;
 
 protected:
-	VeRenderer() noexcept {}
+	VeRenderer() noexcept;
 
-	virtual ~VeRenderer() noexcept {}
+	virtual ~VeRenderer() noexcept;
 
 	API m_eType = API_NONE;
 

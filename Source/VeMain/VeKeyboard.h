@@ -611,6 +611,7 @@ public:
 
 protected:
 	friend class VeMouse;
+	friend class VeVideoDevice;
 	VeWindow::Data* m_pkFocus = nullptr;
 	VeUInt16 m_u16ModState = 0;
 	VeUInt8 m_au8KeyState[VE_NUM_SCANCODES];

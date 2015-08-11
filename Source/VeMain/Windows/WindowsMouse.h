@@ -40,6 +40,8 @@ public:
 
 	virtual bool _SetRelativeMode(bool bEnabled) noexcept override;
 
+	friend class WindowsVideoDevice;
 	HCURSOR m_hCursor = nullptr;
+	
 
 };

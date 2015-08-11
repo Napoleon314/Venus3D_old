@@ -121,7 +121,8 @@ void VeMouse::SetRelativeMode(bool bEnabled) noexcept
 
 	if (m_pkFocus)
 	{
-		//UpdateWindowGrab(m_pkFocus);
+		VE_ASSERT(ve_video_ptr);
+		ve_video_ptr->UpdateWindowGrab(m_pkFocus);
 
 		if (!bEnabled)
 		{

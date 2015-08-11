@@ -105,6 +105,8 @@
 #define VE_FLOAT_POINT_CONST(p) ((const VeFloat32*)p)
 #define VE_FLOAT_POINT_THIS ((VeFloat32*)this)
 
+int VeMath() noexcept;
+
 #if defined(VE_ENABLE_SSE)
 #	include "VeMathSSE.inl"
 #else

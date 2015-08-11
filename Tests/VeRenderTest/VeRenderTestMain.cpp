@@ -48,10 +48,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 					{
 						if (spWindow1 && kEvent->m_kWindow.m_u32WindowID == spWindow1->GetID())
 						{
+							spWindow1->Destory();
 							spWindow1 = nullptr;
 						}
 						if (spWindow2 && kEvent->m_kWindow.m_u32WindowID == spWindow2->GetID())
 						{
+							spWindow2->Destory();
 							spWindow2 = nullptr;
 						}
 					}

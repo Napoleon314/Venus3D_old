@@ -364,12 +364,12 @@ void VeVideoDevice::RestoreWindow(VeWindow::Data* pkWindow) noexcept
 }
 //--------------------------------------------------------------------------
 void VeVideoDevice::SetWindowBordered(VeWindow::Data* pkWindow,
-	VE_BOOL bBordered) noexcept
+	bool bBordered) noexcept
 {
 	VE_ASSERT(pkWindow && pkWindow->m_kNode.is_attach(m_kWindowList));
 	if (!(pkWindow->m_u32Flags & VE_WINDOW_FULLSCREEN))
 	{
-		const VeInt32 i32Want = (bBordered != VE_FALSE);
+		const VeInt32 i32Want = (bBordered != false);
 		const VeInt32 i32Have = ((pkWindow->m_u32Flags & VE_WINDOW_BORDERLESS) == 0);
 		if ((i32Want != i32Have))
 		{
@@ -489,19 +489,22 @@ bool VeVideoDevice::SetWindowBrightness(VeWindow::Data* pkWindow,
 }
 //--------------------------------------------------------------------------
 void VeVideoDevice::SetWindowGrab(VeWindow::Data* pkWindow,
-	VE_BOOL bGrabbed) noexcept
+	bool bGrabbed) noexcept
 {
 	VE_ASSERT(pkWindow && pkWindow->m_kNode.is_attach(m_kWindowList));
-	/*if (!!grabbed == !!(window->flags & SDL_WINDOW_INPUT_GRABBED)) {
+	if (!!bGrabbed == !!(pkWindow->m_u32Flags & VE_WINDOW_INPUT_GRABBED))
+	{
 		return;
 	}
-	if (grabbed) {
-		window->flags |= SDL_WINDOW_INPUT_GRABBED;
+	if (bGrabbed)
+	{
+		pkWindow->m_u32Flags |= VE_WINDOW_INPUT_GRABBED;
 	}
-	else {
-		window->flags &= ~SDL_WINDOW_INPUT_GRABBED;
+	else
+	{
+		pkWindow->m_u32Flags &= ~VE_WINDOW_INPUT_GRABBED;
 	}
-	UpdateWindowGrab(window);*/
+	UpdateWindowGrab(pkWindow);
 }
 //--------------------------------------------------------------------------
 void VeVideoDevice::DestroyWindow(VeWindow::Data* pkWindow) noexcept
@@ -511,12 +514,12 @@ void VeVideoDevice::DestroyWindow(VeWindow::Data* pkWindow) noexcept
 
 	HideWindow(pkWindow);
 
-	if (ve_keyboard_ptr && ve_keyboard_ptr->GetFocus() == VeWindow::Cast(pkWindow))
+	if (ve_keyboard_ptr && ve_keyboard_ptr->m_pkFocus == pkWindow)
 	{
 		ve_keyboard_ptr->SetFocus(nullptr);
 	}
 
-	if (ve_mouse_ptr && ve_mouse_ptr->GetFocus() == VeWindow::Cast(pkWindow))
+	if (ve_mouse_ptr && ve_mouse_ptr->m_pkFocus == pkWindow)
 	{
 		ve_mouse_ptr->SetFocus(nullptr);
 	}
@@ -679,19 +682,19 @@ void VeVideoDevice::FinishWindowCreation(VeWindow::Data* pkWindow,
 
 	if (u32Flags & VE_WINDOW_MAXIMIZED)
 	{
-		//SDL_MaximizeWindow(window);
+		MaximizeWindow(pkWindow);
 	}
 	if (u32Flags & VE_WINDOW_MINIMIZED)
 	{
-		//SDL_MinimizeWindow(window);
+		MinimizeWindow(pkWindow);
 	}
 	if (u32Flags & VE_WINDOW_FULLSCREEN)
 	{
-		//SDL_SetWindowFullscreen(window, flags);
+		SetWindowFullscreen(pkWindow, u32Flags);
 	}
 	if (u32Flags & VE_WINDOW_INPUT_GRABBED)
 	{
-		//SDL_SetWindowGrab(window, SDL_TRUE);
+		SetWindowGrab(pkWindow, true);
 	}
 	if (!(u32Flags & VE_WINDOW_HIDDEN))
 	{
@@ -908,7 +911,7 @@ void VeVideoDevice::OnWindowFocusGained(VeWindow::Data* pkWindow) noexcept
 		ve_mouse_ptr->WarpInWindow(pkWindow, pkWindow->w >> 1, pkWindow->h >> 1);
 	}
 
-	//SDL_UpdateWindowGrab(window);*
+	UpdateWindowGrab(pkWindow);
 }
 //--------------------------------------------------------------------------
 static VE_BOOL ShouldMinimizeOnFocusLoss(VeWindow::Data* pkWindow)
@@ -935,12 +938,38 @@ void VeVideoDevice::OnWindowFocusLost(VeWindow::Data* pkWindow) noexcept
 		_SetWindowGammaRamp(pkWindow, pkWindow->m_pu16SavedGamma);
 	}
 
-	//SDL_UpdateWindowGrab(window);
+	UpdateWindowGrab(pkWindow);
 
 	if (ShouldMinimizeOnFocusLoss(pkWindow))
 	{
 		MinimizeWindow(pkWindow);
 	}
+}
+//--------------------------------------------------------------------------
+void VeVideoDevice::UpdateWindowGrab(VeWindow::Data* pkWindow) noexcept
+{
+		VE_BOOL bGrabbed;
+		if ((ve_mouse_ptr->IsRelativeModeEnable()
+			|| (pkWindow->m_u32Flags & VE_WINDOW_INPUT_GRABBED))
+			&& (pkWindow->m_u32Flags & VE_WINDOW_INPUT_FOCUS))
+		{
+			bGrabbed = VE_TRUE;
+		}
+		else
+		{
+			bGrabbed = VE_FALSE;
+		}
+		_SetWindowGrab(pkWindow, bGrabbed);
+}
+//--------------------------------------------------------------------------
+VeWindow::Data* VeVideoDevice::GetKeyboardFocus() noexcept
+{
+	return ve_keyboard_ptr ? ve_keyboard_ptr->m_pkFocus : nullptr;
+}
+//--------------------------------------------------------------------------
+VeWindow::Data* VeVideoDevice::GetMouseFocus() noexcept
+{
+	return ve_mouse_ptr ? ve_mouse_ptr->m_pkFocus : nullptr;
 }
 //--------------------------------------------------------------------------
 bool VeVideoDevice::_GetWindowGammaRamp(VeWindow::Data* pkWindow,

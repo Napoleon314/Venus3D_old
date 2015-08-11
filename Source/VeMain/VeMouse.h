@@ -86,6 +86,8 @@ public:
 
 	inline VeWindowPtr GetFocus() noexcept;
 
+	inline VeUInt32 GetButtonState() noexcept;
+
 	inline VeUInt32 GetState(VeInt32& x, VeInt32& y) noexcept;
 
 	inline VeUInt32 GetRelativeState(VeInt32& x, VeInt32& y) noexcept;
@@ -161,6 +163,8 @@ protected:
 
 	virtual bool _SetRelativeMode(bool bEnabled) noexcept { return false; }
 
+	friend class VeKeyboard;
+	friend class VeVideoDevice;
 	VeMouseID m_u32MouseID = 0;
 	VeWindow::Data* m_pkFocus = nullptr;
 	VeInt32 m_i32PosX = 0;

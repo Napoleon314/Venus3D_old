@@ -22,7 +22,7 @@ VeWindow::VeWindow() noexcept
 //--------------------------------------------------------------------------
 VeWindow::~VeWindow() noexcept
 {
-	Destory();
+	VE_ASSERT(!IsValid());
 }
 //--------------------------------------------------------------------------
 bool VeWindow::Create(const VeChar8* pcTitle, VeInt32 x, VeInt32 y,

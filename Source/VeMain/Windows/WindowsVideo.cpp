@@ -14,8 +14,11 @@
 
 #include "../VeMainPch.h"
 #include "WindowsVideo.h"
+#include "WindowsMouse.h"
 #include <shellapi.h>
 
+//--------------------------------------------------------------------------
+static std::map<HWND, VeWindowData*> s_kWindowDataMap;
 //--------------------------------------------------------------------------
 struct TempTextA
 {
@@ -76,37 +79,214 @@ void WindowsVideoDevice::_Term() noexcept
 	TermModes();
 }
 //--------------------------------------------------------------------------
+void WindowsVideoDevice::UpdateClipCursor(VeWindow::Data* pkWindow) noexcept
+{
+	VE_ASSERT(pkWindow);
+	VeWindowData* pkData = (VeWindowData*)pkWindow->m_spDriverdata;
+
+	if (pkData->m_bInTitleClick || pkData->m_bInModalLoop)
+	{
+		ClipCursor(nullptr);
+		return;
+	}
+
+	VE_ASSERT(ve_mouse_ptr);
+	WindowsMouse* pkMouse = (WindowsMouse*)(ve_mouse_ptr);
+
+	if ((pkMouse->m_bRelativeMode
+		|| (pkWindow->m_u32Flags & VE_WINDOW_INPUT_GRABBED))
+		&& (pkWindow->m_u32Flags & VE_WINDOW_INPUT_FOCUS))
+	{
+		if (pkMouse->m_bRelativeMode && !pkMouse->m_bRelativeModeWarp)
+		{
+			LONG cx, cy;
+			RECT rect;
+			GetWindowRect(pkData->m_hWnd, &rect);
+
+			cx = (rect.left + rect.right) >> 1;
+			cy = (rect.top + rect.bottom) >> 1;
+
+			rect.left = cx - 1;
+			rect.right = cx + 1;
+			rect.top = cy - 1;
+			rect.bottom = cy + 1;
+
+			ClipCursor(&rect);
+		}
+		else
+		{
+			RECT rect;
+			if (GetClientRect(pkData->m_hWnd, &rect) && !IsRectEmpty(&rect))
+			{
+				ClientToScreen(pkData->m_hWnd, (LPPOINT)&rect);
+				ClientToScreen(pkData->m_hWnd, (LPPOINT)&rect + 1);
+				ClipCursor(&rect);
+			}
+		}
+	}
+	else
+	{
+		ClipCursor(nullptr);
+	}
+}
+//--------------------------------------------------------------------------
+#ifndef GET_X_LPARAM
+#	define GET_X_LPARAM(lp)                        ((int)(short)LOWORD(lp))
+#	define GET_Y_LPARAM(lp)                        ((int)(short)HIWORD(lp))
+#endif
+//--------------------------------------------------------------------------
 LRESULT CALLBACK WindowsVideoDevice::WindowProc(HWND hwnd, UINT msg,
 	WPARAM wParam, LPARAM lParam) noexcept
 {
-	VeWindowData* pkData = (VeWindowData*)GetProp(hwnd, TEXT("VeWindowData"));
-	if (pkData && ve_video_ptr)
+	LRESULT lReturnCode = -1;
+
+	auto it = s_kWindowDataMap.find(hwnd);
+	if (it == s_kWindowDataMap.end())
 	{
-		switch (msg)
+		return CallWindowProc(DefWindowProc, hwnd, msg, wParam, lParam);
+	}
+
+	VeWindowData* pkData = it->second;
+
+	switch (msg)
+	{
+	case WM_SHOWWINDOW:
+		if (wParam)
 		{
-		case WM_SHOWWINDOW:
-			if (wParam)
+			((WindowsVideoDevice*)ve_video_ptr)->SendWindowEvent(
+				pkData->m_pkWindow, VE_WINDOWEVENT_SHOWN, 0, 0);
+		}
+		else
+		{
+			((WindowsVideoDevice*)ve_video_ptr)->SendWindowEvent(
+				pkData->m_pkWindow, VE_WINDOWEVENT_HIDDEN, 0, 0);
+		}
+		break;
+	case WM_ACTIVATE:
+		{
+			BOOL minimized;
+
+			minimized = HIWORD(wParam);
+			if (!minimized && (LOWORD(wParam) != WA_INACTIVE))
 			{
 				((WindowsVideoDevice*)ve_video_ptr)->SendWindowEvent(
 					pkData->m_pkWindow, VE_WINDOWEVENT_SHOWN, 0, 0);
+
+				if (ve_keyboard_ptr)
+				{
+					if (GetKeyboardFocus() != pkData->m_pkWindow)
+					{
+						ve_keyboard_ptr->SetFocus(pkData->m_pkWindow);
+					}
+				}
+
+				WindowsVideoDevice::UpdateClipCursor(pkData->m_pkWindow);
+				((WindowsVideoDevice*)ve_video_ptr)->CheckAsyncMouseRelease(pkData);
 			}
 			else
 			{
-				((WindowsVideoDevice*)ve_video_ptr)->SendWindowEvent(
-					pkData->m_pkWindow, VE_WINDOWEVENT_HIDDEN, 0, 0);
+				if (ve_keyboard_ptr)
+				{
+					if (ve_keyboard_ptr->GetFocus() == VeWindow::Cast(pkData->m_pkWindow))
+					{
+						ve_keyboard_ptr->SetFocus(nullptr);
+					}
+				}
+				ClipCursor(nullptr);
 			}
-			break;
-
-		case WM_CLOSE:
-			((WindowsVideoDevice*)ve_video_ptr)->SendWindowEvent(
-				pkData->m_pkWindow, VE_WINDOWEVENT_CLOSE, 0, 0);
-			return 0;
-		default:
-			break;
 		}
+		lReturnCode = 0;
+		break;
+	case WM_MOUSEMOVE:
+		{
+			WindowsMouse* pkMouse = (WindowsMouse*)(ve_mouse_ptr);
+			if (!pkMouse->m_bRelativeMode || pkMouse->m_bRelativeModeWarp)
+			{
+				pkMouse->SendMotion(pkData->m_pkWindow, 0, 0, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+			}
+		}
+	case WM_LBUTTONUP:
+	case WM_RBUTTONUP:
+	case WM_MBUTTONUP:
+	case WM_XBUTTONUP:
+	case WM_LBUTTONDOWN:
+	case WM_RBUTTONDOWN:
+	case WM_MBUTTONDOWN:
+	case WM_XBUTTONDOWN:
+		{
+			WindowsMouse* pkMouse = (WindowsMouse*)(ve_mouse_ptr);
+			if (!pkMouse->m_bRelativeMode || pkMouse->m_bRelativeModeWarp)
+			{
+				((WindowsVideoDevice*)ve_video_ptr)->CheckWParamMouseButtons(wParam, pkData);
+			}
+		}
+		break;
+	case WM_INPUT:
+		{
+			WindowsMouse* pkMouse = (WindowsMouse*)(ve_mouse_ptr);
+			HRAWINPUT hRawInput = (HRAWINPUT)lParam;
+			RAWINPUT inp;
+			UINT size = sizeof(inp);
+
+			if (!pkMouse->m_bRelativeMode || pkMouse->m_bRelativeModeWarp
+				|| pkMouse->m_pkFocus != pkData->m_pkWindow)
+			{
+				break;
+			}
+
+			GetRawInputData(hRawInput, RID_INPUT, &inp, &size, sizeof(RAWINPUTHEADER));
+
+			if (inp.header.dwType == RIM_TYPEMOUSE)
+			{
+				RAWMOUSE* mouse = &inp.data.mouse;
+
+				if ((mouse->usFlags & 0x01) == MOUSE_MOVE_RELATIVE)
+				{
+					pkMouse->SendMotion(pkData->m_pkWindow, 0, 1,
+						pkMouse->m_i32LastX, pkMouse->m_i32LastY);
+				}
+				else
+				{
+					static VePoint initialMousePoint;
+					if (initialMousePoint.x == 0 && initialMousePoint.y == 0)
+					{
+						initialMousePoint.x = pkMouse->m_i32LastX;
+						initialMousePoint.y = pkMouse->m_i32LastY;
+					}
+
+					pkMouse->SendMotion(pkData->m_pkWindow, 0, 1,
+						(pkMouse->m_i32LastX - initialMousePoint.x),
+						(pkMouse->m_i32LastY - initialMousePoint.y));
+
+					initialMousePoint.x = mouse->lLastX;
+					initialMousePoint.y = mouse->lLastY;
+				}
+				((WindowsVideoDevice*)ve_video_ptr)->CheckRawMouseButtons(
+					mouse->usButtonFlags, pkData);
+			}
+		}
+		break;
+
+	case WM_CLOSE:
+		((WindowsVideoDevice*)ve_video_ptr)->SendWindowEvent(
+			pkData->m_pkWindow, VE_WINDOWEVENT_CLOSE, 0, 0);
+		return 0;
+	default:
+		break;
 	}
 
-	return CallWindowProc(DefWindowProc, hwnd, msg, wParam, lParam);
+	if (pkData->m_pfuncWndProc)
+	{
+		return CallWindowProc(pkData->m_pfuncWndProc, hwnd, msg, wParam, lParam);
+	}
+	else if (lReturnCode >= 0)
+	{
+		return lReturnCode;
+	}
+	else
+	{
+		return CallWindowProc(DefWindowProc, hwnd, msg, wParam, lParam);
+	}
 }
 //--------------------------------------------------------------------------
 bool WindowsVideoDevice::RegisterApp(const VeChar8* pcName,
@@ -600,13 +780,7 @@ bool WindowsVideoDevice::SetupWindowData(VeWindow::Data* pkWindow,
 	pkData->m_u32MouseButtonFlags = 0;
 	pkWindow->m_spDriverdata = pkData;
 
-	if (!SetProp(hWnd, TEXT("VeWindowData"), pkData))
-	{
-		ReleaseDC(hWnd, pkData->m_hDc);
-		pkWindow->m_spDriverdata = nullptr;
-		pkData = nullptr;
-		return false;
-	}
+	s_kWindowDataMap[hWnd] = pkData;
 
 	pkData->m_pfuncWndProc = (WNDPROC)GetWindowLongPtr(hWnd, GWLP_WNDPROC);
 	if (pkData->m_pfuncWndProc == WindowProc)
@@ -719,6 +893,83 @@ bool WindowsVideoDevice::SetupWindowData(VeWindow::Data* pkWindow,
 	DragAcceptFiles(hWnd, TRUE);
 
 	return true;
+}
+//--------------------------------------------------------------------------
+void WindowsVideoDevice::CheckWParamMouseButton(VE_BOOL bwParamMousePressed,
+	VE_BOOL bMousePressed, VeWindowData* pkData, VeUInt8 u8Button) noexcept
+{
+	if (bwParamMousePressed && !bMousePressed)
+	{
+		ve_mouse_ptr->SendButton(pkData->m_pkWindow, 0, VE_PRESSED, u8Button);
+	}
+	else if (!bwParamMousePressed && bMousePressed)
+	{
+		ve_mouse_ptr->SendButton(pkData->m_pkWindow, 0, VE_RELEASED, u8Button);
+	}
+}
+//--------------------------------------------------------------------------
+void WindowsVideoDevice::CheckWParamMouseButtons(WPARAM wParam,
+	VeWindowData* pkData) noexcept
+{
+	VE_ASSERT(ve_mouse_ptr);
+	if (wParam != pkData->m_u32MouseButtonFlags)
+	{
+		VeUInt32 u32MouseFlags = ve_mouse_ptr->GetButtonState();
+		CheckWParamMouseButton((wParam & MK_LBUTTON), (u32MouseFlags & VE_BUTTON_LMASK), pkData, VE_BUTTON_LEFT);
+		CheckWParamMouseButton((wParam & MK_MBUTTON), (u32MouseFlags & VE_BUTTON_MMASK), pkData, VE_BUTTON_MIDDLE);
+		CheckWParamMouseButton((wParam & MK_RBUTTON), (u32MouseFlags & VE_BUTTON_RMASK), pkData, VE_BUTTON_RIGHT);
+		CheckWParamMouseButton((wParam & MK_XBUTTON1), (u32MouseFlags & VE_BUTTON_X1MASK), pkData, VE_BUTTON_X1);
+		CheckWParamMouseButton((wParam & MK_XBUTTON2), (u32MouseFlags & VE_BUTTON_X2MASK), pkData, VE_BUTTON_X2);
+		pkData->m_u32MouseButtonFlags = wParam;
+	}
+}
+//--------------------------------------------------------------------------
+void WindowsVideoDevice::CheckRawMouseButtons(ULONG rawButtons,
+	VeWindowData* pkData) noexcept
+{
+	if (rawButtons != pkData->m_u32MouseButtonFlags)
+	{
+		VeUInt32 u32MouseFlags = ve_mouse_ptr->GetButtonState();
+		if ((rawButtons & RI_MOUSE_BUTTON_1_DOWN))
+			CheckWParamMouseButton((rawButtons & RI_MOUSE_BUTTON_1_DOWN), (u32MouseFlags & VE_BUTTON_LMASK), pkData, VE_BUTTON_LEFT);
+		if ((rawButtons & RI_MOUSE_BUTTON_1_UP))
+			CheckWParamMouseButton(!(rawButtons & RI_MOUSE_BUTTON_1_UP), (u32MouseFlags & VE_BUTTON_LMASK), pkData, VE_BUTTON_LEFT);
+		if ((rawButtons & RI_MOUSE_BUTTON_2_DOWN))
+			CheckWParamMouseButton((rawButtons & RI_MOUSE_BUTTON_2_DOWN), (u32MouseFlags & VE_BUTTON_RMASK), pkData, VE_BUTTON_RIGHT);
+		if ((rawButtons & RI_MOUSE_BUTTON_2_UP))
+			CheckWParamMouseButton(!(rawButtons & RI_MOUSE_BUTTON_2_UP), (u32MouseFlags & VE_BUTTON_RMASK), pkData, VE_BUTTON_RIGHT);
+		if ((rawButtons & RI_MOUSE_BUTTON_3_DOWN))
+			CheckWParamMouseButton((rawButtons & RI_MOUSE_BUTTON_3_DOWN), (u32MouseFlags & VE_BUTTON_MMASK), pkData, VE_BUTTON_MIDDLE);
+		if ((rawButtons & RI_MOUSE_BUTTON_3_UP))
+			CheckWParamMouseButton(!(rawButtons & RI_MOUSE_BUTTON_3_UP), (u32MouseFlags & VE_BUTTON_MMASK), pkData, VE_BUTTON_MIDDLE);
+		if ((rawButtons & RI_MOUSE_BUTTON_4_DOWN))
+			CheckWParamMouseButton((rawButtons & RI_MOUSE_BUTTON_4_DOWN), (u32MouseFlags & VE_BUTTON_X1MASK), pkData, VE_BUTTON_X1);
+		if ((rawButtons & RI_MOUSE_BUTTON_4_UP))
+			CheckWParamMouseButton(!(rawButtons & RI_MOUSE_BUTTON_4_UP), (u32MouseFlags & VE_BUTTON_X1MASK), pkData, VE_BUTTON_X1);
+		if ((rawButtons & RI_MOUSE_BUTTON_5_DOWN))
+			CheckWParamMouseButton((rawButtons & RI_MOUSE_BUTTON_5_DOWN), (u32MouseFlags & VE_BUTTON_X2MASK), pkData, VE_BUTTON_X2);
+		if ((rawButtons & RI_MOUSE_BUTTON_5_UP))
+			CheckWParamMouseButton(!(rawButtons & RI_MOUSE_BUTTON_5_UP), (u32MouseFlags & VE_BUTTON_X2MASK), pkData, VE_BUTTON_X2);
+		pkData->m_u32MouseButtonFlags = rawButtons;
+	}
+}
+//--------------------------------------------------------------------------
+void WindowsVideoDevice::CheckAsyncMouseRelease(
+	VeWindowData* pkData) noexcept
+{
+	VeUInt32 u32MouseFlags = ve_mouse_ptr->GetButtonState();
+	SHORT keyState;
+	keyState = GetAsyncKeyState(VK_LBUTTON);
+	CheckWParamMouseButton((keyState & 0x8000), (u32MouseFlags & VE_BUTTON_LMASK), pkData, VE_BUTTON_LEFT);
+	keyState = GetAsyncKeyState(VK_RBUTTON);
+	CheckWParamMouseButton((keyState & 0x8000), (u32MouseFlags & VE_BUTTON_RMASK), pkData, VE_BUTTON_RIGHT);
+	keyState = GetAsyncKeyState(VK_MBUTTON);
+	CheckWParamMouseButton((keyState & 0x8000), (u32MouseFlags & VE_BUTTON_MMASK), pkData, VE_BUTTON_MIDDLE);
+	keyState = GetAsyncKeyState(VK_XBUTTON1);
+	CheckWParamMouseButton((keyState & 0x8000), (u32MouseFlags & VE_BUTTON_X1MASK), pkData, VE_BUTTON_X1);
+	keyState = GetAsyncKeyState(VK_XBUTTON2);
+	CheckWParamMouseButton((keyState & 0x8000), (u32MouseFlags & VE_BUTTON_X2MASK), pkData, VE_BUTTON_X2);
+	pkData->m_u32MouseButtonFlags = 0;
 }
 //--------------------------------------------------------------------------
 bool WindowsVideoDevice::_CreateWindow(VeWindow::Data* pkWindow) noexcept
@@ -1062,7 +1313,18 @@ bool WindowsVideoDevice::_GetWindowGammaRamp(VeWindow::Data* pkWindow,
 void WindowsVideoDevice::_SetWindowGrab(VeWindow::Data* pkWindow,
 	VE_BOOL bGrabbed) noexcept
 {
+	UpdateClipCursor(pkWindow);
 
+	if (pkWindow->m_u32Flags & VE_WINDOW_FULLSCREEN)
+	{
+		UINT flags = SWP_NOCOPYBITS | SWP_NOMOVE | SWP_NOSIZE;
+
+		if (!(pkWindow->m_u32Flags & VE_WINDOW_SHOWN))
+		{
+			flags |= SWP_NOACTIVATE;
+		}
+		SetWindowPositionInternal(pkWindow, flags);
+	}
 }
 //--------------------------------------------------------------------------
 void WindowsVideoDevice::_DestroyWindow(VeWindow::Data* pkWindow) noexcept
@@ -1073,6 +1335,7 @@ void WindowsVideoDevice::_DestroyWindow(VeWindow::Data* pkWindow) noexcept
 	if (pkData)
 	{
 		ReleaseDC(pkData->m_hWnd, pkData->m_hDc);
+		s_kWindowDataMap.erase(pkData->m_hWnd);
 		if (pkData->m_bCreated)
 		{
 			::DestroyWindow(pkData->m_hWnd);

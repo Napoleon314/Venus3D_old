@@ -104,7 +104,7 @@ public:
 
 	void RestoreWindow(VeWindow::Data* pkWindow) noexcept;
 
-	void SetWindowBordered(VeWindow::Data* pkWindow, VE_BOOL bBordered) noexcept;
+	void SetWindowBordered(VeWindow::Data* pkWindow, bool bBordered) noexcept;
 
 	void SetWindowFullscreen(VeWindow::Data* pkWindow, VeUInt32 u32Flags) noexcept;
 
@@ -116,7 +116,7 @@ public:
 
 	bool SetWindowBrightness(VeWindow::Data* pkWindow, VeFloat32 f32Brightness) noexcept;
 
-	void SetWindowGrab(VeWindow::Data* pkWindow, VE_BOOL bGrabbed) noexcept;
+	void SetWindowGrab(VeWindow::Data* pkWindow, bool bGrabbed) noexcept;
 
 	void DestroyWindow(VeWindow::Data* pkWindow) noexcept;
 
@@ -216,6 +216,12 @@ protected:
 	void OnWindowFocusGained(VeWindow::Data* pkWindow) noexcept;
 
 	void OnWindowFocusLost(VeWindow::Data* pkWindow) noexcept;
+
+	void UpdateWindowGrab(VeWindow::Data* pkWindow) noexcept;
+
+	static VeWindow::Data* GetKeyboardFocus() noexcept;
+
+	static VeWindow::Data* GetMouseFocus() noexcept;
 
 	VeVideoDevice() noexcept {}
 

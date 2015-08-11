@@ -108,6 +108,8 @@ public:
 	virtual void _GetWindowWMInfo(VeWindow::Data* pkWindow, VeSysWMInfo* pkInfo) noexcept override;
 
 protected:
+	static void UpdateClipCursor(VeWindow::Data* pkWindow) noexcept;
+
 	static LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
 
 	bool RegisterApp(const VeChar8* pcName, VeUInt32 u32Style, HINSTANCE hInst) noexcept;
@@ -123,6 +125,15 @@ protected:
 	void SetWindowPositionInternal(VeWindow::Data* pkWindow, VeUInt32 u32Flags) noexcept;
 
 	bool SetupWindowData(VeWindow::Data* pkWindow, HWND hWnd, VE_BOOL bCreated) noexcept;
+
+	void CheckWParamMouseButton(VE_BOOL bwParamMousePressed, VE_BOOL bMousePressed,
+		VeWindowData* pkData, VeUInt8 u8Button) noexcept;
+
+	void CheckWParamMouseButtons(WPARAM wParam, VeWindowData* pkData) noexcept;
+
+	void CheckRawMouseButtons(ULONG rawButtons, VeWindowData* pkData) noexcept;
+
+	void CheckAsyncMouseRelease(VeWindowData* pkData) noexcept;
 
 	VeInt32 m_i32AppRegistered = 0;
 	VeFixedString m_kAppName;
