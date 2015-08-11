@@ -20,6 +20,157 @@
 //--------------------------------------------------------------------------
 static std::map<HWND, VeWindowData*> s_kWindowDataMap;
 //--------------------------------------------------------------------------
+static const VeScancode windows_scancode_table[] =
+{
+	/*	0						1							2							3							4						5							6							7 */
+	/*	8						9							A							B							C						D							E							F */
+	VE_SCANCODE_UNKNOWN,		VE_SCANCODE_ESCAPE,		VE_SCANCODE_1,				VE_SCANCODE_2,				VE_SCANCODE_3,			VE_SCANCODE_4,				VE_SCANCODE_5,				VE_SCANCODE_6,			/* 0 */
+	VE_SCANCODE_7,				VE_SCANCODE_8,				VE_SCANCODE_9,				VE_SCANCODE_0,				VE_SCANCODE_MINUS,		VE_SCANCODE_EQUALS,		VE_SCANCODE_BACKSPACE,		VE_SCANCODE_TAB,		/* 0 */
+
+	VE_SCANCODE_Q,				VE_SCANCODE_W,				VE_SCANCODE_E,				VE_SCANCODE_R,				VE_SCANCODE_T,			VE_SCANCODE_Y,				VE_SCANCODE_U,				VE_SCANCODE_I,			/* 1 */
+	VE_SCANCODE_O,				VE_SCANCODE_P,				VE_SCANCODE_LEFTBRACKET,	VE_SCANCODE_RIGHTBRACKET,	VE_SCANCODE_RETURN,	VE_SCANCODE_LCTRL,			VE_SCANCODE_A,				VE_SCANCODE_S,			/* 1 */
+
+	VE_SCANCODE_D,				VE_SCANCODE_F,				VE_SCANCODE_G,				VE_SCANCODE_H,				VE_SCANCODE_J,			VE_SCANCODE_K,				VE_SCANCODE_L,				VE_SCANCODE_SEMICOLON,	/* 2 */
+	VE_SCANCODE_APOSTROPHE,	VE_SCANCODE_GRAVE,			VE_SCANCODE_LSHIFT,		VE_SCANCODE_BACKSLASH,		VE_SCANCODE_Z,			VE_SCANCODE_X,				VE_SCANCODE_C,				VE_SCANCODE_V,			/* 2 */
+
+	VE_SCANCODE_B,				VE_SCANCODE_N,				VE_SCANCODE_M,				VE_SCANCODE_COMMA,			VE_SCANCODE_PERIOD,	VE_SCANCODE_SLASH,			VE_SCANCODE_RSHIFT,		VE_SCANCODE_PRINTSCREEN,/* 3 */
+	VE_SCANCODE_LALT,			VE_SCANCODE_SPACE,			VE_SCANCODE_CAPSLOCK,		VE_SCANCODE_F1,			VE_SCANCODE_F2,		VE_SCANCODE_F3,			VE_SCANCODE_F4,			VE_SCANCODE_F5,		/* 3 */
+
+	VE_SCANCODE_F6,			VE_SCANCODE_F7,			VE_SCANCODE_F8,			VE_SCANCODE_F9,			VE_SCANCODE_F10,		VE_SCANCODE_NUMLOCKCLEAR,	VE_SCANCODE_SCROLLLOCK,	VE_SCANCODE_HOME,		/* 4 */
+	VE_SCANCODE_UP,			VE_SCANCODE_PAGEUP,		VE_SCANCODE_KP_MINUS,		VE_SCANCODE_LEFT,			VE_SCANCODE_KP_5,		VE_SCANCODE_RIGHT,			VE_SCANCODE_KP_PLUS,		VE_SCANCODE_END,		/* 4 */
+
+	VE_SCANCODE_DOWN,			VE_SCANCODE_PAGEDOWN,		VE_SCANCODE_INSERT,		VE_SCANCODE_DELETE,		VE_SCANCODE_UNKNOWN,	VE_SCANCODE_UNKNOWN,		VE_SCANCODE_NONUSBACKSLASH,VE_SCANCODE_F11,		/* 5 */
+	VE_SCANCODE_F12,			VE_SCANCODE_PAUSE,			VE_SCANCODE_UNKNOWN,		VE_SCANCODE_LGUI,			VE_SCANCODE_RGUI,		VE_SCANCODE_APPLICATION,	VE_SCANCODE_UNKNOWN,		VE_SCANCODE_UNKNOWN,	/* 5 */
+
+	VE_SCANCODE_UNKNOWN,		VE_SCANCODE_UNKNOWN,		VE_SCANCODE_UNKNOWN,		VE_SCANCODE_UNKNOWN,		VE_SCANCODE_F13,		VE_SCANCODE_F14,			VE_SCANCODE_F15,			VE_SCANCODE_F16,		/* 6 */
+	VE_SCANCODE_F17,			VE_SCANCODE_F18,			VE_SCANCODE_F19,			VE_SCANCODE_UNKNOWN,		VE_SCANCODE_UNKNOWN,	VE_SCANCODE_UNKNOWN,		VE_SCANCODE_UNKNOWN,		VE_SCANCODE_UNKNOWN,	/* 6 */
+
+	VE_SCANCODE_UNKNOWN,		VE_SCANCODE_UNKNOWN,		VE_SCANCODE_UNKNOWN,		VE_SCANCODE_UNKNOWN,		VE_SCANCODE_UNKNOWN,	VE_SCANCODE_UNKNOWN,		VE_SCANCODE_UNKNOWN,		VE_SCANCODE_UNKNOWN,	/* 7 */
+	VE_SCANCODE_UNKNOWN,		VE_SCANCODE_UNKNOWN,		VE_SCANCODE_UNKNOWN,		VE_SCANCODE_UNKNOWN,		VE_SCANCODE_UNKNOWN,	VE_SCANCODE_UNKNOWN,		VE_SCANCODE_UNKNOWN,		VE_SCANCODE_UNKNOWN	/* 7 */
+};
+//--------------------------------------------------------------------------
+VeScancode WindowsScanCodeToSDLScanCode(LPARAM lParam, WPARAM wParam) noexcept
+{
+	VeScancode code;
+	VeChar8 bIsExtended;
+	VeInt32 nScanCode = (lParam >> 16) & 0xFF;
+
+	if (nScanCode == 0 || nScanCode == 0x45)
+	{
+		switch (wParam)
+		{
+		case VK_CLEAR: return VE_SCANCODE_CLEAR;
+		case VK_MODECHANGE: return VE_SCANCODE_MODE;
+		case VK_SELECT: return VE_SCANCODE_SELECT;
+		case VK_EXECUTE: return VE_SCANCODE_EXECUTE;
+		case VK_HELP: return VE_SCANCODE_HELP;
+		case VK_PAUSE: return VE_SCANCODE_PAUSE;
+		case VK_NUMLOCK: return VE_SCANCODE_NUMLOCKCLEAR;
+
+		case VK_F13: return VE_SCANCODE_F13;
+		case VK_F14: return VE_SCANCODE_F14;
+		case VK_F15: return VE_SCANCODE_F15;
+		case VK_F16: return VE_SCANCODE_F16;
+		case VK_F17: return VE_SCANCODE_F17;
+		case VK_F18: return VE_SCANCODE_F18;
+		case VK_F19: return VE_SCANCODE_F19;
+		case VK_F20: return VE_SCANCODE_F20;
+		case VK_F21: return VE_SCANCODE_F21;
+		case VK_F22: return VE_SCANCODE_F22;
+		case VK_F23: return VE_SCANCODE_F23;
+		case VK_F24: return VE_SCANCODE_F24;
+
+		case VK_OEM_NEC_EQUAL: return VE_SCANCODE_KP_EQUALS;
+		case VK_BROWSER_BACK: return VE_SCANCODE_AC_BACK;
+		case VK_BROWSER_FORWARD: return VE_SCANCODE_AC_FORWARD;
+		case VK_BROWSER_REFRESH: return VE_SCANCODE_AC_REFRESH;
+		case VK_BROWSER_STOP: return VE_SCANCODE_AC_STOP;
+		case VK_BROWSER_SEARCH: return VE_SCANCODE_AC_SEARCH;
+		case VK_BROWSER_FAVORITES: return VE_SCANCODE_AC_BOOKMARKS;
+		case VK_BROWSER_HOME: return VE_SCANCODE_AC_HOME;
+		case VK_VOLUME_MUTE: return VE_SCANCODE_AUDIOMUTE;
+		case VK_VOLUME_DOWN: return VE_SCANCODE_VOLUMEDOWN;
+		case VK_VOLUME_UP: return VE_SCANCODE_VOLUMEUP;
+
+		case VK_MEDIA_NEXT_TRACK: return VE_SCANCODE_AUDIONEXT;
+		case VK_MEDIA_PREV_TRACK: return VE_SCANCODE_AUDIOPREV;
+		case VK_MEDIA_STOP: return VE_SCANCODE_AUDIOSTOP;
+		case VK_MEDIA_PLAY_PAUSE: return VE_SCANCODE_AUDIOPLAY;
+		case VK_LAUNCH_MAIL: return VE_SCANCODE_MAIL;
+		case VK_LAUNCH_MEDIA_SELECT: return VE_SCANCODE_MEDIASELECT;
+
+		case VK_OEM_102: return VE_SCANCODE_NONUSBACKSLASH;
+
+		case VK_ATTN: return VE_SCANCODE_SYSREQ;
+		case VK_CRSEL: return VE_SCANCODE_CRSEL;
+		case VK_EXSEL: return VE_SCANCODE_EXSEL;
+		case VK_OEM_CLEAR: return VE_SCANCODE_CLEAR;
+
+		case VK_LAUNCH_APP1: return VE_SCANCODE_APP1;
+		case VK_LAUNCH_APP2: return VE_SCANCODE_APP2;
+
+		default: return VE_SCANCODE_UNKNOWN;
+		}
+	}
+
+	if (nScanCode > 127)
+		return VE_SCANCODE_UNKNOWN;
+
+	code = windows_scancode_table[nScanCode];
+
+	bIsExtended = (lParam & (1 << 24)) != 0;
+	if (!bIsExtended)
+	{
+		switch (code)
+		{
+		case VE_SCANCODE_HOME:
+			return VE_SCANCODE_KP_7;
+		case VE_SCANCODE_UP:
+			return VE_SCANCODE_KP_8;
+		case VE_SCANCODE_PAGEUP:
+			return VE_SCANCODE_KP_9;
+		case VE_SCANCODE_LEFT:
+			return VE_SCANCODE_KP_4;
+		case VE_SCANCODE_RIGHT:
+			return VE_SCANCODE_KP_6;
+		case VE_SCANCODE_END:
+			return VE_SCANCODE_KP_1;
+		case VE_SCANCODE_DOWN:
+			return VE_SCANCODE_KP_2;
+		case VE_SCANCODE_PAGEDOWN:
+			return VE_SCANCODE_KP_3;
+		case VE_SCANCODE_INSERT:
+			return VE_SCANCODE_KP_0;
+		case VE_SCANCODE_DELETE:
+			return VE_SCANCODE_KP_PERIOD;
+		case VE_SCANCODE_PRINTSCREEN:
+			return VE_SCANCODE_KP_MULTIPLY;
+		default:
+			break;
+		}
+	}
+	else
+	{
+		switch (code)
+		{
+		case VE_SCANCODE_RETURN:
+			return VE_SCANCODE_KP_ENTER;
+		case VE_SCANCODE_LALT:
+			return VE_SCANCODE_RALT;
+		case VE_SCANCODE_LCTRL:
+			return VE_SCANCODE_RCTRL;
+		case VE_SCANCODE_SLASH:
+			return VE_SCANCODE_KP_DIVIDE;
+		case VE_SCANCODE_CAPSLOCK:
+			return VE_SCANCODE_KP_PLUS;
+		default:
+			break;
+		}
+	}
+
+	return code;
+}
+//--------------------------------------------------------------------------
 struct TempTextA
 {
 	TempTextA(VeSizeT stLen) noexcept
@@ -266,7 +417,237 @@ LRESULT CALLBACK WindowsVideoDevice::WindowProc(HWND hwnd, UINT msg,
 			}
 		}
 		break;
+	case WM_MOUSEWHEEL:
+		{
+			static short s_AccumulatedMotion;
+			WindowsMouse* pkMouse = (WindowsMouse*)(ve_mouse_ptr);
+			s_AccumulatedMotion += GET_WHEEL_DELTA_WPARAM(wParam);
+			if (s_AccumulatedMotion > 0)
+			{
+				while (s_AccumulatedMotion >= WHEEL_DELTA)
+				{
+					pkMouse->SendWheel(pkData->m_pkWindow, 0, 0, 1);
+					s_AccumulatedMotion -= WHEEL_DELTA;
+				}
+			}
+			else
+			{
+				while (s_AccumulatedMotion <= -WHEEL_DELTA)
+				{
+					pkMouse->SendWheel(pkData->m_pkWindow, 0, 0, -1);
+					s_AccumulatedMotion += WHEEL_DELTA;
+				}
+			}
+		}
+		break;
+	case WM_MOUSEHWHEEL:
+		{
+			static short s_AccumulatedMotion;
+			WindowsMouse* pkMouse = (WindowsMouse*)(ve_mouse_ptr);
+			s_AccumulatedMotion += GET_WHEEL_DELTA_WPARAM(wParam);
+			if (s_AccumulatedMotion > 0)
+			{
+				while (s_AccumulatedMotion >= WHEEL_DELTA)
+				{
+					pkMouse->SendWheel(pkData->m_pkWindow, 0, 1, 0);
+					s_AccumulatedMotion -= WHEEL_DELTA;
+				}
+			}
+			else
+			{
+				while (s_AccumulatedMotion <= -WHEEL_DELTA)
+				{
+					pkMouse->SendWheel(pkData->m_pkWindow, 0, -1, 0);
+					s_AccumulatedMotion += WHEEL_DELTA;
+				}
+			}
+		}
+		break;
+#	ifdef WM_MOUSELEAVE
+	case WM_MOUSELEAVE:
+		{
+			WindowsMouse* pkMouse = (WindowsMouse*)(ve_mouse_ptr);
+			if (pkMouse->m_pkFocus == pkData->m_pkWindow && !pkMouse->m_bRelativeMode)
+			{
+				if (!IsIconic(hwnd))
+				{
+					POINT cursorPos;
+					GetCursorPos(&cursorPos);
+					ScreenToClient(hwnd, &cursorPos);
+					pkMouse->SendMotion(pkData->m_pkWindow, 0, 0, cursorPos.x, cursorPos.y);
+				}
+				pkMouse->SetFocus(nullptr);
+			}
+			lReturnCode = 0;
+		}
+		break;
+#	endif
 
+	case WM_KEYDOWN:
+	case WM_SYSKEYDOWN:
+		{
+			VeScancode code = WindowsScanCodeToSDLScanCode(lParam, wParam);
+			if (code != VE_SCANCODE_UNKNOWN)
+			{
+				ve_keyboard_ptr->SendKey(VE_PRESSED, code);
+			}
+		}
+		/*if (msg == WM_KEYDOWN)
+		{
+			BYTE keyboardState[256];
+			char text[5];
+			UINT32 utf32 = 0;
+
+			GetKeyboardState(keyboardState);
+			if (ToUnicode(wParam, (lParam >> 16) & 0xff, keyboardState,
+				(LPWSTR)&utf32, 1, 0) > 0)
+			{
+				WORD repetition;
+				for (repetition = lParam & 0xffff; repetition > 0; repetition--) {
+					WIN_ConvertUTF32toUTF8(utf32, text);
+					ve_keyboard_ptr->SendText(text);
+				}
+			}
+		}*/
+		lReturnCode = 0;
+		break;
+
+	case WM_SYSKEYUP:
+	case WM_KEYUP:
+		{
+			VeScancode code = WindowsScanCodeToSDLScanCode(lParam, wParam);
+			const VeUInt8* keyboardState = ve_keyboard_ptr->GetState();
+
+			if (keyboardState[VE_SCANCODE_LALT] == VE_PRESSED
+				|| keyboardState[VE_SCANCODE_RALT] == VE_PRESSED)
+			{
+				if (code == VE_SCANCODE_F4)
+				{
+					((WindowsVideoDevice*)ve_video_ptr)->SendWindowEvent(
+						pkData->m_pkWindow, VE_WINDOWEVENT_CLOSE, 0, 0);
+				}
+			}
+
+			if (code != VE_SCANCODE_UNKNOWN)
+			{
+				if (code == VE_SCANCODE_PRINTSCREEN &&
+					keyboardState[code] == VE_RELEASED)
+				{
+					ve_keyboard_ptr->SendKey(VE_PRESSED, code);
+				}
+				ve_keyboard_ptr->SendKey(VE_RELEASED, code);
+			}
+		}
+		lReturnCode = 0;
+		break;
+
+	case WM_NCLBUTTONDOWN:
+		{
+			pkData->m_bInTitleClick = VE_TRUE;
+			WindowsVideoDevice::UpdateClipCursor(pkData->m_pkWindow);
+		}
+		break;
+
+	case WM_NCMOUSELEAVE:
+		{
+			pkData->m_bInTitleClick = VE_FALSE;
+			WindowsVideoDevice::UpdateClipCursor(pkData->m_pkWindow);
+		}
+		break;
+	case WM_ENTERSIZEMOVE:
+	case WM_ENTERMENULOOP:
+		{
+			pkData->m_bInModalLoop = VE_TRUE;
+			WindowsVideoDevice::UpdateClipCursor(pkData->m_pkWindow);
+		}
+		break;
+
+	case WM_EXITSIZEMOVE:
+	case WM_EXITMENULOOP:
+		{
+			pkData->m_bInModalLoop = VE_FALSE;
+			WindowsVideoDevice::UpdateClipCursor(pkData->m_pkWindow);
+			((WindowsVideoDevice*)ve_video_ptr)->CheckAsyncMouseRelease(pkData);
+		}
+		break;
+
+	case WM_WINDOWPOSCHANGED:
+		{
+			RECT rect;
+			int x, y;
+			int w, h;
+
+			if (!GetClientRect(hwnd, &rect) || IsRectEmpty(&rect))
+			{
+				break;
+			}
+			ClientToScreen(hwnd, (LPPOINT)& rect);
+			ClientToScreen(hwnd, (LPPOINT)& rect + 1);
+
+			WindowsVideoDevice::UpdateClipCursor(pkData->m_pkWindow);
+
+			x = rect.left;
+			y = rect.top;
+			((WindowsVideoDevice*)ve_video_ptr)->SendWindowEvent(
+				pkData->m_pkWindow, VE_WINDOWEVENT_MOVED, x, y);
+
+			w = rect.right - rect.left;
+			h = rect.bottom - rect.top;
+			((WindowsVideoDevice*)ve_video_ptr)->SendWindowEvent(
+				pkData->m_pkWindow, VE_WINDOWEVENT_RESIZED, w, h);
+		}
+		break;
+
+	case WM_SIZE:
+		{
+			switch (wParam)
+			{
+			case SIZE_MAXIMIZED:
+				((WindowsVideoDevice*)ve_video_ptr)->SendWindowEvent(
+					pkData->m_pkWindow, VE_WINDOWEVENT_MAXIMIZED, 0, 0);
+				break;
+			case SIZE_MINIMIZED:
+				((WindowsVideoDevice*)ve_video_ptr)->SendWindowEvent(
+					pkData->m_pkWindow, VE_WINDOWEVENT_MINIMIZED, 0, 0);
+				break;
+			default:
+				((WindowsVideoDevice*)ve_video_ptr)->SendWindowEvent(
+					pkData->m_pkWindow, VE_WINDOWEVENT_RESTORED, 0, 0);
+				break;
+			}
+		}
+		break;
+
+	case WM_SETCURSOR:
+		{
+			WindowsMouse* pkMouse = (WindowsMouse*)(ve_mouse_ptr);
+			VeUInt16 hittest;
+
+			hittest = LOWORD(lParam);
+			if (hittest == HTCLIENT)
+			{
+				SetCursor(pkMouse->m_hCursor);
+				lReturnCode = TRUE;
+			}
+		}
+		break;
+
+	case WM_PAINT:
+		{
+			RECT rect;
+			if (GetUpdateRect(hwnd, &rect, FALSE))
+			{
+				ValidateRect(hwnd, nullptr);
+				((WindowsVideoDevice*)ve_video_ptr)->SendWindowEvent(
+					pkData->m_pkWindow, VE_WINDOWEVENT_EXPOSED, 0, 0);
+			}
+		}
+		lReturnCode = 0;
+		break;
+
+	case WM_ERASEBKGND:
+		return (1);
+	
 	case WM_CLOSE:
 		((WindowsVideoDevice*)ve_video_ptr)->SendWindowEvent(
 			pkData->m_pkWindow, VE_WINDOWEVENT_CLOSE, 0, 0);

@@ -211,6 +211,7 @@ void VeMouse::SetDefaultCursor(VeCursor::Data* pkCursor) noexcept
 void VeMouse::SetFocus(VeWindow::Data* pkWindow) noexcept
 {
 	VE_ASSERT(ve_video_ptr);
+
 	if (m_pkFocus == pkWindow) return;
 
 	if (m_pkFocus)

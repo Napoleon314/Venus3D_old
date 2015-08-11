@@ -32,30 +32,53 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 	VeWindowPtr spWindow2 = VE_NEW VeWindow();
 	spWindow2->Create("Render Test2", 960, VE_WINDOWPOS_CENTERED, 800, 600, 0);
 
+	//ve_mouse_ptr->SetRelativeMode(true);
+
 	{
 		bool bLoop(true);
 		VeVector<VeEvent*> kEventCache;
 		while (bLoop)
 		{
 			ve_video_ptr->PeekEvents(kEventCache);
-			for (auto kEvent : kEventCache)
+			for (auto pkEvent : kEventCache)
 			{
-				VE_ASSERT(kEvent->m_u32Type);
-				switch (kEvent->m_u32Type)
+				VE_ASSERT(pkEvent->m_u32Type);
+				switch (pkEvent->m_u32Type)
 				{
 				case VE_WINDOWEVENT:
-					if (kEvent->m_kWindow.m_u8Event == VE_WINDOWEVENT_CLOSE)
+					if (pkEvent->m_kWindow.m_u8Event == VE_WINDOWEVENT_CLOSE)
 					{
-						if (spWindow1 && kEvent->m_kWindow.m_u32WindowID == spWindow1->GetID())
+						if (spWindow1 && pkEvent->m_kWindow.m_u32WindowID == spWindow1->GetID())
 						{
 							spWindow1->Destory();
 							spWindow1 = nullptr;
 						}
-						if (spWindow2 && kEvent->m_kWindow.m_u32WindowID == spWindow2->GetID())
+						if (spWindow2 && pkEvent->m_kWindow.m_u32WindowID == spWindow2->GetID())
 						{
 							spWindow2->Destory();
 							spWindow2 = nullptr;
 						}
+					}
+					else if (pkEvent->m_kWindow.m_u8Event == VE_WINDOWEVENT_MOVED)
+					{
+						VeDebugOutput("Moved: %d, %d, %d",
+							pkEvent->m_kWindow.m_u32TimeStamp,
+							pkEvent->m_kWindow.m_i32Data1,
+							pkEvent->m_kWindow.m_i32Data2);
+					}
+					else if (pkEvent->m_kWindow.m_u8Event == VE_WINDOWEVENT_RESIZED)
+					{
+						VeDebugOutput("Resized: %d, %d, %d",
+							pkEvent->m_kWindow.m_u32TimeStamp,
+							pkEvent->m_kWindow.m_i32Data1,
+							pkEvent->m_kWindow.m_i32Data2);
+					}
+					break;
+				case VE_MOUSEMOTION:
+					{
+						VeDebugOutput("Mouse: %d, %d",
+							pkEvent->m_kMotion.x,
+							pkEvent->m_kMotion.y);
 					}
 					break;
 				case VE_QUIT:
@@ -66,6 +89,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 				}
 			}
 			kEventCache.clear();
+			ve_sys.GetTime()->Update();
+			ve_event_queue_ptr->FlushEvents();
 			VeSleep(10);
 		}
 	}
