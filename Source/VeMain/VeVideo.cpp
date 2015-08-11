@@ -511,13 +511,15 @@ void VeVideoDevice::DestroyWindow(VeWindow::Data* pkWindow) noexcept
 
 	HideWindow(pkWindow);
 
-	/*if (SDL_GetKeyboardFocus() == window)
+	if (ve_keyboard_ptr && ve_keyboard_ptr->GetFocus() == VeWindow::Cast(pkWindow))
 	{
-		SDL_SetKeyboardFocus(NULL);
+		ve_keyboard_ptr->SetFocus(nullptr);
 	}
-	if (SDL_GetMouseFocus() == window) {
-		SDL_SetMouseFocus(NULL);
-	}*/
+
+	if (ve_mouse_ptr && ve_mouse_ptr->GetFocus() == VeWindow::Cast(pkWindow))
+	{
+		ve_mouse_ptr->SetFocus(nullptr);
+	}
 
 	_DestroyWindow(pkWindow);
 
@@ -895,17 +897,16 @@ void VeVideoDevice::OnWindowLeave(VeWindow::Data* pkWindow) noexcept
 //--------------------------------------------------------------------------
 void VeVideoDevice::OnWindowFocusGained(VeWindow::Data* pkWindow) noexcept
 {
-	//SDL_Mouse *mouse = SDL_GetMouse();
-
 	if (pkWindow->m_pu16Gamma)
 	{
 		_SetWindowGammaRamp(pkWindow, pkWindow->m_pu16Gamma);
 	}
 
-	/*if (mouse && mouse->relative_mode) {
-		SDL_SetMouseFocus(window);
-		SDL_WarpMouseInWindow(window, window->w / 2, window->h / 2);
-	}*/
+	if (ve_mouse_ptr && ve_mouse_ptr->IsRelativeModeEnable())
+	{
+		ve_mouse_ptr->SetFocus(pkWindow);
+		ve_mouse_ptr->WarpInWindow(pkWindow, pkWindow->w >> 1, pkWindow->h >> 1);
+	}
 
 	//SDL_UpdateWindowGrab(window);*
 }
@@ -938,7 +939,7 @@ void VeVideoDevice::OnWindowFocusLost(VeWindow::Data* pkWindow) noexcept
 
 	if (ShouldMinimizeOnFocusLoss(pkWindow))
 	{
-		//SDL_MinimizeWindow(window);
+		MinimizeWindow(pkWindow);
 	}
 }
 //--------------------------------------------------------------------------

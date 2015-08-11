@@ -36,9 +36,9 @@ public:
 
 	virtual void _FreeCursor(VeCursor::Data* pkCur) noexcept override;
 
-	virtual void _WarpMouse(VeWindow::Data* pkWindow, VeInt32 x, VeInt32 y) noexcept override;
+	virtual void _Warp(VeWindow::Data* pkWindow, VeInt32 x, VeInt32 y) noexcept override;
 
-	virtual bool _SetRelativeMouseMode(bool bEnabled) noexcept override;
+	virtual bool _SetRelativeMode(bool bEnabled) noexcept override;
 
 	HCURSOR m_hCursor = nullptr;
 

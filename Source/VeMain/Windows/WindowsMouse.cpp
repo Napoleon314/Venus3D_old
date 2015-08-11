@@ -38,9 +38,11 @@ WindowsMouse::~WindowsMouse() noexcept
 //--------------------------------------------------------------------------
 void WindowsMouse::_Init() noexcept
 {
-	//SDL_SetDefaultCursor(WIN_CreateDefaultCursor());
-
-	//SDL_SetDoubleClickTime(GetDoubleClickTime());
+	VeCursorPtr spDefault = VE_NEW VeCursor();
+	VeCursor::Data* pkData = GetCursorData(spDefault);
+	pkData->m_pvDriverdata = LoadCursor(nullptr, IDC_ARROW);
+	SetDefaultCursor(pkData);
+	SetDoubleClickTime(GetDoubleClickTime());
 }
 //--------------------------------------------------------------------------
 void WindowsMouse::_Term() noexcept
@@ -172,7 +174,7 @@ void WindowsMouse::_FreeCursor(VeCursor::Data* pkCur) noexcept
 	pkCur->m_pvDriverdata = nullptr;
 }
 //--------------------------------------------------------------------------
-void WindowsMouse::_WarpMouse(VeWindow::Data* pkWindow,
+void WindowsMouse::_Warp(VeWindow::Data* pkWindow,
 	VeInt32 x, VeInt32 y) noexcept
 {
 	VeWindowData* pkData = (VeWindowData *)pkWindow->m_spDriverdata;
@@ -190,7 +192,7 @@ void WindowsMouse::_WarpMouse(VeWindow::Data* pkWindow,
 	SetCursorPos(pt.x, pt.y);
 }
 //--------------------------------------------------------------------------
-bool WindowsMouse::_SetRelativeMouseMode(bool bEnabled) noexcept
+bool WindowsMouse::_SetRelativeMode(bool bEnabled) noexcept
 {
 	RAWINPUTDEVICE rawMouse = { 0x01, 0x02, 0, nullptr };
 

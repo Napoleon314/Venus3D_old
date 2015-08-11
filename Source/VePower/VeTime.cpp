@@ -22,7 +22,7 @@
 void VeTimeOfDay(VeUInt64& u64Time)
 {
 	timeval kTime;
-	gettimeofday(&kTime, NULL);
+	gettimeofday(&kTime, nullptr);
 	u64Time = kTime.tv_sec * 1000000ull + kTime.tv_usec;
 }
 #endif

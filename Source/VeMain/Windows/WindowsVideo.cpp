@@ -79,12 +79,24 @@ void WindowsVideoDevice::_Term() noexcept
 LRESULT CALLBACK WindowsVideoDevice::WindowProc(HWND hwnd, UINT msg,
 	WPARAM wParam, LPARAM lParam) noexcept
 {
-	VE_ASSERT(ve_video_ptr);
 	VeWindowData* pkData = (VeWindowData*)GetProp(hwnd, TEXT("VeWindowData"));
-	if (pkData)
+	if (pkData && ve_video_ptr)
 	{
 		switch (msg)
 		{
+		case WM_SHOWWINDOW:
+			if (wParam)
+			{
+				((WindowsVideoDevice*)ve_video_ptr)->SendWindowEvent(
+					pkData->m_pkWindow, VE_WINDOWEVENT_SHOWN, 0, 0);
+			}
+			else
+			{
+				((WindowsVideoDevice*)ve_video_ptr)->SendWindowEvent(
+					pkData->m_pkWindow, VE_WINDOWEVENT_HIDDEN, 0, 0);
+			}
+			break;
+
 		case WM_CLOSE:
 			((WindowsVideoDevice*)ve_video_ptr)->SendWindowEvent(
 				pkData->m_pkWindow, VE_WINDOWEVENT_CLOSE, 0, 0);
@@ -136,7 +148,7 @@ bool WindowsVideoDevice::RegisterApp(const VeChar8* pcName,
 #	endif
 
 	WNDCLASS kClass;
-	kClass.hCursor = LoadCursor(nullptr, IDC_ARROW);
+	kClass.hCursor = nullptr;
 	kClass.hIcon = nullptr;
 	kClass.lpszMenuName = nullptr;
 	kClass.lpszClassName = lptstrAppName;
@@ -687,7 +699,7 @@ bool WindowsVideoDevice::SetupWindowData(VeWindow::Data* pkWindow,
 	if (GetFocus() == hWnd)
 	{
 		pkWindow->m_u32Flags |= VE_WINDOW_INPUT_FOCUS;
-		//SDL_SetKeyboardFocus(data->window);
+		if(ve_keyboard_ptr) ve_keyboard_ptr->SetFocus(pkData->m_pkWindow);
 
 		if (pkWindow->m_u32Flags & VE_WINDOW_INPUT_GRABBED)
 		{

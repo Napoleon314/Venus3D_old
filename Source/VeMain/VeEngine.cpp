@@ -41,16 +41,16 @@ VeEngine::~VeEngine() noexcept
 void VeEngine::Init() noexcept
 {
 	InitEventQueue();
-	InitVideo();
 	InitInputSystem();
+	InitVideo();
 	InitRenderer();
 }
 //--------------------------------------------------------------------------
 void VeEngine::Term() noexcept
 {
 	TermRenderer();
-	TermInputSystem();
 	TermVideo();
+	TermInputSystem();
 	TermEventQueue();
 }
 //--------------------------------------------------------------------------

@@ -86,9 +86,9 @@ public:
 
 	inline VeWindowPtr GetFocus() noexcept;
 
-	inline VeUInt32 GetMouseState(VeInt32& x, VeInt32& y) noexcept;
+	inline VeUInt32 GetState(VeInt32& x, VeInt32& y) noexcept;
 
-	inline VeUInt32 GetRelativeMouseState(VeInt32& x, VeInt32& y) noexcept;
+	inline VeUInt32 GetRelativeState(VeInt32& x, VeInt32& y) noexcept;
 
 	inline bool IsRelativeModeEnable() noexcept;
 
@@ -100,7 +100,7 @@ public:
 
 	void WarpInWindow(VeWindow::Data* pkWindow, VeInt32 x, VeInt32 y) noexcept;
 
-	void SetRelativeMouseMode(bool bEnabled) noexcept;
+	void SetRelativeMode(bool bEnabled) noexcept;
 
 	/*VeCursorPtr CreateCursor(const VeByte* pbyData,
 		const Uint8 * mask,
@@ -118,25 +118,27 @@ public:
 
 	void SetDefaultCursor(VeCursor::Data* pkCursor) noexcept;
 
-	void SetMouseFocus(VeWindow::Data* pkWindow) noexcept;
+	void SetFocus(VeWindow::Data* pkWindow) noexcept;
 
-	void SendMouseMotion(VeWindow::Data* pkWindow, VeMouseID u32MouseID,
+	void SendMotion(VeWindow::Data* pkWindow, VeMouseID u32MouseID,
 		VeInt32 i32Relative, VeInt32 x, VeInt32 y) noexcept;
 
-	void SendMouseButton(VeWindow::Data* pkWindow, VeMouseID u32MouseID,
+	void SendButton(VeWindow::Data* pkWindow, VeMouseID u32MouseID,
 		VeUInt8 u8State, VeUInt8 u8Button) noexcept;
 
-	void SendMouseWheel(VeWindow::Data* pkWindow, VeMouseID u32MouseID,
+	void SendWheel(VeWindow::Data* pkWindow, VeMouseID u32MouseID,
 		VeInt32 x, VeInt32 y) noexcept;
 
 protected:
-	bool UpdateMouseFocus(VeWindow::Data* pkWindow, VeInt32 x, VeInt32 y,
+	bool UpdateFocus(VeWindow::Data* pkWindow, VeInt32 x, VeInt32 y,
 		VeUInt32 u32ButtonState) noexcept;
 
-	void PrivateSendMouseMotion(VeWindow::Data* pkWindow, VeMouseID u32mouseID,
+	void PrivateSendMotion(VeWindow::Data* pkWindow, VeMouseID u32mouseID,
 		VeInt32 i32Relative, VeInt32 x, VeInt32 y) noexcept;
 
-	VeMouseClickState* GetMouseClickState(VeUInt8 u8Button) noexcept;
+	VeMouseClickState* GetClickState(VeUInt8 u8Button) noexcept;
+
+	VeCursor::Data* GetCursorData(VeCursor* pkCursor) noexcept;
 
 	virtual void _Init() noexcept {}
 
@@ -155,9 +157,9 @@ protected:
 
 	virtual void _FreeCursor(VeCursor::Data* pkCur) noexcept {}
 
-	virtual void _WarpMouse(VeWindow::Data* pkWindow, VeInt32 x, VeInt32 y) noexcept;
+	virtual void _Warp(VeWindow::Data* pkWindow, VeInt32 x, VeInt32 y) noexcept;
 
-	virtual bool _SetRelativeMouseMode(bool bEnabled) noexcept { return false; }
+	virtual bool _SetRelativeMode(bool bEnabled) noexcept { return false; }
 
 	VeMouseID m_u32MouseID = 0;
 	VeWindow::Data* m_pkFocus = nullptr;

@@ -18,14 +18,14 @@ inline VeWindowPtr VeMouse::GetFocus() noexcept
 	return m_pkFocus ? VeWindow::Cast(m_pkFocus) : nullptr;
 }
 //--------------------------------------------------------------------------
-inline VeUInt32 VeMouse::GetMouseState(VeInt32& x, VeInt32& y) noexcept
+inline VeUInt32 VeMouse::GetState(VeInt32& x, VeInt32& y) noexcept
 {
 	x = m_i32PosX;
 	y = m_i32PosY;
 	return m_u32ButtonState;
 }
 //--------------------------------------------------------------------------
-inline VeUInt32 VeMouse::GetRelativeMouseState(
+inline VeUInt32 VeMouse::GetRelativeState(
 	VeInt32& x, VeInt32& y) noexcept
 {
 	x = m_i32DeltaX;

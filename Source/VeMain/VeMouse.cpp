@@ -84,13 +84,12 @@ void VeMouse::WarpInWindow(VeWindow::Data* pkWindow,
 	if (pkWindow == nullptr)
 		return;
 
-	_WarpMouse(pkWindow, x, y);
+	_Warp(pkWindow, x, y);
 }
 //--------------------------------------------------------------------------
-void VeMouse::SetRelativeMouseMode(bool bEnabled) noexcept
+void VeMouse::SetRelativeMode(bool bEnabled) noexcept
 {
-	VE_ASSERT(ve_keyboard_ptr && ve_video_ptr && ve_event_queue_ptr);
-	VeWindow::Data* pkFocusWindow = ve_keyboard_ptr->m_pkFocus;
+	VeWindow::Data* pkFocusWindow = ve_keyboard_ptr ? ve_keyboard_ptr->m_pkFocus : nullptr;
 
 	if ((bEnabled ? 1 : 0) == m_bRelativeMode)
 	{
@@ -99,7 +98,7 @@ void VeMouse::SetRelativeMouseMode(bool bEnabled) noexcept
 
 	if (bEnabled && pkFocusWindow)
 	{
-		SetMouseFocus(pkFocusWindow);
+		SetFocus(pkFocusWindow);
 		WarpInWindow(pkFocusWindow, pkFocusWindow->w >> 1, pkFocusWindow->h >> 1);
 	}
 
@@ -111,7 +110,7 @@ void VeMouse::SetRelativeMouseMode(bool bEnabled) noexcept
 	{
 		m_bRelativeModeWarp = VE_TRUE;
 	}
-	else if (!_SetRelativeMouseMode(bEnabled))
+	else if (!_SetRelativeMode(bEnabled))
 	{
 		if (bEnabled)
 		{
@@ -130,6 +129,7 @@ void VeMouse::SetRelativeMouseMode(bool bEnabled) noexcept
 		}
 	}
 
+	VE_ASSERT(ve_event_queue_ptr);
 	ve_event_queue_ptr->FlushEvent(VE_MOUSEMOTION);
 
 	SetCursor(nullptr);
@@ -161,7 +161,7 @@ void VeMouse::Init() noexcept
 //--------------------------------------------------------------------------
 void VeMouse::Term() noexcept
 {
-	SetRelativeMouseMode(false);
+	SetRelativeMode(false);
 	ShowCursor(true);
 
 	m_kCursorList.clear();
@@ -207,7 +207,7 @@ void VeMouse::SetDefaultCursor(VeCursor::Data* pkCursor) noexcept
 	}
 }
 //--------------------------------------------------------------------------
-void VeMouse::SetMouseFocus(VeWindow::Data* pkWindow) noexcept
+void VeMouse::SetFocus(VeWindow::Data* pkWindow) noexcept
 {
 	VE_ASSERT(ve_video_ptr);
 	if (m_pkFocus == pkWindow) return;
@@ -227,7 +227,7 @@ void VeMouse::SetMouseFocus(VeWindow::Data* pkWindow) noexcept
 	SetCursor(nullptr);
 }
 //--------------------------------------------------------------------------
-bool VeMouse::UpdateMouseFocus(VeWindow::Data* pkWindow, VeInt32 x, VeInt32 y,
+bool VeMouse::UpdateFocus(VeWindow::Data* pkWindow, VeInt32 x, VeInt32 y,
 	VeUInt32 u32ButtonState) noexcept
 {
 	VE_ASSERT(pkWindow);
@@ -248,8 +248,8 @@ bool VeMouse::UpdateMouseFocus(VeWindow::Data* pkWindow, VeInt32 x, VeInt32 y,
 		if (pkWindow == m_pkFocus)
 		{
 
-			PrivateSendMouseMotion(pkWindow, m_u32MouseID, 0, x, y);
-			SetMouseFocus(nullptr);
+			PrivateSendMotion(pkWindow, m_u32MouseID, 0, x, y);
+			SetFocus(nullptr);
 		}
 		return false;
 	}
@@ -257,13 +257,13 @@ bool VeMouse::UpdateMouseFocus(VeWindow::Data* pkWindow, VeInt32 x, VeInt32 y,
 	if (pkWindow != m_pkFocus)
 	{
 
-		SetMouseFocus(pkWindow);
-		PrivateSendMouseMotion(pkWindow, m_u32MouseID, 0, x, y);
+		SetFocus(pkWindow);
+		PrivateSendMotion(pkWindow, m_u32MouseID, 0, x, y);
 	}
 	return true;
 }
 //--------------------------------------------------------------------------
-void VeMouse::PrivateSendMouseMotion(VeWindow::Data* pkWindow,
+void VeMouse::PrivateSendMotion(VeWindow::Data* pkWindow,
 	VeMouseID u32mouseID, VeInt32 i32Relative,
 	VeInt32 x, VeInt32 y) noexcept
 {
@@ -363,7 +363,7 @@ void VeMouse::PrivateSendMouseMotion(VeWindow::Data* pkWindow,
 	m_i32LastY = y;
 }
 //--------------------------------------------------------------------------
-VeMouseClickState* VeMouse::GetMouseClickState(VeUInt8 u8Button) noexcept
+VeMouseClickState* VeMouse::GetClickState(VeUInt8 u8Button) noexcept
 {
 	if (u8Button >= m_kClickStateList.size())
 	{
@@ -372,27 +372,32 @@ VeMouseClickState* VeMouse::GetMouseClickState(VeUInt8 u8Button) noexcept
 	return &m_kClickStateList[u8Button];
 }
 //--------------------------------------------------------------------------
-void VeMouse::SendMouseMotion(VeWindow::Data* pkWindow,
+VeCursor::Data* VeMouse::GetCursorData(VeCursor* pkCursor) noexcept
+{
+	return pkCursor ? (&pkCursor->m_kData) : nullptr;
+}
+//--------------------------------------------------------------------------
+void VeMouse::SendMotion(VeWindow::Data* pkWindow,
 	VeMouseID u32MouseID, VeInt32 i32Relative,
 	VeInt32 x, VeInt32 y) noexcept
 {
 	if (pkWindow && !i32Relative)
 	{
-		if (!UpdateMouseFocus(pkWindow, x, y, m_u32ButtonState))
+		if (!UpdateFocus(pkWindow, x, y, m_u32ButtonState))
 		{
 			return;
 		}
 	}
 
-	PrivateSendMouseMotion(pkWindow, u32MouseID, i32Relative, x, y);
+	PrivateSendMotion(pkWindow, u32MouseID, i32Relative, x, y);
 }
 //--------------------------------------------------------------------------
-void VeMouse::SendMouseButton(VeWindow::Data* pkWindow,
+void VeMouse::SendButton(VeWindow::Data* pkWindow,
 	VeMouseID u32MouseID, VeUInt8 u8State, VeUInt8 u8Button) noexcept
 {
 	VeUInt32 type;
 	VeUInt32 buttonstate = m_u32ButtonState;
-	VeMouseClickState* clickstate = GetMouseClickState(u8Button);
+	VeMouseClickState* clickstate = GetClickState(u8Button);
 	VeUInt8 click_count;
 
 	switch (u8State)
@@ -411,7 +416,7 @@ void VeMouse::SendMouseButton(VeWindow::Data* pkWindow,
 
 	if (pkWindow && u8State == VE_PRESSED)
 	{
-		UpdateMouseFocus(pkWindow, m_i32PosX, m_i32PosY, buttonstate);
+		UpdateFocus(pkWindow, m_i32PosX, m_i32PosY, buttonstate);
 	}
 
 	if (buttonstate == m_u32ButtonState)
@@ -465,16 +470,16 @@ void VeMouse::SendMouseButton(VeWindow::Data* pkWindow,
 	
 	if (pkWindow && u8State == VE_RELEASED)
 	{
-		UpdateMouseFocus(pkWindow, m_i32PosX, m_i32PosY, buttonstate);
+		UpdateFocus(pkWindow, m_i32PosX, m_i32PosY, buttonstate);
 	}
 }
 //--------------------------------------------------------------------------
-void VeMouse::SendMouseWheel(VeWindow::Data* pkWindow, VeMouseID u32MouseID,
+void VeMouse::SendWheel(VeWindow::Data* pkWindow, VeMouseID u32MouseID,
 	VeInt32 x, VeInt32 y) noexcept
 {
 	if (pkWindow)
 	{
-		SetMouseFocus(pkWindow);
+		SetFocus(pkWindow);
 	}
 
 	if (!x && !y)
@@ -495,9 +500,9 @@ void VeMouse::SendMouseWheel(VeWindow::Data* pkWindow, VeMouseID u32MouseID,
 	}
 }
 //--------------------------------------------------------------------------
-void VeMouse::_WarpMouse(VeWindow::Data* pkWindow,
+void VeMouse::_Warp(VeWindow::Data* pkWindow,
 	VeInt32 x, VeInt32 y) noexcept
 {
-	SendMouseMotion(pkWindow, m_u32MouseID, 0, x, y);
+	SendMotion(pkWindow, m_u32MouseID, 0, x, y);
 }
 //--------------------------------------------------------------------------
