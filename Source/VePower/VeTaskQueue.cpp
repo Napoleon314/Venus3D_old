@@ -71,7 +71,6 @@ void VeTaskQueue::Update() noexcept
 			VE_ASSERT(m_kBGTaskList[m_u32ActiveBGTask].empty());
 			Start();
 		}
-		m_kBGMutex.Unlock();
 	}
 
 	{
@@ -82,25 +81,25 @@ void VeTaskQueue::Update() noexcept
 		}
 	}
 	VeRefList<DoTask>& kTaskList = m_kFGTaskList[!m_u32ActiveFGTask];
-	if (m_bTickOnce)
+	if (kTaskList.size())
 	{
-		if (kTaskList.size())
+		if (m_bTickOnce)
 		{
 			VeRefNode<DoTask>* pkHead = kTaskList.get_head_node();
 			pkHead->detach();
 			pkHead->m_Content(*this);
 		}
-	}
-	else
-	{
-		for (auto func : kTaskList)
+		else
 		{
-			VeRefNode<DoTask>* pkNode = kTaskList.get_iter_node();
-			VE_ASSERT(pkNode);
-			pkNode->detach();
-			pkNode->m_Content(*this);
+			for (auto func : kTaskList)
+			{
+				VeRefNode<DoTask>* pkNode = kTaskList.get_iter_node();
+				VE_ASSERT(pkNode);
+				pkNode->detach();
+				pkNode->m_Content(*this);
+			}
+			VE_ASSERT(kTaskList.empty());
 		}
-		VE_ASSERT(kTaskList.empty());
 	}
 }
 //--------------------------------------------------------------------------
