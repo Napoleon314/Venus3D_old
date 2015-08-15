@@ -15,7 +15,7 @@
 #include "VePowerPch.h"
 
 //--------------------------------------------------------------------------
-volatile VeUInt32 VeRefObject::ms_u32Objects = 0;
+std::atomic_uint VeRefObject::ms_u32Objects = 0;
 //--------------------------------------------------------------------------
 VeRefObject::VeRefObject() noexcept
 {
@@ -25,7 +25,7 @@ VeRefObject::VeRefObject() noexcept
 //--------------------------------------------------------------------------
 VeRefObject::~VeRefObject() noexcept
 {
-	VeAtomicDecrement32(ms_u32Objects);
+	--ms_u32Objects;
 }
 //--------------------------------------------------------------------------
 void VeRefObject::DeleteThis() noexcept
@@ -35,12 +35,12 @@ void VeRefObject::DeleteThis() noexcept
 //--------------------------------------------------------------------------
 void VeRefObject::IncRefCount() noexcept
 {
-	VeAtomicIncrement32(m_u32RefCount);
+	++m_u32RefCount;
 }
 //--------------------------------------------------------------------------
 void VeRefObject::DecRefCount() noexcept
 {
-	if (VeAtomicDecrement32(m_u32RefCount) == 0)
+	if ((--m_u32RefCount) == 0)
 		DeleteThis();
 }
 //--------------------------------------------------------------------------

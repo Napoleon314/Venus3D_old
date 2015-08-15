@@ -493,6 +493,16 @@ public:
 		return _Tail;
 	}
 
+	_Node* get_iter_node() noexcept
+	{
+		return _InnerIter;
+	}
+
+	const _Node* get_iter_node() const noexcept
+	{
+		return _InnerIter;
+	}
+
 	void clear() noexcept
 	{
 		_Node* node = _Head;

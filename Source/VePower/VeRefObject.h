@@ -16,6 +16,7 @@
 
 class VE_POWER_API VeRefObject : public VeMemObject
 {
+	VE_NO_COPY(VeRefObject);
 public:
 	VeRefObject() noexcept;
 
@@ -33,8 +34,8 @@ protected:
 	void DeleteThis() noexcept;
 
 private:
-	volatile VeUInt32 m_u32RefCount;
-	static volatile VeUInt32 ms_u32Objects;
+	std::atomic_uint m_u32RefCount;
+	static std::atomic_uint ms_u32Objects;
 
 };
 

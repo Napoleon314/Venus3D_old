@@ -14,7 +14,7 @@
 
 #pragma once
 
-#if defined(VE_PLATFORM_WIN) || defined(VE_PLATFORM_MOBILE_SIM)
+#if defined(VE_PLATFORM_WIN)
 #	define VeAtomicIncrement32(val) InterlockedIncrement((volatile LONG*)&(val))
 #	define VeAtomicDecrement32(val) InterlockedDecrement((volatile LONG*)&(val))
 #elif defined(VE_PLATFORM_LINUX) || defined(VE_PLATFORM_ANDROID)
@@ -25,235 +25,127 @@
 #define VeAtomicDecrement32(val) OSAtomicDecrement32((volatile int32_t*)&(val))
 #endif
 
-#if defined(VE_PLATFORM_WIN) || defined(VE_PLATFORM_MOBILE_SIM)
-
-typedef CRITICAL_SECTION VeThreadMutex;
-typedef HANDLE VeThreadEvent;
-typedef HANDLE VeThreadHandle;
-typedef DWORD VeThreadID;
-typedef unsigned int VeThreadCallbackResult;
-
-#define VeThreadMutexInit(x) InitializeCriticalSection(&x)
-#define VeThreadMutexTerm(x) DeleteCriticalSection(&x)
-#define VeThreadMutexLock(x) EnterCriticalSection(&x)
-#define VeThreadMutexUnlock(x) LeaveCriticalSection(&x)
-
-#define VE_THREAD_PRIORITY_IDLE THREAD_BASE_PRIORITY_IDLE
-#define VE_THREAD_PRIORITY_LOWEST THREAD_PRIORITY_LOWEST
-#define VE_THREAD_PRIORITY_BELOW_NORMAL THREAD_PRIORITY_BELOW_NORMAL
-#define VE_THREAD_PRIORITY_NORMAL THREAD_PRIORITY_NORMAL
-#define VE_THREAD_PRIORITY_ABOVE_NORMAL THREAD_PRIORITY_ABOVE_NORMAL
-#define VE_THREAD_PRIORITY_HIGHEST THREAD_PRIORITY_HIGHEST
-#define VE_THREAD_PRIORITY_TIME_CRITICAL THREAD_PRIORITY_TIME_CRITICAL
-
-#else
-
-typedef pthread_mutex_t VeThreadMutex;
-typedef struct
+inline void VeSleep(VeUInt32 u32Millisecond)
 {
-	pthread_cond_t m_kCond;
-	pthread_mutex_t m_kMutex;
-	VeUInt32 m_u32State;
-} VeThreadEvent;
-typedef pthread_t VeThreadHandle;
-typedef pthread_t VeThreadID;
-typedef void* VeThreadCallbackResult;
+	std::this_thread::sleep_for(std::chrono::milliseconds(200));
+}
 
-#define VeThreadMutexInit(x) pthread_mutex_init(&x, nullptr)
-#define VeThreadMutexTerm(x) pthread_mutex_destroy(&x)
-#define VeThreadMutexLock(x) pthread_mutex_lock(&x)
-#define VeThreadMutexUnlock(x) pthread_mutex_unlock(&x)
-
-#define VE_THREAD_PRIORITY_IDLE 1
-#define VE_THREAD_PRIORITY_LOWEST 16
-#define VE_THREAD_PRIORITY_BELOW_NORMAL 24
-#define VE_THREAD_PRIORITY_NORMAL 32
-#define VE_THREAD_PRIORITY_ABOVE_NORMAL 40
-#define VE_THREAD_PRIORITY_HIGHEST 48
-#define VE_THREAD_PRIORITY_TIME_CRITICAL 100
-
-#endif
-
-enum VeThreadResult
+class VeMutex
 {
-	VE_THREAD_WAIT_SUCCEED,
-	VE_THREAD_WAIT_TIMEOUT,
-	VE_THREAD_WAIT_ABANDON,
-	VE_THREAD_WAIT_FAILED
+	VE_NO_COPY(VeMutex);
+public:
+	VeMutex() noexcept = default;
+
+	~VeMutex() noexcept = default;
+
+	void Lock() noexcept
+	{
+		while (m_atomFlag.test_and_set(std::memory_order_acquire))
+			;
+	}
+
+	void Unlock() noexcept
+	{
+		m_atomFlag.clear(std::memory_order_release);
+	}
+
+private:
+	std::atomic_flag m_atomFlag = ATOMIC_FLAG_INIT;
+
 };
 
-typedef VeThreadCallbackResult(VE_CALLBACK * VeThreadCallback)(void* pvParam);
+class VeMutexHolder
+{
+	VE_NO_COPY(VeMutexHolder);
+public:
+	VeMutexHolder(VeMutex& kMutex) noexcept
+		: m_kMutex(kMutex)
+	{
+		m_kMutex.Lock();
+	}
 
-VE_POWER_API VeThreadHandle VeCreateThread(VeThreadCallback pfuncThreadProc, void* pvParam, VeUInt32 u32Priority = VE_THREAD_PRIORITY_NORMAL, VeSizeT stStackSize = 32768) noexcept;
+	~VeMutexHolder() noexcept
+	{
+		m_kMutex.Unlock();
+	}
 
-VE_POWER_API bool VeJoinThread(VeThreadHandle hThread) noexcept;
+private:
+	VeMutex& m_kMutex;
 
-VE_POWER_API bool VeIsThreadActive(VeThreadHandle hThread) noexcept;
+};
 
-VE_POWER_API VeThreadID VeGetLocalThread() noexcept;
-
-VE_POWER_API void VeSleep(VeUInt32 u32Millisecond) noexcept;
-
-VE_POWER_API bool VeThreadEventInit(VeThreadEvent* phEvent, bool bInitState = false) noexcept;
-
-VE_POWER_API void VeThreadEventTerm(VeThreadEvent* phEvent) noexcept;
-
-VE_POWER_API void VeThreadEventWait(VeThreadEvent* phEvent) noexcept;
-
-VE_POWER_API void VeThreadEventWait(VeThreadEvent* phEvent, VeUInt32 u32Milliseconds) noexcept;
-
-VE_POWER_API void VeThreadEventSet(VeThreadEvent* phEvent) noexcept;
-
-VE_POWER_API void VeThreadEventReset(VeThreadEvent* phEvent) noexcept;
+#define VE_LOCK_MUTEX(mutex) VeMutexHolder mutex##Guard(mutex)
+#define VE_LOCK_MUTEX_NAME(mutex,name) VeMutexHolder name(mutex)
 
 class VE_POWER_API VeThread : public VeMemObject
 {
+	VE_NO_COPY(VeThread);
 public:
-	class VE_POWER_API Mutex : public VeMemObject
+	class Event
 	{
+		VE_NO_COPY(Event);
 	public:
-		Mutex() noexcept
+		Event() noexcept
 		{
-			VeThreadMutexInit(m_kMutex);
+
 		}
-
-		~Mutex() noexcept
-		{
-			VeThreadMutexTerm(m_kMutex);
-		}
-
-		void Lock() noexcept
-		{
-			VeThreadMutexLock(m_kMutex);
-		}
-
-		void Unlock() noexcept
-		{
-			VeThreadMutexUnlock(m_kMutex);
-		}
-
-		Mutex& GetRef() noexcept
-		{
-			return *this;
-		}
-
-	private:
-		VeThreadMutex m_kMutex;
-
-	};
-
-	class VE_POWER_API MutexHolder : public VeMemObject
-	{
-	public:
-		MutexHolder(Mutex* pkMutex) noexcept
-			: m_pkMutex(pkMutex)
-		{
-			VE_ASSERT(pkMutex);
-			m_pkMutex->Lock();
-		}
-
-		~MutexHolder() noexcept
-		{
-			m_pkMutex->Unlock();
-		}
-
-	private:
-		Mutex* m_pkMutex;
-
-	};
-
-	class VE_POWER_API Event : public VeMemObject
-	{
-	public:
-		Event(bool bState = false) noexcept
-		{
-			VeThreadEventInit(&m_kEvent, bState);
-		}
-
+		
 		~Event() noexcept
 		{
-			VeThreadEventTerm(&m_kEvent);
+
 		}
 
-		void Set() noexcept
+		void Wait() noexcept
 		{
-			VeThreadEventSet(&m_kEvent);
+			std::unique_lock<std::mutex> kLock(m_kMutex);
+			while (m_i32Count <= 0)
+			{
+				m_kCondition.wait(kLock);
+			}
 		}
 
-		void Reset() noexcept
+		void Set(VeInt32 i32Step = 1) noexcept
 		{
-			VeThreadEventReset(&m_kEvent);
+			std::lock_guard<std::mutex> kLock(m_kMutex);
+			m_i32Count += i32Step;
+			m_kCondition.notify_all();
+		}
+
+		void Reset(VeInt32 i32Count = 1) noexcept
+		{
+			VE_ASSERT(i32Count > 0);
+			std::lock_guard<std::mutex> kLock(m_kMutex);
+			m_i32Count = 1 - i32Count;
 		}
 
 	private:
-		friend class VeThread;
+		std::mutex m_kMutex;
+		std::condition_variable m_kCondition;
+		volatile VeInt32 m_i32Count = 0;
 
-		VeThreadEvent m_kEvent;
 	};
 
-	VeThread(VeUInt32 u32Priority = VE_THREAD_PRIORITY_NORMAL, VeSizeT stStackSize = 32768) noexcept;
+	VeThread() noexcept;
 
 	virtual ~VeThread() noexcept;
 
-	virtual void Run() noexcept = 0;
-
-	inline void Start() noexcept;
-
 	inline bool IsRunning() noexcept;
 
-	inline static void Wait(Event& kEvent) noexcept;
+	void Start() noexcept;
 
-	inline static void Wait(Event& kEvent, VeUInt32 u32Milliseconds) noexcept;
+	void Join() noexcept;
 
-	inline static void Join(VeThread& kThread) noexcept;
+	virtual void Run() noexcept = 0;
 
 private:
-	typedef VeThread* ThisPointer;
+	void Callback() noexcept;
 
-	struct ThreadParams : public VeMemObject
-	{
-		ThreadParams() noexcept {}
-
-		Event m_kEvent;
-		Event m_kEventLoop;
-		volatile ThisPointer m_pkThis;
-	};
-	VeThreadHandle m_hThread;
-	volatile VeUInt32 m_u32State;
-	ThreadParams* m_pkParams;
-	Mutex m_kMutex;
-
-	static VeThreadCallbackResult VE_CALLBACK Callback(void* pvParam) noexcept;
+	std::thread m_kCore;
+	Event m_kLoop;
+	Event m_kJoin;
+	std::atomic_uint m_u32State = 0;
+	
 
 };
-
-class VE_POWER_API VeTickThread : public VeThread
-{
-public:
-	class TickListener : public VeMemObject
-	{
-	public:
-		virtual void Tick() noexcept = 0;
-	};
-
-	VeTickThread(VeUInt32 u32Sleep = 10) noexcept;
-
-	virtual ~VeTickThread() noexcept;
-
-	void SetListener(TickListener* pkListener) noexcept;
-
-	void Stop() noexcept;
-
-protected:
-	virtual void Run() noexcept;
-
-	TickListener* m_pkListener;
-	VeUInt32 m_u32Sleep;
-	volatile bool m_bNeedTick;
-
-};
-
-#define VE_AUTO_LOCK_MUTEX(mutex) VeThread::MutexHolder mutex##Holder(&mutex)
-#define VE_AUTO_LOCK_MUTEX_NAME(mutex,name) VeThread::MutexHolder name(&mutex)
 
 #include "VeThread.inl"

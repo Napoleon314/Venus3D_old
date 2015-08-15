@@ -15,9 +15,7 @@
 #include "VePowerPch.h"
 
 //--------------------------------------------------------------------------
-VeTaskQueue::VeTaskQueue(VeUInt32 u32Priority,
-	VeSizeT stStackSize) noexcept
-	: VeThread(u32Priority, stStackSize)
+VeTaskQueue::VeTaskQueue() noexcept
 {
 
 }
@@ -25,85 +23,84 @@ VeTaskQueue::VeTaskQueue(VeUInt32 u32Priority,
 VeTaskQueue::~VeTaskQueue() noexcept
 {
 	VE_ASSERT(!IsRunning());
-	VE_ASSERT(m_kBGTaskList.empty() && m_kFGTaskList.empty());
+	VE_ASSERT(m_kBGTaskList[0].empty() && m_kFGTaskList[0].empty());
+	VE_ASSERT(m_kBGTaskList[1].empty() && m_kFGTaskList[1].empty());
 }
 //--------------------------------------------------------------------------
 void VeTaskQueue::AddBGTask(VeRefNode<DoTask>& kTask) noexcept
 {
-	VE_AUTO_LOCK_MUTEX(m_kMutex);
-	m_kBGTaskList.attach_back(kTask);
+	VE_LOCK_MUTEX(m_kBGMutex);
+	m_kBGTaskList[m_u32ActiveBGTask].attach_back(kTask);
 }
 //--------------------------------------------------------------------------
 void VeTaskQueue::AddFGTask(VeRefNode<DoTask>& kTask) noexcept
 {
-	VE_AUTO_LOCK_MUTEX(m_kMutex);
-	m_kBGTaskList.attach_back(kTask);
+	VE_LOCK_MUTEX(m_kFGMutex);
+	m_kFGTaskList[m_u32ActiveFGTask].attach_back(kTask);
 }
 //--------------------------------------------------------------------------
 void VeTaskQueue::RemoveTask(VeRefNode<DoTask>& kTask) noexcept
 {
-	VE_AUTO_LOCK_MUTEX(m_kMutex);
-	VE_ASSERT(kTask.is_attach(m_kBGTaskList) || kTask.is_attach(m_kFGTaskList));
+	VE_LOCK_MUTEX(m_kBGMutex);
+	VE_LOCK_MUTEX(m_kFGMutex);
 	kTask.detach();
 }
 //--------------------------------------------------------------------------
 void VeTaskQueue::Run() noexcept
 {
-	while (true)
+	VeRefList<DoTask>& kTaskList = m_kBGTaskList[!m_u32ActiveBGTask];
+	for (auto func : kTaskList)
 	{
-		DoTask funcTask(nullptr);
-		{
-			VE_AUTO_LOCK_MUTEX(m_kMutex);
-			if (m_kBGTaskList.size())
-			{
-				VeRefNode<DoTask>* pkNode = m_kBGTaskList.get_head_node();
-				funcTask = pkNode->m_Content;
-				pkNode->detach();
-			}
-		}
-		if (funcTask)
-		{
-			funcTask(*this);
-		}
-		else
-		{
-			break;
-		}
+		VeRefNode<DoTask>* pkNode = kTaskList.get_iter_node();
+		VE_ASSERT(pkNode);
+		pkNode->detach();
+		pkNode->m_Content(*this);
 	}
+	VE_ASSERT(kTaskList.empty());
 }
 //--------------------------------------------------------------------------
 void VeTaskQueue::Update() noexcept
 {
 	if (!IsRunning())
 	{
-		VE_AUTO_LOCK_MUTEX(m_kMutex);
-		if (m_kBGTaskList.size()) Start();
+		VE_LOCK_MUTEX(m_kBGMutex);
+		VeSizeT stSize = m_kBGTaskList[m_u32ActiveBGTask].size();
+		if (stSize)
+		{
+			m_u32ActiveBGTask = !m_u32ActiveBGTask;
+			VE_ASSERT(m_kBGTaskList[m_u32ActiveBGTask].empty());
+			Start();
+		}
+		m_kBGMutex.Unlock();
 	}
 
-	while (true)
 	{
-		DoTask funcTask(nullptr);
+		VE_LOCK_MUTEX(m_kFGMutex);
+		if (m_kFGTaskList[!m_u32ActiveFGTask].empty())
 		{
-			VE_AUTO_LOCK_MUTEX(m_kMutex);
-			if (m_kFGTaskList.size())
-			{
-				VeRefNode<DoTask>* pkNode = m_kBGTaskList.get_head_node();
-				funcTask = pkNode->m_Content;
-				pkNode->detach();
-			}
+			m_u32ActiveFGTask = !m_u32ActiveFGTask;
 		}
-		if (funcTask)
+	}
+	VeRefList<DoTask>& kTaskList = m_kFGTaskList[!m_u32ActiveFGTask];
+	if (m_bTickOnce)
+	{
+		if (kTaskList.size())
 		{
-			funcTask(*this);
+			VeRefNode<DoTask>* pkHead = kTaskList.get_head_node();
+			pkHead->detach();
+			pkHead->m_Content(*this);
 		}
-		else
+	}
+	else
+	{
+		for (auto func : kTaskList)
 		{
-			break;
+			VeRefNode<DoTask>* pkNode = kTaskList.get_iter_node();
+			VE_ASSERT(pkNode);
+			pkNode->detach();
+			pkNode->m_Content(*this);
 		}
-		if (m_bTickOnce)
-		{
-			break;
-		}
+		VE_ASSERT(kTaskList.empty());
 	}
 }
 //--------------------------------------------------------------------------
@@ -115,8 +112,17 @@ bool VeTaskQueue::HasTask() noexcept
 	}
 	else
 	{
-		VE_AUTO_LOCK_MUTEX(m_kMutex);
-		return m_kBGTaskList.size() || m_kFGTaskList.size();
+		VE_LOCK_MUTEX(m_kBGMutex);
+		VE_LOCK_MUTEX(m_kFGMutex);
+		if (m_kBGTaskList[m_u32ActiveBGTask].size())
+		{
+			return true;
+		}
+		if (m_kFGTaskList[m_u32ActiveFGTask].size())
+		{
+			return true;
+		}
 	}
+	return false;
 }
 //--------------------------------------------------------------------------

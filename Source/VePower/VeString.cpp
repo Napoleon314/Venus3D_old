@@ -372,7 +372,7 @@ VeSizeT VeStringTable::GetTotalNumberOfBuckets() noexcept
 //--------------------------------------------------------------------------
 VeSizeT VeStringTable::GetMaxBucketSize() noexcept
 {
-	VE_AUTO_LOCK_MUTEX(m_kMutex);
+	VE_LOCK_MUTEX(m_kMutex);
 	VeSizeT stSize = 0;
 	for (auto vec : m_akHashArray)
 	{
@@ -384,7 +384,7 @@ VeSizeT VeStringTable::GetMaxBucketSize() noexcept
 const VeStringTable::StringHandle VeStringTable::FindString(
 	const VeChar8* pcString, VeUInt32 u32Len, VeUInt32 u32Hash) noexcept
 {
-	VE_AUTO_LOCK_MUTEX(m_kMutex);
+	VE_LOCK_MUTEX(m_kMutex);
 	VeVector<StringHandle>& kStrArray = m_akHashArray[u32Hash & VE_STR_TAB_MASK];
 	for (auto str : kStrArray)
 	{
@@ -401,7 +401,7 @@ void VeStringTable::InsertString(const StringHandle& kHandle,
 	VeUInt32 u32Hash) noexcept
 {
 	VE_ASSERT(kHandle && ValidateString(kHandle));
-	VE_AUTO_LOCK_MUTEX(m_kMutex);
+	VE_LOCK_MUTEX(m_kMutex);
 	m_akHashArray[u32Hash & VE_STR_TAB_MASK].push_back(kHandle);
 	++m_stStrNum;
 }
@@ -410,7 +410,7 @@ void VeStringTable::RemoveString(const StringHandle& kHandle,
 	VeUInt32 u32Hash) noexcept
 {
 	const VeChar8* pcString = GetString(kHandle);
-	VE_AUTO_LOCK_MUTEX(m_kMutex);
+	VE_LOCK_MUTEX(m_kMutex);
 	VeVector<StringHandle>& kStrArray = m_akHashArray[u32Hash & VE_STR_TAB_MASK];
 	for (VeSizeT i(0); i < kStrArray.size(); ++i)
 	{
@@ -418,8 +418,7 @@ void VeStringTable::RemoveString(const StringHandle& kHandle,
 		{
 			VeUInt16* pu16Mem = (VeUInt16*)GetRealBufferStart(kHandle);
 			VE_ASSERT(GetRefCount(kHandle) > 0);
-			VeAtomicDecrement32(pu16Mem[0]);
-			if (pu16Mem[0] == 0)
+			if ((--pu16Mem[0]) == 0)
 			{
 				VE_ASSERT(!GetRefCount(kHandle));
 				VeFree(GetRealBufferStart(kHandle));
@@ -471,7 +470,8 @@ void VeStringTable::IncRefCount(StringHandle& kHandle) noexcept
 		VE_ASSERT(ValidateString(kHandle));
 		VeUInt16* pu16Mem = (VeUInt16*)GetRealBufferStart(kHandle);
 		VE_ASSERT(pu16Mem[0] < VE_UINT16_MAX);
-		VeAtomicIncrement32(pu16Mem[0]);
+		VE_LOCK_MUTEX_NAME(ve_str_tab.m_kMutex, lockMutex);
+		++pu16Mem[0];
 	}
 }
 //--------------------------------------------------------------------------
@@ -482,11 +482,11 @@ void VeStringTable::DecRefCount(StringHandle& kHandle) noexcept
 		VE_ASSERT(ValidateString(kHandle));
 		VeUInt16* pu16Mem = (VeUInt16*)GetRealBufferStart(kHandle);
 		VeUInt32 u32Hash = GetHashValue(kHandle);
-		VeAtomicDecrement32(pu16Mem[0]);
-		if (pu16Mem[0] == 1)
 		{
-			ve_str_tab.RemoveString(kHandle, u32Hash);
+			VE_LOCK_MUTEX_NAME(ve_str_tab.m_kMutex, lockMutex);
+			if ((--pu16Mem[0]) > 1) return;
 		}
+		ve_str_tab.RemoveString(kHandle, u32Hash);
 	}
 }
 //--------------------------------------------------------------------------

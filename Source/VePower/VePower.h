@@ -125,6 +125,9 @@ enum VeResult
 #include <map>
 #include <unordered_set>
 #include <unordered_map>
+#include <atomic>
+#include <thread>
+#include <mutex>
 
 #if defined(VE_PLATFORM_WIN)
 
@@ -248,6 +251,10 @@ typedef double VeFloat64;
 #	define VE_ASSERT_EQ(exp,val) (exp)
 #	define VE_ASSERT_NOT_EQ(exp,val) (exp)
 #endif
+
+#define VE_NO_COPY(cls) \
+	cls(const cls&) = delete;\
+	cls& operator= (const cls&) = delete
 
 VE_POWER_API void VeConsoleInit(const VeChar8* pcPakName,
 	bool bLua = false) noexcept;

@@ -19,10 +19,9 @@ class VE_POWER_API VeTaskQueue : public VeThread
 public:
 	typedef std::function<void(VeTaskQueue&)> DoTask;
 
-	VeTaskQueue(VeUInt32 u32Priority = VE_THREAD_PRIORITY_NORMAL,
-		VeSizeT stStackSize = 32768) noexcept;
+	VeTaskQueue() noexcept;
 
-	~VeTaskQueue() noexcept;
+	virtual ~VeTaskQueue() noexcept;
 
 	inline void SetTickOnce(bool bEnable) noexcept;
 
@@ -34,16 +33,19 @@ public:
 
 	void RemoveTask(VeRefNode<DoTask>& kTask) noexcept;
 
-	virtual void Run() noexcept;
+	virtual void Run() noexcept override;
 
 	void Update() noexcept;
 
 	bool HasTask() noexcept;
 
 protected:
-	VeThread::Mutex m_kMutex;
-	VeRefList<DoTask> m_kBGTaskList;
-	VeRefList<DoTask> m_kFGTaskList;
+	VeMutex m_kBGMutex;
+	VeMutex m_kFGMutex;
+	VeRefList<DoTask> m_kBGTaskList[2];
+	VeRefList<DoTask> m_kFGTaskList[2];
+	volatile VeUInt32 m_u32ActiveBGTask = 0;
+	volatile VeUInt32 m_u32ActiveFGTask = 0;
 	bool m_bTickOnce = false;
 
 };
