@@ -29,7 +29,6 @@
 #include "VeTaskQueue.h"
 #include "VeLog.h"
 #include "VeLua.h"
-#include "VeMath.h"
 #include "VeSharedLib.h"
 #include "VeTime.h"
 #include "VeSystem.h"

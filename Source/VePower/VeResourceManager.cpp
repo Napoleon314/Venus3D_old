@@ -18,7 +18,7 @@
 VeResourceManager::VeResourceManager() noexcept
 {
 #	ifdef VE_PLATFORM_ANDROID
-	RegistDirectory<VeFilePath>(false);
+	RegistDirectory<VeFilePath>();
 	RegistDirectory<VeAssetPath>(true);
 #	else
 	RegistDirectory<VeFilePath>(true);

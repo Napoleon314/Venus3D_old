@@ -301,6 +301,7 @@
     <ClInclude Include="..\..\..\..\Source\VeMain\VeKeyboard.h" />
     <ClInclude Include="..\..\..\..\Source\VeMain\VeMain.h" />
     <ClInclude Include="..\..\..\..\Source\VeMain\VeMainPch.h" />
+    <ClInclude Include="..\..\..\..\Source\VeMain\VeMath.h" />
     <ClInclude Include="..\..\..\..\Source\VeMain\VeMouse.h" />
     <ClInclude Include="..\..\..\..\Source\VeMain\VePixel.h" />
     <ClInclude Include="..\..\..\..\Source\VeMain\VeRect.h" />
@@ -327,6 +328,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugLib|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\Source\VeMain\VeMath.cpp" />
     <ClCompile Include="..\..\..\..\Source\VeMain\VeMouse.cpp" />
     <ClCompile Include="..\..\..\..\Source\VeMain\VePixel.cpp" />
     <ClCompile Include="..\..\..\..\Source\VeMain\VeRect.cpp" />
@@ -359,6 +361,8 @@
   <ItemGroup>
     <None Include="..\..\..\..\Source\VeMain\VeEngine.inl" />
     <None Include="..\..\..\..\Source\VeMain\VeKeyboard.inl" />
+    <None Include="..\..\..\..\Source\VeMain\VeMath.inl" />
+    <None Include="..\..\..\..\Source\VeMain\VeMathSSE.inl" />
     <None Include="..\..\..\..\Source\VeMain\VeMouse.inl" />
     <None Include="..\..\..\..\Source\VeMain\VePixel.inl" />
     <None Include="..\..\..\..\Source\VeMain\VeRect.inl" />

@@ -26,6 +26,9 @@
     <Filter Include="Video\Windows">
       <UniqueIdentifier>{3ee0f218-bf41-4cbf-8ccf-277b0e3d2da0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Math">
+      <UniqueIdentifier>{fbd137b4-8dda-4740-9df3-f1dc1991b110}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\Source\VeMain\VeMain.h">
@@ -72,6 +75,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\Source\VeMain\VeRect.h">
       <Filter>Video</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\VeMain\VeMath.h">
+      <Filter>Math</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -120,6 +126,9 @@
     <ClCompile Include="..\..\..\..\Source\VeMain\VeRect.cpp">
       <Filter>Video</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\Source\VeMain\VeMath.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\..\Source\VeMain\VeRenderer.inl">
@@ -148,6 +157,12 @@
     </None>
     <None Include="..\..\..\..\Source\VeMain\VeRect.inl">
       <Filter>Video</Filter>
+    </None>
+    <None Include="..\..\..\..\Source\VeMain\VeMath.inl">
+      <Filter>Math</Filter>
+    </None>
+    <None Include="..\..\..\..\Source\VeMain\VeMathSSE.inl">
+      <Filter>Math</Filter>
     </None>
   </ItemGroup>
 </Project>

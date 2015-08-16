@@ -18,9 +18,6 @@
     <Filter Include="Script">
       <UniqueIdentifier>{bc95f4a2-2422-4d7b-865a-0b6f19f47543}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Math">
-      <UniqueIdentifier>{4c869fcd-df13-4c7d-b415-8034d17396e8}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\Source\VePower\VePowerPch.cpp">
@@ -79,9 +76,6 @@
     </ClCompile>
     <ClCompile Include="..\..\..\..\Source\VePower\VeSharedLib.cpp">
       <Filter>Kernel</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\Source\VePower\VeMath.cpp">
-      <Filter>Math</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\Source\VePower\VeTime.cpp">
       <Filter>Kernel</Filter>
@@ -160,9 +154,6 @@
     <ClInclude Include="..\..\..\..\Source\VePower\VeLuaBind.h">
       <Filter>Script</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\Source\VePower\VeMath.h">
-      <Filter>Math</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\Source\VePower\VeSharedLib.h">
       <Filter>Kernel</Filter>
     </ClInclude>
@@ -206,12 +197,6 @@
     </None>
     <None Include="..\..\..\..\Source\VePower\VeLua.inl">
       <Filter>Script</Filter>
-    </None>
-    <None Include="..\..\..\..\Source\VePower\VeMathSSE.inl">
-      <Filter>Math</Filter>
-    </None>
-    <None Include="..\..\..\..\Source\VePower\VeMath.inl">
-      <Filter>Math</Filter>
     </None>
     <None Include="..\..\..\..\Source\VePower\VeTime.inl">
       <Filter>Kernel</Filter>
