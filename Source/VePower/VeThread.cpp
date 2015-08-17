@@ -17,6 +17,7 @@
 //--------------------------------------------------------------------------
 VeThread::VeThread() noexcept
 {
+    m_u32State = 0;
 	m_kJoin.Set();
 	m_kCore = std::thread([this]() noexcept
 	{

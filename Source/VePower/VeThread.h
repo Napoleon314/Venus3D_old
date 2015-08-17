@@ -143,7 +143,7 @@ private:
 	std::thread m_kCore;
 	Event m_kLoop;
 	Event m_kJoin;
-	std::atomic_uint m_u32State = 0;
+	std::atomic_uint m_u32State;
 	
 
 };
