@@ -21,9 +21,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
 	VE_NEW VeStringTable();
 	VE_NEW VeSystem(VeSystem::TYPE_DEFAULT, "com.VenusIE.VeRenderTest");
-	VE_NEW VeResourceManager();
 	VE_NEW VeEngine();
 
+	ve_sys.Init();
 	ve_engine.Init();
 
 	VeWindowPtr spWindow1 = VE_NEW VeWindow();
@@ -89,18 +89,19 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 				}
 			}
 			kEventCache.clear();
-			ve_sys.GetTime()->Update();
-			ve_event_queue_ptr->FlushEvents();
+			ve_sys.Update();
+			ve_engine.Update();
 			VeSleep(10);
+			//VeDebugOutput("Time:%f", ve_time_ptr->GetTime());
 		}
 	}
 
 	VE_ASSERT(!(spWindow1 || spWindow2));
 
 	ve_engine.Term();
+	ve_sys.Term();
 
 	VeEngine::Destory();
-	VeResourceManager::Destory();
 	VeSystem::Destory();
 	VeStringTable::Destory();
 #	ifdef VE_MEM_DEBUG

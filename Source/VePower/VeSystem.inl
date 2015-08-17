@@ -28,12 +28,6 @@ inline VeLog& VeSystem::GetLog() noexcept
 	return m_kLog;
 }
 //--------------------------------------------------------------------------
-inline VeLua& VeSystem::GetLua() noexcept
-{
-	VE_ASSERT(m_spLua);
-	return *m_spLua;
-}
-//--------------------------------------------------------------------------
 inline void VeSystem::Collect(VeRefNode<VeRefObject*>& kNode) noexcept
 {
 	m_kObjCollector.attach_back(kNode);
@@ -47,5 +41,10 @@ inline const VeStackAllocatorPtr& VeSystem::GetStackAllocator() noexcept
 inline const VeTimePtr& VeSystem::GetTime() noexcept
 {
 	return m_spTime;
+}
+//--------------------------------------------------------------------------
+inline const VeResourceManagerPtr& VeSystem::GetResMgr() noexcept
+{
+	return m_spResourceMgr;
 }
 //--------------------------------------------------------------------------

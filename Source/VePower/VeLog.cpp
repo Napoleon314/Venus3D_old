@@ -45,12 +45,12 @@ void VeLog::LogFormat(Type eType, const VeChar8* pcTag,
 //--------------------------------------------------------------------------
 void VeLog::Output(Type eType, const VeChar8* pcTag) noexcept
 {
-	if (m_pfuncTarget)
+	if (m_funcTarget)
 	{
 #		ifdef VE_RELEASE
 		if (VeUInt32(eType) < VeUInt32(m_eLevel)) return;
 #		endif
-		m_pfuncTarget(eType, pcTag, m_acBuffer);
+		m_funcTarget(eType, pcTag, m_acBuffer);
 	}
 }
 //--------------------------------------------------------------------------

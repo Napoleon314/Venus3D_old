@@ -71,36 +71,10 @@ static void OutputConsole(VeLog::Type eType, const VeChar8* pcTag,
 #endif
 }
 //--------------------------------------------------------------------------
-static void OutputLuaDebug(VeLog::Type eType, const VeChar8* pcTag,
-	const VeChar8* pcText) noexcept
-{
-	VeChar8 acLogBuffer[VE_LOG_BUFFER_SIZE + 64];
-	VeSprintf(acLogBuffer, "%s,%s: %s", s_apcLogTypeNames[eType], pcTag, pcText);
-	if (ve_lua)
-	{
-		venus::call_function("print", acLogBuffer);
-	}
-}
-//--------------------------------------------------------------------------
 VeSystem::VeSystem(Type eType, const VeChar8* pcPakName) noexcept
 	: m_eType(eType), m_kPakName(pcPakName), CORE("Venus3D", m_kLog)
 	, USER(m_kPakName, m_kLog)
 {
-	switch (eType)
-	{
-	case TYPE_DEFAULT:
-		m_kLog.SetTarget(&OutputDebug);
-		break;
-	case TYPE_CONSOLE:
-		m_kLog.SetTarget(&OutputConsole);
-		break;
-	case TYPE_LUA_DEBUG:
-		m_kLog.SetTarget(&OutputLuaDebug);
-		break;
-	default:
-		break;
-	}
-	m_spLua = VE_NEW VeLua();
 	m_spMainStack = VE_NEW VeStackAllocator(VE_STACK_SIZE);
 	m_spTime = VE_NEW VeTime();
 	m_spResourceMgr = VE_NEW VeResourceManager();
@@ -115,7 +89,6 @@ VeSystem::~VeSystem() noexcept
 		obj->DecRefCount();
 	}
 	m_spMainStack = nullptr;
-	m_spLua = nullptr;
 }
 //--------------------------------------------------------------------------
 const VePoolAllocatorPtr& VeSystem::GetPoolAllocator(
@@ -128,5 +101,67 @@ const VePoolAllocatorPtr& VeSystem::GetPoolAllocator(
 		spRes = VE_NEW VePoolAllocator(stUnitSize);
 	}
 	return spRes;
+}
+//--------------------------------------------------------------------------
+void VeSystem::Init() noexcept
+{
+	InitLog();
+	InitResMgr();
+}
+//--------------------------------------------------------------------------
+void VeSystem::Term() noexcept
+{
+	TermResMgr();
+	TermLog();
+}
+//--------------------------------------------------------------------------
+void VeSystem::Update() noexcept
+{
+	m_spTime->Update();
+	m_spResourceMgr->Update();
+}
+//--------------------------------------------------------------------------
+void VeSystem::InitLog() noexcept
+{
+	switch (m_eType)
+	{
+	case TYPE_DEFAULT:
+		m_kLog.SetTarget(&OutputDebug);
+		break;
+	case TYPE_CONSOLE:
+		m_kLog.SetTarget(&OutputConsole);
+		break;
+	default:
+		break;
+	}
+}
+//--------------------------------------------------------------------------
+void VeSystem::TermLog() noexcept
+{
+	m_kLog.SetTarget(nullptr);
+}
+//--------------------------------------------------------------------------
+void VeSystem::InitResMgr() noexcept
+{
+	VE_ASSERT(m_spResourceMgr);
+#	ifdef VE_PLATFORM_ANDROID
+	m_spResourceMgr->RegistDirectory<VeFilePath>();
+	m_spResourceMgr->RegistDirectory<VeAssetPath>(true);
+#	else
+	m_spResourceMgr->RegistDirectory<VeFilePath>(true);
+#	endif
+}
+//--------------------------------------------------------------------------
+void VeSystem::TermResMgr() noexcept
+{
+	VE_ASSERT(m_spResourceMgr);
+	m_spResourceMgr->SetDefaultDirCreator(nullptr);
+	m_spResourceMgr->SetDefaultStreamCreator(nullptr);
+#	ifdef VE_PLATFORM_ANDROID
+	m_spResourceMgr->UnregistDirectory<VeFilePath>();
+	m_spResourceMgr->UnregistDirectory<VeAssetPath>();
+#	else
+	m_spResourceMgr->UnregistDirectory<VeFilePath>();
+#	endif
 }
 //--------------------------------------------------------------------------

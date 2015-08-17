@@ -7,9 +7,7 @@
     <ClCompile>
       <PreprocessorDefinitions>VE_STATIC_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
-    <Link>
-      <AdditionalDependencies>lualib.lib;%(AdditionalDependencies)</AdditionalDependencies>
-    </Link>
+    <Link />
   </ItemDefinitionGroup>
   <ItemGroup />
 </Project>

@@ -16,6 +16,8 @@
 
 #define VE_STACK_SIZE (524288)
 
+VeSmartPointer(VeResourceManager);
+
 class VE_POWER_API VeSystem : public VeSingleton<VeSystem>
 {
 public:
@@ -23,7 +25,6 @@ public:
 	{
 		TYPE_DEFAULT,
 		TYPE_CONSOLE,
-		TYPE_LUA_DEBUG,
 		TYPE_MAX
 	};
 
@@ -41,21 +42,34 @@ public:
 
 	inline VeLog& GetLog() noexcept;
 
-	inline VeLua& GetLua() noexcept;
-
 	inline void Collect(VeRefNode<VeRefObject*>& kNode) noexcept;
 
 	inline const VeStackAllocatorPtr& GetStackAllocator() noexcept;
 
 	inline const VeTimePtr& GetTime() noexcept;
 
+	inline const VeResourceManagerPtr& GetResMgr() noexcept;
+
 	const VePoolAllocatorPtr& GetPoolAllocator(VeSizeT stUnitSize) noexcept;
 
+	void Init() noexcept;
+
+	void Term() noexcept;
+
+	void Update() noexcept;
+
 private:
+	void InitLog() noexcept;
+
+	void TermLog() noexcept;
+
+	void InitResMgr() noexcept;
+
+	void TermResMgr() noexcept;
+
 	const Type m_eType;
 	VeFixedString m_kPakName;
 	VeLog m_kLog;
-	VeLuaPtr m_spLua;
 	VeRefList<VeRefObject*> m_kObjCollector;
 	VeStackAllocatorPtr m_spMainStack;
 	PoolAllocatorMap m_kAllocatorMap;
@@ -70,19 +84,17 @@ public:
 
 #define ve_sys VeSystem::GetSingleton()
 #define ve_log ve_sys.GetLog()
-#define ve_lua ve_sys.GetLua()
 #define ve_time_ptr ve_sys.GetTime()
+#define ve_res_mgr_ptr ve_sys.GetResMgr()
 #define VeStackMalloc(s) (ve_sys.GetStackAllocator()->Allocate(s))
 #define VeStackAlloc(t,s) (t*)(ve_sys.GetStackAllocator()->Allocate(s))
 #define VeStackFree(p) ve_sys.GetStackAllocator()->Deallocate(); p = nullptr
 
 #ifdef VE_DEBUG
-#	define VeDebugOutputCore ve_sys.CORE.D.LogFormat
 #	define VeDebugOutput ve_sys.USER.D.LogFormat
 #	define VeCoreLogD ve_sys.CORE.D.Log
 #	define VeUserLogD ve_sys.USER.D.Log
 #else
-#	define VeDebugOutputCore(...)
 #	define VeDebugOutput(...)
 #	define VeCoreLogD(...)
 #	define VeUserLogD(...)

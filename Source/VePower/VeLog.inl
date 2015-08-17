@@ -23,8 +23,8 @@ inline VeLog::Level VeLog::GetLevel() const noexcept
 	return m_eLevel;
 }
 //--------------------------------------------------------------------------
-inline void VeLog::SetTarget(OutputFunc pfuncTarget) noexcept
+inline void VeLog::SetTarget(OutputFunc funcTarget) noexcept
 {
-	m_pfuncTarget = pfuncTarget;
+	m_funcTarget = funcTarget;
 }
 //--------------------------------------------------------------------------

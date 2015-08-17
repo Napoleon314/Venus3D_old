@@ -15,17 +15,16 @@
 #include "VePowerPch.h"
 
 //--------------------------------------------------------------------------
-void VeConsoleInit(const VeChar8* pcPakName, bool bLua) noexcept
+void VeConsoleInit(const VeChar8* pcPakName) noexcept
 {
 	VE_NEW VeStringTable();
-	VE_NEW VeSystem(bLua ? VeSystem::TYPE_LUA_DEBUG : VeSystem::TYPE_CONSOLE,
-		pcPakName);
-	VE_NEW VeResourceManager();
+	VE_NEW VeSystem(VeSystem::TYPE_CONSOLE, pcPakName);
+	ve_sys.Init();
 }
 //--------------------------------------------------------------------------
 void VeConsoleTerm() noexcept
 {
-	VeResourceManager::Destory();
+	ve_sys.Term();
 	VeSystem::Destory();
 	VeStringTable::Destory();
 #	ifdef VE_MEM_DEBUG

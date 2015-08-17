@@ -722,7 +722,7 @@ bool WindowsVideoDevice::RegisterApp(const VeChar8* pcName,
 
 	if (!RegisterClass(&kClass))
 	{
-		VeDebugOutputCore("Couldn't register application class");
+		VeCoreLogE("Couldn't register application class");
 		return false;
 	}
 	m_i32AppRegistered = 1;
@@ -1053,7 +1053,7 @@ bool WindowsVideoDevice::_SetDisplayMode(VeVideoDisplay* pkDisplay,
 			pcReason = "DISP_CHANGE_FAILED";
 			break;
 		}
-		VeDebugOutputCore("ChangeDisplaySettingsEx() failed: %s", pcReason);
+		VeCoreLogE("ChangeDisplaySettingsEx() failed: %s", pcReason);
 		return false;
 	}
 	EnumDisplaySettings(pkDisplayData->DeviceName, ENUM_CURRENT_SETTINGS, &pkData->DeviceMode);
@@ -1662,7 +1662,7 @@ bool WindowsVideoDevice::_SetWindowGammaRamp(VeWindow::Data* pkWindow,
 		bSucceeded = SetDeviceGammaRamp(hDc, (LPVOID)pu16Ramp);
 		if (!bSucceeded)
 		{
-			VeDebugOutputCore("SetDeviceGammaRamp()");
+			VeCoreLogE("SetDeviceGammaRamp()");
 		}
 		DeleteDC(hDc);
 	}
@@ -1684,7 +1684,7 @@ bool WindowsVideoDevice::_GetWindowGammaRamp(VeWindow::Data* pkWindow,
 		bSucceeded = GetDeviceGammaRamp(hDc, (LPVOID)pu16Ramp);
 		if (!bSucceeded)
 		{
-			VeDebugOutputCore("GetDeviceGammaRamp()");
+			VeCoreLogE("GetDeviceGammaRamp()");
 		}
 		DeleteDC(hDc);
 	}

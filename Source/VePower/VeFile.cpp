@@ -626,7 +626,7 @@ VeFilePath::ReadTask::ReadTask(const VeChar8* pcFullPath,
 		};
 		kMgr.AddFGTask(m_kTask);
 	};
-	ve_res_mgr.GetTaskQueue(VeResourceManager::TASK_FILE).AddBGTask(m_kTask);
+	ve_res_mgr_ptr->GetTaskQueue(VeResourceManager::TASK_FILE).AddBGTask(m_kTask);
 }
 //--------------------------------------------------------------------------
 VeFilePath::WriteTask::WriteTask(const VeChar8* pcFullPath,
@@ -677,6 +677,6 @@ VeFilePath::WriteTask::WriteTask(const VeChar8* pcFullPath,
 		};
 		kMgr.AddFGTask(m_kTask);
 	};
-	ve_res_mgr.GetTaskQueue(VeResourceManager::TASK_FILE).AddBGTask(m_kTask);
+	ve_res_mgr_ptr->GetTaskQueue(VeResourceManager::TASK_FILE).AddBGTask(m_kTask);
 }
 //--------------------------------------------------------------------------

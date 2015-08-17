@@ -256,7 +256,6 @@ typedef double VeFloat64;
 	cls(const cls&) = delete;\
 	cls& operator= (const cls&) = delete
 
-VE_POWER_API void VeConsoleInit(const VeChar8* pcPakName,
-	bool bLua = false) noexcept;
+VE_POWER_API void VeConsoleInit(const VeChar8* pcPakName) noexcept;
 
 VE_POWER_API void VeConsoleTerm() noexcept;

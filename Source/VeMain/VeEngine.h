@@ -37,6 +37,8 @@ public:
 
 	void Term() noexcept;
 
+	void Update() noexcept;
+
 protected:
 	void InitEventQueue() noexcept;
 

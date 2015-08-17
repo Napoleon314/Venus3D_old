@@ -75,7 +75,7 @@ void LuaTest();
 
 VeInt32 main(VeInt32 i32Argc, VeChar8* apcArgv[])
 {
-	bool bDebug = false;
+	/*bool bDebug = false;
 	if (i32Argc > 1)
 	{
 		VeChar8** ppcArgv = apcArgv;
@@ -84,8 +84,8 @@ VeInt32 main(VeInt32 i32Argc, VeChar8* apcArgv[])
 			bDebug = true;
 			++ppcArgv;
 		}
-	}
-	VeConsoleInit("com.VenusIE.VePowerTest", bDebug);
+	}*/
+	VeConsoleInit("com.VenusIE.VePowerTest");
 
 	{
 		C* pkC = VE_NEW C;
@@ -165,7 +165,7 @@ VeInt32 main(VeInt32 i32Argc, VeChar8* apcArgv[])
 
 		VeCoreLogD(8, 9, "aa", "我们");
 
-		ve_lua.DoString("print(\"Hello Lua!\")");
+		//ve_lua.DoString("print(\"Hello Lua!\")");
 
 		VeList<VeInt32> list;
 		list.push_back(98);
@@ -178,7 +178,7 @@ VeInt32 main(VeInt32 i32Argc, VeChar8* apcArgv[])
 
 		RefListTest();
 		ResourceTest();
-		LuaTest();
+		//LuaTest();
 	}
 
 	VeConsoleTerm();
@@ -346,76 +346,76 @@ void ResourceTest()
 
 }
 
-using namespace venus;
-
-VeInt32 TestFunc(VeInt32 a, const VeChar8* vvv)
-{
-	return 8;
-}
-
-VeInt32 TestFunc2(VeInt32 a, VeInt32 b, const VeChar8* vvv)
-{
-	return a + b;
-}
-
-void LuaTest()
-{
-	module(ve_lua, "main")
-	[
-		def("TestFunc", &TestFunc),
-		def("TestFunc", std::function<VeInt32(VeInt32)>(std::bind(&TestFunc, std::placeholders::_1, "abc"))),
-		def("TestFunc", &TestFunc2)
-	];
-
-	if (ve_lua.DoFile("test.lua"))
-	{
-		VeCoreLogE(VeLua::tostring(ve_lua, -1));
-		ve_lua.Pop();
-	}
-
-	call_function<void>("TestFunc");
-	VeInt32 r1 = call_function<VeInt32>("main.TestFunc", 5, "ttt");
-	VeInt32 r2 = call_function<VeInt32>("main.TestFunc", 5, 6, "ttt");
-	VeInt32 r3 = call_function<VeInt32>("main.TestFunc", 5, "ttt", 8);
-
-	r3 = call_function<VeInt32>("main.TestFunc", 5);
-
-	VeCoreLogD(r1, r2, r3);
-
-	//VeFloat32 res = call_function<VeFloat32>("TestAdd", 3.5, 4);
-
-	
-
-	//std::tuple<> ab = call_function<std::tuple<>>("TestAdd", 3.5, 4);
-
-
-	//std::tuple<VeFloat64, VeFloat64, VeFloat64> tu = call_function<std::tuple<VeFloat64, VeFloat64, VeFloat64>>("TestAdd", 3.5, 4);
-	std::tuple<VeFloat64, VeFloat64, VeFloat64> tu = call_func_mret<VeFloat64, VeFloat64, VeFloat64>(ve_lua, "TestAdd", 3.5, 4);
-
-	call_function("print", tu, "haha");
-	//std::tuple<VeFloat64> tu = std::make_tuple(0.1);
-
-	//std::tuple<int, float, const VeChar8*> tup(0, 5.5f, "abc");
-	//auto sp = venus::tuple_split<int, float, const VeChar8*>::split(tup);
-	//int a = 0;
-
-	//std::function<VeInt32(VeInt32, const VeChar8*)> func = TestFunc;
-
-	//VeInt32 a1 = sizeof(func);
-
-	//VeLua::pushinteger(ve_lua, 5);
-	//VeLua::pushstring(ve_lua, "test");
-
-	////VeInt32 res = venus::caller<1, VeInt32, std::function<VeInt32(VeInt32, const VeChar8*)>,venus::param_paker<VeInt32, const VeChar8*> >::call(
-	////	ve_lua, func);
-
-	//VeInt32 res = invoker<1, VeInt32, VeInt32, const VeChar8*>::invoke(ve_lua, func);
-
-	//VeInt32 ttt = param_getter<VeInt32>::get(ve_lua, -1);
-
-	//VeDebugOutput("%d", ttt);
-
-	//VeInt32 res = venus::caller<VeInt32, std::function<VeInt32(VeInt32, const VeChar8*)>,
-	//	venus::param_paker<VeInt32, const VeChar8*>>::call(func);
-
-}
+//using namespace venus;
+//
+//VeInt32 TestFunc(VeInt32 a, const VeChar8* vvv)
+//{
+//	return 8;
+//}
+//
+//VeInt32 TestFunc2(VeInt32 a, VeInt32 b, const VeChar8* vvv)
+//{
+//	return a + b;
+//}
+//
+//void LuaTest()
+//{
+//	module(ve_lua, "main")
+//	[
+//		def("TestFunc", &TestFunc),
+//		def("TestFunc", std::function<VeInt32(VeInt32)>(std::bind(&TestFunc, std::placeholders::_1, "abc"))),
+//		def("TestFunc", &TestFunc2)
+//	];
+//
+//	if (ve_lua.DoFile("test.lua"))
+//	{
+//		VeCoreLogE(VeLua::tostring(ve_lua, -1));
+//		ve_lua.Pop();
+//	}
+//
+//	call_function<void>("TestFunc");
+//	VeInt32 r1 = call_function<VeInt32>("main.TestFunc", 5, "ttt");
+//	VeInt32 r2 = call_function<VeInt32>("main.TestFunc", 5, 6, "ttt");
+//	VeInt32 r3 = call_function<VeInt32>("main.TestFunc", 5, "ttt", 8);
+//
+//	r3 = call_function<VeInt32>("main.TestFunc", 5);
+//
+//	VeCoreLogD(r1, r2, r3);
+//
+//	//VeFloat32 res = call_function<VeFloat32>("TestAdd", 3.5, 4);
+//
+//	
+//
+//	//std::tuple<> ab = call_function<std::tuple<>>("TestAdd", 3.5, 4);
+//
+//
+//	//std::tuple<VeFloat64, VeFloat64, VeFloat64> tu = call_function<std::tuple<VeFloat64, VeFloat64, VeFloat64>>("TestAdd", 3.5, 4);
+//	std::tuple<VeFloat64, VeFloat64, VeFloat64> tu = call_func_mret<VeFloat64, VeFloat64, VeFloat64>(ve_lua, "TestAdd", 3.5, 4);
+//
+//	call_function("print", tu, "haha");
+//	//std::tuple<VeFloat64> tu = std::make_tuple(0.1);
+//
+//	//std::tuple<int, float, const VeChar8*> tup(0, 5.5f, "abc");
+//	//auto sp = venus::tuple_split<int, float, const VeChar8*>::split(tup);
+//	//int a = 0;
+//
+//	//std::function<VeInt32(VeInt32, const VeChar8*)> func = TestFunc;
+//
+//	//VeInt32 a1 = sizeof(func);
+//
+//	//VeLua::pushinteger(ve_lua, 5);
+//	//VeLua::pushstring(ve_lua, "test");
+//
+//	////VeInt32 res = venus::caller<1, VeInt32, std::function<VeInt32(VeInt32, const VeChar8*)>,venus::param_paker<VeInt32, const VeChar8*> >::call(
+//	////	ve_lua, func);
+//
+//	//VeInt32 res = invoker<1, VeInt32, VeInt32, const VeChar8*>::invoke(ve_lua, func);
+//
+//	//VeInt32 ttt = param_getter<VeInt32>::get(ve_lua, -1);
+//
+//	//VeDebugOutput("%d", ttt);
+//
+//	//VeInt32 res = venus::caller<VeInt32, std::function<VeInt32(VeInt32, const VeChar8*)>,
+//	//	venus::param_paker<VeInt32, const VeChar8*>>::call(func);
+//
+//}

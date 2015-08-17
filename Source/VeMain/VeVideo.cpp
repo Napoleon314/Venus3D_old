@@ -623,7 +623,7 @@ VeInt32 VeVideoDevice::GetWindowDisplayIndex(
 	}
 	if (closest < 0)
 	{
-		VeDebugOutputCore("Couldn't find any displays");
+		VeCoreLogI("Couldn't find any displays");
 	}
 	return closest;
 }

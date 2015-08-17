@@ -66,7 +66,7 @@ bool VeRendererD3D12::Init() noexcept
 		D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&m_cpDevice))))
 		return false;
 
-	VeDebugOutputCore("VeRendererD3D12 renderer is created.");
+	VeCoreLogI("VeRendererD3D12 renderer is created.");
 
 	return true;
 }

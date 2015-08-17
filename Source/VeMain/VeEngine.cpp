@@ -54,6 +54,11 @@ void VeEngine::Term() noexcept
 	TermEventQueue();
 }
 //--------------------------------------------------------------------------
+void VeEngine::Update() noexcept
+{
+	m_spEventQueue->FlushEvents();
+}
+//--------------------------------------------------------------------------
 void VeEngine::InitEventQueue() noexcept
 {
 	m_spEventQueue = VE_NEW VeEventQueue();

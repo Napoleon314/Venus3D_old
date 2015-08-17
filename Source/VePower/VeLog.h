@@ -36,7 +36,7 @@ public:
 		LEVEL_MAX
 	};
 
-	typedef void(*OutputFunc)(Type, const VeChar8*, const VeChar8*);
+	typedef std::function<void(Type, const VeChar8*, const VeChar8*)> OutputFunc;
 
 	class Shell : public VeMemObject
 	{
@@ -90,7 +90,7 @@ public:
 
 	~VeLog();
 
-	inline void SetTarget(OutputFunc pfuncTarget) noexcept;
+	inline void SetTarget(OutputFunc funcTarget) noexcept;
 
 	inline void SetLevel(Level eLevel) noexcept;
 
@@ -129,7 +129,7 @@ private:
 	void Output(Type eType, const VeChar8* pcTag) noexcept;
 
 	Level m_eLevel = LEVEL_STANDARD;
-	OutputFunc m_pfuncTarget = nullptr;
+	OutputFunc m_funcTarget = nullptr;
 	VeChar8 m_acBuffer[VE_LOG_BUFFER_SIZE];
 	VeSizeT m_stPointer = 0;
 

@@ -55,7 +55,7 @@ public:
 	void UnregistStreamCreator(const VeChar8* pcName) noexcept;
 
 	template <class _Ty>
-	void RegistDirectory(bool bDefault = false)
+	void RegistDirectory(bool bDefault = false) noexcept
 	{
 		RegistDirCreator(_Ty::GetTypeName(), &_Ty::Create);
 		RegistStreamCreator(_Ty::GetTypeName(), &_Ty::CreateStream);
@@ -64,6 +64,13 @@ public:
 			SetDefaultDirCreator(&_Ty::Create);
 			SetDefaultStreamCreator(&_Ty::CreateStream);
 		}
+	}
+
+	template <class _Ty>
+	void UnregistDirectory() noexcept
+	{
+		UnregistDirCreator(_Ty::GetTypeName());
+		UnregistStreamCreator(_Ty::GetTypeName());
 	}
 
 	VeDirectoryPtr CreateDir(const VeChar8* pcPath,
