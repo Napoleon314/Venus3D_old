@@ -80,6 +80,9 @@
     <ClCompile Include="..\..\..\..\Source\VePower\VeTime.cpp">
       <Filter>Kernel</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\Source\VePower\VeAsset.cpp">
+      <Filter>Resource</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\Source\VePower\VePowerPch.h">

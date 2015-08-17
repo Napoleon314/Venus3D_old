@@ -295,6 +295,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\Source\VePower\VeAllocator.cpp" />
+    <ClCompile Include="..\..\..\..\Source\VePower\VeAsset.cpp" />
     <ClCompile Include="..\..\..\..\Source\VePower\VeFile.cpp" />
     <ClCompile Include="..\..\..\..\Source\VePower\VeLuaBind.cpp" />
     <ClCompile Include="..\..\..\..\Source\VePower\VeSharedLib.cpp" />
