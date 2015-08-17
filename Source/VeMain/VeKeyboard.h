@@ -582,6 +582,7 @@ struct VeKeysym
 
 class VE_MAIN_API VeKeyboard : public VeRefObject
 {
+	VE_NO_COPY(VeKeyboard);
 public:
 	VeKeyboard() noexcept;
 

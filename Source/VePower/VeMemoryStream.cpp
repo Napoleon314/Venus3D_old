@@ -86,11 +86,6 @@ VeMemoryOStream::VeMemoryOStream(VeMemoryOStream&& kMove) noexcept
 	kMove.m_stRead = 0;
 }
 //--------------------------------------------------------------------------
-VeMemoryOStream::VeMemoryOStream(const VeMemoryOStream& kCopy) noexcept
-{
-	VE_ASSERT(!"Copy constructor is no available");
-}
-//--------------------------------------------------------------------------
 VeMemoryOStream::~VeMemoryOStream() noexcept
 {
 
@@ -104,13 +99,6 @@ VeMemoryOStream& VeMemoryOStream::operator=(VeMemoryOStream&& kMove) noexcept
 	kMove.m_spBlob = nullptr;
 	kMove.m_stCurr = 0;
 	kMove.m_stRead = 0;
-	return *this;
-}
-//--------------------------------------------------------------------------
-VeMemoryOStream& VeMemoryOStream::operator=(
-	const VeMemoryOStream& kCopy) noexcept
-{
-	VE_ASSERT(!"Copy equal is no available");
 	return *this;
 }
 //--------------------------------------------------------------------------
@@ -230,6 +218,8 @@ VeChar8 VeMemoryOStream::Peek() noexcept
 	}
 	return *(VeChar8*)m_spBlob->GetBuffer(m_stRead);
 }
+//--------------------------------------------------------------------------
+VeRTTIImpl(VeMemoryIStream, VeBinaryIStream);
 //--------------------------------------------------------------------------
 VeMemoryIStream::VeMemoryIStream(const VeBlobPtr& spBlob) noexcept
 	: m_spBlob(spBlob)

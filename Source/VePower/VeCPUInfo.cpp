@@ -45,8 +45,23 @@
 #endif
 
 //--------------------------------------------------------------------------
-VeInt32 VeCPUInfo::GetCPUCount() noexcept
+VeInt32 VeCPUInfo::ms_i32CPUCount = 0;
+//--------------------------------------------------------------------------
+VeInt32 VeCPUInfo::GetCount() noexcept
 {
-	return 1;
+	if (!ms_i32CPUCount)
+	{
+#		ifdef VE_PLATFORM_WIN
+		SYSTEM_INFO kInfo;
+		GetSystemInfo(&kInfo);
+		ms_i32CPUCount = kInfo.dwNumberOfProcessors;
+#		endif
+
+		if (ms_i32CPUCount <= 0)
+		{
+			ms_i32CPUCount = 1;
+		}
+	}
+	return ms_i32CPUCount;
 }
 //--------------------------------------------------------------------------

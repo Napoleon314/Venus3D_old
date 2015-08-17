@@ -14,12 +14,14 @@
 
 #pragma once
 
+#define VE_CACHELINE_SIZE 128
+
 class VE_POWER_API VeCPUInfo : public VeMemObject
 {
 public:
-	static constexpr VeInt32 CACHELINE_SIZE = 128;
+	static VeInt32 GetCount() noexcept;
 
-	static VeInt32 GetCPUCount() noexcept;
-
+protected:
+	static VeInt32 ms_i32CPUCount;
 
 };

@@ -79,6 +79,7 @@ enum VeSystemCursor
 
 class VE_MAIN_API VeMouse : public VeRefObject
 {
+	VE_NO_COPY(VeMouse);
 public:
 	VeMouse() noexcept;
 

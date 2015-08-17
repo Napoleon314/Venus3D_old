@@ -20,6 +20,7 @@ VeSmartPointer(VeResourceManager);
 
 class VE_POWER_API VeSystem : public VeSingleton<VeSystem>
 {
+	VE_NO_COPY(VeSystem);
 public:
 	enum Type
 	{

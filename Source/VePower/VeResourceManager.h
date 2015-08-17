@@ -16,6 +16,7 @@
 
 class VE_POWER_API VeResourceManager : public VeRefObject
 {
+	VE_NO_COPY(VeResourceManager);
 public:
 	enum Task
 	{
@@ -88,7 +89,5 @@ protected:
 };
 
 VeSmartPointer(VeResourceManager);
-
-//#define ve_res_mgr VeResourceManager::GetSingleton()
 
 #include "VeResourceManager.inl"

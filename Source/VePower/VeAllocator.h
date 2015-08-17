@@ -18,6 +18,7 @@ VeSmartPointer(VeStackAllocator);
 
 class VE_POWER_API VeStackAllocator : public VeRefObject
 {
+	VE_NO_COPY(VeStackAllocator);
 public:
 	VeStackAllocator(VeSizeT stSize = 102400) noexcept;
 
@@ -43,6 +44,7 @@ VeSmartPointer(VePoolAllocator);
 
 class VE_POWER_API VePoolAllocator : public VeRefObject
 {
+	VE_NO_COPY(VePoolAllocator);
 public:
 	VePoolAllocator(VeSizeT stUnitSize,
 		VeSizeT stUnitPerChunk = 128, VeSizeT stAlign = 16) noexcept;

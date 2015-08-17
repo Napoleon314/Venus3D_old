@@ -90,6 +90,7 @@ struct VeSysWMInfo
 
 class VE_MAIN_API VeWindow : public VeRefObject
 {
+	VE_NO_COPY(VeWindow);
 public:
 	struct Data
 	{

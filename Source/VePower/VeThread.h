@@ -77,7 +77,7 @@ private:
 #define VE_LOCK_MUTEX(mutex) VeMutexHolder mutex##Guard(mutex)
 #define VE_LOCK_MUTEX_NAME(mutex,name) VeMutexHolder name(mutex)
 
-class VE_POWER_API VeThread : public VeMemObject
+class VE_POWER_API VeThread : public VeRefObject
 {
 	VE_NO_COPY(VeThread);
 public:
@@ -145,7 +145,6 @@ private:
 	Event m_kJoin;
 	std::atomic_uint m_u32State;
 	
-
 };
 
 #include "VeThread.inl"

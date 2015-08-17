@@ -16,6 +16,7 @@
 
 class WindowsMouse : public VeMouse
 {
+	VE_NO_COPY(WindowsMouse);
 public:
 	WindowsMouse() noexcept;
 

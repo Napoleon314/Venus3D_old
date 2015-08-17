@@ -38,6 +38,7 @@
 
 class VE_POWER_API VeSharedLib : public VeRefObject
 {
+	VE_NO_COPY(VeSharedLib);
 public:
 	VeSharedLib(const VeChar8* pcLibName) noexcept;
 

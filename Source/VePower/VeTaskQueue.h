@@ -16,6 +16,7 @@
 
 class VE_POWER_API VeTaskQueue : public VeThread
 {
+	VE_NO_COPY(VeTaskQueue);
 public:
 	typedef std::function<void(VeTaskQueue&)> DoTask;
 
@@ -49,5 +50,7 @@ protected:
 	bool m_bTickOnce = false;
 
 };
+
+VeSmartPointer(VeTaskQueue);
 
 #include "VeTaskQueue.inl"

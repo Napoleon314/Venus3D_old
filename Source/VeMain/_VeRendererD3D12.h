@@ -25,6 +25,7 @@ using namespace Microsoft::WRL;
 
 class VeRendererD3D12 : public VeRenderer
 {
+	VE_NO_COPY(VeRendererD3D12);
 public:
 	VeRendererD3D12() noexcept;
 

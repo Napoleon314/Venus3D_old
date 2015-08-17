@@ -16,6 +16,7 @@
 
 class VE_POWER_API VeBlob : public VeRefObject
 {
+	VE_NO_COPY(VeBlob);
 public:
 	VeBlob() noexcept;
 
@@ -47,6 +48,7 @@ VeSmartPointer(VeBlob);
 class VE_POWER_API VeMemoryOStream
 	: public VeBinaryOStream, public VeBinaryIStream
 {
+	VE_NO_COPY(VeMemoryOStream);
 	VeRTTIDecl(VeMemoryOStream, VeBinaryOStream, VeBinaryIStream);
 public:
 	VeMemoryOStream(VeSizeT stSize = 64) noexcept;
@@ -90,10 +92,6 @@ public:
 	virtual VeChar8 Peek() noexcept;
 
 protected:
-	VeMemoryOStream(const VeMemoryOStream& kCopy) noexcept;
-
-	VeMemoryOStream& operator=(const VeMemoryOStream& kCopy) noexcept;
-
 	VeBlobPtr m_spBlob;
 	VeSizeT m_stCurr = 0;
 	VeSizeT m_stRead = 0;
@@ -104,6 +102,8 @@ VeSmartPointer(VeMemoryOStream);
 
 class VE_POWER_API VeMemoryIStream : public VeBinaryIStream
 {
+	VE_NO_COPY(VeMemoryIStream);
+	VeRTTIDecl(VeMemoryIStream, VeBinaryIStream);
 public:
 	VeMemoryIStream(const VeBlobPtr& spBlob) noexcept;
 
