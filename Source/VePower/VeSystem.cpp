@@ -103,10 +103,12 @@ VeSystem::VeSystem(Type eType, const VeChar8* pcPakName) noexcept
 	m_spLua = VE_NEW VeLua();
 	m_spMainStack = VE_NEW VeStackAllocator(VE_STACK_SIZE);
 	m_spTime = VE_NEW VeTime();
+	m_spResourceMgr = VE_NEW VeResourceManager();
 }
 //--------------------------------------------------------------------------
 VeSystem::~VeSystem() noexcept
 {
+	m_spResourceMgr = nullptr;
 	m_spTime = nullptr;
 	for (auto obj : m_kObjCollector)
 	{

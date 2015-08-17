@@ -18,6 +18,7 @@
 #include "VeMemory.h"
 #include "VeMemObject.h"
 #include "VeRefObject.h"
+#include "VeCPUInfo.h"
 #include "VeThread.h"
 #include "VeSmartPointer.h"
 #include "VeTemplate.h"

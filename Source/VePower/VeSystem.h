@@ -60,6 +60,7 @@ private:
 	VeStackAllocatorPtr m_spMainStack;
 	PoolAllocatorMap m_kAllocatorMap;
 	VeTimePtr m_spTime;
+	VeResourceManagerPtr m_spResourceMgr;
 
 public:
 	VeLog::Pack CORE;

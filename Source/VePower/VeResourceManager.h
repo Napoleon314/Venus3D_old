@@ -14,7 +14,7 @@
 
 #pragma once
 
-class VE_POWER_API VeResourceManager : public VeSingleton<VeResourceManager>
+class VE_POWER_API VeResourceManager : public VeRefObject
 {
 public:
 	enum Task
@@ -32,7 +32,7 @@ public:
 
 	VeResourceManager() noexcept;
 
-	~VeResourceManager() noexcept;
+	virtual ~VeResourceManager() noexcept;
 
 	inline VeTaskQueue& GetTaskQueue(Task eTask) noexcept;
 
@@ -80,6 +80,8 @@ protected:
 
 };
 
-#define ve_res_mgr VeResourceManager::GetSingleton()
+VeSmartPointer(VeResourceManager);
+
+//#define ve_res_mgr VeResourceManager::GetSingleton()
 
 #include "VeResourceManager.inl"
