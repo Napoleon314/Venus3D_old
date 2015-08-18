@@ -84,7 +84,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 			kEventCache.clear();
 			ve_sys.Update();
 			ve_engine.Update();
-			VeSleep(10);
+			//VeSleep(1);
 			//VeDebugOutput("Time:%f", ve_time_ptr->GetTime());
 		}
 	}

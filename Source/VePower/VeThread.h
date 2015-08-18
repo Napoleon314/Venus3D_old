@@ -30,21 +30,21 @@ inline void VeSleep(VeUInt32 u32Millisecond)
 	std::this_thread::sleep_for(std::chrono::milliseconds(200));
 }
 
-class VeMutex
+class VeSpinLock
 {
-	VE_NO_COPY(VeMutex);
+	VE_NO_COPY(VeSpinLock);
 public:
-	VeMutex() noexcept = default;
+	VeSpinLock() noexcept = default;
 
-	~VeMutex() noexcept = default;
+	~VeSpinLock() noexcept = default;
 
-	void Lock() noexcept
+	void lock() noexcept
 	{
 		while (m_atomFlag.test_and_set(std::memory_order_acquire))
 			;
 	}
 
-	void Unlock() noexcept
+	void unlock() noexcept
 	{
 		m_atomFlag.clear(std::memory_order_release);
 	}
@@ -54,28 +54,8 @@ private:
 
 };
 
-class VeMutexHolder
-{
-	VE_NO_COPY(VeMutexHolder);
-public:
-	VeMutexHolder(VeMutex& kMutex) noexcept
-		: m_kMutex(kMutex)
-	{
-		m_kMutex.Lock();
-	}
-
-	~VeMutexHolder() noexcept
-	{
-		m_kMutex.Unlock();
-	}
-
-private:
-	VeMutex& m_kMutex;
-
-};
-
-#define VE_LOCK_MUTEX(mutex) VeMutexHolder mutex##Guard(mutex)
-#define VE_LOCK_MUTEX_NAME(mutex,name) VeMutexHolder name(mutex)
+#define VE_LOCK_MUTEX(mutex) std::lock_guard<VeSpinLock> mutex##Guard(mutex)
+#define VE_LOCK_MUTEX_NAME(mutex,name) std::lock_guard<VeSpinLock> name(mutex)
 
 class VE_POWER_API VeThread : public VeRefObject
 {

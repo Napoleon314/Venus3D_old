@@ -41,8 +41,8 @@ public:
 	bool HasTask() noexcept;
 
 protected:
-	VeMutex m_kBGMutex;
-	VeMutex m_kFGMutex;
+	VeSpinLock m_kBGMutex;
+	VeSpinLock m_kFGMutex;
 	VeRefList<DoTask> m_kBGTaskList[2];
 	VeRefList<DoTask> m_kFGTaskList[2];
 	volatile VeUInt32 m_u32ActiveBGTask = 0;

@@ -17,8 +17,7 @@
 class VE_MAIN_API VeVector2 : public VeMemObject
 {
 public:
-	VeFloat32 x = 0.0f;
-	VeFloat32 y = 0.0f;
+	VeFloat32 x = 0, y = 0;
 
 	enum Coord
 	{

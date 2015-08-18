@@ -43,7 +43,7 @@ struct VeMallocInfo
 };
 static std::map<VeSizeT, VeMallocInfo> s_kMallocMap;
 static std::map<VeSizeT, std::pair<VeMallocInfo,VeSizeT>> s_kAlignedMallocMap;
-static VeMutex s_kMutex;
+static VeSpinLock s_kMutex;
 //--------------------------------------------------------------------------
 #endif
 //--------------------------------------------------------------------------

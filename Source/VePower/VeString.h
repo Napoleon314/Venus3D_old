@@ -560,7 +560,7 @@ public:
 private:
 	VeSizeT m_stStrNum = 0;
 	VeVector<StringHandle> m_akHashArray[VE_STR_TAB_MASK+1];
-	VeMutex m_kMutex;
+	VeSpinLock m_kMutex;
 	VeFixedString m_kEmpty;
 
 };

@@ -28,7 +28,7 @@ static std::vector<VeDeleteCallParams> s_kDeleteCallParamsStack;
 //--------------------------------------------------------------------------
 static std::thread::id s_kDeleteThreadID;
 //--------------------------------------------------------------------------
-static VeMutex s_kDeleteMutex;
+static VeSpinLock s_kDeleteMutex;
 //--------------------------------------------------------------------------
 void VeMemObject::PushDeleteCallParams(const VeChar8* pcSourceFile,
 	VeInt32 i32SourceLine, const VeChar8* pcFunction) noexcept
@@ -36,12 +36,12 @@ void VeMemObject::PushDeleteCallParams(const VeChar8* pcSourceFile,
 	if (s_kDeleteThreadID == std::thread::id())
 	{
 		VE_ASSERT(s_kDeleteCallParamsStack.empty());
-		s_kDeleteMutex.Lock();
+		s_kDeleteMutex.lock();
 		s_kDeleteThreadID = std::this_thread::get_id();
 	}
 	else if (s_kDeleteThreadID != std::this_thread::get_id())
 	{
-		s_kDeleteMutex.Lock();
+		s_kDeleteMutex.lock();
 		VE_ASSERT(s_kDeleteCallParamsStack.empty());
 		VE_ASSERT(s_kDeleteThreadID == std::thread::id());
 		s_kDeleteThreadID = std::this_thread::get_id();
@@ -61,7 +61,7 @@ void VeMemObject::PopDeleteCallParams() noexcept
 	if (s_kDeleteCallParamsStack.empty())
 	{
 		s_kDeleteThreadID = std::thread::id();
-		s_kDeleteMutex.Unlock();
+		s_kDeleteMutex.unlock();
 	}
 }
 //--------------------------------------------------------------------------

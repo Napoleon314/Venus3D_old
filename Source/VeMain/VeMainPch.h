@@ -18,6 +18,7 @@
 #include "VeMain.h"
 #include "VeMath.h"
 #include "VeVector2.h"
+#include "VeVector3.h"
 #include "VeRect.h"
 #include "VePixel.h"
 #include "VeSurface.h"
