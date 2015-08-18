@@ -15,9 +15,7 @@
 #pragma once
 
 #include <math.h>
-#if defined(VE_ENABLE_SSE)
-#	include <xmmintrin.h>
-#endif
+#include <float.h>
 
 #define VE_MAXFLOAT_F			(3.402823466e+38F)
 #define VE_MINFLOAT_F			(0.00000001F)
@@ -34,6 +32,7 @@
 #define VE_MATH_3PI_4_F			(2.3561944901923448370E0f)
 #define VE_MATH_SQRTPI_F		(1.77245385090551602792981f)
 #define VE_MATH_1_PI_F			(0.31830988618379067154f)
+#define VE_MATH_1_2PI_F			(0.159154943f)
 #define VE_MATH_2_PI_F			(0.63661977236758134308f)
 #define VE_MATH_2_SQRTPI_F		(1.12837916709551257390f)
 #define VE_MATH_SQRT2_F			(1.41421356237309504880f)
@@ -176,8 +175,5 @@ VE_MAIN_API void VeSrand(VeUInt32 u32Seed) noexcept;
 
 VE_MAIN_API VeInt32 VeRand() noexcept;
 
-#if defined(VE_ENABLE_SSE)
-#	include "VeMathSSE.inl"
-#else
-#	include "VeMath.inl"
-#endif
+#include "VeMathSIMD.inl"
+#include "VeMath.inl"
