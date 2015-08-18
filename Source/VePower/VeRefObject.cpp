@@ -15,7 +15,7 @@
 #include "VePowerPch.h"
 
 //--------------------------------------------------------------------------
-std::atomic_uint VeRefObject::ms_u32Objects = 0;
+std::atomic_uint VeRefObject::ms_u32Objects(0);
 //--------------------------------------------------------------------------
 VeRefObject::VeRefObject() noexcept
 {

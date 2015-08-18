@@ -109,6 +109,7 @@ enum VeResult
 #	include <pthread.h>
 #	include <errno.h>
 #	include <sys/time.h>
+#   include <CoreFoundation/CoreFoundation.h>
 #endif
 
 #include <stddef.h>

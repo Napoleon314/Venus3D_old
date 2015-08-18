@@ -7,13 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		65104B081AA6E04500FD510E /* liblualib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 65104B071AA6E04500FD510E /* liblualib.a */; };
+		653E885E1B83682900DDD5BF /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 653E885D1B83682900DDD5BF /* CoreFoundation.framework */; };
 		65AE5F8C1A97A4F1009A841E /* VePowerTestMain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 65AE5F8B1A97A4F1009A841E /* VePowerTestMain.cpp */; };
 		65AE5F921A97A618009A841E /* libVePower.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 65AE5F911A97A618009A841E /* libVePower.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		65104B071AA6E04500FD510E /* liblualib.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liblualib.a; path = "../../../../../../Library/Developer/Xcode/DerivedData/Tests-cconpxnbobzrcvebcjzlzwdnxcms/Build/Products/Debug/liblualib.a"; sourceTree = "<group>"; };
+		653E885D1B83682900DDD5BF /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 		65AE5F771A97A470009A841E /* VePowerTest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = VePowerTest; sourceTree = BUILT_PRODUCTS_DIR; };
 		65AE5F8B1A97A4F1009A841E /* VePowerTestMain.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = VePowerTestMain.cpp; path = ../../../Tests/VePowerTest/VePowerTestMain.cpp; sourceTree = "<group>"; };
 		65AE5F911A97A618009A841E /* libVePower.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libVePower.a; path = "../../../../../../Library/Developer/Xcode/DerivedData/Tests-cconpxnbobzrcvebcjzlzwdnxcms/Build/Products/Debug/libVePower.a"; sourceTree = "<group>"; };
@@ -24,7 +24,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				65104B081AA6E04500FD510E /* liblualib.a in Frameworks */,
+				653E885E1B83682900DDD5BF /* CoreFoundation.framework in Frameworks */,
 				65AE5F921A97A618009A841E /* libVePower.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -60,7 +60,7 @@
 		65AE5F931A97A621009A841E /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				65104B071AA6E04500FD510E /* liblualib.a */,
+				653E885D1B83682900DDD5BF /* CoreFoundation.framework */,
 				65AE5F911A97A618009A841E /* libVePower.a */,
 			);
 			name = Frameworks;

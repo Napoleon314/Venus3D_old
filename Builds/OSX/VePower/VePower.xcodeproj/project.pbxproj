@@ -55,6 +55,7 @@
 		653E885A1B81CB2F00DDD5BF /* VeMemoryStream.inl in Headers */ = {isa = PBXBuildFile; fileRef = 6518AE841AADA29100730D1D /* VeMemoryStream.inl */; };
 		653E885B1B81CB2F00DDD5BF /* VeResourceManager.inl in Headers */ = {isa = PBXBuildFile; fileRef = 6518AEAB1AAEEB0A00730D1D /* VeResourceManager.inl */; };
 		653E885C1B81CB3A00DDD5BF /* VeLua.inl in Headers */ = {isa = PBXBuildFile; fileRef = 65179ECE1AA743AC00B7E4E9 /* VeLua.inl */; };
+		653E88601B83684D00DDD5BF /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 653E885F1B83684D00DDD5BF /* CoreFoundation.framework */; };
 		65474B7A1A97A1A8009834C9 /* VeMemObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 65474B681A97A1A8009834C9 /* VeMemObject.cpp */; };
 		65474B7B1A97A1A8009834C9 /* VeMemObject.h in Headers */ = {isa = PBXBuildFile; fileRef = 65474B691A97A1A8009834C9 /* VeMemObject.h */; };
 		65474B7C1A97A1A8009834C9 /* VeMemory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 65474B6A1A97A1A8009834C9 /* VeMemory.cpp */; };
@@ -193,6 +194,7 @@
 		653E88491B81C8EB00DDD5BF /* VeTime.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = VeTime.cpp; path = ../../../Source/VePower/VeTime.cpp; sourceTree = "<group>"; };
 		653E884A1B81C8EB00DDD5BF /* VeTime.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = VeTime.h; path = ../../../Source/VePower/VeTime.h; sourceTree = "<group>"; };
 		653E884B1B81C8EB00DDD5BF /* VeTime.inl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = VeTime.inl; path = ../../../Source/VePower/VeTime.inl; sourceTree = "<group>"; };
+		653E885F1B83684D00DDD5BF /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 		65474B591A97A165009834C9 /* libVePower.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libVePower.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		65474B681A97A1A8009834C9 /* VeMemObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = VeMemObject.cpp; path = ../../../Source/VePower/VeMemObject.cpp; sourceTree = "<group>"; };
 		65474B691A97A1A8009834C9 /* VeMemObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = VeMemObject.h; path = ../../../Source/VePower/VeMemObject.h; sourceTree = "<group>"; };
@@ -233,6 +235,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				653E88601B83684D00DDD5BF /* CoreFoundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -274,6 +277,14 @@
 			name = Script;
 			sourceTree = "<group>";
 		};
+		653E88611B83685B00DDD5BF /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				653E885F1B83684D00DDD5BF /* CoreFoundation.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		65474B501A97A165009834C9 = {
 			isa = PBXGroup;
 			children = (
@@ -282,6 +293,7 @@
 				6518AE7F1AAD7F8800730D1D /* Resource */,
 				6518AEEB1AB0682900730D1D /* Script */,
 				65AE5F8E1A97A519009A841E /* Template */,
+				653E88611B83685B00DDD5BF /* Frameworks */,
 				65474B5A1A97A165009834C9 /* Products */,
 			);
 			sourceTree = "<group>";
