@@ -1,4 +1,9 @@
 *.bak
+*.plist
+*.xcscheme
+*.workspacedata
+*.xccheckout
+*.xcuserstate
 Binaries/*
 Builds/Windows/VC140/*
 SDK/*
