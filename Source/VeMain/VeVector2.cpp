@@ -3,9 +3,9 @@
 //  Venus Engine Source File.
 //  Copyright (C), Venus Interactive Entertainment.2012
 // -------------------------------------------------------------------------
-//  Module:      VePower
-//  File name:   VeMath.cpp
-//  Created:     2015/08/08 by Napoleon
+//  Module:      VeMain
+//  File name:   VeVector2.cpp
+//  Created:     2015/08/18 by Napoleon
 //  Description: 
 // -------------------------------------------------------------------------
 //  History:
@@ -14,15 +14,10 @@
 
 #include "VeMainPch.h"
 
-static VeUInt32 s_u32Seed = 0;
 //--------------------------------------------------------------------------
-void VeSrand(VeUInt32 u32Seed) noexcept
-{
-	s_u32Seed = u32Seed;
-}
+const VeVector2 VeVector2::ZERO(0, 0);
 //--------------------------------------------------------------------------
-VeInt32 VeRand() noexcept
-{
-	return(((s_u32Seed = s_u32Seed * 214013L + 2531011L) >> 16) & 0x7fff);
-}
+const VeVector2 VeVector2::UNIT_X(1, 0);
+//--------------------------------------------------------------------------
+const VeVector2 VeVector2::UNIT_Y(0, 1);
 //--------------------------------------------------------------------------

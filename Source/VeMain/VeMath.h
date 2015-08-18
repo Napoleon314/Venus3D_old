@@ -101,11 +101,80 @@
 
 #define VeAbs(x) ((x) < 0 ? -(x) : (x))
 
+#define VeIntervalMapping(x,src_a,src_b,dst_a,dst_b) \
+	(((dst_b) - (dst_a)) * ((x) - (src_a)) / ((src_b) - (src_a)) + dst_a)
+
+#define VeLerp(t,a,b) ((a) + ((b) - (a)) * (t))
+
+#ifdef VE_USE_FAST_SQRT
+#	define VeSqrtf VeFastSqrtf
+#	define VeInvSqrtf VeFastInvSqrtf
+#else
+#	define VeSqrtf sqrtf
+#	define VeInvSqrtf(v) (1.0f / sqrtf((v)))
+#endif
+
 #define VE_FLOAT_POINT(p) ((VeFloat32*)p)
 #define VE_FLOAT_POINT_CONST(p) ((const VeFloat32*)p)
 #define VE_FLOAT_POINT_THIS ((VeFloat32*)this)
 
-int VeMath() noexcept;
+inline VeFloat32 VeSignf(VeFloat32 f32Value) noexcept
+{
+	return f32Value > 0 ? 1.0f : (f32Value < 0 ? -1.0f : 0.0f);
+}
+
+inline VeFloat32 VeFastInvSqrtf(VeFloat32 f32Value) noexcept
+{
+	union VeFloatBin
+	{
+		VeFloat32 f;
+		VeInt32 i;
+	};
+	VeFloat32 f32Half = 0.5f * f32Value;
+	VeFloatBin kValue;
+	kValue.f = f32Value;
+	kValue.i = 0x5f3759df - (kValue.i >> 1);				//What the fuck!
+	f32Value = kValue.f;
+	f32Value = f32Value * (1.5f - f32Half * f32Value * f32Value);
+	return f32Value;
+}
+
+inline VeFloat32 VeFastSqrtf(VeFloat32 f32Value) noexcept
+{
+	return VeFastInvSqrtf(f32Value) * f32Value;
+}
+
+inline bool VeAlmostEqual(const VeFloat32 f1, const VeFloat32 f2,
+	const VeFloat32 f32Epsilon) noexcept
+{
+	return VeFabsf(f1 - f2) < f32Epsilon;
+}
+
+inline bool VeAlmostEqual(const VeFloat64 f1, const VeFloat64 f2,
+	const VeFloat64 f64Epsilon) noexcept
+{
+	return VeFabs(f1 - f2) < f64Epsilon;
+}
+
+inline bool VeAlmostZero(const VeFloat32 f, const VeFloat32 f32Epsilon) noexcept
+{
+	return f < f32Epsilon && f > -f32Epsilon;
+}
+
+inline bool VeAlmostZero(const VeFloat64 f, const VeFloat64 f64Epsilon) noexcept
+{
+	return f < f64Epsilon && f > -f64Epsilon;
+}
+
+inline bool VeIsValid(VeFloat32 f32Value) noexcept
+{
+	VeUInt32 u32Value = *(VeUInt32*)&f32Value;
+	return (u32Value & 0x7f800000) != 0x7f800000;
+}
+
+VE_MAIN_API void VeSrand(VeUInt32 u32Seed) noexcept;
+
+VE_MAIN_API VeInt32 VeRand() noexcept;
 
 #if defined(VE_ENABLE_SSE)
 #	include "VeMathSSE.inl"

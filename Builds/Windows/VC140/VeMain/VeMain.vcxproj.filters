@@ -79,6 +79,9 @@
     <ClInclude Include="..\..\..\..\Source\VeMain\VeMath.h">
       <Filter>Math</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\VeMain\VeVector2.h">
+      <Filter>Math</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\Source\VeMain\VeMain.cpp">
@@ -129,6 +132,9 @@
     <ClCompile Include="..\..\..\..\Source\VeMain\VeMath.cpp">
       <Filter>Math</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\Source\VeMain\VeVector2.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\..\Source\VeMain\VeRenderer.inl">
@@ -162,6 +168,9 @@
       <Filter>Math</Filter>
     </None>
     <None Include="..\..\..\..\Source\VeMain\VeMathSSE.inl">
+      <Filter>Math</Filter>
+    </None>
+    <None Include="..\..\..\..\Source\VeMain\VeVector2.inl">
       <Filter>Math</Filter>
     </None>
   </ItemGroup>

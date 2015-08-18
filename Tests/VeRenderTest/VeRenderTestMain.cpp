@@ -74,13 +74,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 							pkEvent->m_kWindow.m_i32Data2);
 					}
 					break;
-				case VE_MOUSEMOTION:
-					{
-						VeDebugOutput("Mouse: %d, %d",
-							pkEvent->m_kMotion.x,
-							pkEvent->m_kMotion.y);
-					}
-					break;
 				case VE_QUIT:
 					bLoop = false;
 					break;

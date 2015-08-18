@@ -453,47 +453,47 @@ VeUInt32 VeCPUInfo::GetCPUFeatures() noexcept
 //--------------------------------------------------------------------------
 bool VeCPUInfo::HasRDTSC() noexcept
 {
-	return GetCPUFeatures() & CPU_HAS_RDTSC;
+	return VE_MASK_HAS_ANY(GetCPUFeatures(), CPU_HAS_RDTSC);
 }
 //--------------------------------------------------------------------------
 bool VeCPUInfo::HasMMX() noexcept
 {
-	return GetCPUFeatures() & CPU_HAS_MMX;
+	return VE_MASK_HAS_ANY(GetCPUFeatures(), CPU_HAS_MMX);
 }
 //--------------------------------------------------------------------------
 bool VeCPUInfo::Has3DNow() noexcept
 {
-	return GetCPUFeatures() & CPU_HAS_3DNOW;
+	return VE_MASK_HAS_ANY(GetCPUFeatures(), CPU_HAS_3DNOW);
 }
 //--------------------------------------------------------------------------
 bool VeCPUInfo::HasSSE() noexcept
 {
-	return GetCPUFeatures() & CPU_HAS_SSE;
+	return VE_MASK_HAS_ANY(GetCPUFeatures(), CPU_HAS_SSE);
 }
 //--------------------------------------------------------------------------
 bool VeCPUInfo::HasSSE2() noexcept
 {
-	return GetCPUFeatures() & CPU_HAS_SSE2;
+	return VE_MASK_HAS_ANY(GetCPUFeatures(), CPU_HAS_SSE2);
 }
 //--------------------------------------------------------------------------
 bool VeCPUInfo::HasSSE3() noexcept
 {
-	return GetCPUFeatures() & CPU_HAS_SSE3;
+	return VE_MASK_HAS_ANY(GetCPUFeatures(), CPU_HAS_SSE3);
 }
 //--------------------------------------------------------------------------
 bool VeCPUInfo::HasSSE41() noexcept
 {
-	return GetCPUFeatures() & CPU_HAS_SSE41;
+	return VE_MASK_HAS_ANY(GetCPUFeatures(), CPU_HAS_SSE41);
 }
 //--------------------------------------------------------------------------
 bool VeCPUInfo::HasSSE42() noexcept
 {
-	return GetCPUFeatures() & CPU_HAS_SSE42;
+	return VE_MASK_HAS_ANY(GetCPUFeatures(), CPU_HAS_SSE42);
 }
 //--------------------------------------------------------------------------
 bool VeCPUInfo::HasAVX() noexcept
 {
-	return GetCPUFeatures() & CPU_HAS_AVX;
+	return VE_MASK_HAS_ANY(GetCPUFeatures(), CPU_HAS_AVX);
 }
 //--------------------------------------------------------------------------
 VeInt32 VeCPUInfo::GetSystemRAM() noexcept
