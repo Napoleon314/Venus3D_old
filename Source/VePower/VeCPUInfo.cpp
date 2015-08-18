@@ -209,11 +209,6 @@ static inline VeInt32 CPU_haveRDTSC() noexcept
 	return 0;
 }
 //--------------------------------------------------------------------------
-static inline VeInt32 CPU_haveAltiVec() noexcept
-{
-	return 0;
-}
-//--------------------------------------------------------------------------
 static inline VeInt32 CPU_haveMMX() noexcept
 {
 	if (CPU_haveCPUID())
