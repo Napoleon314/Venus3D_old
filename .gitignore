@@ -1,7 +1,7 @@
 *.bak
 *.plist
 *.xcscheme
-*.workspacedata
+*.xcworkspacedata
 *.xccheckout
 *.xcuserstate
 Binaries/*
