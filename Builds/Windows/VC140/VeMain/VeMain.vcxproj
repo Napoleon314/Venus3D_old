@@ -371,6 +371,7 @@
     <None Include="..\..\..\..\Source\VeMain\VeMath.inl" />
     <None Include="..\..\..\..\Source\VeMain\VeMathConvert.inl" />
     <None Include="..\..\..\..\Source\VeMain\VeMathSSE.inl" />
+    <None Include="..\..\..\..\Source\VeMain\VeMathVector.inl" />
     <None Include="..\..\..\..\Source\VeMain\VeMouse.inl" />
     <None Include="..\..\..\..\Source\VeMain\VePixel.inl" />
     <None Include="..\..\..\..\Source\VeMain\VeRect.inl" />

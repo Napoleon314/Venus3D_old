@@ -54,6 +54,10 @@
 #define VE_CRMASK_CR6BOUNDS		VE_CRMASK_CR6FALSE
 #define VE_CACHE_LINE_SIZE		(64)
 
+
+#define VE_STREAM_PS(p,a) _mm_stream_ps(p,a)
+#define VE_PERMUTE_PS(v,c) _mm_shuffle_ps(v,v,c)
+
 inline bool VeComparisonAllTrue(VeUInt32 CR) noexcept { return (((CR)& VE_CRMASK_CR6TRUE) == VE_CRMASK_CR6TRUE); }
 inline bool VeComparisonAnyTrue(VeUInt32 CR) noexcept { return (((CR)& VE_CRMASK_CR6FALSE) != VE_CRMASK_CR6FALSE); }
 inline bool VeComparisonAllFalse(VeUInt32 CR) noexcept { return (((CR)& VE_CRMASK_CR6FALSE) == VE_CRMASK_CR6FALSE); }
@@ -63,7 +67,6 @@ inline bool VeComparisonAllInBounds(VeUInt32 CR) noexcept { return (((CR)& VE_CR
 inline bool VeComparisonAnyOutOfBounds(VeUInt32 CR) noexcept { return (((CR)& VE_CRMASK_CR6BOUNDS) != VE_CRMASK_CR6BOUNDS); }
 
 #if defined(VE_NO_INTRINSICS)
-
 struct __vector4
 {
 	union
@@ -74,31 +77,22 @@ struct __vector4
 };
 
 typedef VeUInt32 __vector4i[4];
-
 #endif
 
 #if defined(VE_ENABLE_SSE)
-
 typedef __m128 VE_VECTOR;
-
 #else
-
 typedef __vector4 VE_VECTOR;
-
 #endif
 
 #ifndef VE_NO_INTRINSICS
-
 typedef const VE_VECTOR VE_FVECTOR;
 typedef const VE_VECTOR VE_GVECTOR;
 typedef const VE_VECTOR VE_HVECTOR;
-
 #else
-
 typedef const VE_VECTOR& VE_FVECTOR;
 typedef const VE_VECTOR& VE_GVECTOR;
 typedef const VE_VECTOR& VE_HVECTOR;
-
 #endif
 
 typedef const VE_VECTOR& VE_CVECTOR;
@@ -162,6 +156,248 @@ struct alignas(16) VE_VECTORU32
 	inline operator __m128i() const noexcept { return _mm_castps_si128(v); }
 	inline operator __m128d() const noexcept { return _mm_castps_pd(v); }
 #	endif
+};
+
+
+
+struct VE_MATRIX;
+
+#ifndef VE_NO_INTRINSICS
+typedef const VE_MATRIX VE_FMATRIX;
+#else
+typedef const VE_MATRIX& VE_FMATRIX;
+#endif
+
+typedef const VE_MATRIX& VE_CMATRIX;
+
+struct alignas(16) VE_MATRIX
+{
+#	ifdef VE_NO_INTRINSICS
+	union
+	{
+		VE_VECTOR r[4];
+		struct
+		{
+			VeFloat32 _11, _12, _13, _14;
+			VeFloat32 _21, _22, _23, _24;
+			VeFloat32 _31, _32, _33, _34;
+			VeFloat32 _41, _42, _43, _44;
+		};
+		VeFloat32 m[4][4];
+	};
+#	else
+	VE_VECTOR r[4];
+#	endif
+
+	VE_MATRIX() noexcept = default;
+	VE_MATRIX(VE_FVECTOR R0, VE_FVECTOR R1, VE_FVECTOR R2, VE_CVECTOR R3) noexcept { r[0] = R0; r[1] = R1; r[2] = R2; r[3] = R3; }
+
+};
+
+struct VE_FLOAT2
+{
+	VeFloat32 x;
+	VeFloat32 y;
+
+	VE_FLOAT2() noexcept = default;
+	VE_FLOAT2(VeFloat32 _x, VeFloat32 _y) noexcept : x(_x), y(_y) {}
+	explicit VE_FLOAT2(const VeFloat32* pArray) noexcept : x(pArray[0]), y(pArray[1]) {}
+
+	VE_FLOAT2& operator= (const VE_FLOAT2& Float2) noexcept { x = Float2.x; y = Float2.y; return *this; }
+};
+
+
+struct alignas(16) VE_FLOAT2A : public VE_FLOAT2
+{
+	VE_FLOAT2A() noexcept = default;
+	VE_FLOAT2A(VeFloat32 _x, VeFloat32 _y) noexcept : VE_FLOAT2(_x, _y) {}
+	explicit VE_FLOAT2A(const float *pArray) noexcept : VE_FLOAT2(pArray) {}
+
+	VE_FLOAT2A& operator= (const VE_FLOAT2A& Float2) noexcept { x = Float2.x; y = Float2.y; return *this; }
+};
+
+struct VE_INT2
+{
+	VeInt32 x;
+	VeInt32 y;
+
+	VE_INT2() noexcept = default;
+	VE_INT2(VeInt32 _x, VeInt32 _y) noexcept : x(_x), y(_y) {}
+	explicit VE_INT2(const VeInt32 *pArray) noexcept : x(pArray[0]), y(pArray[1]) {}
+
+	VE_INT2& operator= (const VE_INT2& Int2) noexcept { x = Int2.x; y = Int2.y; return *this; }
+};
+
+struct VE_UINT2
+{
+	VeUInt32 x;
+	VeUInt32 y;
+
+	VE_UINT2() noexcept {}
+	VE_UINT2(VeUInt32 _x, VeUInt32 _y) noexcept : x(_x), y(_y) {}
+	explicit VE_UINT2(const VeUInt32* pArray) noexcept : x(pArray[0]), y(pArray[1]) {}
+
+	VE_UINT2& operator= (const VE_UINT2& UInt2) noexcept { x = UInt2.x; y = UInt2.y; return *this; }
+};
+
+struct VE_FLOAT3
+{
+	VeFloat32 x;
+	VeFloat32 y;
+	VeFloat32 z;
+
+	VE_FLOAT3() noexcept = default;
+	VE_FLOAT3(VeFloat32 _x, VeFloat32 _y, VeFloat32 _z) noexcept : x(_x), y(_y), z(_z) {}
+	explicit VE_FLOAT3(const VeFloat32* pArray) noexcept : x(pArray[0]), y(pArray[1]), z(pArray[2]) {}
+
+	VE_FLOAT3& operator= (const VE_FLOAT3& Float3) noexcept { x = Float3.x; y = Float3.y; z = Float3.z; return *this; }
+};
+
+struct alignas(16) VE_FLOAT3A : public VE_FLOAT3
+{
+	VE_FLOAT3A() noexcept = default;
+	VE_FLOAT3A(VeFloat32 _x, VeFloat32 _y, VeFloat32 _z) noexcept : VE_FLOAT3(_x, _y, _z) {}
+	explicit VE_FLOAT3A(const VeFloat32* pArray) noexcept : VE_FLOAT3(pArray) {}
+
+	VE_FLOAT3A& operator= (const VE_FLOAT3A& Float3) noexcept { x = Float3.x; y = Float3.y; z = Float3.z; return *this; }
+};
+
+struct VE_INT3
+{
+	VeInt32 x;
+	VeInt32 y;
+	VeInt32 z;
+
+	VE_INT3() noexcept = default;
+	VE_INT3(VeInt32 _x, VeInt32 _y, VeInt32 _z) noexcept : x(_x), y(_y), z(_z) {}
+	explicit VE_INT3(const VeInt32* pArray) noexcept : x(pArray[0]), y(pArray[1]), z(pArray[2]) {}
+
+	VE_INT3& operator= (const VE_INT3& i3) noexcept { x = i3.x; y = i3.y; z = i3.z; return *this; }
+};
+
+struct VE_UINT3
+{
+	VeUInt32 x;
+	VeUInt32 y;
+	VeUInt32 z;
+
+	VE_UINT3() noexcept = default;
+	VE_UINT3(VeUInt32 _x, VeUInt32 _y, VeUInt32 _z) noexcept : x(_x), y(_y), z(_z) {}
+	explicit VE_UINT3(const uint32_t *pArray) noexcept : x(pArray[0]), y(pArray[1]), z(pArray[2]) {}
+
+	VE_UINT3& operator= (const VE_UINT3& u3) noexcept { x = u3.x; y = u3.y; z = u3.z; return *this; }
+};
+
+struct VE_FLOAT4
+{
+	VeFloat32 x;
+	VeFloat32 y;
+	VeFloat32 z;
+	VeFloat32 w;
+
+	VE_FLOAT4() noexcept = default;
+	VE_FLOAT4(VeFloat32 _x, VeFloat32 _y, VeFloat32 _z, VeFloat32 _w) noexcept : x(_x), y(_y), z(_z), w(_w) {}
+	explicit VE_FLOAT4(const VeFloat32* pArray) noexcept : x(pArray[0]), y(pArray[1]), z(pArray[2]), w(pArray[3]) {}
+
+	VE_FLOAT4& operator= (const VE_FLOAT4& Float4) noexcept { x = Float4.x; y = Float4.y; z = Float4.z; w = Float4.w; return *this; }
+};
+
+
+struct alignas(16) VE_FLOAT4A : public VE_FLOAT4
+{
+	VE_FLOAT4A() noexcept = default;
+	VE_FLOAT4A(VeFloat32 _x, VeFloat32 _y, VeFloat32 _z, VeFloat32 _w) noexcept : VE_FLOAT4(_x, _y, _z, _w) {}
+	explicit VE_FLOAT4A(const VeFloat32* pArray) noexcept : VE_FLOAT4(pArray) {}
+
+	VE_FLOAT4A& operator= (const VE_FLOAT4A& Float4) noexcept { x = Float4.x; y = Float4.y; z = Float4.z; w = Float4.w; return *this; }
+};
+
+struct VE_INT4
+{
+	VeInt32 x;
+	VeInt32 y;
+	VeInt32 z;
+	VeInt32 w;
+
+	VE_INT4() noexcept = default;
+	VE_INT4(VeInt32 _x, VeInt32 _y, VeInt32 _z, VeInt32 _w) noexcept : x(_x), y(_y), z(_z), w(_w) {}
+	explicit VE_INT4(const VeInt32* pArray) noexcept : x(pArray[0]), y(pArray[1]), z(pArray[2]), w(pArray[3]) {}
+
+	VE_INT4& operator= (const VE_INT4& Int4) noexcept { x = Int4.x; y = Int4.y; z = Int4.z; w = Int4.w; return *this; }
+};
+
+struct VE_UINT4
+{
+	VeUInt32 x;
+	VeUInt32 y;
+	VeUInt32 z;
+	VeUInt32 w;
+
+	VE_UINT4() noexcept = default;
+	VE_UINT4(VeUInt32 _x, VeUInt32 _y, VeUInt32 _z, VeUInt32 _w) noexcept : x(_x), y(_y), z(_z), w(_w) {}
+	explicit VE_UINT4(const VeUInt32* pArray) noexcept : x(pArray[0]), y(pArray[1]), z(pArray[2]), w(pArray[3]) {}
+
+	VE_UINT4& operator= (const VE_UINT4& UInt4) noexcept { x = UInt4.x; y = UInt4.y; z = UInt4.z; w = UInt4.w; return *this; }
+};
+
+struct VE_FLOAT3X3
+{
+	union
+	{
+		struct
+		{
+			VeFloat32 _11, _21, _31;
+			VeFloat32 _12, _22, _32;
+			VeFloat32 _13, _23, _33;
+		};
+		VeFloat32 m[3][3];
+	};
+
+	VE_FLOAT3X3() noexcept = default;
+
+};
+
+struct VE_FLOAT4X3
+{
+	union
+	{
+		struct
+		{
+			VeFloat32 _11, _21, _31, _41;
+			VeFloat32 _12, _22, _32, _42;
+			VeFloat32 _13, _23, _33, _43;
+		};
+		VeFloat32 m[3][4];
+	};
+
+	VE_FLOAT4X3() noexcept = default;
+};
+
+struct alignas(16) VE_FLOAT4X3A : public VE_FLOAT4X3
+{
+	VE_FLOAT4X3A() noexcept = default;
+};
+
+struct VE_FLOAT4X4
+{
+	union
+	{
+		struct
+		{
+			VeFloat32 _11, _21, _31, _41;
+			VeFloat32 _12, _22, _32, _42;
+			VeFloat32 _13, _23, _33, _43;
+			VeFloat32 _14, _24, _34, _44;
+		};
+		VeFloat32 m[4][4];
+	};
+
+	VE_FLOAT4X4() noexcept = default;
+};
+
+struct alignas(16) VE_FLOAT4X4A : public VE_FLOAT4X4
+{
+	VE_FLOAT4X4A() noexcept = default;
 };
 
 constexpr VE_VECTORF32 g_MathSinCoefficients0 = { -0.16666667f, +0.0083333310f, -0.00019840874f, +2.7525562e-06f };
@@ -299,3 +535,4 @@ constexpr VE_VECTORF32 g_MathLgE = { +1.442695f, +1.442695f, +1.442695f, +1.4426
 constexpr VE_VECTORF32 g_MathInvLgE = { +6.93147182e-1f, +6.93147182e-1f, +6.93147182e-1f, +6.93147182e-1f };
 
 #include "VeMathConvert.inl"
+#include "VeMathVector.inl"

@@ -197,5 +197,8 @@
     <None Include="..\..\..\..\Source\VeMain\VeMathConvert.inl">
       <Filter>Math</Filter>
     </None>
+    <None Include="..\..\..\..\Source\VeMain\VeMathVector.inl">
+      <Filter>Math</Filter>
+    </None>
   </ItemGroup>
 </Project>
