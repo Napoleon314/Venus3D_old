@@ -90,6 +90,8 @@
 #define VePow pow
 #define VeFmod fmod
 
+#define VeRoundf roundf
+
 #define VeDegreeToRadiantf(D)	((D) * 0.01745329251994329576923690768f)
 #define VeRadiantToDegreef(R)	((R) * 57.2957795130823208767981548f)
 #define VeFracf(number)			((number)-(VeFloat32)((VeInt32)(number)))
@@ -175,5 +177,7 @@ VE_MAIN_API void VeSrand(VeUInt32 u32Seed) noexcept;
 
 VE_MAIN_API VeInt32 VeRand() noexcept;
 
-#include "VeMathSIMD.inl"
 #include "VeMath.inl"
+#include "VeMathSIMD.inl"
+#include "VeMathConvert.inl"
+#include "VeMathVector.inl"

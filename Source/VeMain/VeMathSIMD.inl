@@ -5,7 +5,7 @@
 // -------------------------------------------------------------------------
 //  Module:      VeMain
 //  File name:   VeMathSIMD.inl
-//  Created:     2015/08/18 by Napoleon
+//  Created:     2015/08/21 by Napoleon
 //  Description: 
 // -------------------------------------------------------------------------
 //  History:
@@ -53,7 +53,6 @@
 #define VE_CRMASK_CR6FALSE		(0x00000020)
 #define VE_CRMASK_CR6BOUNDS		VE_CRMASK_CR6FALSE
 #define VE_CACHE_LINE_SIZE		(64)
-
 
 #define VE_STREAM_PS(p,a) _mm_stream_ps(p,a)
 #define VE_PERMUTE_PS(v,c) _mm_shuffle_ps(v,v,c)
@@ -400,6 +399,89 @@ struct alignas(16) VE_FLOAT4X4A : public VE_FLOAT4X4
 	VE_FLOAT4X4A() noexcept = default;
 };
 
+#if defined(VE_ENABLE_SSE)
+
+namespace venus
+{
+	template<VeUInt32 Shuffle, bool WhichX, bool WhichY, bool WhichZ, bool WhichW> struct PermuteHelper
+	{
+		static VE_VECTOR VE_MATH_CALLCONV Permute(VE_FVECTOR v1, VE_FVECTOR v2) noexcept
+		{
+			static const VE_VECTORU32 selectMask =
+			{
+				WhichX ? 0xFFFFFFFF : 0,
+				WhichY ? 0xFFFFFFFF : 0,
+				WhichZ ? 0xFFFFFFFF : 0,
+				WhichW ? 0xFFFFFFFF : 0,
+			};
+			VE_VECTOR shuffled1 = VE_PERMUTE_PS(v1, Shuffle);
+			VE_VECTOR shuffled2 = VE_PERMUTE_PS(v2, Shuffle);
+			VE_VECTOR masked1 = _mm_andnot_ps(selectMask, shuffled1);
+			VE_VECTOR masked2 = _mm_and_ps(selectMask, shuffled2);
+			return _mm_or_ps(masked1, masked2);
+		}
+	};
+
+	template<VeUInt32 Shuffle>
+	struct PermuteHelper<Shuffle, false, false, false, false>
+	{
+		static VE_VECTOR VE_MATH_CALLCONV Permute(VE_FVECTOR v1, VE_FVECTOR v2) noexcept { (v2); return XM_PERMUTE_PS(v1, Shuffle); }
+	};
+
+	template<VeUInt32 Shuffle>
+	struct PermuteHelper<Shuffle, true, true, true, true>
+	{
+		static VE_VECTOR VE_MATH_CALLCONV Permute(VE_FVECTOR v1, VE_FVECTOR v2) noexcept { (v1); return XM_PERMUTE_PS(v2, Shuffle); }
+	};
+
+	template<VeUInt32 Shuffle>
+	struct PermuteHelper<Shuffle, false, false, true, true>
+	{
+		static VE_VECTOR VE_MATH_CALLCONV Permute(VE_FVECTOR v1, VE_FVECTOR v2) noexcept { return _mm_shuffle_ps(v1, v2, Shuffle); }
+	};
+
+	template<uint32_t Shuffle>
+	struct PermuteHelper<Shuffle, true, true, false, false>
+	{
+		static VE_VECTOR VE_MATH_CALLCONV Permute(VE_FVECTOR v1, VE_FVECTOR v2) noexcept { return _mm_shuffle_ps(v2, v1, Shuffle); }
+	};
+};
+
+#endif
+
+template<VeUInt32 PermuteX, VeUInt32 PermuteY, VeUInt32 PermuteZ, VeUInt32 PermuteW>
+inline VE_VECTOR VE_MATH_CALLCONV VeVectorPermute(VE_FVECTOR V1, VE_FVECTOR V2) noexcept
+{
+	static_assert(PermuteX <= 7, "PermuteX template parameter out of range");
+	static_assert(PermuteY <= 7, "PermuteY template parameter out of range");
+	static_assert(PermuteZ <= 7, "PermuteZ template parameter out of range");
+	static_assert(PermuteW <= 7, "PermuteW template parameter out of range");
+#	if defined(VE_ENABLE_SSE)
+	const VeUInt32 Shuffle = _MM_SHUFFLE(PermuteW & 3, PermuteZ & 3, PermuteY & 3, PermuteX & 3);
+	const bool WhichX = PermuteX > 3;
+	const bool WhichY = PermuteY > 3;
+	const bool WhichZ = PermuteZ > 3;
+	const bool WhichW = PermuteW > 3;
+	return venus::PermuteHelper<Shuffle, WhichX, WhichY, WhichZ, WhichW>::Permute(V1, V2);
+#	else
+	return VeVectorPermute(V1, V2, PermuteX, PermuteY, PermuteZ, PermuteW);
+#	endif
+}
+
+template<VeUInt32 SwizzleX, VeUInt32 SwizzleY, VeUInt32 SwizzleZ, VeUInt32 SwizzleW>
+inline VE_VECTOR VE_MATH_CALLCONV VeVectorSwizzle(VE_FVECTOR V) noexcept
+{
+	static_assert(SwizzleX <= 3, "SwizzleX template parameter out of range");
+	static_assert(SwizzleY <= 3, "SwizzleY template parameter out of range");
+	static_assert(SwizzleZ <= 3, "SwizzleZ template parameter out of range");
+	static_assert(SwizzleW <= 3, "SwizzleW template parameter out of range");
+#	if defined(VE_ENABLE_SSE)
+	return VE_PERMUTE_PS(V, _MM_SHUFFLE(SwizzleW, SwizzleZ, SwizzleY, SwizzleX));
+#	else
+	return VeVectorSwizzle(V, SwizzleX, SwizzleY, SwizzleZ, SwizzleW);
+#	endif
+}
+
 constexpr VE_VECTORF32 g_MathSinCoefficients0 = { -0.16666667f, +0.0083333310f, -0.00019840874f, +2.7525562e-06f };
 constexpr VE_VECTORF32 g_MathSinCoefficients1 = { -2.3889859e-08f, -0.16665852f /*Est1*/, +0.0083139502f /*Est2*/, -0.00018524670f /*Est3*/ };
 constexpr VE_VECTORF32 g_MathCosCoefficients0 = { -0.5f, +0.041666638f, -0.0013888378f, +2.4760495e-05f };
@@ -533,6 +615,3 @@ constexpr VE_VECTORF32 g_MathLogEst6 = { +0.057148f, +0.057148f, +0.057148f, +0.
 constexpr VE_VECTORF32 g_MathLogEst7 = { -0.010578f, -0.010578f, -0.010578f, -0.010578f };
 constexpr VE_VECTORF32 g_MathLgE = { +1.442695f, +1.442695f, +1.442695f, +1.442695f };
 constexpr VE_VECTORF32 g_MathInvLgE = { +6.93147182e-1f, +6.93147182e-1f, +6.93147182e-1f, +6.93147182e-1f };
-
-#include "VeMathConvert.inl"
-#include "VeMathVector.inl"
