@@ -31,9 +31,10 @@
 #	include <emmintrin.h>
 #endif
 
+//--------------------------------------------------------------------------
 #define VE_SELECT_0				(0x00000000)
 #define VE_SELECT_1				(0xFFFFFFFF)
-
+//--------------------------------------------------------------------------
 #define VE_PERMUTE_0X			(0)
 #define VE_PERMUTE_0Y			(1)
 #define VE_PERMUTE_0Z			(2)
@@ -42,21 +43,21 @@
 #define VE_PERMUTE_1Y			(5)
 #define VE_PERMUTE_1Z			(6)
 #define VE_PERMUTE_1W			(7)
-
+//--------------------------------------------------------------------------
 #define VE_SWIZZLE_X			(0)
 #define VE_SWIZZLE_Y			(1)
 #define VE_SWIZZLE_Z			(2)
 #define VE_SWIZZLE_W			(3)
-
+//--------------------------------------------------------------------------
 #define VE_CRMASK_CR6			(0x000000F0)
 #define VE_CRMASK_CR6TRUE		(0x00000080)
 #define VE_CRMASK_CR6FALSE		(0x00000020)
 #define VE_CRMASK_CR6BOUNDS		VE_CRMASK_CR6FALSE
 #define VE_CACHE_LINE_SIZE		(64)
-
+//--------------------------------------------------------------------------
 #define VE_STREAM_PS(p,a) _mm_stream_ps(p,a)
 #define VE_PERMUTE_PS(v,c) _mm_shuffle_ps(v,v,c)
-
+//--------------------------------------------------------------------------
 inline bool VeComparisonAllTrue(VeUInt32 CR) noexcept { return (((CR)& VE_CRMASK_CR6TRUE) == VE_CRMASK_CR6TRUE); }
 inline bool VeComparisonAnyTrue(VeUInt32 CR) noexcept { return (((CR)& VE_CRMASK_CR6FALSE) != VE_CRMASK_CR6FALSE); }
 inline bool VeComparisonAllFalse(VeUInt32 CR) noexcept { return (((CR)& VE_CRMASK_CR6FALSE) == VE_CRMASK_CR6FALSE); }
@@ -64,8 +65,9 @@ inline bool VeComparisonAnyFalse(VeUInt32 CR) noexcept { return (((CR)& VE_CRMAS
 inline bool VeComparisonMixed(VeUInt32 CR) noexcept { return (((CR)& VE_CRMASK_CR6) == 0); }
 inline bool VeComparisonAllInBounds(VeUInt32 CR) noexcept { return (((CR)& VE_CRMASK_CR6BOUNDS) == VE_CRMASK_CR6BOUNDS); }
 inline bool VeComparisonAnyOutOfBounds(VeUInt32 CR) noexcept { return (((CR)& VE_CRMASK_CR6BOUNDS) != VE_CRMASK_CR6BOUNDS); }
-
+//--------------------------------------------------------------------------
 #if defined(VE_NO_INTRINSICS)
+//--------------------------------------------------------------------------
 struct __vector4
 {
 	union
@@ -74,16 +76,17 @@ struct __vector4
 		VeUInt32		vector4_u32[4];
 	};
 };
-
+//--------------------------------------------------------------------------
 typedef VeUInt32 __vector4i[4];
+//--------------------------------------------------------------------------
 #endif
-
+//--------------------------------------------------------------------------
 #if defined(VE_ENABLE_SSE)
 typedef __m128 VE_VECTOR;
 #else
 typedef __vector4 VE_VECTOR;
 #endif
-
+//--------------------------------------------------------------------------
 #ifndef VE_NO_INTRINSICS
 typedef const VE_VECTOR VE_FVECTOR;
 typedef const VE_VECTOR VE_GVECTOR;
@@ -93,9 +96,9 @@ typedef const VE_VECTOR& VE_FVECTOR;
 typedef const VE_VECTOR& VE_GVECTOR;
 typedef const VE_VECTOR& VE_HVECTOR;
 #endif
-
+//--------------------------------------------------------------------------
 typedef const VE_VECTOR& VE_CVECTOR;
-
+//--------------------------------------------------------------------------
 struct alignas(16) VE_VECTORF32
 {
 	union
@@ -111,7 +114,7 @@ struct alignas(16) VE_VECTORF32
 	inline operator __m128d() const noexcept { return _mm_castps_pd(v); }
 #	endif
 };
-
+//--------------------------------------------------------------------------
 struct alignas(16) VE_VECTORI32
 {
 	union
@@ -126,7 +129,7 @@ struct alignas(16) VE_VECTORI32
 	inline operator __m128d() const noexcept { return _mm_castps_pd(v); }
 #	endif
 };
-
+//--------------------------------------------------------------------------
 struct alignas(16) VE_VECTORU8
 {
 	union
@@ -141,7 +144,7 @@ struct alignas(16) VE_VECTORU8
 	inline operator __m128d() const noexcept { return _mm_castps_pd(v); }
 #	endif
 };
-
+//--------------------------------------------------------------------------
 struct alignas(16) VE_VECTORU32
 {
 	union
@@ -156,19 +159,17 @@ struct alignas(16) VE_VECTORU32
 	inline operator __m128d() const noexcept { return _mm_castps_pd(v); }
 #	endif
 };
-
-
-
+//--------------------------------------------------------------------------
 struct VE_MATRIX;
-
+//--------------------------------------------------------------------------
 #ifndef VE_NO_INTRINSICS
 typedef const VE_MATRIX VE_FMATRIX;
 #else
 typedef const VE_MATRIX& VE_FMATRIX;
 #endif
-
+//--------------------------------------------------------------------------
 typedef const VE_MATRIX& VE_CMATRIX;
-
+//--------------------------------------------------------------------------
 struct alignas(16) VE_MATRIX
 {
 #	ifdef VE_NO_INTRINSICS
@@ -192,7 +193,7 @@ struct alignas(16) VE_MATRIX
 	VE_MATRIX(VE_FVECTOR R0, VE_FVECTOR R1, VE_FVECTOR R2, VE_CVECTOR R3) noexcept { r[0] = R0; r[1] = R1; r[2] = R2; r[3] = R3; }
 
 };
-
+//--------------------------------------------------------------------------
 struct VE_FLOAT2
 {
 	VeFloat32 x;
@@ -204,8 +205,7 @@ struct VE_FLOAT2
 
 	VE_FLOAT2& operator= (const VE_FLOAT2& Float2) noexcept { x = Float2.x; y = Float2.y; return *this; }
 };
-
-
+//--------------------------------------------------------------------------
 struct alignas(16) VE_FLOAT2A : public VE_FLOAT2
 {
 	VE_FLOAT2A() noexcept = default;
@@ -214,7 +214,7 @@ struct alignas(16) VE_FLOAT2A : public VE_FLOAT2
 
 	VE_FLOAT2A& operator= (const VE_FLOAT2A& Float2) noexcept { x = Float2.x; y = Float2.y; return *this; }
 };
-
+//--------------------------------------------------------------------------
 struct VE_INT2
 {
 	VeInt32 x;
@@ -226,7 +226,7 @@ struct VE_INT2
 
 	VE_INT2& operator= (const VE_INT2& Int2) noexcept { x = Int2.x; y = Int2.y; return *this; }
 };
-
+//--------------------------------------------------------------------------
 struct VE_UINT2
 {
 	VeUInt32 x;
@@ -238,7 +238,7 @@ struct VE_UINT2
 
 	VE_UINT2& operator= (const VE_UINT2& UInt2) noexcept { x = UInt2.x; y = UInt2.y; return *this; }
 };
-
+//--------------------------------------------------------------------------
 struct VE_FLOAT3
 {
 	VeFloat32 x;
@@ -251,7 +251,7 @@ struct VE_FLOAT3
 
 	VE_FLOAT3& operator= (const VE_FLOAT3& Float3) noexcept { x = Float3.x; y = Float3.y; z = Float3.z; return *this; }
 };
-
+//--------------------------------------------------------------------------
 struct alignas(16) VE_FLOAT3A : public VE_FLOAT3
 {
 	VE_FLOAT3A() noexcept = default;
@@ -260,7 +260,7 @@ struct alignas(16) VE_FLOAT3A : public VE_FLOAT3
 
 	VE_FLOAT3A& operator= (const VE_FLOAT3A& Float3) noexcept { x = Float3.x; y = Float3.y; z = Float3.z; return *this; }
 };
-
+//--------------------------------------------------------------------------
 struct VE_INT3
 {
 	VeInt32 x;
@@ -273,7 +273,7 @@ struct VE_INT3
 
 	VE_INT3& operator= (const VE_INT3& i3) noexcept { x = i3.x; y = i3.y; z = i3.z; return *this; }
 };
-
+//--------------------------------------------------------------------------
 struct VE_UINT3
 {
 	VeUInt32 x;
@@ -286,7 +286,7 @@ struct VE_UINT3
 
 	VE_UINT3& operator= (const VE_UINT3& u3) noexcept { x = u3.x; y = u3.y; z = u3.z; return *this; }
 };
-
+//--------------------------------------------------------------------------
 struct VE_FLOAT4
 {
 	VeFloat32 x;
@@ -300,8 +300,7 @@ struct VE_FLOAT4
 
 	VE_FLOAT4& operator= (const VE_FLOAT4& Float4) noexcept { x = Float4.x; y = Float4.y; z = Float4.z; w = Float4.w; return *this; }
 };
-
-
+//--------------------------------------------------------------------------
 struct alignas(16) VE_FLOAT4A : public VE_FLOAT4
 {
 	VE_FLOAT4A() noexcept = default;
@@ -310,7 +309,7 @@ struct alignas(16) VE_FLOAT4A : public VE_FLOAT4
 
 	VE_FLOAT4A& operator= (const VE_FLOAT4A& Float4) noexcept { x = Float4.x; y = Float4.y; z = Float4.z; w = Float4.w; return *this; }
 };
-
+//--------------------------------------------------------------------------
 struct VE_INT4
 {
 	VeInt32 x;
@@ -324,7 +323,7 @@ struct VE_INT4
 
 	VE_INT4& operator= (const VE_INT4& Int4) noexcept { x = Int4.x; y = Int4.y; z = Int4.z; w = Int4.w; return *this; }
 };
-
+//--------------------------------------------------------------------------
 struct VE_UINT4
 {
 	VeUInt32 x;
@@ -338,7 +337,7 @@ struct VE_UINT4
 
 	VE_UINT4& operator= (const VE_UINT4& UInt4) noexcept { x = UInt4.x; y = UInt4.y; z = UInt4.z; w = UInt4.w; return *this; }
 };
-
+//--------------------------------------------------------------------------
 struct VE_FLOAT3X3
 {
 	union
@@ -355,7 +354,7 @@ struct VE_FLOAT3X3
 	VE_FLOAT3X3() noexcept = default;
 
 };
-
+//--------------------------------------------------------------------------
 struct VE_FLOAT4X3
 {
 	union
@@ -371,12 +370,12 @@ struct VE_FLOAT4X3
 
 	VE_FLOAT4X3() noexcept = default;
 };
-
+//--------------------------------------------------------------------------
 struct alignas(16) VE_FLOAT4X3A : public VE_FLOAT4X3
 {
 	VE_FLOAT4X3A() noexcept = default;
 };
-
+//--------------------------------------------------------------------------
 struct VE_FLOAT4X4
 {
 	union
@@ -393,14 +392,14 @@ struct VE_FLOAT4X4
 
 	VE_FLOAT4X4() noexcept = default;
 };
-
+//--------------------------------------------------------------------------
 struct alignas(16) VE_FLOAT4X4A : public VE_FLOAT4X4
 {
 	VE_FLOAT4X4A() noexcept = default;
 };
-
+//--------------------------------------------------------------------------
 #if defined(VE_ENABLE_SSE)
-
+//--------------------------------------------------------------------------
 namespace venus
 {
 	template<VeUInt32 Shuffle, bool WhichX, bool WhichY, bool WhichZ, bool WhichW> struct PermuteHelper
@@ -446,9 +445,9 @@ namespace venus
 		static VE_VECTOR VE_MATH_CALLCONV Permute(VE_FVECTOR v1, VE_FVECTOR v2) noexcept { return _mm_shuffle_ps(v2, v1, Shuffle); }
 	};
 };
-
+//--------------------------------------------------------------------------
 #endif
-
+//--------------------------------------------------------------------------
 template<VeUInt32 PermuteX, VeUInt32 PermuteY, VeUInt32 PermuteZ, VeUInt32 PermuteW>
 inline VE_VECTOR VE_MATH_CALLCONV VeVectorPermute(VE_FVECTOR V1, VE_FVECTOR V2) noexcept
 {
@@ -467,7 +466,7 @@ inline VE_VECTOR VE_MATH_CALLCONV VeVectorPermute(VE_FVECTOR V1, VE_FVECTOR V2) 
 	return VeVectorPermute(V1, V2, PermuteX, PermuteY, PermuteZ, PermuteW);
 #	endif
 }
-
+//--------------------------------------------------------------------------
 template<VeUInt32 SwizzleX, VeUInt32 SwizzleY, VeUInt32 SwizzleZ, VeUInt32 SwizzleW>
 inline VE_VECTOR VE_MATH_CALLCONV VeVectorSwizzle(VE_FVECTOR V) noexcept
 {
@@ -481,7 +480,7 @@ inline VE_VECTOR VE_MATH_CALLCONV VeVectorSwizzle(VE_FVECTOR V) noexcept
 	return VeVectorSwizzle(V, SwizzleX, SwizzleY, SwizzleZ, SwizzleW);
 #	endif
 }
-
+//--------------------------------------------------------------------------
 constexpr VE_VECTORF32 g_MathSinCoefficients0 = { -0.16666667f, +0.0083333310f, -0.00019840874f, +2.7525562e-06f };
 constexpr VE_VECTORF32 g_MathSinCoefficients1 = { -2.3889859e-08f, -0.16665852f /*Est1*/, +0.0083139502f /*Est2*/, -0.00018524670f /*Est3*/ };
 constexpr VE_VECTORF32 g_MathCosCoefficients0 = { -0.5f, +0.041666638f, -0.0013888378f, +2.4760495e-05f };
@@ -615,3 +614,55 @@ constexpr VE_VECTORF32 g_MathLogEst6 = { +0.057148f, +0.057148f, +0.057148f, +0.
 constexpr VE_VECTORF32 g_MathLogEst7 = { -0.010578f, -0.010578f, -0.010578f, -0.010578f };
 constexpr VE_VECTORF32 g_MathLgE = { +1.442695f, +1.442695f, +1.442695f, +1.442695f };
 constexpr VE_VECTORF32 g_MathInvLgE = { +6.93147182e-1f, +6.93147182e-1f, +6.93147182e-1f, +6.93147182e-1f };
+//--------------------------------------------------------------------------
+inline VE_VECTOR VE_MATH_CALLCONV VeVectorSetBinaryConstant(
+	VeUInt32 C0, VeUInt32 C1, VeUInt32 C2, VeUInt32 C3) noexcept
+{
+#	if defined(VE_NO_INTRINSICS)
+	VE_VECTORU32 vResult;
+	vResult.u[0] = (0 - (C0 & 1)) & 0x3F800000;
+	vResult.u[1] = (0 - (C1 & 1)) & 0x3F800000;
+	vResult.u[2] = (0 - (C2 & 1)) & 0x3F800000;
+	vResult.u[3] = (0 - (C3 & 1)) & 0x3F800000;
+	return vResult.v;
+#	elif defined(VE_ENABLE_SSE)
+	static const VE_VECTORU32 g_vMask1 = { 1,1,1,1 };
+	__m128i vTemp = _mm_set_epi32(C3, C2, C1, C0);
+	vTemp = _mm_and_si128(vTemp, g_vMask1);
+	vTemp = _mm_cmpeq_epi32(vTemp, g_vMask1);
+	vTemp = _mm_and_si128(vTemp, g_MathOne);
+	return _mm_castsi128_ps(vTemp);
+#	endif
+}
+//--------------------------------------------------------------------------
+inline VE_VECTOR VE_MATH_CALLCONV VeVectorSplatConstant(
+	VeInt32 IntConstant, VeUInt32 DivExponent) noexcept
+{
+	VE_ASSERT(IntConstant >= -16 && IntConstant <= 15);
+	VE_ASSERT(DivExponent < 32);
+#	if defined(VE_NO_INTRINSICS)
+	VE_VECTORI32 V = { IntConstant, IntConstant, IntConstant, IntConstant };
+	return VeConvertVectorIntToFloat(V.v, DivExponent);
+#	elif defined(VE_ENABLE_SSE)
+	__m128i vScale = _mm_set1_epi32(IntConstant);
+	VE_VECTOR vResult = _mm_cvtepi32_ps(vScale);
+	VeUInt32 uScale = 0x3F800000U - (DivExponent << 23);
+	vScale = _mm_set1_epi32(uScale);
+	vResult = _mm_mul_ps(vResult, _mm_castsi128_ps(vScale));
+	return vResult;
+#	endif
+}
+//--------------------------------------------------------------------------
+inline VE_VECTOR VE_MATH_CALLCONV VeVectorSplatConstantInt(
+	VeInt32 IntConstant) noexcept
+{
+	VE_ASSERT(IntConstant >= -16 && IntConstant <= 15);
+#	if defined(VE_NO_INTRINSICS)
+	VE_VECTORI32 V = { IntConstant, IntConstant, IntConstant, IntConstant };
+	return V.v;
+#	elif defined(VE_ENABLE_SSE)
+	__m128i V = _mm_set1_epi32(IntConstant);
+	return _mm_castsi128_ps(V);
+#	endif
+}
+//--------------------------------------------------------------------------

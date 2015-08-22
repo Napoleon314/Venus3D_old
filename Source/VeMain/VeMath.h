@@ -181,3 +181,5 @@ VE_MAIN_API VeInt32 VeRand() noexcept;
 #include "VeMathSIMD.inl"
 #include "VeMathConvert.inl"
 #include "VeMathVector.inl"
+#include "VeMathMatrix.inl"
+#include "VeMathMisc.h"

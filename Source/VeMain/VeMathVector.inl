@@ -2085,7 +2085,7 @@ inline VE_VECTOR VE_MATH_CALLCONV VeVectorExp(
 }
 //--------------------------------------------------------------------------
 #if defined(VE_ENABLE_SSE)
-namespace Internal
+namespace venus
 {
 	inline __m128i multi_sll_epi32(__m128i value, __m128i count) noexcept
 	{
@@ -2184,10 +2184,10 @@ inline VE_VECTOR VE_MATH_CALLCONV VeVectorLog2(
 	__m128i biased = _mm_srli_epi32(rawBiased, 23);
 	__m128i exponentNor = _mm_sub_epi32(biased, g_MathExponentBias);
 	__m128i trailingNor = trailing;
-	__m128i leading = Internal::GetLeadingBit(trailing);
+	__m128i leading = venus::GetLeadingBit(trailing);
 	__m128i shift = _mm_sub_epi32(g_MathNumTrailing, leading);
 	__m128i exponentSub = _mm_sub_epi32(g_MathSubnormalExponent, shift);
-	__m128i trailingSub = Internal::multi_sll_epi32(trailing, shift);
+	__m128i trailingSub = venus::multi_sll_epi32(trailing, shift);
 	trailingSub = _mm_and_si128(trailingSub, g_MathQNaNTest);
 	__m128i select0 = _mm_and_si128(isExponentZero, exponentSub);
 	__m128i select1 = _mm_andnot_si128(isExponentZero, exponentNor);
@@ -2258,10 +2258,10 @@ inline VE_VECTOR VE_MATH_CALLCONV VeVectorLogE(
 	__m128i biased = _mm_srli_epi32(rawBiased, 23);
 	__m128i exponentNor = _mm_sub_epi32(biased, g_MathExponentBias);
 	__m128i trailingNor = trailing;
-	__m128i leading = Internal::GetLeadingBit(trailing);
+	__m128i leading = venus::GetLeadingBit(trailing);
 	__m128i shift = _mm_sub_epi32(g_MathNumTrailing, leading);
 	__m128i exponentSub = _mm_sub_epi32(g_MathSubnormalExponent, shift);
-	__m128i trailingSub = Internal::multi_sll_epi32(trailing, shift);
+	__m128i trailingSub = venus::multi_sll_epi32(trailing, shift);
 	trailingSub = _mm_and_si128(trailingSub, g_MathQNaNTest);
 	__m128i select0 = _mm_and_si128(isExponentZero, exponentSub);
 	__m128i select1 = _mm_andnot_si128(isExponentZero, exponentNor);
