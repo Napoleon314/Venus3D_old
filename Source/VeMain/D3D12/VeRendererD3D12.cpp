@@ -4,28 +4,26 @@
 //  Copyright (C), Venus Interactive Entertainment.2012
 // -------------------------------------------------------------------------
 //  Module:      VeMain
-//  File name:   _VeRendererD3D12.cpp
-//  Created:     2015/08/05 by Napoleon
+//  File name:   VeRendererD3D12.cpp
+//  Created:     2015/08/22 by Napoleon
 //  Description: 
 // -------------------------------------------------------------------------
 //  History:
 //  http://www.venusie.com
 ////////////////////////////////////////////////////////////////////////////
 
-#include "VeMainPch.h"
-#include "_VeRendererD3D12.h"
+#include "../VeMainPch.h"
+#include "VeRendererD3D12.h"
 
 //--------------------------------------------------------------------------
 #ifdef VE_ENABLE_D3D12
 //--------------------------------------------------------------------------
+VeRTTIImpl(VeRendererD3D12, VeRenderer);
+//--------------------------------------------------------------------------
 VeRendererD3D12::VeRendererD3D12() noexcept
+	: VeRenderer(API_D3D12)
 {
-	m_eType = API_D3D12;
 
-	D3D12GetDebugInterface = nullptr;
-	D3D12CreateDevice = nullptr;
-
-	CreateDXGIFactory1 = nullptr;
 }
 //--------------------------------------------------------------------------
 VeRendererD3D12::~VeRendererD3D12() noexcept
@@ -75,8 +73,21 @@ void VeRendererD3D12::Term() noexcept
 {
 	m_cpDevice = nullptr;
 	D3D12GetDebugInterface = nullptr;
+	D3D12CreateDevice = nullptr;
+	CreateDXGIFactory1 = nullptr;
 	m_spD3D12 = nullptr;
 	m_spDXGI = nullptr;
+}
+//--------------------------------------------------------------------------
+VeRenderWindowPtr VeRendererD3D12::CreateRenderWindow(
+	const VeWindowPtr& spWindow) noexcept
+{
+	return nullptr;
+}
+//--------------------------------------------------------------------------
+VeRendererPtr CreateRendererD3D12() noexcept
+{
+	return VE_NEW VeRendererD3D12();
 }
 //--------------------------------------------------------------------------
 #endif

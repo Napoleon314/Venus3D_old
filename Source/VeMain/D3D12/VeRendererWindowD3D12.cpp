@@ -4,27 +4,32 @@
 //  Copyright (C), Venus Interactive Entertainment.2012
 // -------------------------------------------------------------------------
 //  Module:      VeMain
-//  File name:   VeRenderer.cpp
-//  Created:     2015/08/05 by Napoleon
+//  File name:   VeRendererWindowD3D12.cpp
+//  Created:     2015/08/22 by Napoleon
 //  Description: 
 // -------------------------------------------------------------------------
 //  History:
 //  http://www.venusie.com
 ////////////////////////////////////////////////////////////////////////////
 
-#include "VeMainPch.h"
+#include "../VeMainPch.h"
+#include "VeRendererWindowD3D12.h"
 
 //--------------------------------------------------------------------------
-VeRTTIImpl(VeRenderer);
+VeRTTIImpl(VeRenderWindowD3D12, VeRenderWindow);
 //--------------------------------------------------------------------------
-VeRenderer::VeRenderer(API eType) noexcept
-	: m_eType(eType)
+VeRenderWindowD3D12::VeRenderWindowD3D12() noexcept
+{
+	m_kNode.m_Content = this;
+}
+//--------------------------------------------------------------------------
+VeRenderWindowD3D12::~VeRenderWindowD3D12() noexcept
 {
 
 }
 //--------------------------------------------------------------------------
-VeRenderer::~VeRenderer() noexcept
+bool VeRenderWindowD3D12::IsValid() noexcept
 {
-
+	return m_kNode.is_attach();
 }
 //--------------------------------------------------------------------------

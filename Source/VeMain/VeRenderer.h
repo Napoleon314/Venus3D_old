@@ -17,6 +17,7 @@
 class VE_MAIN_API VeRenderer : public VeRefObject
 {
 	VE_NO_COPY(VeRenderer);
+	VeRTTIDecl(VeRenderer);
 public:
 	enum API
 	{
@@ -35,13 +36,17 @@ public:
 
 	virtual void Term() noexcept = 0;
 
+	virtual VeRenderWindowPtr CreateRenderWindow(const VeWindowPtr& spWindow) noexcept = 0;
+
 protected:
-	VeRenderer() noexcept;
+	VeRenderer(API eType) noexcept;
 
 	virtual ~VeRenderer() noexcept;
 
-	API m_eType = API_NONE;
+	const API m_eType;
 
 };
+
+VeSmartPointer(VeRenderer);
 
 #include "VeRenderer.inl"

@@ -4,8 +4,8 @@
 //  Copyright (C), Venus Interactive Entertainment.2012
 // -------------------------------------------------------------------------
 //  Module:      VeMain
-//  File name:   VeRenderer.cpp
-//  Created:     2015/08/05 by Napoleon
+//  File name:   VeRenderWindow.cpp
+//  Created:     2015/08/22 by Napoleon
 //  Description: 
 // -------------------------------------------------------------------------
 //  History:
@@ -15,15 +15,14 @@
 #include "VeMainPch.h"
 
 //--------------------------------------------------------------------------
-VeRTTIImpl(VeRenderer);
+VeRTTIImpl(VeRenderWindow);
 //--------------------------------------------------------------------------
-VeRenderer::VeRenderer(API eType) noexcept
-	: m_eType(eType)
+VeRenderWindow::VeRenderWindow() noexcept
 {
 
 }
 //--------------------------------------------------------------------------
-VeRenderer::~VeRenderer() noexcept
+VeRenderWindow::~VeRenderWindow() noexcept
 {
 
 }

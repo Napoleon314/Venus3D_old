@@ -13,7 +13,6 @@
 ////////////////////////////////////////////////////////////////////////////
 
 #include "VeMainPch.h"
-#include "_VeRendererD3D12.h"
 
 //--------------------------------------------------------------------------
 extern VeVideoDevicePtr CreateVideoDevice() noexcept;
@@ -24,6 +23,10 @@ extern VeKeyboardPtr CreateKeyboard() noexcept;
 //--------------------------------------------------------------------------
 #ifdef VE_ENABLE_MOUSE
 extern VeMousePtr CreateMouse() noexcept;
+#endif
+//--------------------------------------------------------------------------
+#ifdef VE_ENABLE_D3D12
+extern VeRendererPtr CreateRendererD3D12() noexcept;
 #endif
 //--------------------------------------------------------------------------
 VeEngine::VeEngine() noexcept
@@ -133,7 +136,7 @@ void VeEngine::InitRenderer() noexcept
 #	ifdef VE_ENABLE_D3D12
 	if (!m_spRenderer)
 	{
-		m_spRenderer = VE_NEW VeRendererD3D12();
+		m_spRenderer = CreateRendererD3D12();
 		if (!m_spRenderer->Init())
 		{
 			m_spRenderer->Term();

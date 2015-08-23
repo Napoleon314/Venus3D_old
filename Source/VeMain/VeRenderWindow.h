@@ -4,8 +4,8 @@
 //  Copyright (C), Venus Interactive Entertainment.2012
 // -------------------------------------------------------------------------
 //  Module:      VeMain
-//  File name:   VeMainPch.h
-//  Created:     2015/08/05 by Napoleon
+//  File name:   VeRenderWindow.h
+//  Created:     2015/08/22 by Napoleon
 //  Description: 
 // -------------------------------------------------------------------------
 //  History:
@@ -14,21 +14,25 @@
 
 #pragma once
 
-#include <VePowerPch.h>
-#include "VeMain.h"
-#include "VeMath.h"
-#include "VeVector2.h"
-#include "VeVector3.h"
-#include "VeVector4.h"
-#include "VeRect.h"
-#include "VePixel.h"
-#include "VeSurface.h"
-#include "VeWindow.h"
-#include "VeKeyboard.h"
-#include "VeMouse.h"
-#include "VeEvents.h"
-#include "VeVideo.h"
-#include "VeEngine.h"
-#include "VeRenderWindow.h"
-#include "VeRenderer.h"
+class VE_MAIN_API VeRenderWindow : public VeRefObject
+{
+	VE_NO_COPY(VeRenderWindow);
+	VeRTTIDecl(VeRenderWindow);
+public:
+	inline const VeWindowPtr& GetTargetWindow() noexcept;
 
+	virtual bool IsValid() noexcept = 0;
+
+
+protected:
+	VeRenderWindow() noexcept;
+
+	virtual ~VeRenderWindow() noexcept;
+
+	VeWindowPtr m_spTargetWindow;
+
+};
+
+VeSmartPointer(VeRenderWindow);
+
+#include "VeRenderWindow.inl"

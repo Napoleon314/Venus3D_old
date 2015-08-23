@@ -43,9 +43,6 @@
     <ClInclude Include="..\..\..\..\Source\VeMain\VeRenderer.h">
       <Filter>Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\Source\VeMain\_VeRendererD3D12.h">
-      <Filter>Renderer\D3D12</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\Source\VeMain\Windows\WindowsMouse.h">
       <Filter>Events\Windows</Filter>
     </ClInclude>
@@ -94,6 +91,15 @@
     <ClInclude Include="..\..\..\..\Source\VeMain\VeMathMisc.h">
       <Filter>Math</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\VeMain\VeRenderWindow.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\VeMain\D3D12\VeRendererD3D12.h">
+      <Filter>Renderer\D3D12</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\VeMain\D3D12\VeRendererWindowD3D12.h">
+      <Filter>Renderer\D3D12</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\Source\VeMain\VeMain.cpp">
@@ -107,9 +113,6 @@
     </ClCompile>
     <ClCompile Include="..\..\..\..\Source\VeMain\VeRenderer.cpp">
       <Filter>Renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\Source\VeMain\_VeRendererD3D12.cpp">
-      <Filter>Renderer\D3D12</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\Source\VeMain\Windows\WindowsMouse.cpp">
       <Filter>Events\Windows</Filter>
@@ -152,6 +155,15 @@
     </ClCompile>
     <ClCompile Include="..\..\..\..\Source\VeMain\VeVector4.cpp">
       <Filter>Math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Source\VeMain\VeRenderWindow.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Source\VeMain\D3D12\VeRendererD3D12.cpp">
+      <Filter>Renderer\D3D12</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Source\VeMain\D3D12\VeRendererWindowD3D12.cpp">
+      <Filter>Renderer\D3D12</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -205,6 +217,9 @@
     </None>
     <None Include="..\..\..\..\Source\VeMain\VeMathMatrix.inl">
       <Filter>Math</Filter>
+    </None>
+    <None Include="..\..\..\..\Source\VeMain\VeRenderWindow.inl">
+      <Filter>Renderer</Filter>
     </None>
   </ItemGroup>
 </Project>
