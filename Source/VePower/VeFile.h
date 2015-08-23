@@ -37,7 +37,7 @@
 
 class VE_POWER_API VeFileIStream : public VeBinaryIStream
 {
-	VE_NO_COPY(VeFileIStream);
+	VeNoCopy(VeFileIStream);
 	VeRTTIDecl(VeFileIStream, VeBinaryIStream);
 public:
 	VeFileIStream(const VeChar8* pcFileName,

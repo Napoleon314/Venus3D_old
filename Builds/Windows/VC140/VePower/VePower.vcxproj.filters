@@ -77,6 +77,12 @@
     <ClCompile Include="..\..\..\..\Source\VePower\VeCPUInfo.cpp">
       <Filter>Kernel</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\Source\VePower\VeResourceGroup.cpp">
+      <Filter>Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Source\VePower\VeResource.cpp">
+      <Filter>Resource</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\Source\VePower\VePowerPch.h">
@@ -154,6 +160,12 @@
     <ClInclude Include="..\..\..\..\Source\VePower\VeCPUInfo.h">
       <Filter>Kernel</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\VePower\VeResourceGroup.h">
+      <Filter>Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\VePower\VeResource.h">
+      <Filter>Resource</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\..\Source\VePower\VeMemory.inl">
@@ -191,6 +203,12 @@
     </None>
     <None Include="..\..\..\..\Source\VePower\VeTime.inl">
       <Filter>Kernel</Filter>
+    </None>
+    <None Include="..\..\..\..\Source\VePower\VeResourceGroup.inl">
+      <Filter>Resource</Filter>
+    </None>
+    <None Include="..\..\..\..\Source\VePower\VeResource.inl">
+      <Filter>Resource</Filter>
     </None>
   </ItemGroup>
 </Project>

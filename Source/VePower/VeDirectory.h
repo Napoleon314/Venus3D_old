@@ -21,7 +21,7 @@ VeSmartPointer(VeDirectory);
 
 class VE_POWER_API VeDirectory : public VeRefObject
 {
-	VE_NO_COPY(VeDirectory);
+	VeNoCopy(VeDirectory);
 	VeRTTIDecl(VeDirectory);
 public:
 	enum AccessMask

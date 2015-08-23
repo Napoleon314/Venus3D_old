@@ -26,7 +26,7 @@ VeSmartPointer(VeBlob);
 
 class VE_MAIN_API VeSurface : public VeRefObject
 {
-	VE_NO_COPY(VeSurface);
+	VeNoCopy(VeSurface);
 public:
 	inline bool SetPalette(const VePalettePtr& spPalette) noexcept;
 

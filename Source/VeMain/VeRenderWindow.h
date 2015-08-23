@@ -16,7 +16,7 @@
 
 class VE_MAIN_API VeRenderWindow : public VeRefObject
 {
-	VE_NO_COPY(VeRenderWindow);
+	VeNoCopy(VeRenderWindow);
 	VeRTTIDecl(VeRenderWindow);
 public:
 	inline const VeWindowPtr& GetTargetWindow() noexcept;

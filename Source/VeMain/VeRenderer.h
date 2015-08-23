@@ -16,7 +16,7 @@
 
 class VE_MAIN_API VeRenderer : public VeRefObject
 {
-	VE_NO_COPY(VeRenderer);
+	VeNoCopy(VeRenderer);
 	VeRTTIDecl(VeRenderer);
 public:
 	enum API

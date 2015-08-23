@@ -298,6 +298,8 @@
     <ClCompile Include="..\..\..\..\Source\VePower\VeAsset.cpp" />
     <ClCompile Include="..\..\..\..\Source\VePower\VeCPUInfo.cpp" />
     <ClCompile Include="..\..\..\..\Source\VePower\VeFile.cpp" />
+    <ClCompile Include="..\..\..\..\Source\VePower\VeResource.cpp" />
+    <ClCompile Include="..\..\..\..\Source\VePower\VeResourceGroup.cpp" />
     <ClCompile Include="..\..\..\..\Source\VePower\VeSharedLib.cpp" />
     <ClCompile Include="..\..\..\..\Source\VePower\VeTaskQueue.cpp" />
     <ClCompile Include="..\..\..\..\Source\VePower\VeBinaryStream.cpp" />
@@ -329,6 +331,8 @@
     <ClInclude Include="..\..\..\..\Source\VePower\VeAsset.h" />
     <ClInclude Include="..\..\..\..\Source\VePower\VeCPUInfo.h" />
     <ClInclude Include="..\..\..\..\Source\VePower\VeFile.h" />
+    <ClInclude Include="..\..\..\..\Source\VePower\VeResource.h" />
+    <ClInclude Include="..\..\..\..\Source\VePower\VeResourceGroup.h" />
     <ClInclude Include="..\..\..\..\Source\VePower\VeSharedLib.h" />
     <ClInclude Include="..\..\..\..\Source\VePower\VeTaskQueue.h" />
     <ClInclude Include="..\..\..\..\Source\VePower\VeBinaryStream.h" />
@@ -354,6 +358,8 @@
   <ItemGroup>
     <None Include="..\..\..\..\Source\VePower\VeAllocator.inl" />
     <None Include="..\..\..\..\Source\VePower\VeFile.inl" />
+    <None Include="..\..\..\..\Source\VePower\VeResource.inl" />
+    <None Include="..\..\..\..\Source\VePower\VeResourceGroup.inl" />
     <None Include="..\..\..\..\Source\VePower\VeTaskQueue.inl" />
     <None Include="..\..\..\..\Source\VePower\VeBinaryStream.inl" />
     <None Include="..\..\..\..\Source\VePower\VeLog.inl" />

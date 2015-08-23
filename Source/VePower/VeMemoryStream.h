@@ -16,7 +16,7 @@
 
 class VE_POWER_API VeBlob : public VeRefObject
 {
-	VE_NO_COPY(VeBlob);
+	VeNoCopy(VeBlob);
 public:
 	VeBlob() noexcept;
 
@@ -48,7 +48,7 @@ VeSmartPointer(VeBlob);
 class VE_POWER_API VeMemoryOStream
 	: public VeBinaryOStream, public VeBinaryIStream
 {
-	VE_NO_COPY(VeMemoryOStream);
+	VeNoCopy(VeMemoryOStream);
 	VeRTTIDecl(VeMemoryOStream, VeBinaryOStream, VeBinaryIStream);
 public:
 	VeMemoryOStream(VeSizeT stSize = 64) noexcept;
@@ -102,7 +102,7 @@ VeSmartPointer(VeMemoryOStream);
 
 class VE_POWER_API VeMemoryIStream : public VeBinaryIStream
 {
-	VE_NO_COPY(VeMemoryIStream);
+	VeNoCopy(VeMemoryIStream);
 	VeRTTIDecl(VeMemoryIStream, VeBinaryIStream);
 public:
 	VeMemoryIStream(const VeBlobPtr& spBlob) noexcept;

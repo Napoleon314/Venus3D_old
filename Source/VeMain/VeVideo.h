@@ -64,7 +64,7 @@ enum VeWindowEventID
 
 class VE_MAIN_API VeVideoDevice : public VeRefObject
 {
-	VE_NO_COPY(VeVideoDevice);
+	VeNoCopy(VeVideoDevice);
 public:
 	inline const VeChar8* GetDriverName() const noexcept;
 

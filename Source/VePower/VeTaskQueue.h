@@ -16,7 +16,7 @@
 
 class VE_POWER_API VeTaskQueue : public VeThread
 {
-	VE_NO_COPY(VeTaskQueue);
+	VeNoCopy(VeTaskQueue);
 public:
 	typedef std::function<void(VeTaskQueue&)> DoTask;
 

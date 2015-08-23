@@ -18,7 +18,7 @@ VeSmartPointer(VeRenderer);
 
 class VE_MAIN_API VeEngine : public VeSingleton<VeEngine>
 {
-	VE_NO_COPY(VeEngine);
+	VeNoCopy(VeEngine);
 public:
 	VeEngine() noexcept;
 

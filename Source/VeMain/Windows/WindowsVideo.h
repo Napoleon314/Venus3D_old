@@ -50,7 +50,7 @@ struct VeWindowData : public VeRefObject
 
 class WindowsVideoDevice : public VeVideoDevice
 {
-	VE_NO_COPY(WindowsVideoDevice);
+	VeNoCopy(WindowsVideoDevice);
 public:
 	WindowsVideoDevice() noexcept;
 

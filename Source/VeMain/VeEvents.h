@@ -162,7 +162,7 @@ union VeEvent
 
 class VE_MAIN_API VeEventQueue : public VeRefObject
 {
-	VE_NO_COPY(VeEventQueue);
+	VeNoCopy(VeEventQueue);
 public:
 	struct EventEntry
 	{

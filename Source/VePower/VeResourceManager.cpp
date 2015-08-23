@@ -131,3 +131,23 @@ VeBinaryIStreamPtr VeResourceManager::CreateStream(
 	return nullptr;
 }
 //--------------------------------------------------------------------------
+VeResourceGroupPtr VeResourceManager::GetGroup(const VeChar8* pcName,
+	bool bCreate) noexcept
+{
+	auto iter = m_kGroupMap.find(pcName);
+	if (iter != m_kGroupMap.end())
+	{
+		return iter->second;
+	}
+	else if (bCreate)
+	{
+		VeResourceGroupPtr spGroup = VE_NEW VeResourceGroup(pcName);
+		m_kGroupMap[pcName] = spGroup;
+		return spGroup;
+	}
+	else
+	{
+		return nullptr;
+	}
+}
+//--------------------------------------------------------------------------

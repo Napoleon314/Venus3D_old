@@ -16,7 +16,7 @@
 
 class VeRenderWindowD3D12 : public VeRenderWindow
 {
-	VE_NO_COPY(VeRenderWindowD3D12);
+	VeNoCopy(VeRenderWindowD3D12);
 	VeRTTIDecl(VeRenderWindowD3D12, VeRenderWindow);
 public:
 	VeRenderWindowD3D12() noexcept;

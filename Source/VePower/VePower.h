@@ -251,7 +251,7 @@ typedef double VeFloat64;
 #	define VE_ASSERT_NOT_EQ(exp,val) (exp)
 #endif
 
-#define VE_NO_COPY(cls) \
+#define VeNoCopy(cls) \
 	cls(const cls&) = delete;\
 	cls& operator= (const cls&) = delete
 

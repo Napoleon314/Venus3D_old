@@ -16,7 +16,7 @@
 
 class VE_POWER_API VeRefObject : public VeMemObject
 {
-	VE_NO_COPY(VeRefObject);
+	VeNoCopy(VeRefObject);
 public:
 	VeRefObject() noexcept;
 

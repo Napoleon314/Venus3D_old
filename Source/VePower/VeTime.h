@@ -16,7 +16,7 @@
 
 class VE_POWER_API VeTime : public VeRefObject
 {
-	VE_NO_COPY(VeTime);
+	VeNoCopy(VeTime);
 public:
 	VeTime() noexcept;
 

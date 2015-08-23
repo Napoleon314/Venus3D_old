@@ -28,7 +28,7 @@ class VeBinaryIStream;
 
 class VE_POWER_API VeBinaryOStream : virtual public VeRefObject
 {
-	VE_NO_COPY(VeBinaryOStream);
+	VeNoCopy(VeBinaryOStream);
 	VeRTTIDecl(VeBinaryOStream);
 public:
 	VeBinaryOStream() noexcept;
@@ -66,7 +66,7 @@ VeSmartPointer(VeBinaryOStream);
 
 class VE_POWER_API VeBinaryIStream : virtual public VeRefObject
 {
-	VE_NO_COPY(VeBinaryIStream);
+	VeNoCopy(VeBinaryIStream);
 	VeRTTIDecl(VeBinaryIStream);
 public:
 	VeBinaryIStream() noexcept;

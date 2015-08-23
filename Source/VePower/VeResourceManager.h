@@ -16,7 +16,7 @@
 
 class VE_POWER_API VeResourceManager : public VeRefObject
 {
-	VE_NO_COPY(VeResourceManager);
+	VeNoCopy(VeResourceManager);
 public:
 	enum Task
 	{
@@ -79,12 +79,15 @@ public:
 
 	VeBinaryIStreamPtr CreateStream(const VeChar8* pcPath) noexcept;
 
+	VeResourceGroupPtr GetGroup(const VeChar8* pcName, bool bCreate = true) noexcept;
+
 protected:
 	VeTaskQueue m_akTaskQueues[TASK_NUM];
 	DirCreator m_kDefaultDirCreator;
 	VeStringMap<DirCreator> m_kDirCreatorMap;
 	StreamCreator m_kDefaultStreamCreator;
 	VeStringMap<StreamCreator> m_kStreamCreatorMap;
+	VeStringMap<VeResourceGroupPtr> m_kGroupMap;
 
 };
 

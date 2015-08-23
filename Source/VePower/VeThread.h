@@ -32,7 +32,7 @@ inline void VeSleep(VeUInt32 u32Millisecond)
 
 class VeSpinLock
 {
-	VE_NO_COPY(VeSpinLock);
+	VeNoCopy(VeSpinLock);
 public:
 	VeSpinLock() noexcept = default;
 
@@ -59,11 +59,11 @@ private:
 
 class VE_POWER_API VeThread : public VeRefObject
 {
-	VE_NO_COPY(VeThread);
+	VeNoCopy(VeThread);
 public:
 	class Event
 	{
-		VE_NO_COPY(Event);
+		VeNoCopy(Event);
 	public:
 		Event() noexcept
 		{
