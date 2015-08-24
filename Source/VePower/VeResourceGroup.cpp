@@ -23,7 +23,7 @@ VeResourceGroup::VeResourceGroup(const VeChar8* pcName) noexcept
 //--------------------------------------------------------------------------
 VeResourceGroup::~VeResourceGroup() noexcept
 {
-
+	Clear();
 }
 //--------------------------------------------------------------------------
 void VeResourceGroup::PushReadDirBack(const VeDirectoryPtr& spDir) noexcept
@@ -58,5 +58,17 @@ void VeResourceGroup::Clear() noexcept
 {
 	m_kReadDirList.clear();
 	m_spWriteDir = nullptr;
+}
+//--------------------------------------------------------------------------
+VeDirectoryPtr VeResourceGroup::GetDir(const VeChar8* pcFileName) noexcept
+{
+	for (auto dir : m_kReadDirList)
+	{
+		if (dir->HasFile(pcFileName))
+		{
+			return dir;
+		}
+	}
+	return nullptr;
 }
 //--------------------------------------------------------------------------

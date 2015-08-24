@@ -43,6 +43,8 @@ public:
 	void SetWriteDirectory(const VeDirectoryPtr& spDir) noexcept;
 
 	void Clear() noexcept;
+
+	VeDirectoryPtr GetDir(const VeChar8* pcFileName) noexcept;
 	
 protected:
 	const VeFixedString m_kName;

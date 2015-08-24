@@ -19,3 +19,14 @@ inline VeTaskQueue& VeResourceManager::GetTaskQueue(Task eTask) noexcept
 	return m_akTaskQueues[eTask];
 }
 //--------------------------------------------------------------------------
+inline void VeResourceManager::SetFileFreeTime(
+	VeUInt32 u32TimeUInt) noexcept
+{
+	m_u32FileCacheFreeTime = u32TimeUInt;
+}
+//--------------------------------------------------------------------------
+inline VeUInt32 VeResourceManager::GetFileFreeTime() noexcept
+{
+	return m_u32FileCacheFreeTime;
+}
+//--------------------------------------------------------------------------

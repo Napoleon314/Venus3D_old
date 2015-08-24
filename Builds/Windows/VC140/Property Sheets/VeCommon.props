@@ -10,6 +10,7 @@
     <ClCompile>
       <PreprocessorDefinitions>VE_PLATFORM_WIN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <AdditionalIncludeDirectories>$(VENUS3D_PATH)\Externals;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup />

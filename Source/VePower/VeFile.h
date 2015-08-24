@@ -84,6 +84,7 @@ VeSmartPointer(VeFileIStream);
 
 class VE_POWER_API VeFileOStream : public VeBinaryOStream
 {
+	VeNoCopy(VeFileOStream);
 	VeRTTIDecl(VeFileOStream, VeBinaryOStream);
 public:
 	VeFileOStream(const VeChar8* pcFileName,VeSizeT stCache = 32768,
@@ -118,37 +119,37 @@ VeSmartPointer(VeFileOStream);
 
 class VE_POWER_API VeFilePath : public VeDirectory
 {
+	VeNoCopy(VeFilePath);
 	VeRTTIDecl(VeFilePath, VeDirectory);
 public:
 	class VE_POWER_API ReadTask : public VeRefObject
 	{
+		VeNoCopy(ReadTask);
 	public:
 		ReadTask(const VeChar8* pcFullPath,
-			VeRefNode<ReadCallback>& kCallback) noexcept;
+			ReadCallback kCallback) noexcept;
 
 	protected:
-		VeFixedString m_kFullPath;
 		VeRefNode<VeRefObject*> m_kNode;
-		VeRefList<ReadCallback> m_kCallback;
-		VeRefNode<VeTaskQueue::DoTask> m_kTask;
+		VeFixedString m_kFullPath;		
+		ReadCallback m_kCallback;
 		VeMemoryIStreamPtr m_spData;
 
 	};
 
 	class VE_POWER_API WriteTask : public VeRefObject
 	{
+		VeNoCopy(WriteTask);
 	public:
 		WriteTask(const VeChar8* pcFullPath,
 			const VeMemoryOStreamPtr& spContent,
-			VeRefNode<WriteCallback>& kCallback,
-			bool bAppend) noexcept;
+			WriteCallback kCallback, bool bAppend) noexcept;
 
 	protected:
-		VeFixedString m_kFullPath;
-		VeMemoryOStreamPtr m_spData;
 		VeRefNode<VeRefObject*> m_kNode;
-		VeRefList<WriteCallback> m_kCallback;
-		VeRefNode<VeTaskQueue::DoTask> m_kTask;
+		VeFixedString m_kFullPath;
+		VeMemoryOStreamPtr m_spData;		
+		WriteCallback m_kCallback;
 		VeResult m_eResult;
 
 	};
@@ -165,32 +166,31 @@ public:
 
 	static inline const VeChar8* GetTypeName() noexcept;
 
-	virtual const VeChar8* GetType() noexcept;
+	virtual const VeChar8* GetType() noexcept override;
 
-	virtual const VeChar8* GetName() noexcept;
+	virtual const VeChar8* GetName() noexcept override;
 
-	virtual bool Access(VeUInt32 u32Flag) const noexcept;
+	virtual bool Access(VeUInt32 u32Flag) const noexcept override;
 
-	virtual bool HasFile(const VeChar8* pcFile) const noexcept;
+	virtual bool HasFile(const VeChar8* pcFile) const noexcept override;
 
-	virtual bool HasSubDir(const VeChar8* pcDir) const noexcept;
+	virtual bool HasSubDir(const VeChar8* pcDir) const noexcept override;
 
 	virtual void FindFileList(const VeChar8* pcDesc,
-		VeVector<VeFixedString>& kOut) const noexcept;
+		VeVector<VeFixedString>& kOut) const noexcept override;
 
 	virtual VeDirectoryPtr Open(const VeChar8* pcPath,
-		bool bTryCreate = true) const noexcept;
+		bool bTryCreate = true) const noexcept override;
 
 	virtual VeBinaryIStreamPtr OpenSync(
-		const VeChar8* pcFile) const noexcept;
+		const VeChar8* pcFile) const noexcept override;
 
 	virtual void ReadAsync(const VeChar8* pcFile,
-		VeRefNode<ReadCallback>& kCallback) const noexcept;
+		ReadCallback kCallback) const noexcept override;
 
 	virtual void WriteAsync(const VeChar8* pcFile,
-		const VeMemoryOStreamPtr& spContent,
-		VeRefNode<WriteCallback>& kCallback,
-		bool bAppend = false) const noexcept;
+		const VeMemoryOStreamPtr& spContent, WriteCallback kCallback,
+		bool bAppend = false) const noexcept override;
 
 	static bool TestPath(const VeChar8* pcPath, PathInfo& kOutput) noexcept;
 

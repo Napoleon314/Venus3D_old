@@ -325,7 +325,8 @@ const VeChar8* VeFilePath::GetName() noexcept
 //--------------------------------------------------------------------------
 bool VeFilePath::Access(VeUInt32 u32Flag) const noexcept
 {
-	return VE_SUCCEEDED(VeAccess(m_kPath, u32Flag));
+	const VeChar8* pcPath = m_kPath.GetLength() ? (const VeChar8*)m_kPath : ".";
+	return VE_SUCCEEDED(VeAccess(pcPath, u32Flag));
 }
 //--------------------------------------------------------------------------
 #define PATH_CAT(buf,c,n)									\
@@ -435,7 +436,7 @@ VeBinaryIStreamPtr VeFilePath::OpenSync(
 }
 //--------------------------------------------------------------------------
 void VeFilePath::ReadAsync(const VeChar8* pcFile,
-	VeRefNode<ReadCallback>& kCallback) const noexcept
+	ReadCallback kCallback) const noexcept
 {
 	VeChar8 acBuffer[VE_MAX_PATH_LEN];
 	PATH_CAT(acBuffer, m_kPath, pcFile);
@@ -443,8 +444,7 @@ void VeFilePath::ReadAsync(const VeChar8* pcFile,
 }
 //--------------------------------------------------------------------------
 void VeFilePath::WriteAsync(const VeChar8* pcFile,
-	const VeMemoryOStreamPtr& spContent,
-	VeRefNode<WriteCallback>& kCallback,
+	const VeMemoryOStreamPtr& spContent, WriteCallback kCallback,
 	bool bAppend) const noexcept
 {
 	VeChar8 acBuffer[VE_MAX_PATH_LEN];
@@ -483,7 +483,30 @@ bool VeFilePath::CreatePath(const VeChar8* pcPath) noexcept
 {
 	VeSizeT stLen = VeStrlen(pcPath);
 	VeChar8 acBuffer[VE_MAX_PATH_LEN];
-	VeMemoryCopy(acBuffer, pcPath, stLen + 1);
+	{
+		bool bSingleRelative(true);
+		const VeChar8* pcStart = pcPath;
+		while (*pcStart)
+		{
+			if ((*pcStart) == '/' || (*pcStart) == '\\')
+			{
+				bSingleRelative = false;
+				break;
+			}
+			else
+			{
+				++pcStart;
+			}
+		}
+		if (bSingleRelative)
+		{
+			VeSprintf(acBuffer, "./%s", pcPath);
+		}
+		else
+		{
+			VeMemoryCopy(acBuffer, pcPath, stLen + 1);
+		}
+	}
 	VeChar8* pcTemp = acBuffer;
 	if ((*pcTemp) == '/') ++pcTemp;
 	VeChar8* pcEnd = acBuffer + stLen;
@@ -585,14 +608,15 @@ VeBinaryIStreamPtr VeFilePath::CreateStream(const VeChar8* pcPath) noexcept
 }
 //--------------------------------------------------------------------------
 VeFilePath::ReadTask::ReadTask(const VeChar8* pcFullPath,
-	VeRefNode<ReadCallback>& kCallback) noexcept
+	ReadCallback kCallback) noexcept
 	: m_kFullPath(pcFullPath)
 {
 	IncRefCount();
 	m_kNode.m_Content = this;
 	ve_sys.Collect(m_kNode);
-	m_kCallback.attach_back(kCallback);
-	m_kTask.m_Content = [this](VeTaskQueue& kMgr) noexcept
+	m_kCallback = kCallback;
+	VeTaskQueue& kQueue = ve_res_mgr_ptr->GetTaskQueue(VeResourceManager::TASK_FILE);
+	kQueue.AddBGTask([this](VeTaskQueue& kMgr) noexcept
 	{
 		if (VE_SUCCEEDED(VeAccess(m_kFullPath, ACCESS_R_OK)))
 		{
@@ -616,30 +640,25 @@ VeFilePath::ReadTask::ReadTask(const VeChar8* pcFullPath,
 				}
 			}
 		}
-		m_kTask.m_Content = [this](VeTaskQueue& kMgr) noexcept
+		kMgr.AddFGTask([this](VeTaskQueue& kMgr) noexcept
 		{
-			for (auto call : m_kCallback)
-			{
-				call(m_spData);
-			}
+			m_kCallback(m_spData);
 			DecRefCount();
-		};
-		kMgr.AddFGTask(m_kTask);
-	};
-	ve_res_mgr_ptr->GetTaskQueue(VeResourceManager::TASK_FILE).AddBGTask(m_kTask);
+		});
+	});
 }
 //--------------------------------------------------------------------------
 VeFilePath::WriteTask::WriteTask(const VeChar8* pcFullPath,
-	const VeMemoryOStreamPtr& spContent,
-	VeRefNode<WriteCallback>& kCallback,
+	const VeMemoryOStreamPtr& spContent, WriteCallback kCallback,
 	bool bAppend) noexcept
 	: m_kFullPath(pcFullPath), m_spData(spContent)
 {
 	IncRefCount();
 	m_kNode.m_Content = this;
 	ve_sys.Collect(m_kNode);
-	m_kCallback.attach_back(kCallback);
-	m_kTask.m_Content = [this,bAppend](VeTaskQueue& kMgr) noexcept
+	m_kCallback = kCallback;
+	VeTaskQueue& kQueue = ve_res_mgr_ptr->GetTaskQueue(VeResourceManager::TASK_FILE);
+	kQueue.AddBGTask([this,bAppend](VeTaskQueue& kMgr) noexcept
 	{
 		FILE* pkFile(nullptr);
 		const VeChar8* pcMode = bAppend ? "ab" : "wb";
@@ -667,16 +686,11 @@ VeFilePath::WriteTask::WriteTask(const VeChar8* pcFullPath,
 		{
 			m_eResult = VE_E_FILE_CREATE;
 		}
-		m_kTask.m_Content = [this](VeTaskQueue& kMgr) noexcept
+		kMgr.AddFGTask([this](VeTaskQueue& kMgr) noexcept
 		{
-			for (auto call : m_kCallback)
-			{
-				call(m_eResult);
-			}
+			m_kCallback(m_eResult);
 			DecRefCount();
-		};
-		kMgr.AddFGTask(m_kTask);
-	};
-	ve_res_mgr_ptr->GetTaskQueue(VeResourceManager::TASK_FILE).AddBGTask(m_kTask);
+		});
+	});
 }
 //--------------------------------------------------------------------------

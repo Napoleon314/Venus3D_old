@@ -331,6 +331,7 @@
     <ClInclude Include="..\..\..\..\Source\VePower\VeAsset.h" />
     <ClInclude Include="..\..\..\..\Source\VePower\VeCPUInfo.h" />
     <ClInclude Include="..\..\..\..\Source\VePower\VeFile.h" />
+    <ClInclude Include="..\..\..\..\Source\VePower\VeJSON.h" />
     <ClInclude Include="..\..\..\..\Source\VePower\VeResource.h" />
     <ClInclude Include="..\..\..\..\Source\VePower\VeResourceGroup.h" />
     <ClInclude Include="..\..\..\..\Source\VePower\VeSharedLib.h" />

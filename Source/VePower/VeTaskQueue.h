@@ -28,11 +28,9 @@ public:
 
 	inline bool IsTickOnce() noexcept;
 
-	void AddBGTask(VeRefNode<DoTask>& kTask) noexcept;
+	void AddBGTask(DoTask funcTask) noexcept;
 
-	void AddFGTask(VeRefNode<DoTask>& kTask) noexcept;
-
-	void RemoveTask(VeRefNode<DoTask>& kTask) noexcept;
+	void AddFGTask(DoTask funcTask) noexcept;
 
 	virtual void Run() noexcept override;
 
@@ -43,10 +41,10 @@ public:
 protected:
 	VeSpinLock m_kBGMutex;
 	VeSpinLock m_kFGMutex;
-	VeRefList<DoTask> m_kBGTaskList[2];
-	VeRefList<DoTask> m_kFGTaskList[2];
-	volatile VeUInt32 m_u32ActiveBGTask = 0;
-	volatile VeUInt32 m_u32ActiveFGTask = 0;
+	VeList<DoTask> m_kBGTaskList[2];
+	VeList<DoTask> m_kFGTaskList[2];
+	VeUInt32 m_u32ActiveBGTask = 0;
+	VeUInt32 m_u32ActiveFGTask = 0;
 	bool m_bTickOnce = false;
 
 };

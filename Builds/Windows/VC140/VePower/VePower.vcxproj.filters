@@ -15,6 +15,9 @@
     <Filter Include="Resource">
       <UniqueIdentifier>{53e8e918-7dfc-4be0-8fa3-70fd1ef66fc5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Parser">
+      <UniqueIdentifier>{1db9cbf3-703c-4347-b401-3d81eacd73c3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\Source\VePower\VePowerPch.cpp">
@@ -165,6 +168,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\Source\VePower\VeResource.h">
       <Filter>Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\VePower\VeJSON.h">
+      <Filter>Parser</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

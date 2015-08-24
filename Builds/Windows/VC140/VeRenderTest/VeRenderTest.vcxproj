@@ -38,7 +38,7 @@
     <ProjectGuid>{73014E62-45F3-4390-8619-A39552047793}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>VeRenderTest</RootNamespace>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.10240.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
