@@ -153,6 +153,40 @@ VeBinaryIStreamPtr VeResourceManager::CreateStream(
 	return nullptr;
 }
 //--------------------------------------------------------------------------
+void VeResourceManager::RegistFileCreator(const VeChar8* pcExt,
+	FileCreator kCreator) noexcept
+{
+	m_kFileCreatorMap[pcExt] = kCreator;
+}
+//--------------------------------------------------------------------------
+void VeResourceManager::RegistFileCreator(
+	std::initializer_list<const VeChar8*> kExtList,
+	FileCreator kCreator) noexcept
+{
+	for (auto ext : kExtList)
+	{
+		RegistFileCreator(ext, kCreator);
+	}
+}
+//--------------------------------------------------------------------------
+void VeResourceManager::UnregistFileCreator(const VeChar8* pcExt) noexcept
+{
+	auto it = m_kFileCreatorMap.find(pcExt);
+	if (it != m_kFileCreatorMap.end())
+	{
+		m_kFileCreatorMap.erase(it);
+	}
+}
+//--------------------------------------------------------------------------
+void VeResourceManager::UnregistFileCreator(
+	std::initializer_list<const VeChar8*> kExtList) noexcept
+{
+	for (auto ext : kExtList)
+	{
+		UnregistFileCreator(ext);
+	}
+}
+//--------------------------------------------------------------------------
 void VeResourceManager::SetupGroupFromJSON(const VeChar8* pcText) noexcept
 {
 	VeJSONDoc kDoc;
@@ -233,6 +267,11 @@ void VeResourceManager::SetDefaultGroup(
 	m_spDefaultGroup = spGroup;
 }
 //--------------------------------------------------------------------------
+void VeResourceManager::ParseJSON(FileCachePtr spCache) noexcept
+{
+
+}
+//--------------------------------------------------------------------------
 void VeResourceManager::CacheFile(const VeChar8* pcPath,
 	FileCallback kCallback) noexcept
 {
@@ -281,7 +320,7 @@ VeResourceManager::FileCache::FileCache(VeResourceManager* pkParent,
 	m_kFullPath = pcPath;
 	m_kFileName = pcName;
 	m_spGroup = spGroup;
-	VeTaskQueue& kQueue = ve_res_mgr_ptr->GetTaskQueue(VeResourceManager::TASK_PROCESS);
+	VeTaskQueue& kQueue = ve_res_mgr_ptr->GetTaskQueue(VeResourceManager::TASK_QUERY);
 	kQueue.AddBGTask([this](VeTaskQueue& kMgr) noexcept
 	{
 		m_spDir = m_spGroup->GetDir(m_kFileName);

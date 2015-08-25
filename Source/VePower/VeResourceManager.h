@@ -20,7 +20,7 @@ class VE_POWER_API VeResourceManager : public VeRefObject
 public:
 	enum Task
 	{
-		TASK_,
+		TASK_QUERY,
 		TASK_FILE,
 		TASK_PROCESS,
 		TASK_NUM
@@ -36,7 +36,7 @@ public:
 	typedef VePointer<FileCache> FileCachePtr;
 
 	typedef std::function<void(FileCachePtr)> FileCallback;
-
+	typedef FileCallback FileCreator;
 
 	class VE_POWER_API FileCache : public VeRefObject
 	{
@@ -45,6 +45,12 @@ public:
 			const VeChar8* pcName, VeResourceGroupPtr& spGroup) noexcept;
 
 		virtual ~FileCache() noexcept;
+
+		inline const VeChar8* GetFileName() const noexcept;
+
+		inline const VeChar8* GetGroupName() const noexcept;
+
+		inline const VeMemoryIStreamPtr& GetData() noexcept;
 
 		void Enter() noexcept;
 
@@ -117,6 +123,14 @@ public:
 
 	VeBinaryIStreamPtr CreateStream(const VeChar8* pcPath) noexcept;
 
+	void RegistFileCreator(const VeChar8* pcExt, FileCreator kCreator) noexcept;
+
+	void RegistFileCreator(std::initializer_list<const VeChar8*> kExtList, FileCreator kCreator) noexcept;
+
+	void UnregistFileCreator(const VeChar8* pcExt) noexcept;
+
+	void UnregistFileCreator(std::initializer_list<const VeChar8*> kExtList) noexcept;
+
 	void SetupGroupFromJSON(const VeChar8* pcText) noexcept;
 
 	void SetupGroup(const VeJSONValue& kObj) noexcept;
@@ -125,15 +139,19 @@ public:
 
 	void SetDefaultGroup(const VeResourceGroupPtr& spGroup) noexcept;
 
+	void ParseJSON(FileCachePtr spCache) noexcept;
+
 	void CacheFile(const VeChar8* pcPath, FileCallback kCallback) noexcept;
+
 protected:
 	VeTaskQueue m_akTaskQueues[TASK_NUM];
 	DirCreator m_kDefaultDirCreator;
 	VeStringMap<DirCreator> m_kDirCreatorMap;
 	StreamCreator m_kDefaultStreamCreator;
 	VeStringMap<StreamCreator> m_kStreamCreatorMap;
+	VeStringMap<FileCreator> m_kFileCreatorMap;
 	VeStringMap<VeResourceGroupPtr> m_kGroupMap;
-	VeResourceGroupPtr m_spDefaultGroup;
+	VeResourceGroupPtr m_spDefaultGroup;	
 	VeRefList<FileCache*> m_kLoadingFileList;
 	VeRefList<FileCache*> m_kUsingFileList;
 	VeRefList<FileCache*> m_kFreeFileList;

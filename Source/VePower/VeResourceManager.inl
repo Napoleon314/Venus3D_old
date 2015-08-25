@@ -30,3 +30,18 @@ inline VeUInt32 VeResourceManager::GetFileFreeTime() noexcept
 	return m_u32FileCacheFreeTime;
 }
 //--------------------------------------------------------------------------
+inline const VeChar8* VeResourceManager::FileCache::GetFileName() const noexcept
+{
+	return m_kFileName;
+}
+//--------------------------------------------------------------------------
+inline const VeChar8* VeResourceManager::FileCache::GetGroupName() const noexcept
+{
+	return m_spGroup ? m_spGroup->GetName() : "";
+}
+//--------------------------------------------------------------------------
+inline const VeMemoryIStreamPtr& VeResourceManager::FileCache::GetData() noexcept
+{
+	return m_spData;
+}
+//--------------------------------------------------------------------------

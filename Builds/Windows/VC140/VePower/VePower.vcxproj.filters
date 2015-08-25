@@ -86,6 +86,9 @@
     <ClCompile Include="..\..\..\..\Source\VePower\VeResource.cpp">
       <Filter>Resource</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\Source\VePower\VeJSON.cpp">
+      <Filter>Parser</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\Source\VePower\VePowerPch.h">

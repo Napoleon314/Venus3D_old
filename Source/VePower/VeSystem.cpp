@@ -150,10 +150,16 @@ void VeSystem::InitResMgr() noexcept
 #	else
 	m_spResourceMgr->RegistDirectory<VeFilePath>(true);
 #	endif
+	m_spResourceMgr->RegistFileCreator({ "json", "plist" },
+		[this](VeResourceManager::FileCachePtr spCache) noexcept
+	{
+		m_spResourceMgr->ParseJSON(spCache);
+	});
 }
 //--------------------------------------------------------------------------
 void VeSystem::TermResMgr() noexcept
 {
+	m_spResourceMgr->UnregistFileCreator({ "json", "plist" });
 	VE_ASSERT(m_spResourceMgr);
 	m_spResourceMgr->SetDefaultDirCreator(nullptr);
 	m_spResourceMgr->SetDefaultStreamCreator(nullptr);
