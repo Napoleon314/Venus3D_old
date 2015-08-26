@@ -32,11 +32,22 @@ public:
 
 	inline API GetAPI() const noexcept;
 
+	void RegistResTypes() noexcept;
+
+	void UnregistResTypes() noexcept;
+
 	virtual bool Init() noexcept = 0;
 
 	virtual void Term() noexcept = 0;
 
 	virtual VeRenderWindowPtr CreateRenderWindow(const VeWindowPtr& spWindow) noexcept = 0;
+
+	virtual bool IsShaderTargetSupported(const VeChar8* pcTarget) noexcept = 0;
+
+	virtual VeShader::Type GetShaderType(const VeChar8* pcTarget) noexcept = 0;
+
+	virtual VeBlobPtr CompileShader(const VeChar8* pcName, const VeChar8* pcTarget,		
+		VeJSONValue& kConfig, const VeResourceManager::FileCachePtr& spCache) noexcept = 0;
 
 protected:
 	VeRenderer(API eType) noexcept;

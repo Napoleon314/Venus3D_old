@@ -70,6 +70,6 @@ protected:
 #define ve_video_ptr ve_engine.GetVideoDevice()
 #define ve_keyboard_ptr ve_engine.GetKeyboard()
 #define ve_mouse_ptr ve_engine.GetMouse()
-#define ve_renderer_ptr ve_engine->GetRenderer()
+#define ve_renderer_ptr ve_engine.GetRenderer()
 
 #include "VeEngine.inl"

@@ -17,15 +17,6 @@
 #	include<vld.h>
 #endif
 
-void Callback(VeResourceManager::FileCachePtr spFile) noexcept
-{
-	if (spFile)
-	{
-		spFile->Enter();
-		spFile->Leave();
-	}
-}
-
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
 	VE_NEW VeStringTable();
@@ -35,9 +26,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 	ve_sys.Init();
 	ve_engine.Init();
 
-	ve_res_mgr_ptr->SetupGroupFromJSON("{\"startup\":{\"r\":[\"file#shaders/cache\",\"file#shaders\"],\"w\":\"file#shaders/cache\"}}");
+	ve_res_mgr.SetupGroupFromJSON("{\"startup\":{\"r\":[\"file#shaders/cache\",\"file#shaders\"],\"w\":\"file#shaders/cache\"}}");
 
-	ve_res_mgr_ptr->CacheFile("startup$res.json", Callback);
+	ve_res_mgr.LoadFile("startup$shaders.json");
 
 	VeWindowPtr spWindow1 = VE_NEW VeWindow();
 	spWindow1->Create("Render Test1", 80, VE_WINDOWPOS_CENTERED, 800, 600, 0);

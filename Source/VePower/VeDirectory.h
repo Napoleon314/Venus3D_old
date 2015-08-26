@@ -61,7 +61,8 @@ public:
 		ReadCallback kCallback) const noexcept = 0;
 
 	virtual void WriteAsync(const VeChar8* pcFileName,
-		const VeMemoryOStreamPtr& spContent, WriteCallback kCallback,
+		const VeMemoryOStreamPtr& spContent,
+		WriteCallback kCallback = nullptr,
 		bool bAppend = false) const noexcept = 0;
 
 };

@@ -18,3 +18,5 @@
 
 typedef rapidjson::GenericDocument<rapidjson::UTF8<> > VeJSONDoc;
 typedef rapidjson::GenericValue<rapidjson::UTF8<> > VeJSONValue;
+
+#define VE_JSON_EXT { "json", "plist" }

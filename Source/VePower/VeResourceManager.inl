@@ -30,18 +30,43 @@ inline VeUInt32 VeResourceManager::GetFileFreeTime() noexcept
 	return m_u32FileCacheFreeTime;
 }
 //--------------------------------------------------------------------------
-inline const VeChar8* VeResourceManager::FileCache::GetFileName() const noexcept
+inline const VeChar8*
+VeResourceManager::FileCache::GetFullPath() const noexcept
+{
+	return m_kFullPath;
+}
+//--------------------------------------------------------------------------
+inline const VeChar8*
+VeResourceManager::FileCache::GetFileName() const noexcept
 {
 	return m_kFileName;
 }
 //--------------------------------------------------------------------------
-inline const VeChar8* VeResourceManager::FileCache::GetGroupName() const noexcept
+inline const VeChar8*
+VeResourceManager::FileCache::GetGroupName() const noexcept
 {
 	return m_spGroup ? m_spGroup->GetName() : "";
 }
 //--------------------------------------------------------------------------
-inline const VeMemoryIStreamPtr& VeResourceManager::FileCache::GetData() noexcept
+inline const VeResourceGroupPtr&
+VeResourceManager::FileCache::GetGroup() const noexcept
+{
+	return m_spGroup;
+}
+//--------------------------------------------------------------------------
+inline const VeMemoryIStreamPtr&
+VeResourceManager::FileCache::GetData() noexcept
 {
 	return m_spData;
+}
+//--------------------------------------------------------------------------
+inline const VeChar8* VeResourceManager::JSONCache::GetFullPath() noexcept
+{
+	return m_kFullPath;
+}
+//--------------------------------------------------------------------------
+inline const VeChar8* VeResourceManager::JSONCache::GetGroupName() noexcept
+{
+	return m_kGroup;
 }
 //--------------------------------------------------------------------------

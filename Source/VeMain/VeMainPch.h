@@ -29,5 +29,6 @@
 #include "VeEvents.h"
 #include "VeVideo.h"
 #include "VeEngine.h"
+#include "VeShader.h"
 #include "VeRenderWindow.h"
 #include "VeRenderer.h"

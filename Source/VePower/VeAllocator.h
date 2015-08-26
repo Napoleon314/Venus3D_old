@@ -34,6 +34,7 @@ public:
 
 protected:
 	const VeSizeT m_stSize;
+	VeSpinLock m_kLock;
 	VeByte* m_pbyBuffer = nullptr;
 	VeByte* m_pbyCurrent = nullptr;
 	VeStack<VeSizeT> m_kStack;
@@ -80,6 +81,7 @@ protected:
 	const VeSizeT m_stUnitSize;
 	const VeSizeT m_stUnitPerChunk;
 	const VeSizeT m_stAlign;
+	VeSpinLock m_kLock;
 	Chunk* m_pkChunkHead = nullptr;
 	void* m_pvFreeHead = nullptr;
 #	ifdef VE_MEM_DEBUG

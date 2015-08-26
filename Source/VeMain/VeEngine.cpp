@@ -144,12 +144,17 @@ void VeEngine::InitRenderer() noexcept
 		}
 	}
 #	endif
+	if (m_spRenderer)
+	{
+		m_spRenderer->RegistResTypes();
+	}
 }
 //--------------------------------------------------------------------------
 void VeEngine::TermRenderer() noexcept
 {
 	if (m_spRenderer)
 	{
+		m_spRenderer->UnregistResTypes();
 		m_spRenderer->Term();
 		m_spRenderer = nullptr;
 	}

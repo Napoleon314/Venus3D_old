@@ -38,13 +38,9 @@ inline const VeStackAllocatorPtr& VeSystem::GetStackAllocator() noexcept
 	return m_spMainStack;
 }
 //--------------------------------------------------------------------------
-inline const VeTimePtr& VeSystem::GetTime() noexcept
+inline VeTime& VeSystem::GetTime() noexcept
 {
-	return m_spTime;
-}
-//--------------------------------------------------------------------------
-inline const VeResourceManagerPtr& VeSystem::GetResMgr() noexcept
-{
-	return m_spResourceMgr;
+	VE_ASSERT(m_spTime);
+	return *m_spTime;
 }
 //--------------------------------------------------------------------------

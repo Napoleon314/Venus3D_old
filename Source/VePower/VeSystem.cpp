@@ -77,12 +77,12 @@ VeSystem::VeSystem(Type eType, const VeChar8* pcPakName) noexcept
 {
 	m_spMainStack = VE_NEW VeStackAllocator(VE_STACK_SIZE);
 	m_spTime = VE_NEW VeTime();
-	m_spResourceMgr = VE_NEW VeResourceManager();
+	VeResourceManager::Create();
 }
 //--------------------------------------------------------------------------
 VeSystem::~VeSystem() noexcept
 {
-	m_spResourceMgr = nullptr;
+	VeResourceManager::Destory();
 	m_spTime = nullptr;
 	for (auto obj : m_kObjCollector)
 	{
@@ -117,8 +117,8 @@ void VeSystem::Term() noexcept
 //--------------------------------------------------------------------------
 void VeSystem::Update() noexcept
 {
-	m_spTime->Update();
-	m_spResourceMgr->Update();
+	ve_time.Update();
+	ve_res_mgr.Update();
 }
 //--------------------------------------------------------------------------
 void VeSystem::InitLog() noexcept
@@ -143,31 +143,29 @@ void VeSystem::TermLog() noexcept
 //--------------------------------------------------------------------------
 void VeSystem::InitResMgr() noexcept
 {
-	VE_ASSERT(m_spResourceMgr);
 #	ifdef VE_PLATFORM_ANDROID
-	m_spResourceMgr->RegistDirectory<VeFilePath>();
-	m_spResourceMgr->RegistDirectory<VeAssetPath>(true);
+	ve_res_mgr.RegistDirectory<VeFilePath>();
+	ve_res_mgr.RegistDirectory<VeAssetPath>(true);
 #	else
-	m_spResourceMgr->RegistDirectory<VeFilePath>(true);
+	ve_res_mgr.RegistDirectory<VeFilePath>(true);
 #	endif
-	m_spResourceMgr->RegistFileCreator({ "json", "plist" },
+	ve_res_mgr.RegistFileCreator(VE_JSON_EXT,
 		[this](VeResourceManager::FileCachePtr spCache) noexcept
 	{
-		m_spResourceMgr->ParseJSON(spCache);
+		ve_res_mgr.ParseJSON(spCache);
 	});
 }
 //--------------------------------------------------------------------------
 void VeSystem::TermResMgr() noexcept
 {
-	m_spResourceMgr->UnregistFileCreator({ "json", "plist" });
-	VE_ASSERT(m_spResourceMgr);
-	m_spResourceMgr->SetDefaultDirCreator(nullptr);
-	m_spResourceMgr->SetDefaultStreamCreator(nullptr);
+	ve_res_mgr.UnregistFileCreator(VE_JSON_EXT);
+	ve_res_mgr.SetDefaultDirCreator(nullptr);
+	ve_res_mgr.SetDefaultStreamCreator(nullptr);
 #	ifdef VE_PLATFORM_ANDROID
-	m_spResourceMgr->UnregistDirectory<VeFilePath>();
-	m_spResourceMgr->UnregistDirectory<VeAssetPath>();
+	ve_res_mgr.UnregistDirectory<VeFilePath>();
+	ve_res_mgr.UnregistDirectory<VeAssetPath>();
 #	else
-	m_spResourceMgr->UnregistDirectory<VeFilePath>();
+	ve_res_mgr.UnregistDirectory<VeFilePath>();
 #	endif
 }
 //--------------------------------------------------------------------------

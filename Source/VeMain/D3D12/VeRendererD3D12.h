@@ -19,9 +19,11 @@
 #include <wrl.h>
 #include <d3d12.h>
 #include <dxgi1_4.h>
-#include <D3Dcompiler.h>
+#include <d3dcompiler.h>
 
 using namespace Microsoft::WRL;
+
+#define D3D_COMPLIER "d3dcompiler_47"
 
 class VeRendererD3D12 : public VeRenderer
 {
@@ -32,14 +34,23 @@ public:
 
 	virtual ~VeRendererD3D12() noexcept;
 
-	virtual bool Init() noexcept;
+	virtual bool Init() noexcept override;
 
-	virtual void Term() noexcept;
+	virtual void Term() noexcept override;
 
-	virtual VeRenderWindowPtr CreateRenderWindow(const VeWindowPtr& spWindow) noexcept;
+	virtual VeRenderWindowPtr CreateRenderWindow(const VeWindowPtr& spWindow) noexcept override;
 
+	virtual bool IsShaderTargetSupported(const VeChar8* pcTarget) noexcept override;
+
+	virtual VeShader::Type GetShaderType(const VeChar8* pcTarget) noexcept override;
+
+	virtual VeBlobPtr CompileShader(const VeChar8* pcName, const VeChar8* pcTarget,
+		VeJSONValue& kConfig, const VeResourceManager::FileCachePtr& spCache) noexcept override;
+
+protected:
 	VeSharedLibPtr m_spD3D12;
 	VeSharedLibPtr m_spDXGI;
+	VeSharedLibPtr m_spD3DCompiler;
 	ComPtr<ID3D12Device> m_cpDevice;
 
 	HRESULT (WINAPI* D3D12GetDebugInterface)(
@@ -52,6 +63,12 @@ public:
 
 	HRESULT(WINAPI* CreateDXGIFactory1)(
 		REFIID riid, _COM_Outptr_ void **ppFactory) = nullptr;
+
+	HRESULT(WINAPI *D3DCompile)(
+		LPCVOID pSrcData, SIZE_T SrcDataSize, LPCSTR pFileName,
+		CONST D3D_SHADER_MACRO* pDefines, ID3DInclude* pInclude,
+		LPCSTR pEntrypoint, LPCSTR pTarget, UINT Flags1, UINT Flags2,
+		ID3DBlob** ppCode, ID3DBlob** ppErrorMsgs) = nullptr;
 
 };
 

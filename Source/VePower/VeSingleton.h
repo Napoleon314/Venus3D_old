@@ -30,6 +30,17 @@ public:
 		ms_pSingleton = nullptr;
 	}
 
+	static bool IsAvailable() noexcept
+	{
+		return ms_pSingleton ? true : false;
+	}
+
+	template<class... _Types>
+	static void Create(_Types... pak) noexcept
+	{
+		VE_NEW T(pak...);
+	}
+
 	static void Destory() noexcept
 	{
 		VE_SAFE_DELETE(ms_pSingleton);

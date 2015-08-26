@@ -28,3 +28,13 @@ VeRenderer::~VeRenderer() noexcept
 
 }
 //--------------------------------------------------------------------------
+void VeRenderer::RegistResTypes() noexcept
+{
+	VeShader::Regist();
+}
+//--------------------------------------------------------------------------
+void VeRenderer::UnregistResTypes() noexcept
+{
+	VeShader::Unregist();
+}
+//--------------------------------------------------------------------------

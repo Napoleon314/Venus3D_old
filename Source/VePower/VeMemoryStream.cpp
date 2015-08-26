@@ -74,6 +74,8 @@ VeMemoryOStream::VeMemoryOStream(VeSizeT stSize) noexcept
 VeMemoryOStream::VeMemoryOStream(const VeBlobPtr& spBlob) noexcept
 {
 	m_spBlob = spBlob;
+	m_stCurr = spBlob->GetSize();
+	m_stRead = 0;
 }
 //--------------------------------------------------------------------------
 VeMemoryOStream::VeMemoryOStream(VeMemoryOStream&& kMove) noexcept

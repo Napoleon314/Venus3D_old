@@ -615,7 +615,7 @@ VeFilePath::ReadTask::ReadTask(const VeChar8* pcFullPath,
 	m_kNode.m_Content = this;
 	ve_sys.Collect(m_kNode);
 	m_kCallback = kCallback;
-	VeTaskQueue& kQueue = ve_res_mgr_ptr->GetTaskQueue(VeResourceManager::TASK_FILE);
+	VeTaskQueue& kQueue = ve_res_mgr.GetTaskQueue(VeResourceManager::TASK_FILE);
 	kQueue.AddBGTask([this](VeTaskQueue& kMgr) noexcept
 	{
 		if (VE_SUCCEEDED(VeAccess(m_kFullPath, ACCESS_R_OK)))
@@ -657,7 +657,7 @@ VeFilePath::WriteTask::WriteTask(const VeChar8* pcFullPath,
 	m_kNode.m_Content = this;
 	ve_sys.Collect(m_kNode);
 	m_kCallback = kCallback;
-	VeTaskQueue& kQueue = ve_res_mgr_ptr->GetTaskQueue(VeResourceManager::TASK_FILE);
+	VeTaskQueue& kQueue = ve_res_mgr.GetTaskQueue(VeResourceManager::TASK_FILE);
 	kQueue.AddBGTask([this,bAppend](VeTaskQueue& kMgr) noexcept
 	{
 		FILE* pkFile(nullptr);
@@ -688,7 +688,10 @@ VeFilePath::WriteTask::WriteTask(const VeChar8* pcFullPath,
 		}
 		kMgr.AddFGTask([this](VeTaskQueue& kMgr) noexcept
 		{
-			m_kCallback(m_eResult);
+			if (m_kCallback)
+			{
+				m_kCallback(m_eResult);
+			}
 			DecRefCount();
 		});
 	});

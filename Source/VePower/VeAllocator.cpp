@@ -32,7 +32,9 @@ VeStackAllocator::~VeStackAllocator() noexcept
 //--------------------------------------------------------------------------
 void* VeStackAllocator::Allocate(VeSizeT stSizeInBytes) noexcept
 {
+	VE_LOCK_MUTEX(m_kLock);
 	stSizeInBytes = (stSizeInBytes + 0xF) & 0xFFFFFFF0;
+	VE_ASSERT(m_pbyCurrent - m_pbyBuffer <= VePtrDiff(stSizeInBytes));
 	void* pvRes = m_pbyCurrent;
 	m_pbyCurrent += stSizeInBytes;
 	m_kStack.push(stSizeInBytes);
@@ -41,6 +43,7 @@ void* VeStackAllocator::Allocate(VeSizeT stSizeInBytes) noexcept
 //--------------------------------------------------------------------------
 void VeStackAllocator::Deallocate() noexcept
 {
+	VE_LOCK_MUTEX(m_kLock);
 	m_pbyCurrent -= m_kStack.pop();
 }
 //--------------------------------------------------------------------------

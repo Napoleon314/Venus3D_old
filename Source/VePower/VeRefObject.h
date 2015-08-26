@@ -22,9 +22,9 @@ public:
 
 	virtual ~VeRefObject() noexcept;
 
-	virtual void IncRefCount() noexcept;
+	void IncRefCount() noexcept;
 
-	virtual void DecRefCount() noexcept;
+	void DecRefCount() noexcept;
 
 	inline VeUInt32 GetRefCount() const noexcept;
 

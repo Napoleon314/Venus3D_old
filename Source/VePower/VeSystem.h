@@ -16,8 +16,6 @@
 
 #define VE_STACK_SIZE (524288)
 
-VeSmartPointer(VeResourceManager);
-
 class VE_POWER_API VeSystem : public VeSingleton<VeSystem>
 {
 	VeNoCopy(VeSystem);
@@ -47,9 +45,7 @@ public:
 
 	inline const VeStackAllocatorPtr& GetStackAllocator() noexcept;
 
-	inline const VeTimePtr& GetTime() noexcept;
-
-	inline const VeResourceManagerPtr& GetResMgr() noexcept;
+	inline VeTime& GetTime() noexcept;
 
 	const VePoolAllocatorPtr& GetPoolAllocator(VeSizeT stUnitSize) noexcept;
 
@@ -75,7 +71,6 @@ private:
 	VeStackAllocatorPtr m_spMainStack;
 	PoolAllocatorMap m_kAllocatorMap;
 	VeTimePtr m_spTime;
-	VeResourceManagerPtr m_spResourceMgr;
 
 public:
 	VeLog::Pack CORE;
@@ -85,9 +80,8 @@ public:
 
 #define ve_sys VeSystem::GetSingleton()
 #define ve_log ve_sys.GetLog()
-#define ve_time_ptr ve_sys.GetTime()
-#define ve_res_mgr_ptr ve_sys.GetResMgr()
-#define VeStackMalloc(s) (ve_sys.GetStackAllocator()->Allocate(s))
+#define ve_time ve_sys.GetTime()
+#define VeStackMalloc(...) (ve_sys.GetStackAllocator()->Allocate(__VA_ARGS__))
 #define VeStackAlloc(t,s) (t*)(ve_sys.GetStackAllocator()->Allocate(s))
 #define VeStackFree(p) ve_sys.GetStackAllocator()->Deallocate(); p = nullptr
 

@@ -20,6 +20,7 @@ inline VeSizeT VeStackAllocator::Space() noexcept
 //--------------------------------------------------------------------------
 inline VeSizeT VeStackAllocator::RemainSpace() noexcept
 {
+	VE_LOCK_MUTEX(m_kLock);
 	return m_stSize - (m_pbyCurrent - m_pbyBuffer);
 }
 //--------------------------------------------------------------------------
@@ -40,11 +41,13 @@ inline VeSizeT VePoolAllocator::GetAlign() const noexcept
 //--------------------------------------------------------------------------
 inline void* VePoolAllocator::Allocate() noexcept
 {
+	VE_LOCK_MUTEX(m_kLock);
 	return _Allocate();
 }
 //--------------------------------------------------------------------------
 inline void VePoolAllocator::Deallocate(void* pvMemory) noexcept
 {
+	VE_LOCK_MUTEX(m_kLock);
 	return _Deallocate(pvMemory);
 }
 //--------------------------------------------------------------------------
