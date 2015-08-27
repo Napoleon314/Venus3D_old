@@ -29,6 +29,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 	ve_res_mgr.SetupGroupFromJSON("{\"startup\":{\"r\":[\"file#shaders/cache\",\"file#shaders\"],\"w\":\"file#shaders/cache\"}}");
 
 	ve_res_mgr.LoadFile("startup$shaders.json");
+	//VeShaderPtr spShader = ve_res_mgr.Get<VeShader>("test@vs");
+
+	//spShader->Load();
 
 	VeWindowPtr spWindow1 = VE_NEW VeWindow();
 	spWindow1->Create("Render Test1", 80, VE_WINDOWPOS_CENTERED, 800, 600, 0);

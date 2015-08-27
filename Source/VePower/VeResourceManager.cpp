@@ -26,6 +26,16 @@ VeResourceManager::~VeResourceManager() noexcept
 	{
 		Update();
 	}
+	VE_ASSERT(m_kLoadingResList.empty());
+	for (auto it : m_kResourceMap)
+	{
+		it.second->Unload();
+	}
+	while (HasTask())
+	{
+		Update();
+	}
+	m_kResourceMap.clear();
 	VE_ASSERT(m_kLoadingFileList.empty() && m_kUsingFileList.empty());
 	m_kFileCacheMap.clear();
 	VE_ASSERT(m_kFreeFileList.empty());
@@ -409,6 +419,10 @@ void VeResourceManager::CacheFile(const VeChar8* pcPath,
 			spFile = VE_NEW FileCache(pcPath, pcTemp, spGroup);
 			m_kFileCacheMap.insert(std::make_pair(pcPath, spFile));
 		}
+		else
+		{
+			spFile = it->second;
+		}
 	}
 	VE_ASSERT(spFile);
 	if (spFile->m_kNode.is_attach(m_kLoadingFileList))
@@ -467,6 +481,7 @@ VeResourceManager::FileCache::FileCache(const VeChar8* pcPath,
 					m_spData = spData;
 					m_u32FreeTime = ve_time.GetTimeUInt();
 					ve_res_mgr.m_kFreeFileList.attach_back(m_kNode);
+					VeCoreDebugOutput("[\"%s\"] is cached.", m_kFullPath);
 					for (auto call : m_kCallbackList)
 					{
 						call(this);
@@ -490,6 +505,12 @@ VeResourceManager::FileCache::FileCache(const VeChar8* pcPath,
 VeResourceManager::FileCache::~FileCache() noexcept
 {
 	VE_ASSERT(m_kCallbackList.empty());
+#	ifdef VE_DEBUG
+	if (m_spData)
+	{
+		VeCoreDebugOutput("[\"%s\"] is uncached.", m_kFullPath);
+	}
+#	endif
 }
 //--------------------------------------------------------------------------
 void VeResourceManager::FileCache::Enter() noexcept
@@ -540,6 +561,7 @@ void VeResourceManager::JSONCache::Create() noexcept
 	m_spFile = nullptr;
 	if (!m_kDoc.HasParseError())
 	{
+		VeCoreDebugOutput("[\"%s\"] is parsed.", m_kFullPath);
 		for (auto it = m_kDoc.MemberBegin(); it != m_kDoc.MemberEnd(); ++it)
 		{
 			auto itCreator = ve_res_mgr.m_kJSONCreatorMap.find(it->name.GetString());

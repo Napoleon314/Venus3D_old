@@ -131,12 +131,19 @@ VeShader::Type VeRendererD3D12::GetShaderType(
 	}
 }
 //--------------------------------------------------------------------------
-VeBlobPtr VeRendererD3D12::CompileShader(const VeChar8* pcName,
-	const VeChar8* pcTarget, VeJSONValue& kConfig,
+VeBlobPtr VeRendererD3D12::CompileShader(
+	const VeChar8* pcName, const VeChar8* pcTarget,
+	const VeChar8* pcConfigPath, VeJSONValue& kConfig,
 	const VeResourceManager::FileCachePtr& spCache) noexcept
 {
+	auto e = kConfig.FindMember("e");
+	if (e == kConfig.MemberEnd() || (!e->value.IsString()))
+	{
+		ve_sys.CORE.E.LogFormat("Shader script error in [\"%s\"].", pcConfigPath);
+		return nullptr;
+	}
+	const VeChar8* pcEntry = e->value.GetString();
 	const VeBlobPtr& spHLSL = spCache->GetData()->GetBlob();
-	const VeChar8* pcEntry = kConfig["e"].GetString();
 #	ifdef VE_DEBUG
 	VeUInt32 u32CompileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
 #	else
@@ -153,9 +160,14 @@ VeBlobPtr VeRendererD3D12::CompileShader(const VeChar8* pcName,
 		VeChar8 acBuffer[VE_MAX_PATH_LEN];
 		VeSprintf(acBuffer, "%s.%s", pcName, VeShader::GetTypeName(GetShaderType(pcTarget)));
 		spCache->GetGroup()->GetWriteDir()->WriteAsync(acBuffer, VE_NEW VeMemoryOStream(spBlob));
+		VeCoreDebugOutput("[\"%s\"===>\"%s\"] is successful.", spCache->GetFileName(), acBuffer);
 	}
 	else
 	{
+		if (pkError)
+		{
+			ve_sys.CORE.E.LogFormat((const VeChar8*)pkError->GetBufferPointer());
+		}
 		spBlob = nullptr;
 	}
 	VE_SAFE_RELEASE(pkCode);

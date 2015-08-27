@@ -76,13 +76,11 @@ VeSystem::VeSystem(Type eType, const VeChar8* pcPakName) noexcept
 	, USER(m_kPakName, m_kLog)
 {
 	m_spMainStack = VE_NEW VeStackAllocator(VE_STACK_SIZE);
-	m_spTime = VE_NEW VeTime();
-	VeResourceManager::Create();
+	m_spTime = VE_NEW VeTime();	
 }
 //--------------------------------------------------------------------------
 VeSystem::~VeSystem() noexcept
 {
-	VeResourceManager::Destory();
 	m_spTime = nullptr;
 	for (auto obj : m_kObjCollector)
 	{
@@ -143,6 +141,7 @@ void VeSystem::TermLog() noexcept
 //--------------------------------------------------------------------------
 void VeSystem::InitResMgr() noexcept
 {
+	VeResourceManager::Create();
 #	ifdef VE_PLATFORM_ANDROID
 	ve_res_mgr.RegistDirectory<VeFilePath>();
 	ve_res_mgr.RegistDirectory<VeAssetPath>(true);
@@ -167,5 +166,6 @@ void VeSystem::TermResMgr() noexcept
 #	else
 	ve_res_mgr.UnregistDirectory<VeFilePath>();
 #	endif
+	VeResourceManager::Destory();
 }
 //--------------------------------------------------------------------------

@@ -46,8 +46,9 @@ public:
 
 	virtual VeShader::Type GetShaderType(const VeChar8* pcTarget) noexcept = 0;
 
-	virtual VeBlobPtr CompileShader(const VeChar8* pcName, const VeChar8* pcTarget,		
-		VeJSONValue& kConfig, const VeResourceManager::FileCachePtr& spCache) noexcept = 0;
+	virtual VeBlobPtr CompileShader(const VeChar8* pcName, const VeChar8* pcTarget,
+		const VeChar8* pcConfigPath, VeJSONValue& kConfig,
+		const VeResourceManager::FileCachePtr& spCache) noexcept = 0;
 
 protected:
 	VeRenderer(API eType) noexcept;

@@ -39,5 +39,5 @@
 #include "VeFile.h"
 #include "VeAsset.h"
 #include "VeResourceGroup.h"
-#include "VeResource.h"
 #include "VeResourceManager.h"
+#include "VeResource.h"

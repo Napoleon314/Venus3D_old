@@ -28,6 +28,11 @@ inline const VeChar8* VeResource::GetGroupName() const noexcept
 	return m_spGroup ? m_spGroup->GetName() : "";
 }
 //--------------------------------------------------------------------------
+inline const VeResourceGroupPtr& VeResource::GetGroup() noexcept
+{
+	return m_spGroup;
+}
+//--------------------------------------------------------------------------
 inline VeResource::State VeResource::GetState() const noexcept
 {
 	return m_eState;

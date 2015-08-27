@@ -14,6 +14,8 @@
 
 #pragma once
 
+VeSmartPointer(VeResource);
+
 class VE_POWER_API VeResourceManager : public VeSingleton<VeResourceManager>
 {
 	VeNoCopy(VeResourceManager);
@@ -209,6 +211,7 @@ public:
 		FileCallback kCallback) noexcept;
 
 protected:
+	friend class VeResource;
 	VeTaskQueue m_akTaskQueues[TASK_NUM];
 	DirCreator m_kDefaultDirCreator;
 	VeStringMap<DirCreator> m_kDirCreatorMap;

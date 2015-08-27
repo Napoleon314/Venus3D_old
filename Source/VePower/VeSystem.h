@@ -86,10 +86,12 @@ public:
 #define VeStackFree(p) ve_sys.GetStackAllocator()->Deallocate(); p = nullptr
 
 #ifdef VE_DEBUG
+#	define VeCoreDebugOutput ve_sys.CORE.D.LogFormat
 #	define VeDebugOutput ve_sys.USER.D.LogFormat
 #	define VeCoreLogD ve_sys.CORE.D.Log
 #	define VeUserLogD ve_sys.USER.D.Log
 #else
+#	define VeCoreDebugOutput(...)
 #	define VeDebugOutput(...)
 #	define VeCoreLogD(...)
 #	define VeUserLogD(...)

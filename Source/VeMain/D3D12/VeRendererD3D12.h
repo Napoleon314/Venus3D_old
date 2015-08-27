@@ -45,7 +45,8 @@ public:
 	virtual VeShader::Type GetShaderType(const VeChar8* pcTarget) noexcept override;
 
 	virtual VeBlobPtr CompileShader(const VeChar8* pcName, const VeChar8* pcTarget,
-		VeJSONValue& kConfig, const VeResourceManager::FileCachePtr& spCache) noexcept override;
+		const VeChar8* pcConfigPath, VeJSONValue& kConfig,
+		const VeResourceManager::FileCachePtr& spCache) noexcept override;
 
 protected:
 	VeSharedLibPtr m_spD3D12;
