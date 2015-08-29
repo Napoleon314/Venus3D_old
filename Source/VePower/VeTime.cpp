@@ -47,12 +47,10 @@ void VeTime::Reset() noexcept
 	VeTimeOfDay(m_u64CurrentCount);
 #endif
 	m_f64InvFrequency = 1.0 / VeFloat64(m_u64Frequency);
-
 	m_u64StartRecordCount = m_u64CurrentCount;
 	m_u64LastRecordCount = m_u64CurrentCount;
 	m_f64Time = 0;
 	m_f64DeltaTime = 0;
-	m_bNeedSkip = true;
 	m_bPaused = false;
 	m_bInvert = false;
 }
@@ -87,16 +85,5 @@ void VeTime::Update() noexcept
 	VeUInt64 u64Elapsed = m_u64CurrentCount - m_u64StartRecordCount;
 	m_f64Time = VeFloat64(u64Elapsed) * m_f64InvFrequency;
 	m_f64DeltaTime = m_f64Time - f64LastTime;
-	if (m_bNeedSkip)
-	{
-		if (m_f64DeltaTime < 0.04)
-		{
-			m_bNeedSkip = false;
-		}
-		else
-		{
-			m_f64DeltaTime = 0.0;
-		}
-	}
 }
 //--------------------------------------------------------------------------

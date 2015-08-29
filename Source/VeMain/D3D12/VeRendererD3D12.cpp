@@ -14,6 +14,7 @@
 
 #include "../VeMainPch.h"
 #include "VeRendererD3D12.h"
+#include "VeRendererWindowD3D12.h"
 
 //--------------------------------------------------------------------------
 #ifdef VE_ENABLE_D3D12
@@ -28,7 +29,7 @@ VeRendererD3D12::VeRendererD3D12() noexcept
 //--------------------------------------------------------------------------
 VeRendererD3D12::~VeRendererD3D12() noexcept
 {
-	
+	VE_ASSERT((!m_pkDXGIFactory) && (!m_pkDefaultAdapter) && (!m_pkDevice));
 }
 //--------------------------------------------------------------------------
 bool VeRendererD3D12::Init() noexcept
@@ -58,17 +59,40 @@ bool VeRendererD3D12::Init() noexcept
 
 #	ifdef VE_DEBUG
 	{
-		ComPtr<ID3D12Debug> cpDebugController;
-		if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&cpDebugController))))
+		ID3D12Debug* pkDebugController(nullptr);
+		if (SUCCEEDED(D3D12GetDebugInterface(__uuidof(ID3D12Debug), (void**)&pkDebugController)))
 		{
-			cpDebugController->EnableDebugLayer();
+			pkDebugController->EnableDebugLayer();
 		}
+		VE_SAFE_RELEASE(pkDebugController);
 	}
 #	endif
 
-	if (VE_FAILED(D3D12CreateDevice(nullptr,
-		D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&m_cpDevice))))
+	if (VE_FAILED(CreateDXGIFactory1(__uuidof(IDXGIFactory1), (void**)&m_pkDXGIFactory)))
 		return false;
+	
+	if(m_pkDXGIFactory->EnumAdapters1(0, &m_pkDefaultAdapter) == DXGI_ERROR_NOT_FOUND)
+		return false;	
+
+	if (VE_FAILED(D3D12CreateDevice(m_pkDefaultAdapter,
+		D3D_FEATURE_LEVEL_11_0, __uuidof(ID3D12Device), (void**)&m_pkDevice)))
+		return false;
+
+	{
+		// Describe and create a render target view (RTV) descriptor heap.
+		D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc = {};
+		rtvHeapDesc.NumDescriptors = FRAME_COUNT;
+		rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+		rtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+
+
+		//ThrowIfFailed(m_device->CreateDescriptorHeap(&rtvHeapDesc, IID_PPV_ARGS(&m_rtvHeap)));
+
+		//m_rtvDescriptorSize = m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+	}
+
+	m_kRTVHeap.Init(m_pkDevice);
+	m_kDSVHeap.Init(m_pkDevice);
 
 	VeCoreLogI("VeRendererD3D12 renderer is created.");
 
@@ -77,7 +101,16 @@ bool VeRendererD3D12::Init() noexcept
 //--------------------------------------------------------------------------
 void VeRendererD3D12::Term() noexcept
 {
-	m_cpDevice = nullptr;
+	for (auto win : m_kRenderWindowList)
+	{
+		win->Term();
+	}
+	VE_ASSERT(m_kRenderWindowList.empty());
+	m_kDSVHeap.Term();
+	m_kRTVHeap.Term();
+	VE_SAFE_RELEASE(m_pkDevice);
+	VE_SAFE_RELEASE(m_pkDefaultAdapter);
+	VE_SAFE_RELEASE(m_pkDXGIFactory);
 	D3D12GetDebugInterface = nullptr;
 	D3D12CreateDevice = nullptr;
 	CreateDXGIFactory1 = nullptr;
@@ -88,7 +121,10 @@ void VeRendererD3D12::Term() noexcept
 VeRenderWindowPtr VeRendererD3D12::CreateRenderWindow(
 	const VeWindowPtr& spWindow) noexcept
 {
-	return nullptr;
+	VeRenderWindowD3D12* pkRenderWindow = VE_NEW VeRenderWindowD3D12(spWindow);
+	VE_ASSERT(pkRenderWindow);
+	pkRenderWindow->Init(*this);
+	return pkRenderWindow;
 }
 //--------------------------------------------------------------------------
 bool VeRendererD3D12::IsShaderTargetSupported(

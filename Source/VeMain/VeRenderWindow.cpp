@@ -17,13 +17,20 @@
 //--------------------------------------------------------------------------
 VeRTTIImpl(VeRenderWindow);
 //--------------------------------------------------------------------------
-VeRenderWindow::VeRenderWindow() noexcept
+VeRenderWindow::VeRenderWindow(const VeWindowPtr& spWindow) noexcept
+	: m_spTargetWindow(spWindow)
 {
 
 }
+
 //--------------------------------------------------------------------------
 VeRenderWindow::~VeRenderWindow() noexcept
 {
 
+}
+//--------------------------------------------------------------------------
+bool VeRenderWindow::IsValid() noexcept
+{
+	return m_spTargetWindow ? m_spTargetWindow->IsValid() : false;
 }
 //--------------------------------------------------------------------------

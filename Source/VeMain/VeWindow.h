@@ -125,6 +125,8 @@ public:
 
 	inline VeUInt32 GetID() const noexcept;
 
+	inline VeUInt32 GetFlags() const noexcept;
+
 	inline const VeChar8* GetTitle() const noexcept;
 
 	inline VeInt32 GetPosX() const noexcept;

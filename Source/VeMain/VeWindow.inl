@@ -23,6 +23,11 @@ inline VeUInt32 VeWindow::GetID() const noexcept
 	return m_kData.m_u32Id;
 }
 //--------------------------------------------------------------------------
+inline VeUInt32 VeWindow::GetFlags() const noexcept
+{
+	return m_kData.m_u32Flags;
+}
+//--------------------------------------------------------------------------
 inline const VeChar8* VeWindow::GetTitle() const noexcept
 {
 	return m_kData.m_kTitle;

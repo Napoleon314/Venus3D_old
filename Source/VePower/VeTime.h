@@ -55,7 +55,6 @@ protected:
 
 	VeFloat64 m_f64Time;
 	VeFloat64 m_f64DeltaTime;
-	bool m_bNeedSkip;
 	bool m_bPaused;
 	bool m_bInvert;
 

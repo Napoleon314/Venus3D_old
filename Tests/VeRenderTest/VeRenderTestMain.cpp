@@ -28,17 +28,18 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
 	ve_res_mgr.SetupGroupFromJSON("{\"startup\":{\"r\":[\"file#shaders/cache\",\"file#shaders\"],\"w\":\"file#shaders/cache\"}}");
 
-	ve_res_mgr.LoadFile("startup$shaders.json");
+	//ve_res_mgr.LoadFile("startup$shaders.json");
 	//VeShaderPtr spShader = ve_res_mgr.Get<VeShader>("test@vs");
 
 	//spShader->Load();
 
 	VeWindowPtr spWindow1 = VE_NEW VeWindow();
 	spWindow1->Create("Render Test1", 80, VE_WINDOWPOS_CENTERED, 800, 600, 0);
+	VeRenderWindowPtr spRenderWindow = ve_renderer_ptr->CreateRenderWindow(spWindow1);
 		
 	VeWindowPtr spWindow2 = VE_NEW VeWindow();
 	spWindow2->Create("Render Test2", 960, VE_WINDOWPOS_CENTERED, 800, 600, 0);
-
+	//VeRenderWindowPtr spRenderWindow2 = ve_renderer_ptr->CreateRenderWindow(spWindow2);
 	//ve_mouse_ptr->SetRelativeMode(true);
 
 	{
@@ -57,11 +58,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 					{
 						if (spWindow1 && pkEvent->m_kWindow.m_u32WindowID == spWindow1->GetID())
 						{
+							spRenderWindow = nullptr;
 							spWindow1->Destory();
 							spWindow1 = nullptr;
 						}
 						if (spWindow2 && pkEvent->m_kWindow.m_u32WindowID == spWindow2->GetID())
 						{
+							//spRenderWindow2 = nullptr;
 							spWindow2->Destory();
 							spWindow2 = nullptr;
 						}
@@ -91,9 +94,33 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 			kEventCache.clear();
 			ve_sys.Update();
 			ve_engine.Update();
-			//VeSleep(1);
+
+			if(spWindow1)
+			{
+				static VeFloat32 s_f32TimeCount(0);
+				static VeUInt32 s_u32FrameCount(0);
+				static VeUInt32 s_u32FPS;
+
+				s_f32TimeCount += ve_time.GetDeltaTime();
+				++s_u32FrameCount;
+
+				if (s_f32TimeCount > 1.0f)
+				{
+					s_u32FPS = s_u32FrameCount;
+					VeChar8 s_acFPS[64];
+					VeSprintf(s_acFPS, "FPS:%d", s_u32FrameCount);
+					spWindow1->SetTitle(s_acFPS);
+					s_f32TimeCount -= VeFloorf(s_f32TimeCount);
+					s_u32FrameCount = 0;
+				}
+			}
+			if (spRenderWindow)
+			{				
+				spRenderWindow->Update();
+			}
+			
 			//VeDebugOutput("Time:%f", ve_time_ptr->GetTime());
-		}
+		}		
 	}
 
 	VE_ASSERT(!(spWindow1 || spWindow2));

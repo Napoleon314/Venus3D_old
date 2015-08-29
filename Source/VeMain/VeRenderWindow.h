@@ -21,11 +21,12 @@ class VE_MAIN_API VeRenderWindow : public VeRefObject
 public:
 	inline const VeWindowPtr& GetTargetWindow() noexcept;
 
-	virtual bool IsValid() noexcept = 0;
+	virtual bool IsValid() noexcept;
 
+	virtual void Update() noexcept = 0;
 
 protected:
-	VeRenderWindow() noexcept;
+	VeRenderWindow(const VeWindowPtr& spWindow) noexcept;
 
 	virtual ~VeRenderWindow() noexcept;
 

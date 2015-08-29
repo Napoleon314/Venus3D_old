@@ -16,12 +16,9 @@
 
 #ifdef VE_ENABLE_D3D12
 
-#include <wrl.h>
 #include <d3d12.h>
 #include <dxgi1_4.h>
 #include <d3dcompiler.h>
-
-using namespace Microsoft::WRL;
 
 #define D3D_COMPLIER "d3dcompiler_47"
 
@@ -30,6 +27,79 @@ class VeRendererD3D12 : public VeRenderer
 	VeNoCopy(VeRendererD3D12);
 	VeRTTIDecl(VeRendererD3D12, VeRenderer);
 public:
+	static constexpr VeUInt32 FRAME_COUNT = 3;
+	static constexpr VeUInt32 RTV_COUNT = 32;
+	static constexpr VeUInt32 DSV_COUNT = 1;
+
+	template <D3D12_DESCRIPTOR_HEAP_TYPE TYPE, VeUInt32 NUM, D3D12_DESCRIPTOR_HEAP_FLAGS FLAGS>
+	class DescriptorHeapShell
+	{
+	public:
+		DescriptorHeapShell() noexcept = default;
+
+		void Init(ID3D12Device* pkDevice) noexcept
+		{
+			D3D12_DESCRIPTOR_HEAP_DESC kHeapDesc =
+			{
+				TYPE, NUM, FLAGS, 0
+			};
+			VE_ASSERT_EQ(pkDevice->CreateDescriptorHeap(
+				&kHeapDesc, __uuidof(ID3D12DescriptorHeap), (void**)&m_pkHeap), S_OK);
+			VE_ASSERT(m_pkHeap);
+			m_kRoot = m_pkHeap->GetCPUDescriptorHandleForHeapStart();
+			m_u32DescIncSize = pkDevice->GetDescriptorHandleIncrementSize(TYPE);
+		}
+
+		void Term() noexcept
+		{
+			VE_SAFE_RELEASE(m_pkHeap);
+			m_kFreeIndexList.clear();
+		}
+
+		D3D12_CPU_DESCRIPTOR_HANDLE Alloc() noexcept
+		{
+			D3D12_CPU_DESCRIPTOR_HANDLE kRes;			
+			if(m_kFreeIndexList.size())
+			{
+				kRes.ptr = m_kRoot.ptr + m_kFreeIndexList.back();
+				m_kFreeIndexList.pop_back();
+			}
+			else if (m_u32FreeStart < NUM)
+			{
+				kRes.ptr = m_kRoot.ptr + m_u32FreeStart * m_u32DescIncSize;
+				++m_u32FreeStart;
+			}
+			else
+			{
+				kRes.ptr = 0;
+			}
+			return kRes;
+		}
+
+		void Free(D3D12_CPU_DESCRIPTOR_HANDLE hHandle) noexcept
+		{
+			if (hHandle.ptr >= m_kRoot.ptr)
+			{
+				VeUInt32 u32Delta = (VeUInt32)(hHandle.ptr - m_kRoot.ptr);
+				if ((u32Delta % m_u32DescIncSize == 0)
+					&& (u32Delta / m_u32DescIncSize < NUM))
+				{
+					m_kFreeIndexList.push_back(u32Delta);
+				}
+			}
+	
+		}
+	private:
+		ID3D12DescriptorHeap* m_pkHeap = nullptr;
+		D3D12_CPU_DESCRIPTOR_HANDLE m_kRoot;
+		VeUInt32 m_u32DescIncSize = 0;
+		VeUInt32 m_u32FreeStart = 0;
+		VeVector<VeUInt32> m_kFreeIndexList;
+	};
+
+	typedef DescriptorHeapShell<D3D12_DESCRIPTOR_HEAP_TYPE_RTV, RTV_COUNT, D3D12_DESCRIPTOR_HEAP_FLAG_NONE> RTVHeap;
+	typedef DescriptorHeapShell<D3D12_DESCRIPTOR_HEAP_TYPE_DSV, DSV_COUNT, D3D12_DESCRIPTOR_HEAP_FLAG_NONE> DSVHeap;
+
 	VeRendererD3D12() noexcept;
 
 	virtual ~VeRendererD3D12() noexcept;
@@ -49,10 +119,20 @@ public:
 		const VeResourceManager::FileCachePtr& spCache) noexcept override;
 
 protected:
+	friend class VeRenderWindowD3D12;
+
 	VeSharedLibPtr m_spD3D12;
 	VeSharedLibPtr m_spDXGI;
 	VeSharedLibPtr m_spD3DCompiler;
-	ComPtr<ID3D12Device> m_cpDevice;
+
+	IDXGIFactory1* m_pkDXGIFactory = nullptr;
+	IDXGIAdapter1* m_pkDefaultAdapter = nullptr;
+	ID3D12Device* m_pkDevice = nullptr;
+
+	RTVHeap m_kRTVHeap;
+	DSVHeap m_kDSVHeap;
+
+	VeRefList<VeRenderWindowD3D12*> m_kRenderWindowList;
 
 	HRESULT (WINAPI* D3D12GetDebugInterface)(
 		_In_ REFIID riid, _COM_Outptr_opt_ void** ppvDebug) = nullptr;
