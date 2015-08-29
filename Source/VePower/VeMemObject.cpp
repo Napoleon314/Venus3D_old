@@ -166,7 +166,7 @@ void VeMemA16Object::operator delete [](void* pvMem) noexcept
 //--------------------------------------------------------------------------
 void* VeMemObject::operator new (VeSizeT stSize) noexcept
 {
-	return VeAlignedMalloc(stSize, 16);
+	return VeMalloc(stSize);
 }
 //--------------------------------------------------------------------------
 void* VeMemObject::operator new (VeSizeT stSize, void* pvMemory) noexcept

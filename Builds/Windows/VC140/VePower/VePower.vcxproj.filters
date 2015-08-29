@@ -74,9 +74,6 @@
     <ClCompile Include="..\..\..\..\Source\VePower\VeTime.cpp">
       <Filter>Kernel</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\Source\VePower\VeAsset.cpp">
-      <Filter>Resource</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\Source\VePower\VeCPUInfo.cpp">
       <Filter>Kernel</Filter>
     </ClCompile>
@@ -154,9 +151,6 @@
     <ClInclude Include="..\..\..\..\Source\VePower\VeFile.h">
       <Filter>Resource</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\Source\VePower\VeAsset.h">
-      <Filter>Resource</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\Source\VePower\VeSharedLib.h">
       <Filter>Kernel</Filter>
     </ClInclude>
@@ -174,6 +168,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\Source\VePower\VeJSON.h">
       <Filter>Parser</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\VePower\VeAsset.h">
+      <Filter>Resource</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
