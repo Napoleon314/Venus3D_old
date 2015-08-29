@@ -33,14 +33,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
 	//spShader->Load();
 
-	VeWindowPtr spWindow1 = VE_NEW VeWindow();
-	spWindow1->Create("Render Test1", 80, VE_WINDOWPOS_CENTERED, 800, 600, 0);
-	VeRenderWindowPtr spRenderWindow = ve_renderer_ptr->CreateRenderWindow(spWindow1);
-		
-	VeWindowPtr spWindow2 = VE_NEW VeWindow();
-	spWindow2->Create("Render Test2", 960, VE_WINDOWPOS_CENTERED, 800, 600, 0);
-	//VeRenderWindowPtr spRenderWindow2 = ve_renderer_ptr->CreateRenderWindow(spWindow2);
-	//ve_mouse_ptr->SetRelativeMode(true);
+	VeRenderWindowPtr spRenderWindow = ve_renderer_ptr->CreateRenderWindow(
+		"Render Test", VE_WINDOWPOS_CENTERED, VE_WINDOWPOS_CENTERED, 1280, 800, 0);
 
 	{
 		bool bLoop(true);
@@ -56,17 +50,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 				case VE_WINDOWEVENT:
 					if (pkEvent->m_kWindow.m_u8Event == VE_WINDOWEVENT_CLOSE)
 					{
-						if (spWindow1 && pkEvent->m_kWindow.m_u32WindowID == spWindow1->GetID())
+						if (spRenderWindow && pkEvent->m_kWindow.m_u32WindowID == spRenderWindow->GetID())
 						{
 							spRenderWindow = nullptr;
-							spWindow1->Destory();
-							spWindow1 = nullptr;
-						}
-						if (spWindow2 && pkEvent->m_kWindow.m_u32WindowID == spWindow2->GetID())
-						{
-							//spRenderWindow2 = nullptr;
-							spWindow2->Destory();
-							spWindow2 = nullptr;
 						}
 					}
 					else if (pkEvent->m_kWindow.m_u8Event == VE_WINDOWEVENT_MOVED)
@@ -95,7 +81,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 			ve_sys.Update();
 			ve_engine.Update();
 
-			if(spWindow1)
+			if (spRenderWindow)
 			{
 				static VeFloat32 s_f32TimeCount(0);
 				static VeUInt32 s_u32FrameCount(0);
@@ -109,21 +95,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 					s_u32FPS = s_u32FrameCount;
 					VeChar8 s_acFPS[64];
 					VeSprintf(s_acFPS, "FPS:%d", s_u32FrameCount);
-					spWindow1->SetTitle(s_acFPS);
+					spRenderWindow->SetTitle(s_acFPS);
 					s_f32TimeCount -= VeFloorf(s_f32TimeCount);
 					s_u32FrameCount = 0;
 				}
-			}
-			if (spRenderWindow)
-			{				
 				spRenderWindow->Update();
 			}
-			
-			//VeDebugOutput("Time:%f", ve_time_ptr->GetTime());
 		}		
 	}
 
-	VE_ASSERT(!(spWindow1 || spWindow2));
+	VE_ASSERT(!spRenderWindow);
 
 	ve_engine.Term();
 	ve_sys.Term();

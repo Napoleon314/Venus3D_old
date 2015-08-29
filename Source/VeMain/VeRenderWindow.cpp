@@ -22,11 +22,14 @@ VeRenderWindow::VeRenderWindow(const VeWindowPtr& spWindow) noexcept
 {
 
 }
-
 //--------------------------------------------------------------------------
 VeRenderWindow::~VeRenderWindow() noexcept
 {
-
+	if (m_bNeedDestory)
+	{
+		m_spTargetWindow->Destory();
+	}
+	m_spTargetWindow = nullptr;
 }
 //--------------------------------------------------------------------------
 bool VeRenderWindow::IsValid() noexcept

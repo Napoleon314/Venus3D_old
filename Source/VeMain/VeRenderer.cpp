@@ -38,3 +38,14 @@ void VeRenderer::UnregistResTypes() noexcept
 	VeShader::Unregist();
 }
 //--------------------------------------------------------------------------
+VeRenderWindowPtr VeRenderer::CreateRenderWindow(const VeChar8* pcTitle,
+	VeInt32 x, VeInt32 y, VeInt32 w, VeInt32 h, VeUInt32 u32Flags) noexcept
+{
+	VeWindowPtr spWindow = VE_NEW VeWindow();
+	spWindow->Create(pcTitle, x, y, w, h, u32Flags);
+	VeRenderWindowPtr spRes = CreateRenderWindow(spWindow);
+	spWindow = nullptr;
+	spRes->m_bNeedDestory = true;
+	return spRes;
+}
+//--------------------------------------------------------------------------

@@ -36,6 +36,9 @@ public:
 
 	void UnregistResTypes() noexcept;
 
+	VeRenderWindowPtr CreateRenderWindow(const VeChar8* pcTitle, VeInt32 x, VeInt32 y,
+		VeInt32 w, VeInt32 h, VeUInt32 u32Flags) noexcept;
+
 	virtual bool Init() noexcept = 0;
 
 	virtual void Term() noexcept = 0;
