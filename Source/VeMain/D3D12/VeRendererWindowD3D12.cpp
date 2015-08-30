@@ -82,30 +82,30 @@ void VeRenderWindowD3D12::Init(VeRendererD3D12& kRenderer) noexcept
 		for (VeInt32 i(0); i < VeRendererD3D12::FRAME_COUNT; ++i)
 		{
 			FrameCache& kFrame = m_akFrameCache[i];
-			VE_ASSERT_EQ(m_pkSwapChain->GetBuffer(i, __uuidof(ID3D12Resource),
+			VE_ASSERT_GE(m_pkSwapChain->GetBuffer(i, __uuidof(ID3D12Resource),
 				(void**)&kFrame.m_pkBufferResource), S_OK);
 			kFrame.m_hHandle = kRenderer.m_kRTVHeap.Alloc();
 			kRenderer.m_pkDevice->CreateRenderTargetView(
 				kFrame.m_pkBufferResource, nullptr, kFrame.m_hHandle);
-			VE_ASSERT_EQ(kRenderer.m_pkDevice->CreateCommandAllocator(
+			VE_ASSERT_GE(kRenderer.m_pkDevice->CreateCommandAllocator(
 				D3D12_COMMAND_LIST_TYPE_DIRECT, __uuidof(ID3D12CommandAllocator),
 				(void**)&kFrame.m_pkDirectAllocator), S_OK);
-			VE_ASSERT_EQ(kRenderer.m_pkDevice->CreateCommandList(0,
+			VE_ASSERT_GE(kRenderer.m_pkDevice->CreateCommandList(0,
 				D3D12_COMMAND_LIST_TYPE_DIRECT, kFrame.m_pkDirectAllocator,
 				nullptr, __uuidof(ID3D12GraphicsCommandList),
 				(void**)&kFrame.m_pkDirectList), S_OK);
-			VE_ASSERT_EQ(kFrame.m_pkDirectList->Close(), S_OK);
+			VE_ASSERT_GE(kFrame.m_pkDirectList->Close(), S_OK);
 			kFrame.m_u64FenceValue = 0;
 		}
 
 		m_u64FenceValue = 0;
-		VE_ASSERT_EQ(kRenderer.m_pkDevice->CreateFence(m_u64FenceValue++,
+		VE_ASSERT_GE(kRenderer.m_pkDevice->CreateFence(m_u64FenceValue++,
 			D3D12_FENCE_FLAG_NONE, __uuidof(ID3D12Fence), (void**)&m_pkFence), S_OK);
 		m_kFenceEvent = CreateEventEx(nullptr, FALSE, FALSE, EVENT_ALL_ACCESS);
 		VE_ASSERT(m_kFenceEvent);
 		const VeUInt64 u64FenceToWaitFor = m_u64FenceValue++;
-		VE_ASSERT_EQ(m_pkCommandQueue->Signal(m_pkFence, u64FenceToWaitFor), S_OK);
-		VE_ASSERT_EQ(m_pkFence->SetEventOnCompletion(u64FenceToWaitFor, m_kFenceEvent), S_OK);
+		VE_ASSERT_GE(m_pkCommandQueue->Signal(m_pkFence, u64FenceToWaitFor), S_OK);
+		VE_ASSERT_GE(m_pkFence->SetEventOnCompletion(u64FenceToWaitFor, m_kFenceEvent), S_OK);
 		WaitForSingleObject(m_kFenceEvent, INFINITE);
 
 		kRenderer.m_kRenderWindowList.attach_back(m_kNode);
@@ -120,10 +120,10 @@ void VeRenderWindowD3D12::Term() noexcept
 		&VeRendererD3D12::m_kRenderWindowList, m_kNode.get_list());
 
 	const VeUInt64 u64LastCompleted = m_pkFence->GetCompletedValue();
-	VE_ASSERT_EQ(m_pkCommandQueue->Signal(m_pkFence, m_u64FenceValue), S_OK);
+	VE_ASSERT_GE(m_pkCommandQueue->Signal(m_pkFence, m_u64FenceValue), S_OK);
 	if (u64LastCompleted < m_u64FenceValue)
 	{
-		VE_ASSERT_EQ(m_pkFence->SetEventOnCompletion(m_u64FenceValue, m_kFenceEvent), S_OK);
+		VE_ASSERT_GE(m_pkFence->SetEventOnCompletion(m_u64FenceValue, m_kFenceEvent), S_OK);
 		WaitForSingleObject(m_kFenceEvent, INFINITE);
 	}
 	CloseHandle(m_kFenceEvent);

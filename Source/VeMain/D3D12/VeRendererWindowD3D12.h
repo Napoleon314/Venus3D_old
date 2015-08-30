@@ -33,13 +33,13 @@ public:
 		FrameCache& kFrame = m_akFrameCache[m_u32FrameIndex];
 		if (kFrame.m_u64FenceValue > m_pkFence->GetCompletedValue())
 		{
-			VE_ASSERT_EQ(m_pkFence->SetEventOnCompletion(
+			VE_ASSERT_GE(m_pkFence->SetEventOnCompletion(
 				kFrame.m_u64FenceValue, m_kFenceEvent), S_OK);
 			WaitForSingleObject(m_kFenceEvent, INFINITE);
 		}
 
-		VE_ASSERT_EQ(kFrame.m_pkDirectAllocator->Reset(), S_OK);
-		VE_ASSERT_EQ(kFrame.m_pkDirectList->Reset(
+		VE_ASSERT_GE(kFrame.m_pkDirectAllocator->Reset(), S_OK);
+		VE_ASSERT_GE(kFrame.m_pkDirectList->Reset(
 			kFrame.m_pkDirectAllocator, nullptr), S_OK);
 
 		D3D12_RESOURCE_BARRIER kBarrier;
@@ -60,17 +60,17 @@ public:
 
 		kFrame.m_pkDirectList->ResourceBarrier(1, &kBarrier);
 
-		VE_ASSERT_EQ(kFrame.m_pkDirectList->Close(), S_OK);
+		VE_ASSERT_GE(kFrame.m_pkDirectList->Close(), S_OK);
 
 		ID3D12CommandList* ppCommandLists[] = { kFrame.m_pkDirectList };
 		m_pkCommandQueue->ExecuteCommandLists(1, ppCommandLists);		
 
-		VE_ASSERT_EQ(m_pkSwapChain->Present(0, 0), S_OK);
+		VE_ASSERT_GE(m_pkSwapChain->Present(0, 0), S_OK);
 
 		m_u32FrameIndex = m_pkSwapChain->GetCurrentBackBufferIndex();
 
 		kFrame.m_u64FenceValue = m_u64FenceValue;
-		VE_ASSERT_EQ(m_pkCommandQueue->Signal(m_pkFence, m_u64FenceValue++), S_OK);
+		VE_ASSERT_GE(m_pkCommandQueue->Signal(m_pkFence, m_u64FenceValue++), S_OK);
 	}
 
 protected:

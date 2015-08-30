@@ -78,24 +78,10 @@ bool VeRendererD3D12::Init() noexcept
 		D3D_FEATURE_LEVEL_11_0, __uuidof(ID3D12Device), (void**)&m_pkDevice)))
 		return false;
 
-	{
-		// Describe and create a render target view (RTV) descriptor heap.
-		D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc = {};
-		rtvHeapDesc.NumDescriptors = FRAME_COUNT;
-		rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
-		rtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-
-
-		//ThrowIfFailed(m_device->CreateDescriptorHeap(&rtvHeapDesc, IID_PPV_ARGS(&m_rtvHeap)));
-
-		//m_rtvDescriptorSize = m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-	}
-
 	m_kRTVHeap.Init(m_pkDevice);
 	m_kDSVHeap.Init(m_pkDevice);
 
-	VeCoreLogI("VeRendererD3D12 renderer is created.");
-
+	ve_sys.CORE.I.LogFormat("VeRendererD3D12 renderer is created.");
 	return true;
 }
 //--------------------------------------------------------------------------

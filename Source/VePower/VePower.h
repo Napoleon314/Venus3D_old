@@ -244,11 +244,19 @@ typedef double VeFloat64;
 #	include <assert.h>
 #	define VE_ASSERT assert
 #	define VE_ASSERT_EQ(exp,val) VE_ASSERT(exp==val)
-#	define VE_ASSERT_NOT_EQ(exp,val) VE_ASSERT(exp!=val)
+#	define VE_ASSERT_NE(exp,val) VE_ASSERT(exp!=val)
+#	define VE_ASSERT_GT(exp,val) VE_ASSERT(exp>val)
+#	define VE_ASSERT_LT(exp,val) VE_ASSERT(exp<val)
+#	define VE_ASSERT_GE(exp,val) VE_ASSERT(exp>=val)
+#	define VE_ASSERT_LE(exp,val) VE_ASSERT(exp<=val)
 #else
 #	define VE_ASSERT(x)
 #	define VE_ASSERT_EQ(exp,val) (exp)
-#	define VE_ASSERT_NOT_EQ(exp,val) (exp)
+#	define VE_ASSERT_NE(exp,val) (exp)
+#	define VE_ASSERT_GT(exp,val) (exp)
+#	define VE_ASSERT_LT(exp,val) (exp)
+#	define VE_ASSERT_GE(exp,val) (exp)
+#	define VE_ASSERT_LE(exp,val) (exp)
 #endif
 
 #define VeNoCopy(cls) \

@@ -34,7 +34,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 	//spShader->Load();
 
 	VeRenderWindowPtr spRenderWindow = ve_renderer_ptr->CreateRenderWindow(
-		"Render Test", VE_WINDOWPOS_CENTERED, VE_WINDOWPOS_CENTERED, 1280, 800, 0);
+		"RenderTest", VE_WINDOWPOS_CENTERED, VE_WINDOWPOS_CENTERED, 1280, 800, 0);
 
 	{
 		bool bLoop(true);
@@ -94,7 +94,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 				{
 					s_u32FPS = s_u32FrameCount;
 					VeChar8 s_acFPS[64];
-					VeSprintf(s_acFPS, "FPS:%d", s_u32FrameCount);
+					VeSprintf(s_acFPS, "RenderTest[FPS:%d]", s_u32FrameCount);
 					spRenderWindow->SetTitle(s_acFPS);
 					s_f32TimeCount -= VeFloorf(s_f32TimeCount);
 					s_u32FrameCount = 0;
