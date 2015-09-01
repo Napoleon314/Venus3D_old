@@ -164,18 +164,18 @@ VeBinaryIStreamPtr VeResourceManager::CreateStream(
 }
 //--------------------------------------------------------------------------
 void VeResourceManager::RegistFileCreator(const VeChar8* pcExt,
-	FileCreator kCreator) noexcept
+	FileCreator kCreator, FileCreatorSync kCreatorSync) noexcept
 {
-	m_kFileCreatorMap[pcExt] = kCreator;
+	m_kFileCreatorMap[pcExt] = std::make_pair(kCreator, kCreatorSync);
 }
 //--------------------------------------------------------------------------
 void VeResourceManager::RegistFileCreator(
 	std::initializer_list<const VeChar8*> kExtList,
-	FileCreator kCreator) noexcept
+	FileCreator kCreator, FileCreatorSync kCreatorSync) noexcept
 {
 	for (auto ext : kExtList)
 	{
-		RegistFileCreator(ext, kCreator);
+		RegistFileCreator(ext, kCreator, kCreatorSync);
 	}
 }
 //--------------------------------------------------------------------------
@@ -198,9 +198,9 @@ void VeResourceManager::UnregistFileCreator(
 }
 //--------------------------------------------------------------------------
 void VeResourceManager::RegistJSONCreator(const VeChar8* pcType,
-	JSONCreator kCreator) noexcept
+	JSONCreator kCreator, JSONCreatorSync kCreatorSync) noexcept
 {
-	m_kJSONCreatorMap[pcType] = kCreator;
+	m_kJSONCreatorMap[pcType] = std::make_pair(kCreator, kCreatorSync);
 }
 //--------------------------------------------------------------------------
 void VeResourceManager::UnregistJSONCreator(const VeChar8* pcType) noexcept
@@ -358,9 +358,10 @@ VeResourcePtr VeResourceManager::GetResource(const VeChar8* pcType,
 	return nullptr;
 }
 //--------------------------------------------------------------------------
-void VeResourceManager::LoadFile(const VeChar8* pcPath) noexcept
+void VeResourceManager::LoadFile(const VeChar8* pcPath,
+	LoadCallback kCallback) noexcept
 {
-	CacheFile(pcPath, [this](FileCachePtr spCache) noexcept
+	CacheFile(pcPath, [this,kCallback](FileCachePtr spCache) noexcept
 	{
 		if (spCache)
 		{
@@ -369,10 +370,25 @@ void VeResourceManager::LoadFile(const VeChar8* pcPath) noexcept
 			auto it = m_kFileCreatorMap.find(pcExt);
 			if (it != m_kFileCreatorMap.end())
 			{
-				it->second(spCache);
+				it->second.first(spCache, kCallback);
 			}
 		}
 	});
+}
+//--------------------------------------------------------------------------
+void VeResourceManager::LoadFile(const VeChar8* pcPath) noexcept
+{
+	FileCachePtr spCache = CacheFile(pcPath);
+	if (spCache->GetData())
+	{
+		const VeChar8* pcExt = VeStrrchr(spCache->GetFileName(), '.');
+		pcExt = pcExt ? pcExt + 1 : "";
+		auto it = m_kFileCreatorMap.find(pcExt);
+		if (it != m_kFileCreatorMap.end())
+		{
+			it->second.second(spCache);
+		}
+	}
 }
 //--------------------------------------------------------------------------
 void VeResourceManager::LoadGroup(const VeChar8* pcGroup) noexcept
@@ -380,9 +396,10 @@ void VeResourceManager::LoadGroup(const VeChar8* pcGroup) noexcept
 
 }
 //--------------------------------------------------------------------------
-void VeResourceManager::ParseJSON(FileCachePtr spCache) noexcept
+void VeResourceManager::ParseJSON(FileCachePtr spCache,
+	LoadCallback kCallback) noexcept
 {
-	JSONCache* pkJSON = VE_NEW JSONCache(spCache);
+	JSONCache* pkJSON = VE_NEW JSONCache(spCache, kCallback);
 	VeTaskQueue& kQueue = GetTaskQueue(VeResourceManager::TASK_PROCESS);
 	kQueue.AddBGTask([pkJSON](VeTaskQueue& kMgr) noexcept
 	{
@@ -394,40 +411,36 @@ void VeResourceManager::ParseJSON(FileCachePtr spCache) noexcept
 	});
 }
 //--------------------------------------------------------------------------
+void VeResourceManager::ParseJSON(FileCachePtr spCache) noexcept
+{
+	VeJSONDoc kDoc;
+	kDoc.Parse<0>((const VeChar8*)(spCache->GetData()->GetBlob()->GetBuffer()));
+	if (kDoc.HasParseError())
+	{
+		ve_sys.CORE.E.LogFormat("Parse Error in [\"%s\"].", spCache->GetFullPath());
+	}
+	else
+	{
+		VeCoreDebugOutput("[\"%s\"] is parsed.", spCache->GetFullPath());
+		for (auto it = kDoc.MemberBegin(); it != kDoc.MemberEnd(); ++it)
+		{
+			auto itCreator = m_kJSONCreatorMap.find(it->name.GetString());
+			if (itCreator != m_kJSONCreatorMap.end())
+			{
+				itCreator->second.second(spCache, it->value);
+			}
+		}
+	}
+}
+//--------------------------------------------------------------------------
 void VeResourceManager::CacheFile(const VeChar8* pcPath,
 	FileCallback kCallback) noexcept
 {
-	FileCachePtr spFile;
-	{
-		auto it = m_kFileCacheMap.find(pcPath);
-		if (it == m_kFileCacheMap.end())
-		{
-			VeChar8 acBuffer[VE_MAX_PATH_LEN];
-			VeStrcpy(acBuffer, pcPath);
-			VeChar8* pcContext;
-			VeChar8* pcTemp = VeStrtok(acBuffer, "$", &pcContext);
-			VeResourceGroupPtr spGroup = m_spDefaultGroup;
-			if (pcContext)
-			{
-				auto it = m_kGroupMap.find(pcTemp);
-				if (it != m_kGroupMap.end())
-				{
-					spGroup = it->second;
-				}
-				pcTemp = pcContext;
-			}
-			spFile = VE_NEW FileCache(pcPath, pcTemp, spGroup);
-			m_kFileCacheMap.insert(std::make_pair(pcPath, spFile));
-		}
-		else
-		{
-			spFile = it->second;
-		}
-	}
-	VE_ASSERT(spFile);
+	FileCachePtr spFile = GetFileCache(pcPath);
 	if (spFile->m_kNode.is_attach(m_kLoadingFileList))
 	{
 		spFile->m_kCallbackList.push_back(kCallback);
+		spFile->Load();
 	}
 	else
 	{
@@ -438,26 +451,91 @@ void VeResourceManager::CacheFile(const VeChar8* pcPath,
 void VeResourceManager::CacheFile(const VeChar8* pcFile,
 	const VeResourceGroupPtr& spGroup, FileCallback kCallback) noexcept
 {
-	FileCachePtr spFile;
-	{
-		VeChar8 acBuffer[VE_MAX_PATH_LEN];
-		VeSprintf(acBuffer, "%s$%s", spGroup->GetName(), pcFile);
-		auto it = m_kFileCacheMap.find(acBuffer);
-		if (it == m_kFileCacheMap.end())
-		{
-			spFile = VE_NEW FileCache(acBuffer, pcFile, spGroup);
-			m_kFileCacheMap.insert(std::make_pair(acBuffer, spFile));
-		}
-	}
-	VE_ASSERT(spFile);
+	FileCachePtr spFile = GetFileCache(pcFile, spGroup);
 	if (spFile->m_kNode.is_attach(m_kLoadingFileList))
 	{
 		spFile->m_kCallbackList.push_back(kCallback);
+		spFile->Load();
 	}
 	else
 	{
 		kCallback(spFile);
 	}
+	
+}
+//--------------------------------------------------------------------------
+VeResourceManager::FileCachePtr VeResourceManager::CacheFile(
+	const VeChar8* pcPath) noexcept
+{
+	FileCachePtr spFile = GetFileCache(pcPath);
+	if (spFile->m_kNode.is_attach(m_kLoadingFileList))
+	{
+		spFile->LoadSync();
+	}
+	return spFile->GetData() ? spFile : nullptr;
+}
+//--------------------------------------------------------------------------
+VeResourceManager::FileCachePtr VeResourceManager::CacheFile(
+	const VeChar8* pcFile, const VeResourceGroupPtr& spGroup) noexcept
+{
+	FileCachePtr spFile = GetFileCache(pcFile, spGroup);
+	if (spFile->m_kNode.is_attach(m_kLoadingFileList))
+	{
+		spFile->LoadSync();
+	}
+	return spFile->GetData() ? spFile : nullptr;
+}
+//--------------------------------------------------------------------------
+VeResourceManager::FileCachePtr VeResourceManager::GetFileCache(
+	const VeChar8* pcPath) noexcept
+{
+	FileCachePtr spFile;
+	auto it = m_kFileCacheMap.find(pcPath);
+	if (it == m_kFileCacheMap.end())
+	{
+		VeChar8 acBuffer[VE_MAX_PATH_LEN];
+		VeStrcpy(acBuffer, pcPath);
+		VeChar8* pcContext;
+		VeChar8* pcTemp = VeStrtok(acBuffer, "$", &pcContext);
+		VeResourceGroupPtr spGroup = m_spDefaultGroup;
+		if (pcContext)
+		{
+			auto it = m_kGroupMap.find(pcTemp);
+			if (it != m_kGroupMap.end())
+			{
+				spGroup = it->second;
+			}
+			pcTemp = pcContext;
+		}
+		spFile = VE_NEW FileCache(pcPath, pcTemp, spGroup);
+		m_kFileCacheMap.insert(std::make_pair(pcPath, spFile));
+	}
+	else
+	{
+		spFile = it->second;
+	}
+	VE_ASSERT(spFile);
+	return spFile;
+}
+//--------------------------------------------------------------------------
+VeResourceManager::FileCachePtr VeResourceManager::GetFileCache(
+	const VeChar8* pcFile, const VeResourceGroupPtr& spGroup) noexcept
+{
+	FileCachePtr spFile;
+	VeChar8 acBuffer[VE_MAX_PATH_LEN];
+	VeSprintf(acBuffer, "%s$%s", spGroup->GetName(), pcFile);
+	auto it = m_kFileCacheMap.find(acBuffer);
+	if (it == m_kFileCacheMap.end())
+	{
+		spFile = VE_NEW FileCache(acBuffer, pcFile, spGroup);
+		m_kFileCacheMap.insert(std::make_pair(acBuffer, spFile));
+	}
+	else
+	{
+		spFile = it->second;
+	}
+	VE_ASSERT(spFile);
+	return spFile;
 }
 //--------------------------------------------------------------------------
 VeResourceManager::FileCache::FileCache(const VeChar8* pcPath,
@@ -467,7 +545,22 @@ VeResourceManager::FileCache::FileCache(const VeChar8* pcPath,
 	ve_res_mgr.m_kLoadingFileList.attach_back(m_kNode);
 	m_kFullPath = pcPath;
 	m_kFileName = pcName;
-	m_spGroup = spGroup;
+	m_spGroup = spGroup;	
+}
+//--------------------------------------------------------------------------
+VeResourceManager::FileCache::~FileCache() noexcept
+{
+	VE_ASSERT(m_kCallbackList.empty());
+#	ifdef VE_DEBUG
+	if (m_spData)
+	{
+		VeCoreDebugOutput("[\"%s\"] is uncached.", m_kFullPath);
+	}
+#	endif
+}
+//--------------------------------------------------------------------------
+void VeResourceManager::FileCache::Load() noexcept
+{
 	VeTaskQueue& kQueue = ve_res_mgr.GetTaskQueue(VeResourceManager::TASK_QUERY);
 	kQueue.AddBGTask([this](VeTaskQueue& kMgr) noexcept
 	{
@@ -502,15 +595,35 @@ VeResourceManager::FileCache::FileCache(const VeChar8* pcPath,
 	});
 }
 //--------------------------------------------------------------------------
-VeResourceManager::FileCache::~FileCache() noexcept
+void VeResourceManager::FileCache::LoadSync() noexcept
 {
-	VE_ASSERT(m_kCallbackList.empty());
-#	ifdef VE_DEBUG
-	if (m_spData)
+	m_spDir = m_spGroup->GetDir(m_kFileName);
+	if (m_spDir)
 	{
-		VeCoreDebugOutput("[\"%s\"] is uncached.", m_kFullPath);
+		VeBinaryIStreamPtr spStream = m_spDir->OpenSync(m_kFileName);
+		VE_ASSERT(spStream);
+		VeSizeT stLen = spStream->RemainingLength();
+		VeBlobPtr spBlob = VE_NEW VeBlob(stLen);
+		spStream->Read(spBlob->GetBuffer(), stLen);
+		m_spData = VE_NEW VeMemoryIStream(spBlob);
+		m_u32FreeTime = ve_time.GetTimeUInt();
+		ve_res_mgr.m_kFreeFileList.attach_back(m_kNode);
+		VeCoreDebugOutput("[\"%s\"] is cached.", m_kFullPath);
+		for (auto call : m_kCallbackList)
+		{
+			call(this);
+		}
+		m_kCallbackList.clear();
 	}
-#	endif
+	else
+	{
+		for (auto call : m_kCallbackList)
+		{
+			call(nullptr);
+		}
+		m_kCallbackList.clear();
+		ve_res_mgr.m_kFileCacheMap.erase(m_kFullPath);
+	}
 }
 //--------------------------------------------------------------------------
 void VeResourceManager::FileCache::Enter() noexcept
@@ -531,9 +644,10 @@ void VeResourceManager::FileCache::Leave() noexcept
 	}
 }
 //--------------------------------------------------------------------------
-VeResourceManager::JSONCache::JSONCache(const FileCachePtr& spFile) noexcept
+VeResourceManager::JSONCache::JSONCache(const FileCachePtr& spFile,
+	LoadCallback kCallback) noexcept
 	: m_spFile(spFile), m_kFullPath(spFile->GetFullPath())
-	, m_kGroup(spFile->GetGroupName())
+	, m_spGroup(spFile->GetGroup()), m_kCallback(kCallback)
 {
 	IncRefCount();
 	m_kNode.m_Content = this;
@@ -543,7 +657,7 @@ VeResourceManager::JSONCache::JSONCache(const FileCachePtr& spFile) noexcept
 //--------------------------------------------------------------------------
 VeResourceManager::JSONCache::~JSONCache() noexcept
 {
-
+	m_kCallback();
 }
 //--------------------------------------------------------------------------
 void VeResourceManager::JSONCache::Parse() noexcept
@@ -567,7 +681,7 @@ void VeResourceManager::JSONCache::Create() noexcept
 			auto itCreator = ve_res_mgr.m_kJSONCreatorMap.find(it->name.GetString());
 			if (itCreator != ve_res_mgr.m_kJSONCreatorMap.end())
 			{
-				itCreator->second(this, it->value);
+				itCreator->second.first(this, it->value);
 			}
 		}
 	}

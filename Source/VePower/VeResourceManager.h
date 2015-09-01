@@ -41,9 +41,16 @@ public:
 	typedef VePointer<JSONCache> JSONCachePtr;
 
 	typedef std::function<void(FileCachePtr)> FileCallback;
-	typedef FileCallback FileCreator;
+
+	typedef std::function<void(void)> LoadCallback;
+
+	typedef std::function<void(FileCachePtr,LoadCallback)> FileCreator;
+
+	typedef std::function<void(FileCachePtr)> FileCreatorSync;
 
 	typedef std::function<void(JSONCachePtr,VeJSONValue&)> JSONCreator;
+
+	typedef std::function<void(const FileCachePtr&,VeJSONValue&)> JSONCreatorSync;
 
 	typedef std::function<VeResourcePtr(const VeChar8*,const VeChar8*)> ResCreator;
 
@@ -65,9 +72,13 @@ public:
 
 		inline const VeMemoryIStreamPtr& GetData() noexcept;
 
+		void Load() noexcept;
+
+		void LoadSync() noexcept;
+
 		void Enter() noexcept;
 
-		void Leave() noexcept;
+		void Leave() noexcept;		
 
 	protected:
 		friend class VeResourceManager;
@@ -86,13 +97,15 @@ public:
 	class VE_POWER_API JSONCache : public VeRefObject
 	{
 	public:
-		JSONCache(const FileCachePtr& spFile) noexcept;
+		JSONCache(const FileCachePtr& spFile, LoadCallback kCallback) noexcept;
 
 		virtual ~JSONCache() noexcept;
 
 		inline const VeChar8* GetFullPath() noexcept;
 
 		inline const VeChar8* GetGroupName() noexcept;
+
+		inline const VeResourceGroupPtr& GetGroup() noexcept;
 
 		void Parse() noexcept;
 
@@ -102,7 +115,8 @@ public:
 		VeRefNode<VeRefObject*> m_kNode;
 		FileCachePtr m_spFile;
 		VeFixedString m_kFullPath;
-		VeFixedString m_kGroup;		
+		VeResourceGroupPtr m_spGroup;
+		LoadCallback m_kCallback;
 		VeJSONDoc m_kDoc;
 
 	};
@@ -159,15 +173,15 @@ public:
 
 	VeBinaryIStreamPtr CreateStream(const VeChar8* pcPath) noexcept;
 
-	void RegistFileCreator(const VeChar8* pcExt, FileCreator kCreator) noexcept;
+	void RegistFileCreator(const VeChar8* pcExt, FileCreator kCreator, FileCreatorSync kCreatorSync) noexcept;
 
-	void RegistFileCreator(std::initializer_list<const VeChar8*> kExtList, FileCreator kCreator) noexcept;
+	void RegistFileCreator(std::initializer_list<const VeChar8*> kExtList, FileCreator kCreator, FileCreatorSync kCreatorSync) noexcept;
 
 	void UnregistFileCreator(const VeChar8* pcExt) noexcept;
 
 	void UnregistFileCreator(std::initializer_list<const VeChar8*> kExtList) noexcept;
 
-	void RegistJSONCreator(const VeChar8* pcType, JSONCreator kCreator) noexcept;
+	void RegistJSONCreator(const VeChar8* pcType, JSONCreator kCreator, JSONCreatorSync kCreatorSync) noexcept;
 
 	void UnregistJSONCreator(const VeChar8* pcType) noexcept;
 
@@ -199,9 +213,13 @@ public:
 		return VeDynamicCast(_Ty, (VeResource*)GetResource(pcType, pcName, bCreate));
 	}
 
+	void LoadFile(const VeChar8* pcPath, LoadCallback kCallback) noexcept;
+
 	void LoadFile(const VeChar8* pcPath) noexcept;
 
 	void LoadGroup(const VeChar8* pcGroup) noexcept;
+
+	void ParseJSON(FileCachePtr spCache, LoadCallback kCallback) noexcept;
 
 	void ParseJSON(FileCachePtr spCache) noexcept;
 
@@ -210,15 +228,23 @@ public:
 	void CacheFile(const VeChar8* pcFile, const VeResourceGroupPtr& spGroup,
 		FileCallback kCallback) noexcept;
 
+	FileCachePtr CacheFile(const VeChar8* pcPath) noexcept;
+
+	FileCachePtr CacheFile(const VeChar8* pcFile, const VeResourceGroupPtr& spGroup) noexcept;
+
 protected:
+	FileCachePtr GetFileCache(const VeChar8* pcPath) noexcept;
+
+	FileCachePtr GetFileCache(const VeChar8* pcFile, const VeResourceGroupPtr& spGroup) noexcept;
+
 	friend class VeResource;
 	VeTaskQueue m_akTaskQueues[TASK_NUM];
 	DirCreator m_kDefaultDirCreator;
 	VeStringMap<DirCreator> m_kDirCreatorMap;
 	StreamCreator m_kDefaultStreamCreator;
 	VeStringMap<StreamCreator> m_kStreamCreatorMap;
-	VeStringMap<FileCreator> m_kFileCreatorMap;	
-	VeStringMap<JSONCreator> m_kJSONCreatorMap;
+	VeStringMap<std::pair<FileCreator,FileCreatorSync>> m_kFileCreatorMap;	
+	VeStringMap<std::pair<JSONCreator,JSONCreatorSync>> m_kJSONCreatorMap;
 	VeStringMap<ResCreator> m_kResCreatorMap;
 	VeStringMap<VeResourceGroupPtr> m_kGroupMap;
 	VeResourceGroupPtr m_spDefaultGroup;

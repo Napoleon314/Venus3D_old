@@ -28,7 +28,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
 	ve_res_mgr.SetupGroupFromJSON("{\"startup\":{\"r\":[\"file#shaders/cache\",\"file#shaders\"],\"w\":\"file#shaders/cache\"}}");
 
-	//ve_res_mgr.LoadFile("startup$shaders.json");
+	//VeResourceManager::FileCachePtr spCache = ve_res_mgr.CacheFile("startup$test.vso");
+
+
+	ve_res_mgr.LoadFile("startup$shaders.json");
+	ve_res_mgr.LoadFile("startup$root_signatures.json");
 	//VeShaderPtr spShader = ve_res_mgr.Get<VeShader>("test@vs");
 
 	//spShader->Load();

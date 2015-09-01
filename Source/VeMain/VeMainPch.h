@@ -29,6 +29,7 @@
 #include "VeEvents.h"
 #include "VeVideo.h"
 #include "VeEngine.h"
-#include "VeShader.h"
 #include "VeRenderWindow.h"
+#include "VeShader.h"
 #include "VeRenderer.h"
+#include "VeRootSignature.h"

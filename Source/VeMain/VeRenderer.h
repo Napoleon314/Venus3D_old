@@ -30,6 +30,18 @@ public:
 		API_MASK = 0xFF
 	};
 
+	class VE_MAIN_API RootSignature : public VeRefObject
+	{
+		VeNoCopy(RootSignature);
+		VeRTTIDecl(RootSignature);
+	public:
+		RootSignature() noexcept = default;
+		virtual ~RootSignature() noexcept = default;
+
+	};
+
+	typedef VePointer<RootSignature> RootSignaturePtr;
+
 	inline API GetAPI() const noexcept;
 
 	void RegistResTypes() noexcept;
@@ -45,13 +57,18 @@ public:
 
 	virtual VeRenderWindowPtr CreateRenderWindow(const VeWindowPtr& spWindow) noexcept = 0;
 
-	virtual bool IsShaderTargetSupported(const VeChar8* pcTarget) noexcept = 0;
+	virtual bool IsSupported(const VeChar8* pcPlatform) noexcept = 0;
 
 	virtual VeShader::Type GetShaderType(const VeChar8* pcTarget) noexcept = 0;
 
 	virtual VeBlobPtr CompileShader(const VeChar8* pcName, const VeChar8* pcTarget,
 		const VeChar8* pcConfigPath, VeJSONValue& kConfig,
 		const VeResourceManager::FileCachePtr& spCache) noexcept = 0;
+
+	virtual VeBlobPtr SerializeRootSignature(const VeChar8* pcName, VeJSONValue& kConfig,
+		const VeResourceGroupPtr& spGroup) noexcept = 0;
+
+	virtual RootSignaturePtr CreateRootSignature(const VeBlobPtr& spBlob) noexcept = 0;
 
 protected:
 	VeRenderer(API eType) noexcept;

@@ -19,13 +19,13 @@ std::atomic_uint VeRefObject::ms_u32Objects(0);
 //--------------------------------------------------------------------------
 VeRefObject::VeRefObject() noexcept
 {
-	m_u32RefCount = 0;
-	++ms_u32Objects;
+	m_u32RefCount.store(0, std::memory_order_relaxed);
+	ms_u32Objects.fetch_add(1, std::memory_order_relaxed);
 }
 //--------------------------------------------------------------------------
 VeRefObject::~VeRefObject() noexcept
 {
-	--ms_u32Objects;
+	ms_u32Objects.fetch_sub(1, std::memory_order_relaxed);
 }
 //--------------------------------------------------------------------------
 void VeRefObject::DeleteThis() noexcept
@@ -35,12 +35,14 @@ void VeRefObject::DeleteThis() noexcept
 //--------------------------------------------------------------------------
 void VeRefObject::IncRefCount() noexcept
 {
-	++m_u32RefCount;
+	m_u32RefCount.fetch_add(1, std::memory_order_relaxed);
 }
 //--------------------------------------------------------------------------
 void VeRefObject::DecRefCount() noexcept
 {
-	if ((--m_u32RefCount) == 0)
+	if (m_u32RefCount.fetch_sub(1, std::memory_order_relaxed) == 1)
+	{
 		DeleteThis();
+	}
 }
 //--------------------------------------------------------------------------

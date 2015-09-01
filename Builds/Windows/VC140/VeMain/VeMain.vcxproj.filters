@@ -103,6 +103,9 @@
     <ClInclude Include="..\..\..\..\Source\VeMain\VeShader.h">
       <Filter>Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\VeMain\VeRootSignature.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\Source\VeMain\VeMain.cpp">
@@ -171,6 +174,9 @@
     <ClCompile Include="..\..\..\..\Source\VeMain\VeShader.cpp">
       <Filter>Renderer</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\Source\VeMain\VeRootSignature.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\..\Source\VeMain\VeRenderer.inl">
@@ -228,6 +234,9 @@
       <Filter>Renderer</Filter>
     </None>
     <None Include="..\..\..\..\Source\VeMain\VeShader.inl">
+      <Filter>Renderer</Filter>
+    </None>
+    <None Include="..\..\..\..\Source\VeMain\VeRootSignature.inl">
       <Filter>Renderer</Filter>
     </None>
   </ItemGroup>

@@ -31,6 +31,27 @@ public:
 	static constexpr VeUInt32 RTV_COUNT = 32;
 	static constexpr VeUInt32 DSV_COUNT = 1;
 
+	class RootSignatureD3D12 : public RootSignature
+	{
+		VeNoCopy(RootSignatureD3D12);
+		VeRTTIDecl(RootSignatureD3D12, RootSignature);
+	public:
+		RootSignatureD3D12(ID3D12RootSignature* pkRootSignature) noexcept
+			: m_pkRootSignature(pkRootSignature)
+		{
+			m_kNode.m_Content = this;
+		}
+
+		virtual ~RootSignatureD3D12() noexcept
+		{
+			VE_SAFE_RELEASE(m_pkRootSignature);
+		}
+
+		VeRefNode<RootSignatureD3D12*> m_kNode;
+		ID3D12RootSignature* m_pkRootSignature = nullptr;
+
+	};
+
 	template <D3D12_DESCRIPTOR_HEAP_TYPE TYPE, VeUInt32 NUM, D3D12_DESCRIPTOR_HEAP_FLAGS FLAGS>
 	class DescriptorHeapShell
 	{
@@ -110,7 +131,7 @@ public:
 
 	virtual VeRenderWindowPtr CreateRenderWindow(const VeWindowPtr& spWindow) noexcept override;
 
-	virtual bool IsShaderTargetSupported(const VeChar8* pcTarget) noexcept override;
+	virtual bool IsSupported(const VeChar8* pcPlatform) noexcept override;
 
 	virtual VeShader::Type GetShaderType(const VeChar8* pcTarget) noexcept override;
 
@@ -118,8 +139,17 @@ public:
 		const VeChar8* pcConfigPath, VeJSONValue& kConfig,
 		const VeResourceManager::FileCachePtr& spCache) noexcept override;
 
+	virtual VeBlobPtr SerializeRootSignature(const VeChar8* pcName, VeJSONValue& kConfig,
+		const VeResourceGroupPtr& spGroup) noexcept override;
+
+	virtual RootSignaturePtr CreateRootSignature(const VeBlobPtr& spBlob) noexcept override;
+
 protected:
 	friend class VeRenderWindowD3D12;
+
+	void InitParsers() noexcept;
+
+	void TermParsers() noexcept;
 
 	VeSharedLibPtr m_spD3D12;
 	VeSharedLibPtr m_spDXGI;
@@ -133,23 +163,40 @@ protected:
 	DSVHeap m_kDSVHeap;
 
 	VeRefList<VeRenderWindowD3D12*> m_kRenderWindowList;
+	VeRefList<RootSignatureD3D12*> m_kRootSignatureList;
 
 	HRESULT (WINAPI* D3D12GetDebugInterface)(
 		_In_ REFIID riid, _COM_Outptr_opt_ void** ppvDebug) = nullptr;
+
 	HRESULT (WINAPI* D3D12CreateDevice)(
 		_In_opt_ IUnknown* pAdapter,
 		D3D_FEATURE_LEVEL MinimumFeatureLevel,
 		_In_ REFIID riid,
 		_COM_Outptr_opt_ void** ppDevice) = nullptr;
 
+	HRESULT(WINAPI* D3D12SerializeRootSignature)(
+		_In_ const D3D12_ROOT_SIGNATURE_DESC* pRootSignature,
+		_In_ D3D_ROOT_SIGNATURE_VERSION Version,
+		_Out_ ID3DBlob** ppBlob,
+		_Always_(_Outptr_opt_result_maybenull_) ID3DBlob** ppErrorBlob) = nullptr;
+
 	HRESULT(WINAPI* CreateDXGIFactory1)(
 		REFIID riid, _COM_Outptr_ void **ppFactory) = nullptr;
 
-	HRESULT(WINAPI *D3DCompile)(
+	HRESULT(WINAPI* D3DCompile)(
 		LPCVOID pSrcData, SIZE_T SrcDataSize, LPCSTR pFileName,
 		CONST D3D_SHADER_MACRO* pDefines, ID3DInclude* pInclude,
 		LPCSTR pEntrypoint, LPCSTR pTarget, UINT Flags1, UINT Flags2,
 		ID3DBlob** ppCode, ID3DBlob** ppErrorMsgs) = nullptr;
+
+	VeStringMap<D3D12_ROOT_PARAMETER_TYPE> m_kRootParameterTypeParser;
+	VeStringMap<D3D12_DESCRIPTOR_RANGE_TYPE> m_kDescriptorRangeTypeParser;
+	VeStringMap<D3D12_SHADER_VISIBILITY> m_kShaderVisibilityParser;
+	VeStringMap<D3D12_ROOT_SIGNATURE_FLAGS> m_kRootSignatureFlagsParser;
+	VeStringMap<D3D12_FILTER> m_kFilterParser;
+	VeStringMap<D3D12_TEXTURE_ADDRESS_MODE> m_kTexAddressModeParser;
+	VeStringMap<D3D12_COMPARISON_FUNC> m_kComparisonFuncParser;
+	VeStringMap<D3D12_STATIC_BORDER_COLOR> m_kStaticBorderColorParser;
 
 };
 

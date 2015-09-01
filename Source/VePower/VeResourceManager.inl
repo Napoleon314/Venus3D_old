@@ -67,6 +67,11 @@ inline const VeChar8* VeResourceManager::JSONCache::GetFullPath() noexcept
 //--------------------------------------------------------------------------
 inline const VeChar8* VeResourceManager::JSONCache::GetGroupName() noexcept
 {
-	return m_kGroup;
+	return m_spGroup->GetName();
+}
+//--------------------------------------------------------------------------
+inline const VeResourceGroupPtr& VeResourceManager::JSONCache::GetGroup() noexcept
+{
+	return m_spGroup;
 }
 //--------------------------------------------------------------------------

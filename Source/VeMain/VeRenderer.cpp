@@ -17,6 +17,8 @@
 //--------------------------------------------------------------------------
 VeRTTIImpl(VeRenderer);
 //--------------------------------------------------------------------------
+VeRTTIImpl(VeRenderer::RootSignature);
+//--------------------------------------------------------------------------
 VeRenderer::VeRenderer(API eType) noexcept
 	: m_eType(eType)
 {
@@ -31,10 +33,12 @@ VeRenderer::~VeRenderer() noexcept
 void VeRenderer::RegistResTypes() noexcept
 {
 	VeShader::Regist();
+	VeRootSignature::Regist();
 }
 //--------------------------------------------------------------------------
 void VeRenderer::UnregistResTypes() noexcept
 {
+	VeRootSignature::Unregist();
 	VeShader::Unregist();
 }
 //--------------------------------------------------------------------------

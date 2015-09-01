@@ -82,7 +82,7 @@ public:
 #define ve_log ve_sys.GetLog()
 #define ve_time ve_sys.GetTime()
 #define VeStackMalloc(...) (ve_sys.GetStackAllocator()->Allocate(__VA_ARGS__))
-#define VeStackAlloc(t,s) (t*)(ve_sys.GetStackAllocator()->Allocate(s))
+#define VeStackAlloc(t,s) (t*)(ve_sys.GetStackAllocator()->Allocate(sizeof(t)*s))
 #define VeStackFree(p) ve_sys.GetStackAllocator()->Deallocate(); p = nullptr
 
 #ifdef VE_DEBUG

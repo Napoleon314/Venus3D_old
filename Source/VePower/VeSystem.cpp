@@ -149,7 +149,12 @@ void VeSystem::InitResMgr() noexcept
 	ve_res_mgr.RegistDirectory<VeFilePath>(true);
 #	endif
 	ve_res_mgr.RegistFileCreator(VE_JSON_EXT,
-		[this](VeResourceManager::FileCachePtr spCache) noexcept
+		[](VeResourceManager::FileCachePtr spCache,
+			VeResourceManager::LoadCallback kCallback) noexcept
+	{
+		ve_res_mgr.ParseJSON(spCache, kCallback);
+	},
+		[](VeResourceManager::FileCachePtr spCache) noexcept
 	{
 		ve_res_mgr.ParseJSON(spCache);
 	});
