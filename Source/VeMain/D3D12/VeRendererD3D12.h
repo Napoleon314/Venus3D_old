@@ -52,6 +52,27 @@ public:
 
 	};
 
+	class PipelineStateD3D12 : public PipelineState
+	{
+		VeNoCopy(PipelineStateD3D12);
+		VeRTTIDecl(PipelineStateD3D12, PipelineState);
+	public:
+		PipelineStateD3D12(ID3D12PipelineState* pkState) noexcept
+			: m_pkPipelineState(pkState)
+		{
+			m_kNode.m_Content = this;
+		}
+
+		virtual ~PipelineStateD3D12() noexcept
+		{
+			VE_SAFE_RELEASE(m_pkPipelineState);
+		}
+
+		VeRefNode<PipelineStateD3D12*> m_kNode;
+		ID3D12PipelineState* m_pkPipelineState = nullptr;
+
+	};
+
 	template <D3D12_DESCRIPTOR_HEAP_TYPE TYPE, VeUInt32 NUM, D3D12_DESCRIPTOR_HEAP_FLAGS FLAGS>
 	class DescriptorHeapShell
 	{
@@ -121,6 +142,26 @@ public:
 	typedef DescriptorHeapShell<D3D12_DESCRIPTOR_HEAP_TYPE_RTV, RTV_COUNT, D3D12_DESCRIPTOR_HEAP_FLAG_NONE> RTVHeap;
 	typedef DescriptorHeapShell<D3D12_DESCRIPTOR_HEAP_TYPE_DSV, DSV_COUNT, D3D12_DESCRIPTOR_HEAP_FLAG_NONE> DSVHeap;
 
+	enum BlendType
+	{
+		REPLACE,
+		ADD,
+		BLEND
+	};
+
+	enum RasterType
+	{
+		CULL_BACK,
+		CULL_FRONT,
+		CULL_NONE
+	};
+
+	enum DepthStencilType
+	{
+		DS_NONE,
+		DS_STANDARD
+	};
+
 	VeRendererD3D12() noexcept;
 
 	virtual ~VeRendererD3D12() noexcept;
@@ -144,6 +185,12 @@ public:
 
 	virtual RootSignaturePtr CreateRootSignature(const VeBlobPtr& spBlob) noexcept override;
 
+	virtual PipelineStatePtr CreatePipelineState(VeJSONValue& kConfig) noexcept override;
+
+	PipelineStatePtr CreateGraphicsPipelineState(VeJSONValue& kConfig) noexcept;
+
+	PipelineStatePtr CreateComputePipelineState(VeJSONValue& kConfig) noexcept;
+
 protected:
 	friend class VeRenderWindowD3D12;
 
@@ -164,6 +211,7 @@ protected:
 
 	VeRefList<VeRenderWindowD3D12*> m_kRenderWindowList;
 	VeRefList<RootSignatureD3D12*> m_kRootSignatureList;
+	VeRefList<PipelineStateD3D12*> m_kPipelineStateList;
 
 	HRESULT (WINAPI* D3D12GetDebugInterface)(
 		_In_ REFIID riid, _COM_Outptr_opt_ void** ppvDebug) = nullptr;
@@ -189,6 +237,10 @@ protected:
 		LPCSTR pEntrypoint, LPCSTR pTarget, UINT Flags1, UINT Flags2,
 		ID3DBlob** ppCode, ID3DBlob** ppErrorMsgs) = nullptr;
 
+	VeStringMap<BlendType> m_kBlendTypeParser;
+	VeStringMap<RasterType> m_kRasterTypeParser;
+	VeStringMap<DepthStencilType> m_kDSTypeParser;
+
 	VeStringMap<D3D12_ROOT_PARAMETER_TYPE> m_kRootParameterTypeParser;
 	VeStringMap<D3D12_DESCRIPTOR_RANGE_TYPE> m_kDescriptorRangeTypeParser;
 	VeStringMap<D3D12_SHADER_VISIBILITY> m_kShaderVisibilityParser;
@@ -197,6 +249,8 @@ protected:
 	VeStringMap<D3D12_TEXTURE_ADDRESS_MODE> m_kTexAddressModeParser;
 	VeStringMap<D3D12_COMPARISON_FUNC> m_kComparisonFuncParser;
 	VeStringMap<D3D12_STATIC_BORDER_COLOR> m_kStaticBorderColorParser;
+	VeStringMap<DXGI_FORMAT> m_kFormatParser;
+	VeStringMap<D3D12_INPUT_CLASSIFICATION> m_kInputClassParser;
 
 };
 

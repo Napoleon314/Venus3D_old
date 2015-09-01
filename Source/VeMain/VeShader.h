@@ -36,6 +36,8 @@ public:
 
 	virtual const VeChar8* GetTypeName() const noexcept override;
 
+	inline const VeBlobPtr& GetObject() noexcept;
+
 	static inline Type GetType(const VeChar8* pcName) noexcept;
 
 	static inline const VeChar8* GetTypeName(Type eType) noexcept;

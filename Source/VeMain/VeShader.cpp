@@ -170,7 +170,7 @@ void VeShader::Parse(const VeResourceManager::FileCachePtr& spCache,
 			VeShaderPtr spShader = ve_res_mgr.Get<VeShader>(
 				VeShader::GetTypeName(eType), pcName);
 			spShader->SetGroup(spCache->GetGroup());
-			spShader->LoadDirect(spCache->GetData()->GetBlob());
+			spShader->LoadDirect(spFile->GetData()->GetBlob());
 		}
 		else
 		{

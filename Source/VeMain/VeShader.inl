@@ -13,6 +13,11 @@
 ////////////////////////////////////////////////////////////////////////////
 
 //--------------------------------------------------------------------------
+inline const VeBlobPtr& VeShader::GetObject() noexcept
+{
+	return m_spBlob;
+}
+//--------------------------------------------------------------------------
 inline VeShader::Type VeShader::GetType(const VeChar8* pcName) noexcept
 {
 	Type eRes;

@@ -23,6 +23,8 @@ VeRTTIImpl(VeRendererD3D12, VeRenderer);
 //--------------------------------------------------------------------------
 VeRTTIImpl(VeRendererD3D12::RootSignatureD3D12, VeRenderer::RootSignature);
 //--------------------------------------------------------------------------
+VeRTTIImpl(VeRendererD3D12::PipelineStateD3D12, VeRenderer::PipelineState);
+//--------------------------------------------------------------------------
 VeRendererD3D12::VeRendererD3D12() noexcept
 	: VeRenderer(API_D3D12)
 {
@@ -101,6 +103,10 @@ void VeRendererD3D12::Term() noexcept
 	for (auto obj : m_kRootSignatureList)
 	{
 		VE_SAFE_RELEASE(obj->m_pkRootSignature);
+	}
+	for (auto obj : m_kPipelineStateList)
+	{
+		VE_SAFE_RELEASE(obj->m_pkPipelineState);
 	}
 	VE_ASSERT(m_kRenderWindowList.empty());
 	m_kDSVHeap.Term();
@@ -269,8 +275,7 @@ VeBlobPtr VeRendererD3D12::SerializeRootSignature(const VeChar8* pcName,
 		VeUInt32 m_u32SamplersNum = 0;
 		D3D12_STATIC_SAMPLER_DESC* m_pkSampler = nullptr;
 
-	}
-	kStackBuffer;
+	} kStackBuffer;
 	auto iParameters = kConfig.FindMember("parameters");
 	if (iParameters != kConfig.MemberEnd()
 		&& iParameters->value.IsArray()
@@ -282,100 +287,53 @@ VeBlobPtr VeRendererD3D12::SerializeRootSignature(const VeChar8* pcName,
 			VeJSONValue& kValue = iParameters->value[i];
 			if (!kValue.IsObject()) return nullptr;
 			D3D12_ROOT_PARAMETER& kParameter = kStackBuffer.m_pkParameter[i];
-			auto itType = kValue.FindMember("type");
-			if (itType == kValue.MemberEnd()) return nullptr;
-			if (!itType->value.IsString()) return nullptr;
-			auto itTypeEnum = m_kRootParameterTypeParser.find(itType->value.GetString());
-			if (itTypeEnum == m_kRootParameterTypeParser.end()) return nullptr;
-			kParameter.ParameterType = itTypeEnum->second;
+			kParameter.ParameterType = VeToEnum(kValue, "type", m_kRootParameterTypeParser, D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE);
 			switch (kParameter.ParameterType)
 			{
 			case D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE:
 			{
 				auto itRange = kValue.FindMember("ranges");
-				if (itRange == kValue.MemberEnd()) return nullptr;
-				if (!itRange->value.IsArray()) return nullptr;
-				if (itRange->value.Empty()) return nullptr;
-				D3D12_DESCRIPTOR_RANGE* pvRange = kStackBuffer.SetRangeNum(i, itRange->value.Size());
-				for (VeUInt32 i(0); i < itRange->value.Size(); ++i)
+				if (itRange != kValue.MemberEnd()
+					&& itRange->value.IsArray()
+					&& itRange->value.Size())
 				{
-					D3D12_DESCRIPTOR_RANGE& kRange = pvRange[i];
-					VeJSONValue& kValueRange = itRange->value[i];
-					if (!kValueRange.IsObject()) return nullptr;
-					auto itRangeType = kValueRange.FindMember("type");
-					if (itRangeType == kValueRange.MemberEnd()) return nullptr;
-					if (!itRangeType->value.IsString()) return nullptr;
-					auto itRangeTypeEnum = m_kDescriptorRangeTypeParser.find(itRangeType->value.GetString());
-					if (itRangeTypeEnum == m_kDescriptorRangeTypeParser.end()) return nullptr;
-					kRange.RangeType = itRangeTypeEnum->second;
+					D3D12_DESCRIPTOR_RANGE* pvRange = kStackBuffer.SetRangeNum(i, itRange->value.Size());
+					for (VeUInt32 i(0); i < itRange->value.Size(); ++i)
+					{
+						D3D12_DESCRIPTOR_RANGE& kRange = pvRange[i];
+						VeJSONValue& kValueRange = itRange->value[i];
+						if (!kValueRange.IsObject()) return nullptr;
 
-					auto itNum = kValueRange.FindMember("num");
-					if (itNum == kValueRange.MemberEnd()) return nullptr;
-					if (!itNum->value.IsNumber()) return nullptr;
-					kRange.NumDescriptors = itNum->value.GetUint();
-
-					auto itReg = kValueRange.FindMember("register");
-					if (itReg == kValueRange.MemberEnd()) return nullptr;
-					if (!itReg->value.IsNumber()) return nullptr;
-					kRange.BaseShaderRegister = itReg->value.GetUint();
-
-					auto itSpace = kValueRange.FindMember("space");
-					if (itSpace == kValueRange.MemberEnd()) return nullptr;
-					if (!itSpace->value.IsNumber()) return nullptr;
-					kRange.RegisterSpace = itSpace->value.GetUint();
-
-					auto itOffset = kValueRange.FindMember("offset");
-					if (itOffset == kValueRange.MemberEnd()) return nullptr;
-					if (!itOffset->value.IsNumber()) return nullptr;
-					kRange.OffsetInDescriptorsFromTableStart = itOffset->value.GetUint();
+						kRange.RangeType = VeToEnum(kValueRange, "type", m_kDescriptorRangeTypeParser, D3D12_DESCRIPTOR_RANGE_TYPE_SRV);
+						kRange.NumDescriptors = VeToNumber(kValueRange, "num", 0u);
+						kRange.BaseShaderRegister = VeToNumber(kValueRange, "register", 0u);
+						kRange.RegisterSpace = VeToNumber(kValueRange, "space", 0u);
+						kRange.OffsetInDescriptorsFromTableStart = VeToNumber(kValueRange, "offset", 0u);
+					}
 				}
-				auto itVis = kValue.FindMember("visibility");
-				if (itVis == kValue.MemberEnd()) return nullptr;
-				if (!itVis->value.IsString()) return nullptr;
-				auto itVisEnum = m_kShaderVisibilityParser.find(itVis->value.GetString());
-				if (itVisEnum == m_kShaderVisibilityParser.end()) return nullptr;
-				kParameter.ShaderVisibility = itVisEnum->second;
+				kParameter.ShaderVisibility = VeToEnum(kValue, "visibility", m_kShaderVisibilityParser, D3D12_SHADER_VISIBILITY_ALL);
 			}
 			break;
 			case D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS:
 			{
-				auto itNum = kValue.FindMember("num");
-				if (itNum == kValue.MemberEnd()) return nullptr;
-				if (!itNum->value.IsNumber()) return nullptr;
-				kParameter.Constants.Num32BitValues = itNum->value.GetUint();
-
-				auto itReg = kValue.FindMember("register");
-				if (itReg == kValue.MemberEnd()) return nullptr;
-				if (!itReg->value.IsNumber()) return nullptr;
-				kParameter.Constants.ShaderRegister = itReg->value.GetUint();
-
-				auto itSpace = kValue.FindMember("space");
-				if (itSpace == kValue.MemberEnd()) return nullptr;
-				if (!itSpace->value.IsNumber()) return nullptr;
-				kParameter.Constants.RegisterSpace = itSpace->value.GetUint();
+				kParameter.Constants.Num32BitValues = VeToNumber(kValue, "num", 0u);
+				kParameter.Constants.ShaderRegister = VeToNumber(kValue, "register", 0u);
+				kParameter.Constants.RegisterSpace = VeToNumber(kValue, "space", 0u);
 			}
 			break;
 			case D3D12_ROOT_PARAMETER_TYPE_CBV:
 			case D3D12_ROOT_PARAMETER_TYPE_SRV:
 			case D3D12_ROOT_PARAMETER_TYPE_UAV:
 			{
-				auto itReg = kValue.FindMember("register");
-				if (itReg == kValue.MemberEnd()) return nullptr;
-				if (!itReg->value.IsNumber()) return nullptr;
-				kParameter.Descriptor.ShaderRegister = itReg->value.GetUint();
-
-				auto itSpace = kValue.FindMember("space");
-				if (itSpace == kValue.MemberEnd()) return nullptr;
-				if (!itSpace->value.IsNumber()) return nullptr;
-				kParameter.Descriptor.RegisterSpace = itSpace->value.GetUint();
+				kParameter.Descriptor.ShaderRegister = VeToNumber(kValue, "register", 0u);
+				kParameter.Descriptor.RegisterSpace = VeToNumber(kValue, "space", 0u);
 			}
 			break;
 			default:
 				return nullptr;
 			}
 		}
-	}
-	
+	}	
 	auto iSamplers = kConfig.FindMember("samplers");
 	if (iSamplers != kConfig.MemberEnd()
 		&& iSamplers->value.IsArray()
@@ -387,150 +345,19 @@ VeBlobPtr VeRendererD3D12::SerializeRootSignature(const VeChar8* pcName,
 			VeJSONValue& kValue = iSamplers->value[i];
 			if (!kValue.IsObject()) return nullptr;
 			D3D12_STATIC_SAMPLER_DESC& kSampler = kStackBuffer.m_pkSampler[i];
-
-			auto itFilter = kValue.FindMember("filter");
-			if (itFilter != kValue.MemberEnd())
-			{
-				if (!itFilter->value.IsString()) return nullptr;
-				auto itFilterEnum = m_kFilterParser.find(itFilter->value.GetString());
-				if (itFilterEnum == m_kFilterParser.end()) return nullptr;
-				kSampler.Filter = itFilterEnum->second;
-			}
-			else
-			{
-				kSampler.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
-			}
-
-			auto itAddU = kValue.FindMember("addU");
-			if (itAddU != kValue.MemberEnd())
-			{
-				if (!itAddU->value.IsString()) return nullptr;
-				auto itAddUEnum = m_kTexAddressModeParser.find(itAddU->value.GetString());
-				if (itAddUEnum == m_kTexAddressModeParser.end()) return nullptr;
-				kSampler.AddressU = itAddUEnum->second;
-			}
-			else
-			{
-				kSampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-			}
-			
-			auto itAddV = kValue.FindMember("addV");
-			if (itAddV != kValue.MemberEnd())
-			{
-				if (!itAddV->value.IsString()) return nullptr;
-				auto itAddVEnum = m_kTexAddressModeParser.find(itAddV->value.GetString());
-				if (itAddVEnum == m_kTexAddressModeParser.end()) return nullptr;
-				kSampler.AddressV = itAddVEnum->second;
-			}
-			else
-			{
-				kSampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-			}
-			
-
-			auto itAddW = kValue.FindMember("addW");
-			if (itAddW != kValue.MemberEnd())
-			{
-				if (!itAddW->value.IsString()) return nullptr;
-				auto itAddWEnum = m_kTexAddressModeParser.find(itAddW->value.GetString());
-				if (itAddWEnum == m_kTexAddressModeParser.end()) return nullptr;
-				kSampler.AddressW = itAddWEnum->second;
-			}
-			else
-			{
-				kSampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-			}
-			
-
-			auto itLodBias = kValue.FindMember("lod_bias");
-			if (itLodBias != kValue.MemberEnd())
-			{
-				if (!itLodBias->value.IsNumber()) return nullptr;
-				kSampler.MipLODBias = itLodBias->value.GetDouble();
-			}
-			else
-			{
-				kSampler.MipLODBias = 0;
-			}
-			
-			
-			auto itMaxAni = kValue.FindMember("max_ani");
-			if (itMaxAni != kValue.MemberEnd())
-			{
-				if (!itMaxAni->value.IsNumber()) return nullptr;
-				kSampler.MaxAnisotropy = itMaxAni->value.GetUint();
-			}
-			else
-			{
-				kSampler.MaxAnisotropy = 0;
-			}
-			
-			auto itCompFunc = kValue.FindMember("comp_func");
-			if (itCompFunc != kValue.MemberEnd())
-			{
-				if (!itCompFunc->value.IsString()) return nullptr;
-				auto itCompFuncEnum = m_kComparisonFuncParser.find(itCompFunc->value.GetString());
-				if (itCompFuncEnum == m_kComparisonFuncParser.end()) return nullptr;
-				kSampler.ComparisonFunc = itCompFuncEnum->second;
-			}
-			else
-			{
-				kSampler.ComparisonFunc = D3D12_COMPARISON_FUNC_ALWAYS;
-			}
-			
-
-			auto itBorderColor = kValue.FindMember("border_color");
-			if (itBorderColor != kValue.MemberEnd())
-			{
-				if (!itBorderColor->value.IsString()) return nullptr;
-				auto itBorderColorEnum = m_kStaticBorderColorParser.find(itBorderColor->value.GetString());
-				if (itBorderColorEnum == m_kStaticBorderColorParser.end()) return nullptr;
-				kSampler.BorderColor = itBorderColorEnum->second;
-			}
-			else
-			{
-				kSampler.BorderColor = D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK;
-			}
-			
-
-			auto itMinLod = kValue.FindMember("min_lod");
-			if (itMinLod != kValue.MemberEnd())
-			{
-				if (!itMinLod->value.IsNumber()) return nullptr;
-				kSampler.MinLOD = itMinLod->value.GetDouble();
-			}
-			else
-			{
-				kSampler.MinLOD = 0;
-			}
-
-			auto itMaxLod = kValue.FindMember("max_lod");
-			if (itMaxLod != kValue.MemberEnd())
-			{
-				if (!itMaxLod->value.IsNumber()) return nullptr;
-				kSampler.MaxLOD = itMaxLod->value.GetDouble();
-			}
-			else
-			{
-				kSampler.MaxLOD = D3D12_FLOAT32_MAX;
-			}			
-
-			auto itRegister = kValue.FindMember("register");
-			if (itRegister == kValue.MemberEnd()) return nullptr;
-			if (!itRegister->value.IsNumber()) return nullptr;
-			kSampler.ShaderRegister = itRegister->value.GetUint();
-
-			auto itSpace = kValue.FindMember("space");
-			if (itSpace == kValue.MemberEnd()) return nullptr;
-			if (!itSpace->value.IsNumber()) return nullptr;
-			kSampler.RegisterSpace = itSpace->value.GetUint();
-
-			auto itVis = kValue.FindMember("visibility");
-			if (itVis == kValue.MemberEnd()) return nullptr;
-			if (!itVis->value.IsString()) return nullptr;
-			auto itVisEnum = m_kShaderVisibilityParser.find(itVis->value.GetString());
-			if (itVisEnum == m_kShaderVisibilityParser.end()) return nullptr;
-			kSampler.ShaderVisibility = itVisEnum->second;
+			kSampler.Filter = VeToEnum(kValue, "filter", m_kFilterParser, D3D12_FILTER_MIN_MAG_MIP_LINEAR);
+			kSampler.AddressU = VeToEnum(kValue, "addU", m_kTexAddressModeParser, D3D12_TEXTURE_ADDRESS_MODE_WRAP);
+			kSampler.AddressV = VeToEnum(kValue, "addV", m_kTexAddressModeParser, D3D12_TEXTURE_ADDRESS_MODE_WRAP);
+			kSampler.AddressW = VeToEnum(kValue, "addW", m_kTexAddressModeParser, D3D12_TEXTURE_ADDRESS_MODE_WRAP);
+			kSampler.MipLODBias = VeToNumber(kValue, "lod_bias", 0.0f);
+			kSampler.MaxAnisotropy = VeToNumber(kValue, "max_ani", 0u);
+			kSampler.ComparisonFunc = VeToEnum(kValue, "comp_func", m_kComparisonFuncParser, D3D12_COMPARISON_FUNC_ALWAYS);
+			kSampler.BorderColor = VeToEnum(kValue, "border_color", m_kStaticBorderColorParser, D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK);
+			kSampler.MinLOD = VeToNumber(kValue, "min_lod", 0.0f);
+			kSampler.MaxLOD = VeToNumber(kValue, "max_lod", D3D12_FLOAT32_MAX);
+			kSampler.ShaderRegister = VeToNumber(kValue, "register", 0u);
+			kSampler.RegisterSpace = VeToNumber(kValue, "space", 0u);
+			kSampler.ShaderVisibility = VeToEnum(kValue, "visibility", m_kShaderVisibilityParser, D3D12_SHADER_VISIBILITY_ALL);
 		}
 	}	
 	
@@ -561,7 +388,6 @@ VeBlobPtr VeRendererD3D12::SerializeRootSignature(const VeChar8* pcName,
 	VeBlobPtr spBlob;
 	ID3DBlob* pkCode = nullptr;
 	ID3DBlob* pkError = nullptr;
-
 	if (SUCCEEDED(D3D12SerializeRootSignature(&kDesc, D3D_ROOT_SIGNATURE_VERSION_1, &pkCode, &pkError)))
 	{
 		spBlob = VE_NEW VeBlob(pkCode->GetBufferSize());
@@ -598,11 +424,315 @@ VeRendererD3D12::RootSignaturePtr VeRendererD3D12::CreateRootSignature(
 	{
 		VE_SAFE_RELEASE(pkRootSig);
 		return nullptr;
-	}	
+	}
+}
+//--------------------------------------------------------------------------
+VeRenderer::PipelineStatePtr VeRendererD3D12::CreatePipelineState(
+	VeJSONValue& kConfig) noexcept
+{
+	bool bGraphics = VeToBoolean(kConfig, "graphics", true);
+	return bGraphics ? CreateGraphicsPipelineState(kConfig)
+		: CreateComputePipelineState(kConfig);
+}
+//--------------------------------------------------------------------------
+void FillBlendState(D3D12_BLEND_DESC& kDesc,
+	VeRendererD3D12::BlendType eType) noexcept
+{
+	kDesc.AlphaToCoverageEnable = FALSE;
+	kDesc.IndependentBlendEnable = FALSE;
+	switch (eType)
+	{
+	case VeRendererD3D12::ADD:
+		kDesc.RenderTarget[0] =
+		{
+			FALSE,FALSE,
+			D3D12_BLEND_ONE, D3D12_BLEND_ZERO, D3D12_BLEND_OP_ADD,
+			D3D12_BLEND_ONE, D3D12_BLEND_ZERO, D3D12_BLEND_OP_ADD,
+			D3D12_LOGIC_OP_NOOP,
+			D3D12_COLOR_WRITE_ENABLE_ALL,
+		};
+		break;
+	case VeRendererD3D12::BLEND:
+		kDesc.RenderTarget[0] =
+		{
+			FALSE,FALSE,
+			D3D12_BLEND_ONE, D3D12_BLEND_ZERO, D3D12_BLEND_OP_ADD,
+			D3D12_BLEND_ONE, D3D12_BLEND_ZERO, D3D12_BLEND_OP_ADD,
+			D3D12_LOGIC_OP_NOOP,
+			D3D12_COLOR_WRITE_ENABLE_ALL,
+		};
+		break;
+	default:
+		kDesc.RenderTarget[0] =
+		{
+			FALSE,FALSE,
+			D3D12_BLEND_ONE, D3D12_BLEND_ZERO, D3D12_BLEND_OP_ADD,
+			D3D12_BLEND_ONE, D3D12_BLEND_ZERO, D3D12_BLEND_OP_ADD,
+			D3D12_LOGIC_OP_NOOP,
+			D3D12_COLOR_WRITE_ENABLE_ALL,
+		};
+		break;
+	}
+}
+//--------------------------------------------------------------------------
+void FillRasterizerState(D3D12_RASTERIZER_DESC& kDesc,
+	VeRendererD3D12::RasterType eType) noexcept
+{
+	switch (eType)
+	{
+	case VeRendererD3D12::CULL_FRONT:
+		kDesc.FillMode = D3D12_FILL_MODE_SOLID;
+		kDesc.CullMode = D3D12_CULL_MODE_FRONT;
+		kDesc.FrontCounterClockwise = FALSE;
+		kDesc.DepthBias = D3D12_DEFAULT_DEPTH_BIAS;
+		kDesc.DepthBiasClamp = D3D12_DEFAULT_DEPTH_BIAS_CLAMP;
+		kDesc.SlopeScaledDepthBias = D3D12_DEFAULT_SLOPE_SCALED_DEPTH_BIAS;
+		kDesc.DepthClipEnable = TRUE;
+		kDesc.MultisampleEnable = FALSE;
+		kDesc.AntialiasedLineEnable = FALSE;
+		kDesc.ForcedSampleCount = 0;
+		kDesc.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
+		break;
+	case VeRendererD3D12::CULL_NONE:
+		kDesc.FillMode = D3D12_FILL_MODE_SOLID;
+		kDesc.CullMode = D3D12_CULL_MODE_NONE;
+		kDesc.FrontCounterClockwise = FALSE;
+		kDesc.DepthBias = D3D12_DEFAULT_DEPTH_BIAS;
+		kDesc.DepthBiasClamp = D3D12_DEFAULT_DEPTH_BIAS_CLAMP;
+		kDesc.SlopeScaledDepthBias = D3D12_DEFAULT_SLOPE_SCALED_DEPTH_BIAS;
+		kDesc.DepthClipEnable = TRUE;
+		kDesc.MultisampleEnable = FALSE;
+		kDesc.AntialiasedLineEnable = FALSE;
+		kDesc.ForcedSampleCount = 0;
+		kDesc.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
+		break;
+	default:
+		kDesc.FillMode = D3D12_FILL_MODE_SOLID;
+		kDesc.CullMode = D3D12_CULL_MODE_BACK;
+		kDesc.FrontCounterClockwise = FALSE;
+		kDesc.DepthBias = D3D12_DEFAULT_DEPTH_BIAS;
+		kDesc.DepthBiasClamp = D3D12_DEFAULT_DEPTH_BIAS_CLAMP;
+		kDesc.SlopeScaledDepthBias = D3D12_DEFAULT_SLOPE_SCALED_DEPTH_BIAS;
+		kDesc.DepthClipEnable = TRUE;
+		kDesc.MultisampleEnable = FALSE;
+		kDesc.AntialiasedLineEnable = FALSE;
+		kDesc.ForcedSampleCount = 0;
+		kDesc.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
+		break;
+	}
+}
+//--------------------------------------------------------------------------
+void FillDepthStencilState(D3D12_DEPTH_STENCIL_DESC& kDesc,
+	VeRendererD3D12::DepthStencilType eType) noexcept
+{
+	switch (eType)
+	{
+	case VeRendererD3D12::DS_STANDARD:
+		kDesc.DepthEnable = TRUE;
+		kDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
+		kDesc.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
+		kDesc.StencilEnable = FALSE;
+		break;
+	default:
+		kDesc.DepthEnable = FALSE;
+		kDesc.StencilEnable = FALSE;
+		break;
+	}
+}
+//--------------------------------------------------------------------------
+VeRenderer::PipelineStatePtr VeRendererD3D12::CreateGraphicsPipelineState(
+	VeJSONValue& kConfig) noexcept
+{
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC kDesc = {};
+	{
+		auto itName = kConfig.FindMember(VeRootSignature::GetName());
+		if (itName != kConfig.MemberEnd() && itName->value.IsString())
+		{
+			VeRootSignaturePtr spRes = ve_res_mgr.Get<VeRootSignature>(VeRootSignature::GetName(), itName->value.GetString(), false);
+			if ((!spRes) || (!spRes->GetObject())) return nullptr;
+			RootSignatureD3D12* pkRootSig = VeDynamicCast(RootSignatureD3D12, &*spRes->GetObject());
+			if ((!pkRootSig) || (!pkRootSig->m_pkRootSignature)) return nullptr;
+			kDesc.pRootSignature = pkRootSig->m_pkRootSignature;
+		}
+	}
+	{
+		auto itName = kConfig.FindMember(VeShader::GetTypeName(VeShader::TYPE_VS));
+		if (itName != kConfig.MemberEnd() && itName->value.IsString())
+		{
+			VeShaderPtr spRes = ve_res_mgr.Get<VeShader>(VeShader::GetTypeName(VeShader::TYPE_VS), itName->value.GetString(), false);
+			if ((!spRes) || (!spRes->GetObject())) return nullptr;
+			VeBlobPtr spBlob = spRes->GetObject();
+			kDesc.VS.pShaderBytecode = spBlob->GetBuffer();
+			kDesc.VS.BytecodeLength = spBlob->GetSize();
+		}
+	}
+	{
+		auto itName = kConfig.FindMember(VeShader::GetTypeName(VeShader::TYPE_PS));
+		if (itName != kConfig.MemberEnd() && itName->value.IsString())
+		{
+			VeShaderPtr spRes = ve_res_mgr.Get<VeShader>(VeShader::GetTypeName(VeShader::TYPE_PS), itName->value.GetString(), false);
+			if ((!spRes) || (!spRes->GetObject())) return nullptr;
+			VeBlobPtr spBlob = spRes->GetObject();
+			kDesc.PS.pShaderBytecode = spBlob->GetBuffer();
+			kDesc.PS.BytecodeLength = spBlob->GetSize();
+		}
+	}
+	{
+		auto itName = kConfig.FindMember(VeShader::GetTypeName(VeShader::TYPE_DS));
+		if (itName != kConfig.MemberEnd() && itName->value.IsString())
+		{
+			VeShaderPtr spRes = ve_res_mgr.Get<VeShader>(VeShader::GetTypeName(VeShader::TYPE_DS), itName->value.GetString(), false);
+			if ((!spRes) || (!spRes->GetObject())) return nullptr;
+			VeBlobPtr spBlob = spRes->GetObject();
+			kDesc.DS.pShaderBytecode = spBlob->GetBuffer();
+			kDesc.DS.BytecodeLength = spBlob->GetSize();
+		}
+	}
+	{
+		auto itName = kConfig.FindMember(VeShader::GetTypeName(VeShader::TYPE_HS));
+		if (itName != kConfig.MemberEnd() && itName->value.IsString())
+		{
+			VeShaderPtr spRes = ve_res_mgr.Get<VeShader>(VeShader::GetTypeName(VeShader::TYPE_HS), itName->value.GetString(), false);
+			if ((!spRes) || (!spRes->GetObject())) return nullptr;
+			VeBlobPtr spBlob = spRes->GetObject();
+			kDesc.HS.pShaderBytecode = spBlob->GetBuffer();
+			kDesc.HS.BytecodeLength = spBlob->GetSize();
+		}
+	}
+	{
+		auto itName = kConfig.FindMember(VeShader::GetTypeName(VeShader::TYPE_GS));
+		if (itName != kConfig.MemberEnd() && itName->value.IsString())
+		{
+			VeShaderPtr spRes = ve_res_mgr.Get<VeShader>(VeShader::GetTypeName(VeShader::TYPE_GS), itName->value.GetString(), false);
+			if ((!spRes) || (!spRes->GetObject())) return nullptr;
+			VeBlobPtr spBlob = spRes->GetObject();
+			kDesc.GS.pShaderBytecode = spBlob->GetBuffer();
+			kDesc.GS.BytecodeLength = spBlob->GetSize();
+		}
+	}
+	{
+		bool bNeed = true;
+		auto itBlend = kConfig.FindMember("blend_state");
+		if (itBlend != kConfig.MemberEnd())
+		{
+			if (itBlend->value.IsString())
+			{
+				auto itBlendEnum = m_kBlendTypeParser.find(itBlend->value.GetString());
+				if (itBlendEnum != m_kBlendTypeParser.end())
+				{
+					FillBlendState(kDesc.BlendState, itBlendEnum->second);
+					bNeed = false;
+				}				
+			}
+		}
+		if (bNeed)
+		{
+			FillBlendState(kDesc.BlendState, REPLACE);
+		}
+		kDesc.SampleMask = VeToNumber(kConfig, "sample_mask", 0u);
+	}
+	{
+		bool bNeed = true;
+		auto itRaster = kConfig.FindMember("rasterizer_state");
+		if (itRaster != kConfig.MemberEnd())
+		{
+			if (itRaster->value.IsString())
+			{
+				auto itRasterEnum = m_kRasterTypeParser.find(itRaster->value.GetString());
+				if (itRasterEnum != m_kRasterTypeParser.end())
+				{
+					FillRasterizerState(kDesc.RasterizerState, itRasterEnum->second);
+					bNeed = false;
+				}
+			}
+		}
+		if (bNeed)
+		{
+			FillRasterizerState(kDesc.RasterizerState, CULL_BACK);
+		}
+	}
+	{
+		bool bNeed = true;
+		auto itDepth = kConfig.FindMember("depth_stencil_state");
+		if (itDepth != kConfig.MemberEnd())
+		{
+			if (itDepth->value.IsString())
+			{
+				auto itDepthEnum = m_kDSTypeParser.find(itDepth->value.GetString());
+				if (itDepthEnum != m_kDSTypeParser.end())
+				{
+					FillDepthStencilState(kDesc.DepthStencilState, itDepthEnum->second);
+					bNeed = false;
+				}
+			}
+		}
+		if (bNeed)
+		{
+			FillDepthStencilState(kDesc.DepthStencilState, DS_NONE);
+		}		
+	}
+	D3D12_INPUT_ELEMENT_DESC akElements[32];
+	{
+		auto itInput = kConfig.FindMember("input_layout");
+		if (itInput == kConfig.MemberEnd()
+			|| (!itInput->value.IsArray())
+			|| itInput->value.Empty()) return nullptr;
+		kDesc.InputLayout.pInputElementDescs = akElements;
+		kDesc.InputLayout.NumElements = itInput->value.Size();
+		VE_ASSERT(kDesc.InputLayout.NumElements <= 32);
+		for (VeUInt32 i(0); i < kDesc.InputLayout.NumElements; ++i)
+		{
+			D3D12_INPUT_ELEMENT_DESC& kElement = akElements[i];
+			VeJSONValue& kInputValue = itInput->value[i];
+			kElement.SemanticName = VeToString(kInputValue, "sem_name");
+			kElement.SemanticIndex = VeToNumber(kInputValue, "sem_index", 0u);
+			kElement.Format = VeToEnum(kInputValue, "format", m_kFormatParser, DXGI_FORMAT_UNKNOWN);
+			kElement.InputSlot = VeToNumber(kInputValue, "slot", 0u);
+			kElement.AlignedByteOffset = VeToNumber(kInputValue, "offset", 0u);
+			kElement.InputSlotClass = VeToEnum(kInputValue, "class", m_kInputClassParser, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA);
+			kElement.InstanceDataStepRate = VeToNumber(kInputValue, "step_rate", 0u);
+		}
+
+	}
+	kDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+	kDesc.NumRenderTargets = 1;
+	kDesc.RTVFormats[0] = DXGI_FORMAT_R10G10B10A2_UNORM;
+	kDesc.SampleDesc.Count = 1;
+
+	ID3D12PipelineState* pkPipelineState(nullptr);
+	if (SUCCEEDED(m_pkDevice->CreateGraphicsPipelineState(&kDesc,
+		__uuidof(ID3D12PipelineState), (void**)&pkPipelineState)))
+	{
+		PipelineStateD3D12* pkObj = VE_NEW PipelineStateD3D12(pkPipelineState);
+		m_kPipelineStateList.attach_back(pkObj->m_kNode);
+		return pkObj;
+	}
+	else
+	{
+		VE_SAFE_RELEASE(pkPipelineState);
+		return nullptr;
+	}
+}
+//--------------------------------------------------------------------------
+VeRenderer::PipelineStatePtr VeRendererD3D12::CreateComputePipelineState(
+	VeJSONValue& kConfig) noexcept
+{
+	return nullptr;
 }
 //--------------------------------------------------------------------------
 void VeRendererD3D12::InitParsers() noexcept
 {
+	m_kBlendTypeParser["replace"] = REPLACE;
+	m_kBlendTypeParser["add"] = ADD;
+	m_kBlendTypeParser["blend"] = BLEND;
+
+	m_kRasterTypeParser["cull_back"] = CULL_BACK;
+	m_kRasterTypeParser["cull_front"] = CULL_FRONT;
+	m_kRasterTypeParser["cull_none"] = CULL_NONE;
+
+	m_kDSTypeParser["none"] = DS_NONE;
+	m_kDSTypeParser["standard"] = DS_STANDARD;
+
 	m_kRootParameterTypeParser["table"] = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 	m_kRootParameterTypeParser["32bit"] = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
 	m_kRootParameterTypeParser["cbv"] = D3D12_ROOT_PARAMETER_TYPE_CBV;
@@ -685,10 +815,135 @@ void VeRendererD3D12::InitParsers() noexcept
 	m_kStaticBorderColorParser["trans_black"] = D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK;
 	m_kStaticBorderColorParser["opaque_black"] = D3D12_STATIC_BORDER_COLOR_OPAQUE_BLACK;
 	m_kStaticBorderColorParser["opaque_white"] = D3D12_STATIC_BORDER_COLOR_OPAQUE_WHITE;
+
+	m_kFormatParser["r32g32b32a32_typeless"] = DXGI_FORMAT_R32G32B32A32_TYPELESS;
+	m_kFormatParser["r32g32b32a32_float"] = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	m_kFormatParser["r32g32b32a32_uint"] = DXGI_FORMAT_R32G32B32A32_UINT;
+	m_kFormatParser["r32g32b32a32_sint"] = DXGI_FORMAT_R32G32B32A32_SINT;
+	m_kFormatParser["r32g32b32_typeless"] = DXGI_FORMAT_R32G32B32_TYPELESS;
+	m_kFormatParser["r32g32b32_float"] = DXGI_FORMAT_R32G32B32_FLOAT;
+	m_kFormatParser["r32g32b32_uint"] = DXGI_FORMAT_R32G32B32_UINT;
+	m_kFormatParser["r32g32b32_sint"] = DXGI_FORMAT_R32G32B32_SINT;
+	m_kFormatParser["r16g16b16a16_typeless"] = DXGI_FORMAT_R16G16B16A16_TYPELESS;
+	m_kFormatParser["r16g16b16a16_float"] = DXGI_FORMAT_R16G16B16A16_FLOAT;
+	m_kFormatParser["r16g16b16a16_unorm"] = DXGI_FORMAT_R16G16B16A16_UNORM;
+	m_kFormatParser["r16g16b16a16_uint"] = DXGI_FORMAT_R16G16B16A16_UINT;
+	m_kFormatParser["r16g16b16a16_snorm"] = DXGI_FORMAT_R16G16B16A16_SNORM;
+	m_kFormatParser["r16g16b16a16_sint"] = DXGI_FORMAT_R16G16B16A16_SINT;
+	m_kFormatParser["r32g32_typeless"] = DXGI_FORMAT_R32G32_TYPELESS;
+	m_kFormatParser["r32g32_float"] = DXGI_FORMAT_R32G32_FLOAT;
+	m_kFormatParser["r32g32_uint"] = DXGI_FORMAT_R32G32_UINT;
+	m_kFormatParser["r32g32_sint"] = DXGI_FORMAT_R32G32_SINT;
+	m_kFormatParser["r32g8x24_typeless"] = DXGI_FORMAT_R32G8X24_TYPELESS;
+	m_kFormatParser["d32_float_s8x24_uint"] = DXGI_FORMAT_D32_FLOAT_S8X24_UINT;
+	m_kFormatParser["r32_float_x8x24_typeless"] = DXGI_FORMAT_R32_FLOAT_X8X24_TYPELESS;
+	m_kFormatParser["x32_typeless_g8x24_uint"] = DXGI_FORMAT_X32_TYPELESS_G8X24_UINT;
+	m_kFormatParser["r10g10b10a2_typeless"] = DXGI_FORMAT_R10G10B10A2_TYPELESS;
+	m_kFormatParser["r10g10b10a2_unorm"] = DXGI_FORMAT_R10G10B10A2_UNORM;
+	m_kFormatParser["r10g10b10a2_uint"] = DXGI_FORMAT_R10G10B10A2_UINT;
+	m_kFormatParser["r11g11b10_float"] = DXGI_FORMAT_R11G11B10_FLOAT;
+	m_kFormatParser["r8g8b8a8_typeless"] = DXGI_FORMAT_R8G8B8A8_TYPELESS;
+	m_kFormatParser["r8g8b8a8_unorm"] = DXGI_FORMAT_R8G8B8A8_UNORM;
+	m_kFormatParser["r8g8b8a8_unorm_srgb"] = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+	m_kFormatParser["r8g8b8a8_uint"] = DXGI_FORMAT_R8G8B8A8_UINT;
+	m_kFormatParser["r8g8b8a8_snorm"] = DXGI_FORMAT_R8G8B8A8_SNORM;
+	m_kFormatParser["r8g8b8a8_sint"] = DXGI_FORMAT_R8G8B8A8_SINT;
+	m_kFormatParser["r16g16_typeless"] = DXGI_FORMAT_R16G16_TYPELESS;
+	m_kFormatParser["r16g16_float"] = DXGI_FORMAT_R16G16_FLOAT;
+	m_kFormatParser["r16g16_unorm"] = DXGI_FORMAT_R16G16_UNORM;
+	m_kFormatParser["r16g16_uint"] = DXGI_FORMAT_R16G16_UINT;
+	m_kFormatParser["r16g16_snorm"] = DXGI_FORMAT_R16G16_SNORM;
+	m_kFormatParser["r16g16_sint"] = DXGI_FORMAT_R16G16_SINT;
+	m_kFormatParser["r32_typeless"] = DXGI_FORMAT_R32_TYPELESS;
+	m_kFormatParser["d32_float"] = DXGI_FORMAT_D32_FLOAT;
+	m_kFormatParser["r32_float"] = DXGI_FORMAT_R32_FLOAT;
+	m_kFormatParser["r32_uint"] = DXGI_FORMAT_R32_UINT;
+	m_kFormatParser["r32_sint"] = DXGI_FORMAT_R32_SINT;
+	m_kFormatParser["r24g8_typeless"] = DXGI_FORMAT_R24G8_TYPELESS;
+	m_kFormatParser["d24_unorm_s8_uint"] = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	m_kFormatParser["r24_unorm_x8_typeless"] = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
+	m_kFormatParser["x24_typeless_g8_uint"] = DXGI_FORMAT_X24_TYPELESS_G8_UINT;
+	m_kFormatParser["r8g8_typeless"] = DXGI_FORMAT_R8G8_TYPELESS;
+	m_kFormatParser["r8g8_unorm"] = DXGI_FORMAT_R8G8_UNORM;
+	m_kFormatParser["r8g8_uint"] = DXGI_FORMAT_R8G8_UINT;
+	m_kFormatParser["r8g8_snorm"] = DXGI_FORMAT_R8G8_SNORM;
+	m_kFormatParser["r8g8_sint"] = DXGI_FORMAT_R8G8_SINT;
+	m_kFormatParser["r16_typeless"] = DXGI_FORMAT_R16_TYPELESS;
+	m_kFormatParser["r16_float"] = DXGI_FORMAT_R16_FLOAT;
+	m_kFormatParser["d16_unorm"] = DXGI_FORMAT_D16_UNORM;
+	m_kFormatParser["r16_unorm"] = DXGI_FORMAT_R16_UNORM;
+	m_kFormatParser["r16_uint"] = DXGI_FORMAT_R16_UINT;
+	m_kFormatParser["r16_snorm"] = DXGI_FORMAT_R16_SNORM;
+	m_kFormatParser["r16_sint"] = DXGI_FORMAT_R16_SINT;
+	m_kFormatParser["r8_typeless"] = DXGI_FORMAT_R8_TYPELESS;
+	m_kFormatParser["r8_unorm"] = DXGI_FORMAT_R8_UNORM;
+	m_kFormatParser["r8_uint"] = DXGI_FORMAT_R8_UINT;
+	m_kFormatParser["r8_snorm"] = DXGI_FORMAT_R8_SNORM;
+	m_kFormatParser["r8_sint"] = DXGI_FORMAT_R8_SINT;
+	m_kFormatParser["a8_unorm"] = DXGI_FORMAT_A8_UNORM;
+	m_kFormatParser["r1_unorm"] = DXGI_FORMAT_R1_UNORM;
+	m_kFormatParser["r9g9b9e5_sharedexp"] = DXGI_FORMAT_R9G9B9E5_SHAREDEXP;
+	m_kFormatParser["r8g8_b8g8_unorm"] = DXGI_FORMAT_R8G8_B8G8_UNORM;
+	m_kFormatParser["g8r8_g8b8_unorm"] = DXGI_FORMAT_G8R8_G8B8_UNORM;
+	m_kFormatParser["bc1_typeless"] = DXGI_FORMAT_BC1_TYPELESS;
+	m_kFormatParser["bc1_unorm"] = DXGI_FORMAT_BC1_UNORM;
+	m_kFormatParser["bc1_unorm_srgb"] = DXGI_FORMAT_BC1_UNORM_SRGB;
+	m_kFormatParser["bc2_typeless"] = DXGI_FORMAT_BC2_TYPELESS;
+	m_kFormatParser["bc2_unorm"] = DXGI_FORMAT_BC2_UNORM;
+	m_kFormatParser["bc2_unorm_srgb"] = DXGI_FORMAT_BC2_UNORM_SRGB;
+	m_kFormatParser["bc3_typeless"] = DXGI_FORMAT_BC3_TYPELESS;
+	m_kFormatParser["bc3_unorm"] = DXGI_FORMAT_BC3_UNORM;
+	m_kFormatParser["bc3_unorm_srgb"] = DXGI_FORMAT_BC3_UNORM_SRGB;
+	m_kFormatParser["bc4_typeless"] = DXGI_FORMAT_BC4_TYPELESS;
+	m_kFormatParser["bc4_unorm"] = DXGI_FORMAT_BC4_UNORM;
+	m_kFormatParser["bc4_snorm"] = DXGI_FORMAT_BC4_SNORM;
+	m_kFormatParser["bc5_typeless"] = DXGI_FORMAT_BC5_TYPELESS;
+	m_kFormatParser["bc5_unorm"] = DXGI_FORMAT_BC5_UNORM;
+	m_kFormatParser["bc5_snorm"] = DXGI_FORMAT_BC5_SNORM;
+	m_kFormatParser["b5g6r5_unorm"] = DXGI_FORMAT_B5G6R5_UNORM;
+	m_kFormatParser["b5g5r5a1_unorm"] = DXGI_FORMAT_B5G5R5A1_UNORM;
+	m_kFormatParser["b8g8r8a8_unorm"] = DXGI_FORMAT_B8G8R8A8_UNORM;
+	m_kFormatParser["b8g8r8x8_unorm"] = DXGI_FORMAT_B8G8R8X8_UNORM;
+	m_kFormatParser["r10g10b10_xr_bias_a2_unorm"] = DXGI_FORMAT_R10G10B10_XR_BIAS_A2_UNORM;
+	m_kFormatParser["b8g8r8a8_typeless"] = DXGI_FORMAT_B8G8R8A8_TYPELESS;
+	m_kFormatParser["b8g8r8a8_unorm_srgb"] = DXGI_FORMAT_B8G8R8A8_UNORM_SRGB;
+	m_kFormatParser["b8g8r8x8_typeless"] = DXGI_FORMAT_B8G8R8X8_TYPELESS;
+	m_kFormatParser["b8g8r8x8_unorm_srgb"] = DXGI_FORMAT_B8G8R8X8_UNORM_SRGB;
+	m_kFormatParser["bc6h_typeless"] = DXGI_FORMAT_BC6H_TYPELESS;
+	m_kFormatParser["bc6h_uf16"] = DXGI_FORMAT_BC6H_UF16;
+	m_kFormatParser["bc6h_sf16"] = DXGI_FORMAT_BC6H_SF16;
+	m_kFormatParser["bc7_typeless"] = DXGI_FORMAT_BC7_TYPELESS;
+	m_kFormatParser["bc7_unorm"] = DXGI_FORMAT_BC7_UNORM;
+	m_kFormatParser["bc7_unorm_srgb"] = DXGI_FORMAT_BC7_UNORM_SRGB;
+	m_kFormatParser["ayuv"] = DXGI_FORMAT_AYUV;
+	m_kFormatParser["y410"] = DXGI_FORMAT_Y410;
+	m_kFormatParser["y416"] = DXGI_FORMAT_Y416;
+	m_kFormatParser["nv12"] = DXGI_FORMAT_NV12;
+	m_kFormatParser["p010"] = DXGI_FORMAT_P010;
+	m_kFormatParser["p016"] = DXGI_FORMAT_P016;
+	m_kFormatParser["420_opaque"] = DXGI_FORMAT_420_OPAQUE;
+	m_kFormatParser["yuy2"] = DXGI_FORMAT_YUY2;
+	m_kFormatParser["y210"] = DXGI_FORMAT_Y210;
+	m_kFormatParser["y216"] = DXGI_FORMAT_Y216;
+	m_kFormatParser["nv11"] = DXGI_FORMAT_NV11;
+	m_kFormatParser["ai44"] = DXGI_FORMAT_AI44;
+	m_kFormatParser["ia44"] = DXGI_FORMAT_IA44;
+	m_kFormatParser["p8"] = DXGI_FORMAT_P8;
+	m_kFormatParser["a8p8"] = DXGI_FORMAT_A8P8;
+	m_kFormatParser["b4g4r4a4_unorm"] = DXGI_FORMAT_B4G4R4A4_UNORM;
+	m_kFormatParser["p208"] = DXGI_FORMAT_P208;
+	m_kFormatParser["v208"] = DXGI_FORMAT_V208;
+	m_kFormatParser["v408"] = DXGI_FORMAT_V408;
+
+	m_kInputClassParser["vertex"] = D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
+	m_kInputClassParser["instance"] = D3D12_INPUT_CLASSIFICATION_PER_INSTANCE_DATA;
 }
 //--------------------------------------------------------------------------
 void VeRendererD3D12::TermParsers() noexcept
 {
+	m_kBlendTypeParser.clear();
+	m_kRasterTypeParser.clear();
+	m_kDSTypeParser.clear();
 	m_kRootParameterTypeParser.clear();
 	m_kDescriptorRangeTypeParser.clear();
 	m_kShaderVisibilityParser.clear();
@@ -697,6 +952,8 @@ void VeRendererD3D12::TermParsers() noexcept
 	m_kTexAddressModeParser.clear();
 	m_kComparisonFuncParser.clear();
 	m_kStaticBorderColorParser.clear();
+	m_kFormatParser.clear();
+	m_kInputClassParser.clear();
 }
 //--------------------------------------------------------------------------
 VeRendererPtr CreateRendererD3D12() noexcept

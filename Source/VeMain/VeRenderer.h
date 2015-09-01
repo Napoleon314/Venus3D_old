@@ -42,6 +42,18 @@ public:
 
 	typedef VePointer<RootSignature> RootSignaturePtr;
 
+	class VE_MAIN_API PipelineState : public VeRefObject
+	{
+		VeNoCopy(PipelineState);
+		VeRTTIDecl(PipelineState);
+	public:
+		PipelineState() noexcept = default;
+		virtual ~PipelineState() noexcept = default;
+
+	};
+
+	typedef VePointer<PipelineState> PipelineStatePtr;
+
 	inline API GetAPI() const noexcept;
 
 	void RegistResTypes() noexcept;
@@ -69,6 +81,8 @@ public:
 		const VeResourceGroupPtr& spGroup) noexcept = 0;
 
 	virtual RootSignaturePtr CreateRootSignature(const VeBlobPtr& spBlob) noexcept = 0;
+
+	virtual PipelineStatePtr CreatePipelineState(VeJSONValue& kConfig) noexcept = 0;
 
 protected:
 	VeRenderer(API eType) noexcept;

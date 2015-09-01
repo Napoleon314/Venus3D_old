@@ -4,8 +4,8 @@
 //  Copyright (C), Venus Interactive Entertainment.2012
 // -------------------------------------------------------------------------
 //  Module:      VeMain
-//  File name:   VeRootSignature.inl
-//  Created:     2015/08/31 by Napoleon
+//  File name:   VePipelineState.inl
+//  Created:     2015/09/01 by Napoleon
 //  Description: 
 // -------------------------------------------------------------------------
 //  History:
@@ -13,13 +13,8 @@
 ////////////////////////////////////////////////////////////////////////////
 
 //--------------------------------------------------------------------------
-inline const VeRenderer::RootSignaturePtr& VeRootSignature::GetObject() noexcept
+inline const VeChar8* VePipelineState::GetName() noexcept
 {
-	return m_spObject;
-}
-//--------------------------------------------------------------------------
-inline const VeChar8* VeRootSignature::GetName() noexcept
-{
-	return "root_signature";
+	return "pipeline_state";
 }
 //--------------------------------------------------------------------------

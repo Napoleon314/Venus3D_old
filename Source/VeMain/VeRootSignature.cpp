@@ -264,12 +264,8 @@ VeRootSignature::JSONParser::JSONParser(
 							DecRefCount();
 						}
 					});
-					
-
 				}
 			});
-
-
 		}
 		else
 		{

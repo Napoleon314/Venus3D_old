@@ -33,3 +33,4 @@
 #include "VeShader.h"
 #include "VeRenderer.h"
 #include "VeRootSignature.h"
+#include "VePipelineState.h"

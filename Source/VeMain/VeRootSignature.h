@@ -25,6 +25,8 @@ public:
 
 	virtual const VeChar8* GetTypeName() const noexcept override;
 
+	inline const VeRenderer::RootSignaturePtr& GetObject() noexcept;
+
 	static inline const VeChar8* GetName() noexcept;
 
 	static void Regist() noexcept;
