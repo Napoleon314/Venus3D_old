@@ -19,6 +19,9 @@
 #include <d3d12.h>
 #include <dxgi1_4.h>
 #include <d3dcompiler.h>
+#include <wrl.h>
+
+using namespace Microsoft::WRL;
 
 #define D3D_COMPLIER "d3dcompiler_47"
 

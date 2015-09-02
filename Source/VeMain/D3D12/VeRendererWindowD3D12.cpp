@@ -125,7 +125,6 @@ void VeRenderWindowD3D12::Init(VeRendererD3D12& kRenderer) noexcept
 	m_kScissorRect.bottom = m_spTargetWindow->GetHeight();
 
 	{
-		// Define the geometry for a triangle.
 		VE_FLOAT3 triangleVertices[] =
 		{
 			{ -1.0f, 1.0f, 0.0f },
@@ -135,52 +134,49 @@ void VeRenderWindowD3D12::Init(VeRendererD3D12& kRenderer) noexcept
 
 		const UINT vertexBufferSize = sizeof(triangleVertices);
 
-		D3D12_HEAP_PROPERTIES kHeapProp =
-		{
-			D3D12_HEAP_TYPE_UPLOAD,
-			D3D12_CPU_PAGE_PROPERTY_UNKNOWN,
-			D3D12_MEMORY_POOL_UNKNOWN,
-			1,1
-		};
+		D3D12_HEAP_PROPERTIES kHeapProp = {};
+		kHeapProp.Type = D3D12_HEAP_TYPE_UPLOAD;
+		kHeapProp.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+		kHeapProp.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
+		kHeapProp.CreationNodeMask = 0;
+		kHeapProp.VisibleNodeMask = 0;
 
-		D3D12_RESOURCE_DESC kResDec =
-		{
-			D3D12_RESOURCE_DIMENSION_BUFFER,
-			0,
-			vertexBufferSize,
-			1,
-			1,
-			1,
-			DXGI_FORMAT_UNKNOWN,
-			{1,0},
-			D3D12_TEXTURE_LAYOUT_ROW_MAJOR,
-			D3D12_RESOURCE_FLAG_NONE
-		};
+		D3D12_RESOURCE_DESC kResDesc = {};
+		kResDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+		kResDesc.Alignment = 0;
+		kResDesc.Width = vertexBufferSize;
+		kResDesc.Height = 1;
+		kResDesc.DepthOrArraySize = 1;
+		kResDesc.MipLevels = 1;
+		kResDesc.Format = DXGI_FORMAT_UNKNOWN;
+		kResDesc.SampleDesc.Count = 1;
+		kResDesc.SampleDesc.Quality = 0;
+		kResDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+		kResDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
 
+		
 		VE_ASSERT_GE(kRenderer.m_pkDevice->CreateCommittedResource(
 			&kHeapProp,
 			D3D12_HEAP_FLAG_NONE,
-			&kResDec,
+			&kResDesc,
 			D3D12_RESOURCE_STATE_GENERIC_READ,
 			nullptr,
-			__uuidof(ID3D12Resource*),
-			(void**)(&m_pkVertexBuffer)), S_OK);
+			IID_PPV_ARGS(&m_vertexBuffer)), S_OK);
 
 		UINT8* pVertexDataBegin;
-		VE_ASSERT_GE(m_pkVertexBuffer->Map(0, nullptr, reinterpret_cast<void**>(&pVertexDataBegin)), S_OK);
-		VeMemoryCopy(pVertexDataBegin, triangleVertices, sizeof(triangleVertices));
-		m_pkVertexBuffer->Unmap(0, nullptr);
+		VE_ASSERT_GE(m_vertexBuffer->Map(0, nullptr, reinterpret_cast<void**>(&pVertexDataBegin)), S_OK);
+		memcpy(pVertexDataBegin, triangleVertices, sizeof(triangleVertices));
+		m_vertexBuffer->Unmap(0, nullptr);
 
-		// Initialize the vertex buffer view.
-		m_pkVertexBufferView.BufferLocation = m_pkVertexBuffer->GetGPUVirtualAddress();
-		m_pkVertexBufferView.StrideInBytes = sizeof(VE_FLOAT3);
-		m_pkVertexBufferView.SizeInBytes = vertexBufferSize;
+		m_vertexBufferView.BufferLocation = m_vertexBuffer->GetGPUVirtualAddress();
+		m_vertexBufferView.StrideInBytes = sizeof(VE_FLOAT3);
+		m_vertexBufferView.SizeInBytes = vertexBufferSize;
 	}
 }
 //--------------------------------------------------------------------------
 void VeRenderWindowD3D12::Term() noexcept
 {
-	VE_SAFE_RELEASE(m_pkVertexBuffer);
+	VE_SAFE_RELEASE(m_vertexBuffer);
 
 	VE_ASSERT(m_kNode.is_attach());
 	VeRendererD3D12& kRenderer = *VeMemberCast(

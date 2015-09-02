@@ -12,8 +12,6 @@
 //  http://www.venusie.com
 ////////////////////////////////////////////////////////////////////////////
 
-#include "d3dx12.h"
-
 class VeRenderWindowD3D12 : public VeRenderWindow
 {
 	VeNoCopy(VeRenderWindowD3D12);
@@ -71,7 +69,7 @@ public:
 			clearColor, 0, nullptr);
 		
 		kFrame.m_pkDirectList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-		kFrame.m_pkDirectList->IASetVertexBuffers(0, 1, &m_pkVertexBufferView);
+		kFrame.m_pkDirectList->IASetVertexBuffers(0, 1, &m_vertexBufferView);
 		kFrame.m_pkDirectList->DrawInstanced(3, 1, 0, 0);
 
 
@@ -106,23 +104,15 @@ protected:
 		VeUInt64 m_u64FenceValue = 0;
 	} m_akFrameCache[VeRendererD3D12::FRAME_COUNT];
 
-	//ID3D12PipelineState* m_pkState = nullptr;
-
 	D3D12_VIEWPORT m_kViewport;
 	D3D12_RECT m_kScissorRect;
-	ID3D12Resource* m_pkVertexBuffer = nullptr;
-	D3D12_VERTEX_BUFFER_VIEW m_pkVertexBufferView;
+
+	ID3D12Resource* m_vertexBuffer = nullptr;
+	D3D12_VERTEX_BUFFER_VIEW m_vertexBufferView;
 
 	ID3D12Fence* m_pkFence = nullptr;
 	HANDLE m_kFenceEvent = nullptr;
 	VeUInt64 m_u64FenceValue = 0;
-	
-
-	//ID3D12Resource* m_apkBackBufferResource[VeRendererD3D12::FRAME_COUNT];
-	//D3D12_CPU_DESCRIPTOR_HANDLE m_ahRenderTargetView[VeRendererD3D12::FRAME_COUNT];
-
-
-
 
 	VeUInt32 m_u32FrameIndex = 0;
 

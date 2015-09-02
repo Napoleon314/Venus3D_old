@@ -725,7 +725,7 @@ VeRenderer::PipelineStatePtr VeRendererD3D12::CreateGraphicsPipelineState(
 		{
 			FillBlendState(kDesc.BlendState, REPLACE);
 		}
-		kDesc.SampleMask = VeToNumber(kConfig, "sample_mask", 0u);
+		kDesc.SampleMask = VeToNumber(kConfig, "sample_mask", VE_UINT32_MAX);
 	}
 	{
 		bool bNeed = true;
