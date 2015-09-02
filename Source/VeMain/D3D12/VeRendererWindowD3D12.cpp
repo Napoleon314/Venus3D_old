@@ -111,10 +111,77 @@ void VeRenderWindowD3D12::Init(VeRendererD3D12& kRenderer) noexcept
 		kRenderer.m_kRenderWindowList.attach_back(m_kNode);
 	}
 	m_u32FrameIndex = m_pkSwapChain->GetCurrentBackBufferIndex();
+
+	m_kViewport.TopLeftX = 0;
+	m_kViewport.TopLeftY = 0;
+	m_kViewport.Width = m_spTargetWindow->GetWidth();
+	m_kViewport.Height = m_spTargetWindow->GetHeight();
+	m_kViewport.MinDepth = 0.0f;
+	m_kViewport.MaxDepth = 1.0f;
+
+	m_kScissorRect.left = 0;
+	m_kScissorRect.right = m_spTargetWindow->GetWidth();
+	m_kScissorRect.top = 0;
+	m_kScissorRect.bottom = m_spTargetWindow->GetHeight();
+
+	{
+		// Define the geometry for a triangle.
+		VE_FLOAT3 triangleVertices[] =
+		{
+			{ -1.0f, 1.0f, 0.0f },
+			{ 1.0f, 1.0f, 0.0f },
+			{ 1.0f, -1.0f, 0.0f }
+		};
+
+		const UINT vertexBufferSize = sizeof(triangleVertices);
+
+		D3D12_HEAP_PROPERTIES kHeapProp =
+		{
+			D3D12_HEAP_TYPE_UPLOAD,
+			D3D12_CPU_PAGE_PROPERTY_UNKNOWN,
+			D3D12_MEMORY_POOL_UNKNOWN,
+			1,1
+		};
+
+		D3D12_RESOURCE_DESC kResDec =
+		{
+			D3D12_RESOURCE_DIMENSION_BUFFER,
+			0,
+			vertexBufferSize,
+			1,
+			1,
+			1,
+			DXGI_FORMAT_UNKNOWN,
+			{1,0},
+			D3D12_TEXTURE_LAYOUT_ROW_MAJOR,
+			D3D12_RESOURCE_FLAG_NONE
+		};
+
+		VE_ASSERT_GE(kRenderer.m_pkDevice->CreateCommittedResource(
+			&kHeapProp,
+			D3D12_HEAP_FLAG_NONE,
+			&kResDec,
+			D3D12_RESOURCE_STATE_GENERIC_READ,
+			nullptr,
+			__uuidof(ID3D12Resource*),
+			(void**)(&m_pkVertexBuffer)), S_OK);
+
+		UINT8* pVertexDataBegin;
+		VE_ASSERT_GE(m_pkVertexBuffer->Map(0, nullptr, reinterpret_cast<void**>(&pVertexDataBegin)), S_OK);
+		VeMemoryCopy(pVertexDataBegin, triangleVertices, sizeof(triangleVertices));
+		m_pkVertexBuffer->Unmap(0, nullptr);
+
+		// Initialize the vertex buffer view.
+		m_pkVertexBufferView.BufferLocation = m_pkVertexBuffer->GetGPUVirtualAddress();
+		m_pkVertexBufferView.StrideInBytes = sizeof(VE_FLOAT3);
+		m_pkVertexBufferView.SizeInBytes = vertexBufferSize;
+	}
 }
 //--------------------------------------------------------------------------
 void VeRenderWindowD3D12::Term() noexcept
 {
+	VE_SAFE_RELEASE(m_pkVertexBuffer);
+
 	VE_ASSERT(m_kNode.is_attach());
 	VeRendererD3D12& kRenderer = *VeMemberCast(
 		&VeRendererD3D12::m_kRenderWindowList, m_kNode.get_list());

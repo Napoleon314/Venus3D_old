@@ -35,6 +35,20 @@ inline _Ty VeToEnum(VeJSONValue& kValue, const VeChar8* pcName,
 	return tDefault;
 }
 
+template <class _Ty>
+inline _Ty VeToEnum(VeJSONValue& kValue, VeStringMap<_Ty>& kMap, _Ty tDefault) noexcept
+{
+	if (kValue.IsString())
+	{
+		auto iterVal = kMap.find(kValue.GetString());
+		if (iterVal != kMap.end())
+		{
+			return iterVal->second;
+		}
+	}
+	return tDefault;
+}
+
 namespace venus
 {
 	template<class _Ty>
@@ -119,12 +133,23 @@ inline const VeChar8* VeToString(VeJSONValue& kValue, const VeChar8* pcName,
 }
 
 inline bool VeToBoolean(VeJSONValue& kValue, const VeChar8* pcName,
-	bool bDefault) noexcept
+	bool bDefault = false) noexcept
 {
 	auto iter = kValue.FindMember(pcName);
 	if (iter != kValue.MemberEnd() && iter->value.IsBool())
 	{
 		return iter->value.GetBool();
+	}
+	return bDefault;
+}
+
+inline VE_BOOL VeToBool(VeJSONValue& kValue, const VeChar8* pcName,
+	VE_BOOL bDefault = VE_FALSE) noexcept
+{
+	auto iter = kValue.FindMember(pcName);
+	if (iter != kValue.MemberEnd() && iter->value.IsBool())
+	{
+		return iter->value.GetBool() ? VE_TRUE : VE_FALSE;
 	}
 	return bDefault;
 }

@@ -624,6 +624,102 @@ VeRenderer::PipelineStatePtr VeRendererD3D12::CreateGraphicsPipelineState(
 					bNeed = false;
 				}				
 			}
+			else if (itBlend->value.IsObject())
+			{
+				bNeed = false;
+				VeJSONValue& kBlend = itBlend->value;
+				kDesc.BlendState.AlphaToCoverageEnable = VeToBool(kBlend, "alpha_to_coverage");
+				kDesc.BlendState.IndependentBlendEnable = VeToBool(kBlend, "independent");				
+				auto itRTBlend = kBlend.FindMember("blend");
+				if (itRTBlend != kBlend.MemberEnd())
+				{
+					VeUInt32 u32Count(0);
+					if (itRTBlend->value.IsObject())
+					{						
+						kDesc.BlendState.RenderTarget[u32Count].BlendEnable = VeToBool(itRTBlend->value, "blend");
+						kDesc.BlendState.RenderTarget[u32Count].LogicOpEnable = VeToBool(itRTBlend->value, "logic_op");
+						kDesc.BlendState.RenderTarget[u32Count].SrcBlend = VeToEnum(itRTBlend->value, "src", m_kBlendParser, D3D12_BLEND_ZERO);
+						kDesc.BlendState.RenderTarget[u32Count].DestBlend = VeToEnum(itRTBlend->value, "dst", m_kBlendParser, D3D12_BLEND_ZERO);
+						kDesc.BlendState.RenderTarget[u32Count].BlendOp = VeToEnum(itRTBlend->value, "op", m_kBlendOpParser, D3D12_BLEND_OP_ADD);
+						kDesc.BlendState.RenderTarget[u32Count].SrcBlendAlpha = VeToEnum(itRTBlend->value, "src_alpha", m_kBlendParser, D3D12_BLEND_ZERO);
+						kDesc.BlendState.RenderTarget[u32Count].DestBlendAlpha = VeToEnum(itRTBlend->value, "dst_alpha", m_kBlendParser, D3D12_BLEND_ZERO);
+						kDesc.BlendState.RenderTarget[u32Count].BlendOpAlpha = VeToEnum(itRTBlend->value, "op_alpha", m_kBlendOpParser, D3D12_BLEND_OP_ADD);
+						kDesc.BlendState.RenderTarget[u32Count].LogicOp = VeToEnum(itRTBlend->value, "logic_op", m_kLogicOpParser, D3D12_LOGIC_OP_CLEAR);
+						auto itMask = itRTBlend->value.FindMember("mask");
+						if (itMask != itRTBlend->value.MemberEnd()
+							&& itMask->value.IsString())
+						{
+							VeChar8 acBuffer[VE_MAX_PATH_LEN];
+							VeStrcpy(acBuffer, itMask->value.GetString());
+							VeChar8* pcContext;
+							VeChar8* pcTemp = VeStrtok(acBuffer, "|", &pcContext);
+							while (pcTemp)
+							{
+								auto itFlag = m_kColorWriteParser.find(pcTemp);
+								if (itFlag != m_kColorWriteParser.end())
+								{
+									kDesc.BlendState.RenderTarget[u32Count].RenderTargetWriteMask |= itFlag->second;
+								}
+								pcTemp = VeStrtok<VeChar8>(nullptr, "|", &pcContext);
+							}
+						}
+						else
+						{
+							kDesc.BlendState.RenderTarget[u32Count].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+						}
+						++u32Count;
+					}
+					else if(itRTBlend->value.IsArray())
+					{
+						for (auto itRT = itRTBlend->value.Begin(); itRT != itRTBlend->value.End(); ++itRT)
+						{
+							if (itRT->IsObject())
+							{
+								
+								kDesc.BlendState.RenderTarget[u32Count].BlendEnable = VeToBool(itRTBlend->value, "blend");
+								kDesc.BlendState.RenderTarget[u32Count].LogicOpEnable = VeToBool(itRTBlend->value, "logic_op");
+								kDesc.BlendState.RenderTarget[u32Count].SrcBlend = VeToEnum(itRTBlend->value, "src", m_kBlendParser, D3D12_BLEND_ZERO);
+								kDesc.BlendState.RenderTarget[u32Count].DestBlend = VeToEnum(itRTBlend->value, "dst", m_kBlendParser, D3D12_BLEND_ZERO);
+								kDesc.BlendState.RenderTarget[u32Count].BlendOp = VeToEnum(itRTBlend->value, "op", m_kBlendOpParser, D3D12_BLEND_OP_ADD);
+								kDesc.BlendState.RenderTarget[u32Count].SrcBlendAlpha = VeToEnum(itRTBlend->value, "src_alpha", m_kBlendParser, D3D12_BLEND_ZERO);
+								kDesc.BlendState.RenderTarget[u32Count].DestBlendAlpha = VeToEnum(itRTBlend->value, "dst_alpha", m_kBlendParser, D3D12_BLEND_ZERO);
+								kDesc.BlendState.RenderTarget[u32Count].BlendOpAlpha = VeToEnum(itRTBlend->value, "op_alpha", m_kBlendOpParser, D3D12_BLEND_OP_ADD);
+								kDesc.BlendState.RenderTarget[u32Count].LogicOp = VeToEnum(itRTBlend->value, "logic_op", m_kLogicOpParser, D3D12_LOGIC_OP_CLEAR);
+								auto itMask = itRTBlend->value.FindMember("mask");
+								if (itMask != itRTBlend->value.MemberEnd()
+									&& itMask->value.IsString())
+								{
+									VeChar8 acBuffer[VE_MAX_PATH_LEN];
+									VeStrcpy(acBuffer, itMask->value.GetString());
+									VeChar8* pcContext;
+									VeChar8* pcTemp = VeStrtok(acBuffer, "|", &pcContext);
+									while (pcTemp)
+									{
+										auto itFlag = m_kColorWriteParser.find(pcTemp);
+										if (itFlag != m_kColorWriteParser.end())
+										{
+											kDesc.BlendState.RenderTarget[u32Count].RenderTargetWriteMask |= itFlag->second;
+										}
+										pcTemp = VeStrtok<VeChar8>(nullptr, "|", &pcContext);
+									}
+								}
+								else
+								{
+									kDesc.BlendState.RenderTarget[u32Count].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+								}
+								if((++u32Count) >= 8) break;
+							}								
+						}
+					}
+					if (u32Count)
+					{
+						for (VeUInt32 i(u32Count); i < 8; ++i)
+						{
+							kDesc.BlendState.RenderTarget[i] = kDesc.BlendState.RenderTarget[i - 1];
+						}						
+					}
+				}
+			}
 		}
 		if (bNeed)
 		{
@@ -645,6 +741,21 @@ VeRenderer::PipelineStatePtr VeRendererD3D12::CreateGraphicsPipelineState(
 					bNeed = false;
 				}
 			}
+			else if (itRaster->value.IsObject())
+			{
+				bNeed = false;
+				kDesc.RasterizerState.FillMode = VeToEnum(itRaster->value, "fill_mode", m_kFillModeParser, D3D12_FILL_MODE_SOLID);
+				kDesc.RasterizerState.CullMode = VeToEnum(itRaster->value, "cull_mode", m_kCullModeParser, D3D12_CULL_MODE_BACK);
+				kDesc.RasterizerState.FrontCounterClockwise = VeToBool(itRaster->value, "front_ccw");
+				kDesc.RasterizerState.DepthBias = VeToNumber(itRaster->value, "depth_bias", 0);
+				kDesc.RasterizerState.DepthBiasClamp = VeToNumber(itRaster->value, "depth_bias_clamp", 0.0f);
+				kDesc.RasterizerState.SlopeScaledDepthBias = VeToNumber(itRaster->value, "slope_scaled_depth_bias", 0.0f);
+				kDesc.RasterizerState.DepthClipEnable = VeToBool(itRaster->value, "depth_clip", VE_TRUE);
+				kDesc.RasterizerState.MultisampleEnable = VeToBool(itRaster->value, "msaa");
+				kDesc.RasterizerState.AntialiasedLineEnable = VeToBool(itRaster->value, "aa_line");
+				kDesc.RasterizerState.ForcedSampleCount = VeToNumber(itRaster->value, "sample_count", 0u);
+				kDesc.RasterizerState.ConservativeRaster = VeToBool(itRaster->value, "conservative_raster") ? D3D12_CONSERVATIVE_RASTERIZATION_MODE_ON : D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
+			}
 		}
 		if (bNeed)
 		{
@@ -665,11 +776,52 @@ VeRenderer::PipelineStatePtr VeRendererD3D12::CreateGraphicsPipelineState(
 					bNeed = false;
 				}
 			}
+			else if (itDepth->value.IsObject())
+			{
+				bNeed = false;
+				kDesc.DepthStencilState.DepthEnable = VeToBool(itDepth->value, "depth", VE_TRUE);
+				kDesc.DepthStencilState.DepthWriteMask = VeToBool(itDepth->value, "depth_write", VE_TRUE) ? D3D12_DEPTH_WRITE_MASK_ALL : D3D12_DEPTH_WRITE_MASK_ZERO;
+				kDesc.DepthStencilState.DepthFunc = VeToEnum(itDepth->value, "depth_func", m_kComparisonFuncParser, D3D12_COMPARISON_FUNC_LESS_EQUAL);
+				kDesc.DepthStencilState.StencilEnable = VeToBool(itDepth->value, "stencil");
+				kDesc.DepthStencilState.StencilReadMask = (VeUInt8)VeToNumber(itDepth->value, "stencil_read", 0xffu);
+				kDesc.DepthStencilState.StencilWriteMask = (VeUInt8)VeToNumber(itDepth->value, "stencil_write", 0xffu);
+				auto itStencilOp = itDepth->value.FindMember("stencil_op");
+				if (itStencilOp != itDepth->value.MemberEnd())
+				{
+					std::function<void(VeJSONValue&,D3D12_DEPTH_STENCILOP_DESC&)> kFillStencilOp
+						= [this](VeJSONValue& kVal, D3D12_DEPTH_STENCILOP_DESC& kDesc) noexcept
+					{
+						kDesc.StencilFailOp = VeToEnum(kVal, "fail", m_kStencilOpParser, D3D12_STENCIL_OP_KEEP);
+						kDesc.StencilDepthFailOp = VeToEnum(kVal, "depth_fail", m_kStencilOpParser, D3D12_STENCIL_OP_KEEP);
+						kDesc.StencilPassOp = VeToEnum(kVal, "pass", m_kStencilOpParser, D3D12_STENCIL_OP_KEEP);
+						kDesc.StencilFunc = VeToEnum(kVal, "func", m_kComparisonFuncParser, D3D12_COMPARISON_FUNC_NEVER);
+					};
+
+					if (itStencilOp->value.IsObject())
+					{
+						kFillStencilOp(itStencilOp->value, kDesc.DepthStencilState.FrontFace);
+						kDesc.DepthStencilState.BackFace = kDesc.DepthStencilState.FrontFace;
+					}
+					else if (itStencilOp->value.IsArray())
+					{
+						if (itStencilOp->value.Size() == 1)
+						{
+							kFillStencilOp(itStencilOp->value[0], kDesc.DepthStencilState.FrontFace);
+							kDesc.DepthStencilState.BackFace = kDesc.DepthStencilState.FrontFace;
+						}
+						else if (itStencilOp->value.Size() > 1)
+						{
+							kFillStencilOp(itStencilOp->value[0], kDesc.DepthStencilState.FrontFace);
+							kFillStencilOp(itStencilOp->value[1], kDesc.DepthStencilState.FrontFace);
+						}
+					}
+				}
+			}
 		}
 		if (bNeed)
 		{
 			FillDepthStencilState(kDesc.DepthStencilState, DS_NONE);
-		}		
+		}
 	}
 	D3D12_INPUT_ELEMENT_DESC akElements[32];
 	{
@@ -692,11 +844,37 @@ VeRenderer::PipelineStatePtr VeRendererD3D12::CreateGraphicsPipelineState(
 			kElement.InputSlotClass = VeToEnum(kInputValue, "class", m_kInputClassParser, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA);
 			kElement.InstanceDataStepRate = VeToNumber(kInputValue, "step_rate", 0u);
 		}
-
 	}
-	kDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-	kDesc.NumRenderTargets = 1;
-	kDesc.RTVFormats[0] = DXGI_FORMAT_R10G10B10A2_UNORM;
+	kDesc.IBStripCutValue = VeToEnum(kConfig, "ib_cut", m_kIBCutParser, D3D12_INDEX_BUFFER_STRIP_CUT_VALUE_DISABLED);
+	kDesc.PrimitiveTopologyType = VeToEnum(kConfig, "prim_topo", m_kPrimTopoTypeParser, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE);
+	{
+		auto itRTVFormat = kConfig.FindMember("rtv_format");
+		if (itRTVFormat != kConfig.MemberEnd())
+		{
+			if (itRTVFormat->value.IsString())
+			{
+				kDesc.NumRenderTargets = 1;
+				kDesc.RTVFormats[0] = VeToEnum(itRTVFormat->value, m_kFormatParser, DXGI_FORMAT_UNKNOWN);
+			}
+			else if (itRTVFormat->value.IsArray())
+			{
+				kDesc.NumRenderTargets = VE_MIN(itRTVFormat->value.Size(), 8);
+				for (VeUInt32 i(0); i < kDesc.NumRenderTargets; ++i)
+				{
+					kDesc.RTVFormats[i] = VeToEnum(itRTVFormat->value[i], m_kFormatParser, DXGI_FORMAT_UNKNOWN);
+				}
+			}
+		}
+		auto itDSVFormat = kConfig.FindMember("dsv_format");
+		if (itDSVFormat != kConfig.MemberEnd())
+		{
+			if (itDSVFormat->value.IsString())
+			{
+				kDesc.DSVFormat = VeToEnum(itDSVFormat->value, m_kFormatParser, DXGI_FORMAT_UNKNOWN);
+			}
+		}
+	}		
+	
 	kDesc.SampleDesc.Count = 1;
 
 	ID3D12PipelineState* pkPipelineState(nullptr);
@@ -937,6 +1115,79 @@ void VeRendererD3D12::InitParsers() noexcept
 
 	m_kInputClassParser["vertex"] = D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
 	m_kInputClassParser["instance"] = D3D12_INPUT_CLASSIFICATION_PER_INSTANCE_DATA;
+
+	m_kBlendParser["zero"] = D3D12_BLEND_ZERO;
+	m_kBlendParser["one"] = D3D12_BLEND_ONE;
+	m_kBlendParser["src_color"] = D3D12_BLEND_SRC_COLOR;
+	m_kBlendParser["inv_src_color"] = D3D12_BLEND_INV_SRC_COLOR;
+	m_kBlendParser["src_alpha"] = D3D12_BLEND_SRC_ALPHA;
+	m_kBlendParser["inv_src_alpha"] = D3D12_BLEND_INV_SRC_ALPHA;
+	m_kBlendParser["dest_alpha"] = D3D12_BLEND_DEST_ALPHA;
+	m_kBlendParser["inv_dest_alpha"] = D3D12_BLEND_INV_DEST_ALPHA;
+	m_kBlendParser["dest_color"] = D3D12_BLEND_DEST_COLOR;
+	m_kBlendParser["inv_dest_color"] = D3D12_BLEND_INV_DEST_COLOR;
+	m_kBlendParser["src_alpha_sat"] = D3D12_BLEND_SRC_ALPHA_SAT;
+	m_kBlendParser["blend_factor"] = D3D12_BLEND_BLEND_FACTOR;
+	m_kBlendParser["inv_blend_factor"] = D3D12_BLEND_INV_BLEND_FACTOR;
+	m_kBlendParser["src1_color"] = D3D12_BLEND_SRC1_COLOR;
+	m_kBlendParser["inv_src1_color"] = D3D12_BLEND_INV_SRC1_COLOR;
+	m_kBlendParser["src1_alpha"] = D3D12_BLEND_SRC1_ALPHA;
+	m_kBlendParser["inv_src1_alpha"] = D3D12_BLEND_INV_SRC1_ALPHA;
+
+	m_kBlendOpParser["add"] = D3D12_BLEND_OP_ADD;
+	m_kBlendOpParser["subtract"] = D3D12_BLEND_OP_SUBTRACT;
+	m_kBlendOpParser["rev_subtract"] = D3D12_BLEND_OP_REV_SUBTRACT;
+	m_kBlendOpParser["min"] = D3D12_BLEND_OP_MIN;
+	m_kBlendOpParser["max"] = D3D12_BLEND_OP_MAX;
+
+	m_kLogicOpParser["clear"] = D3D12_LOGIC_OP_CLEAR;
+	m_kLogicOpParser["set"] = D3D12_LOGIC_OP_SET;
+	m_kLogicOpParser["copy"] = D3D12_LOGIC_OP_COPY;
+	m_kLogicOpParser["copy_inverted"] = D3D12_LOGIC_OP_COPY_INVERTED;
+	m_kLogicOpParser["noop"] = D3D12_LOGIC_OP_NOOP;
+	m_kLogicOpParser["invert"] = D3D12_LOGIC_OP_INVERT;
+	m_kLogicOpParser["and"] = D3D12_LOGIC_OP_AND;
+	m_kLogicOpParser["nand"] = D3D12_LOGIC_OP_NAND;
+	m_kLogicOpParser["or"] = D3D12_LOGIC_OP_OR;
+	m_kLogicOpParser["nor"] = D3D12_LOGIC_OP_NOR;
+	m_kLogicOpParser["xor"] = D3D12_LOGIC_OP_XOR;
+	m_kLogicOpParser["equiv"] = D3D12_LOGIC_OP_EQUIV;
+	m_kLogicOpParser["and_reverse"] = D3D12_LOGIC_OP_AND_REVERSE;
+	m_kLogicOpParser["and_inverted"] = D3D12_LOGIC_OP_AND_INVERTED;
+	m_kLogicOpParser["or_reverse"] = D3D12_LOGIC_OP_OR_REVERSE;
+	m_kLogicOpParser["or_inverted"] = D3D12_LOGIC_OP_OR_INVERTED;
+
+	m_kColorWriteParser["r"] = D3D12_COLOR_WRITE_ENABLE_RED;
+	m_kColorWriteParser["g"] = D3D12_COLOR_WRITE_ENABLE_GREEN;
+	m_kColorWriteParser["b"] = D3D12_COLOR_WRITE_ENABLE_BLUE;
+	m_kColorWriteParser["a"] = D3D12_COLOR_WRITE_ENABLE_ALPHA;
+	m_kColorWriteParser["all"] = D3D12_COLOR_WRITE_ENABLE_ALL;
+
+	m_kFillModeParser["wireframe"] = D3D12_FILL_MODE_WIREFRAME;
+	m_kFillModeParser["solid"] = D3D12_FILL_MODE_SOLID;
+
+	m_kCullModeParser["none"] = D3D12_CULL_MODE_NONE;
+	m_kCullModeParser["front"] = D3D12_CULL_MODE_FRONT;
+	m_kCullModeParser["back"] = D3D12_CULL_MODE_BACK;
+
+	m_kStencilOpParser["keep"] = D3D12_STENCIL_OP_KEEP;
+	m_kStencilOpParser["zero"] = D3D12_STENCIL_OP_ZERO;
+	m_kStencilOpParser["replace"] = D3D12_STENCIL_OP_REPLACE;
+	m_kStencilOpParser["inc_sat"] = D3D12_STENCIL_OP_INCR_SAT;
+	m_kStencilOpParser["dec_sat"] = D3D12_STENCIL_OP_DECR_SAT;
+	m_kStencilOpParser["invert"] = D3D12_STENCIL_OP_INVERT;
+	m_kStencilOpParser["inc"] = D3D12_STENCIL_OP_INCR;
+	m_kStencilOpParser["dec"] = D3D12_STENCIL_OP_DECR;
+
+	m_kIBCutParser["disable"] = D3D12_INDEX_BUFFER_STRIP_CUT_VALUE_DISABLED;
+	m_kIBCutParser["16bit"] = D3D12_INDEX_BUFFER_STRIP_CUT_VALUE_0xFFFF;
+	m_kIBCutParser["32bit"] = D3D12_INDEX_BUFFER_STRIP_CUT_VALUE_0xFFFFFFFF;
+
+	m_kPrimTopoTypeParser["undef"] = D3D12_PRIMITIVE_TOPOLOGY_TYPE_UNDEFINED;
+	m_kPrimTopoTypeParser["point"] = D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT;
+	m_kPrimTopoTypeParser["line"] = D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
+	m_kPrimTopoTypeParser["triangle"] = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+	m_kPrimTopoTypeParser["patch"] = D3D12_PRIMITIVE_TOPOLOGY_TYPE_PATCH;
 }
 //--------------------------------------------------------------------------
 void VeRendererD3D12::TermParsers() noexcept
@@ -954,6 +1205,15 @@ void VeRendererD3D12::TermParsers() noexcept
 	m_kStaticBorderColorParser.clear();
 	m_kFormatParser.clear();
 	m_kInputClassParser.clear();
+	m_kBlendParser.clear();
+	m_kBlendOpParser.clear();
+	m_kLogicOpParser.clear();
+	m_kColorWriteParser.clear();
+	m_kFillModeParser.clear();
+	m_kCullModeParser.clear();
+	m_kStencilOpParser.clear();
+	m_kIBCutParser.clear();
+	m_kPrimTopoTypeParser.clear();
 }
 //--------------------------------------------------------------------------
 VeRendererPtr CreateRendererD3D12() noexcept

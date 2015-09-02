@@ -251,6 +251,15 @@ protected:
 	VeStringMap<D3D12_STATIC_BORDER_COLOR> m_kStaticBorderColorParser;
 	VeStringMap<DXGI_FORMAT> m_kFormatParser;
 	VeStringMap<D3D12_INPUT_CLASSIFICATION> m_kInputClassParser;
+	VeStringMap<D3D12_BLEND> m_kBlendParser;
+	VeStringMap<D3D12_BLEND_OP> m_kBlendOpParser;
+	VeStringMap<D3D12_LOGIC_OP> m_kLogicOpParser;
+	VeStringMap<D3D12_COLOR_WRITE_ENABLE> m_kColorWriteParser;
+	VeStringMap<D3D12_FILL_MODE> m_kFillModeParser;
+	VeStringMap<D3D12_CULL_MODE> m_kCullModeParser;
+	VeStringMap<D3D12_STENCIL_OP> m_kStencilOpParser;
+	VeStringMap<D3D12_INDEX_BUFFER_STRIP_CUT_VALUE> m_kIBCutParser;
+	VeStringMap<D3D12_PRIMITIVE_TOPOLOGY_TYPE> m_kPrimTopoTypeParser;
 
 };
 
