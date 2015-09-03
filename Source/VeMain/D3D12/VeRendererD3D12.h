@@ -19,9 +19,6 @@
 #include <d3d12.h>
 #include <dxgi1_4.h>
 #include <d3dcompiler.h>
-#include <wrl.h>
-
-using namespace Microsoft::WRL;
 
 #define D3D_COMPLIER "d3dcompiler_47"
 
@@ -33,6 +30,26 @@ public:
 	static constexpr VeUInt32 FRAME_COUNT = 3;
 	static constexpr VeUInt32 RTV_COUNT = 32;
 	static constexpr VeUInt32 DSV_COUNT = 1;
+
+	enum BlendType
+	{
+		REPLACE,
+		ADD,
+		BLEND
+	};
+
+	enum RasterType
+	{
+		CULL_BACK,
+		CULL_FRONT,
+		CULL_NONE
+	};
+
+	enum DepthStencilType
+	{
+		DS_NONE,
+		DS_STANDARD
+	};
 
 	class RootSignatureD3D12 : public RootSignature
 	{
@@ -145,26 +162,6 @@ public:
 	typedef DescriptorHeapShell<D3D12_DESCRIPTOR_HEAP_TYPE_RTV, RTV_COUNT, D3D12_DESCRIPTOR_HEAP_FLAG_NONE> RTVHeap;
 	typedef DescriptorHeapShell<D3D12_DESCRIPTOR_HEAP_TYPE_DSV, DSV_COUNT, D3D12_DESCRIPTOR_HEAP_FLAG_NONE> DSVHeap;
 
-	enum BlendType
-	{
-		REPLACE,
-		ADD,
-		BLEND
-	};
-
-	enum RasterType
-	{
-		CULL_BACK,
-		CULL_FRONT,
-		CULL_NONE
-	};
-
-	enum DepthStencilType
-	{
-		DS_NONE,
-		DS_STANDARD
-	};
-
 	VeRendererD3D12() noexcept;
 
 	virtual ~VeRendererD3D12() noexcept;
@@ -201,6 +198,10 @@ protected:
 
 	void TermParsers() noexcept;
 
+	void InitCopyQueue() noexcept;
+
+	void TermCopyQueue() noexcept;
+
 	VeSharedLibPtr m_spD3D12;
 	VeSharedLibPtr m_spDXGI;
 	VeSharedLibPtr m_spD3DCompiler;
@@ -208,6 +209,14 @@ protected:
 	IDXGIFactory1* m_pkDXGIFactory = nullptr;
 	IDXGIAdapter1* m_pkDefaultAdapter = nullptr;
 	ID3D12Device* m_pkDevice = nullptr;
+
+	ID3D12CommandQueue* m_pkCopyQueue = nullptr;
+	ID3D12CommandAllocator* m_pkCopyAllocator = nullptr;
+	ID3D12GraphicsCommandList* m_pkCopyCommandList = nullptr;
+	ID3D12Fence* m_pkCopyFence = nullptr;
+	HANDLE m_kCopyFenceEvent = nullptr;
+	VeUInt64 m_u64CopyFenceValue = 0;
+	VeTaskQueue m_kCopyQueue;
 
 	RTVHeap m_kRTVHeap;
 	DSVHeap m_kDSVHeap;

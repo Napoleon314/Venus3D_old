@@ -88,7 +88,8 @@ bool VeRendererD3D12::Init() noexcept
 		return false;
 
 	m_kRTVHeap.Init(m_pkDevice);
-	m_kDSVHeap.Init(m_pkDevice);	
+	m_kDSVHeap.Init(m_pkDevice);
+	InitCopyQueue();
 
 	ve_sys.CORE.I.LogFormat("VeRendererD3D12 renderer is created.");
 	return true;
@@ -109,6 +110,7 @@ void VeRendererD3D12::Term() noexcept
 		VE_SAFE_RELEASE(obj->m_pkPipelineState);
 	}
 	VE_ASSERT(m_kRenderWindowList.empty());
+	TermCopyQueue();
 	m_kDSVHeap.Term();
 	m_kRTVHeap.Term();
 	VE_SAFE_RELEASE(m_pkDevice);
@@ -1214,6 +1216,46 @@ void VeRendererD3D12::TermParsers() noexcept
 	m_kStencilOpParser.clear();
 	m_kIBCutParser.clear();
 	m_kPrimTopoTypeParser.clear();
+}
+//--------------------------------------------------------------------------
+void VeRendererD3D12::InitCopyQueue() noexcept
+{
+	D3D12_COMMAND_QUEUE_DESC kDesc =
+	{
+		D3D12_COMMAND_LIST_TYPE_COPY,
+		D3D12_COMMAND_QUEUE_PRIORITY_NORMAL,
+		D3D12_COMMAND_QUEUE_FLAG_NONE
+	};
+	VE_ASSERT_GE(m_pkDevice->CreateCommandQueue(&kDesc,
+		__uuidof(ID3D12CommandQueue), (void**)&m_pkCopyQueue), S_OK);
+	VE_ASSERT_GE(m_pkDevice->CreateCommandAllocator(
+		D3D12_COMMAND_LIST_TYPE_COPY, __uuidof(ID3D12CommandAllocator),
+		(void**)&m_pkCopyAllocator), S_OK);
+	VE_ASSERT_GE(m_pkDevice->CreateCommandList(0,
+		D3D12_COMMAND_LIST_TYPE_COPY, m_pkCopyAllocator, nullptr,
+		__uuidof(ID3D12GraphicsCommandList), (void**)&m_pkCopyCommandList), S_OK);
+	VE_ASSERT_GE(m_pkDevice->CreateFence(m_u64CopyFenceValue++,
+		D3D12_FENCE_FLAG_SHARED, __uuidof(ID3D12Fence), (void**)&m_pkCopyFence), S_OK);
+	m_kCopyFenceEvent = CreateEventEx(nullptr, FALSE, FALSE, EVENT_ALL_ACCESS);
+	VE_ASSERT(m_kCopyFenceEvent);
+}
+//--------------------------------------------------------------------------
+void VeRendererD3D12::TermCopyQueue() noexcept
+{
+	while (m_kCopyQueue.HasTask()) ;	
+	const VeUInt64 u64LastCompleted = m_pkCopyFence->GetCompletedValue();
+	VE_ASSERT_GE(m_pkCopyQueue->Signal(m_pkCopyFence, m_u64CopyFenceValue), S_OK);
+	if (u64LastCompleted < m_u64CopyFenceValue)
+	{
+		VE_ASSERT_GE(m_pkCopyFence->SetEventOnCompletion(
+			m_u64CopyFenceValue, m_kCopyFenceEvent), S_OK);
+		WaitForSingleObject(m_kCopyFenceEvent, INFINITE);
+	}
+	CloseHandle(m_kCopyFenceEvent);
+	VE_SAFE_RELEASE(m_pkCopyFence);
+	VE_SAFE_RELEASE(m_pkCopyCommandList);
+	VE_SAFE_RELEASE(m_pkCopyAllocator);
+	VE_SAFE_RELEASE(m_pkCopyQueue);
 }
 //--------------------------------------------------------------------------
 VeRendererPtr CreateRendererD3D12() noexcept
