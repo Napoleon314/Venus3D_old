@@ -224,15 +224,23 @@ class VE_MAIN_API alignas(16) VeColor : public VeMemA16Object
 public:
 	VeFloat32 r, g, b, a;
 
-	VeColor(VeFloat32 r = 0.0f, VeFloat32 g = 0.0f, VeFloat32 b = 0.0f, VeFloat32 a = 0.0f) noexcept;
+	VeColor(VeFloat32 fR = 0.0f, VeFloat32 fG = 0.0f, VeFloat32 fB = 0.0f, VeFloat32 fA = 0.0f) noexcept
+	{
+		VE_VECTOR vec = VeVectorSet(fR, fG, fB, fA);
+		VeStoreFloat4A(*this, vec);
+	}
 
-	~VeColor() noexcept;
+	VeColor(std::initializer_list<VeFloat32> kInitList) noexcept
+	{
+		VE_VECTOR vec = VeLoadFloat4((const VE_FLOAT4*)kInitList.begin());
+		VeStoreFloat4A(*this, vec);
+	}
 
 	inline operator VeRGBA () const noexcept;
 
-	inline operator VeFloat32* () noexcept;
+	inline operator VE_FLOAT4A* () noexcept;
 
-	inline operator const VeFloat32* () const noexcept;
+	inline operator const VE_FLOAT4A* () const noexcept;
 
 	inline VeColor& operator = (VeFloat32 f32Scalar) noexcept;
 
@@ -300,11 +308,16 @@ public:
 		VeUInt32 m_u32Color;
 	};
 
-	VeRGBA(VeUInt32 u32Color) noexcept;
+	VeRGBA(VeUInt32 u32Color) noexcept
+		: m_u32Color(u32Color) {}
 
-	VeRGBA(VeUInt8 r = 0, VeUInt8 g = 0, VeUInt8 b = 0, VeUInt8 a = 0) noexcept;
-
-	~VeRGBA() noexcept;
+	VeRGBA(VeUInt8 r = 0, VeUInt8 g = 0, VeUInt8 b = 0, VeUInt8 a = 0) noexcept
+	{
+		m_kColor.r = r;
+		m_kColor.g = g;
+		m_kColor.b = b;
+		m_kColor.a = a;
+	}
 
 	inline operator VeColor () noexcept;
 

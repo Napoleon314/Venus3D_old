@@ -17,7 +17,7 @@
 class VE_MAIN_API VeVector2 : public VeMemObject
 {
 public:
-	VeFloat32 x = 0, y = 0;
+	VeFloat32 x, y;
 
 	enum Coord
 	{
@@ -25,20 +25,37 @@ public:
 		Y = 1
 	};
 
-	VeVector2() noexcept = default;
+	VeVector2() noexcept
+	{
+		SetZero();
+	}
 
 	VeVector2(VeFloat32 f32X, VeFloat32 f32Y) noexcept
-		: x(f32X), y(f32Y) {}
+	{
+		Set(f32X, f32Y);
+	}
 
 	VeVector2(const VeFloat32* pf32Vector) noexcept
-		: x(pf32Vector[0]), y(pf32Vector[1]) {}
+	{
+		VE_VECTOR vec = VeLoadFloat2((const VE_FLOAT2*)pf32Vector);
+		VeStoreFloat2(*this, vec);
+	}
 
 	VeVector2(const VeVector2& kVector) noexcept
-		: x(kVector.x), y(kVector.y) {}
+	{
+		VE_VECTOR vec = VeLoadFloat2(kVector);
+		VeStoreFloat2(*this, vec);
+	}
 
-	inline operator VeFloat32* () noexcept;
+	VeVector2(std::initializer_list<VeFloat32> kInitList) noexcept
+	{
+		VE_VECTOR vec = VeLoadFloat2((const VE_FLOAT2*)kInitList.begin());
+		VeStoreFloat2(*this, vec);
+	}
 
-	inline operator const VeFloat32* () const noexcept;
+	inline operator VE_FLOAT2* () noexcept;
+
+	inline operator const VE_FLOAT2* () const noexcept;
 
 	inline VeFloat32& operator [] (Coord eCoord) noexcept;
 

@@ -17,7 +17,7 @@
 class VE_MAIN_API VeVector3 : public VeMemObject
 {
 public:
-	VeFloat32 x = 0, y = 0, z = 0;
+	VeFloat32 x, y, z;
 
 	enum Coord
 	{
@@ -26,26 +26,37 @@ public:
 		Z = 2
 	};
 
-	VeVector3() noexcept = default;
+	VeVector3() noexcept
+	{
+		SetZero();
+	}
 
 	VeVector3(VeFloat32 f32X, VeFloat32 f32Y, VeFloat32 f32Z) noexcept
-		: x(f32X), y(f32Y), z(f32Z) {}
+	{
+		Set(f32X, f32Y, f32Z);
+	}
 
 	VeVector3(const VeFloat32* pf32Vector) noexcept
-		: x(pf32Vector[0]), y(pf32Vector[1]), z(pf32Vector[2]) {}
+	{
+		VE_VECTOR vec = VeLoadFloat3((const VE_FLOAT3*)pf32Vector);
+		VeStoreFloat3(*this, vec);
+	}
 
 	VeVector3(const VeVector3& kVector) noexcept
-		: x(kVector.x), y(kVector.y), z(kVector.z) {}
+	{
+		VE_VECTOR vec = VeLoadFloat3(kVector);
+		VeStoreFloat3(*this, vec);
+	}
 
-	VeVector3(const VeVector2& kVector, VeFloat32 f32Z) noexcept
-		: x(kVector.x), y(kVector.y), z(f32Z) {}
+	VeVector3(std::initializer_list<VeFloat32> kInitList) noexcept
+	{
+		VE_VECTOR vec = VeLoadFloat3((const VE_FLOAT3*)kInitList.begin());
+		VeStoreFloat3(*this, vec);
+	}
 
-	VeVector3(VeFloat32 f32X, const VeVector2& kVector) noexcept
-		: x(f32X), y(kVector.x), z(kVector.y) {}
+	inline operator VE_FLOAT3* () noexcept;
 
-	inline operator VeFloat32* () noexcept;
-
-	inline operator const VeFloat32* () const noexcept;
+	inline operator const VE_FLOAT3* () const noexcept;
 
 	inline VeFloat32& operator [] (Coord eCoord) noexcept;
 

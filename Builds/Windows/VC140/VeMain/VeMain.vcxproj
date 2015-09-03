@@ -397,10 +397,8 @@
   <ItemGroup>
     <None Include="..\..\..\..\Source\VeMain\VeEngine.inl" />
     <None Include="..\..\..\..\Source\VeMain\VeKeyboard.inl" />
-    <None Include="..\..\..\..\Source\VeMain\VeMath.inl" />
     <None Include="..\..\..\..\Source\VeMain\VeMathConvert.inl" />
     <None Include="..\..\..\..\Source\VeMain\VeMathMatrix.inl" />
-    <None Include="..\..\..\..\Source\VeMain\VeMathSSE.inl" />
     <None Include="..\..\..\..\Source\VeMain\VeMathVector.inl" />
     <None Include="..\..\..\..\Source\VeMain\VeMouse.inl" />
     <None Include="..\..\..\..\Source\VeMain\VePipelineState.inl" />

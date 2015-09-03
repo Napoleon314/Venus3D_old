@@ -212,12 +212,6 @@
     <None Include="..\..\..\..\Source\VeMain\VeRect.inl">
       <Filter>Video</Filter>
     </None>
-    <None Include="..\..\..\..\Source\VeMain\VeMath.inl">
-      <Filter>Math</Filter>
-    </None>
-    <None Include="..\..\..\..\Source\VeMain\VeMathSSE.inl">
-      <Filter>Math</Filter>
-    </None>
     <None Include="..\..\..\..\Source\VeMain\VeVector2.inl">
       <Filter>Math</Filter>
     </None>

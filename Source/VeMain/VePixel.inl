@@ -20,123 +20,172 @@ inline VeColor::operator VeRGBA () const noexcept
 	return kRes;
 }
 //--------------------------------------------------------------------------
-inline VeColor::operator VeFloat32* () noexcept
+inline VeColor::operator VE_FLOAT4A* () noexcept
 {
-	return VE_FLOAT_POINT_THIS;
+	return (VE_FLOAT4A*)this;
 }
 //--------------------------------------------------------------------------
-inline VeColor::operator const VeFloat32* () const noexcept
+inline VeColor::operator const VE_FLOAT4A* () const noexcept
 {
-	return VE_FLOAT_POINT_THIS;
+	return (const VE_FLOAT4A*)this;
 }
 //--------------------------------------------------------------------------
 inline VeColor& VeColor::operator = (VeFloat32 f32Scalar) noexcept
 {
-	VeSetv4f(VE_FLOAT_POINT_THIS, f32Scalar);
+	VE_VECTOR vec = VeVectorReplicate(f32Scalar);
+	VeStoreFloat4A(*this, vec);
 	return *this;
 }
 //--------------------------------------------------------------------------
 inline bool VeColor::operator == (const VeColor& c) const noexcept
 {
-	return VeEqualv4f(VE_FLOAT_POINT_THIS, c);
+	VE_VECTOR vec0 = VeLoadFloat4A(*this);
+	VE_VECTOR vec1 = VeLoadFloat4A(c);
+	return VeVector4Equal(vec0, vec1);
 }
 //--------------------------------------------------------------------------
 inline bool VeColor::operator != (const VeColor& c) const noexcept
 {
-	return !VeEqualv4f(VE_FLOAT_POINT_THIS, c);
+	VE_VECTOR vec0 = VeLoadFloat4A(*this);
+	VE_VECTOR vec1 = VeLoadFloat4A(c);
+	return VeVector4NotEqual(vec0, vec1);
 }
 //--------------------------------------------------------------------------
 inline VeColor VeColor::operator + (const VeColor& c) const noexcept
 {
 	VeColor kRes;
-	VeAddv4f(kRes, VE_FLOAT_POINT_THIS, c);
+	VE_VECTOR vec0 = VeLoadFloat4A(*this);
+	VE_VECTOR vec1 = VeLoadFloat4A(c);
+	vec0 = VeVectorAdd(vec0, vec1);
+	VeStoreFloat4A(kRes, vec0);
 	return kRes;
 }
 //--------------------------------------------------------------------------
 inline VeColor VeColor::operator - (const VeColor& c) const noexcept
 {
 	VeColor kRes;
-	VeSubv4f(kRes, VE_FLOAT_POINT_THIS, c);
+	VE_VECTOR vec0 = VeLoadFloat4A(*this);
+	VE_VECTOR vec1 = VeLoadFloat4A(c);
+	vec0 = VeVectorSubtract(vec0, vec1);
+	VeStoreFloat4A(kRes, vec0);
 	return kRes;
 }
 //--------------------------------------------------------------------------
 inline VeColor VeColor::operator * (VeFloat32 f32Scalar) const noexcept
 {
 	VeColor kRes;
-	VeMulv4f(kRes, VE_FLOAT_POINT_THIS, f32Scalar);
+	VE_VECTOR vec = VeLoadFloat4A(*this);
+	vec = VeVectorScale(vec, f32Scalar);
+	VeStoreFloat4A(kRes, vec);
 	return kRes;
 }
 //--------------------------------------------------------------------------
 inline VeColor VeColor::operator * (const VeColor& c) const noexcept
 {
 	VeColor kRes;
-	VeMulv4f(kRes, VE_FLOAT_POINT_THIS, c);
+	VE_VECTOR vec0 = VeLoadFloat4A(*this);
+	VE_VECTOR vec1 = VeLoadFloat4A(c);
+	vec0 = VeVectorMultiply(vec0, vec1);
+	VeStoreFloat4A(kRes, vec0);
 	return kRes;
 }
 //--------------------------------------------------------------------------
 inline VeColor VeColor::operator / (VeFloat32 f32Scalar) const noexcept
 {
 	VeColor kRes;
-	VeDivv4f(kRes, VE_FLOAT_POINT_THIS, f32Scalar);
+	VE_VECTOR vec0 = VeLoadFloat4A(*this);
+	VE_VECTOR vec1 = VeVectorReplicate(f32Scalar);
+	vec0 = VeVectorDivide(vec0, vec1);
+	VeStoreFloat4A(kRes, vec0);
 	return kRes;
 }
 //--------------------------------------------------------------------------
 inline VeColor VeColor::operator / (const VeColor& c) const noexcept
 {
 	VeColor kRes;
-	VeDivv4f(kRes, VE_FLOAT_POINT_THIS, c);
+	VE_VECTOR vec0 = VeLoadFloat4A(*this);
+	VE_VECTOR vec1 = VeLoadFloat4A(c);
+	vec0 = VeVectorDivide(vec0, vec1);
+	VeStoreFloat4A(kRes, vec0);
 	return kRes;
 }
 //--------------------------------------------------------------------------
 inline VeColor VeColor::operator - () const noexcept
 {
-	return VeColor(-r, -g, -b, -a);
+	VeColor kRes;
+	VE_VECTOR vec = VeLoadFloat4A(*this);
+	vec = VeVectorNegate(vec);
+	VeStoreFloat4A(kRes, vec);
+	return kRes;
 }
 //--------------------------------------------------------------------------
 inline VeColor operator * (VeFloat32 f32Scalar, const VeColor& c) noexcept
 {
-	return c * f32Scalar;
+	VeColor kRes;
+	VE_VECTOR vec = VeLoadFloat4A(c);
+	vec = VeVectorScale(vec, f32Scalar);
+	VeStoreFloat4A(kRes, vec);
+	return kRes;
 }
 //--------------------------------------------------------------------------
 inline VeColor& VeColor::operator += (const VeColor& c) noexcept
 {
-	VeAddv4f(VE_FLOAT_POINT_THIS, VE_FLOAT_POINT_THIS, c);
+	VE_VECTOR vec0 = VeLoadFloat4A(*this);
+	VE_VECTOR vec1 = VeLoadFloat4A(c);
+	vec0 = VeVectorAdd(vec0, vec1);
+	VeStoreFloat4A(*this, vec0);
 	return *this;
 }
 //--------------------------------------------------------------------------
 inline VeColor& VeColor::operator -= (const VeColor& c) noexcept
 {
-	VeSubv4f(VE_FLOAT_POINT_THIS, VE_FLOAT_POINT_THIS, c);
+	VE_VECTOR vec0 = VeLoadFloat4A(*this);
+	VE_VECTOR vec1 = VeLoadFloat4A(c);
+	vec0 = VeVectorSubtract(vec0, vec1);
+	VeStoreFloat4A(*this, vec0);
 	return *this;
 }
 //--------------------------------------------------------------------------
 inline VeColor& VeColor::operator *= (VeFloat32 f32Scalar) noexcept
 {
-	VeMulv4f(VE_FLOAT_POINT_THIS, VE_FLOAT_POINT_THIS, f32Scalar);
+	VE_VECTOR vec = VeLoadFloat4A(*this);
+	vec = VeVectorScale(vec, f32Scalar);
+	VeStoreFloat4A(*this, vec);
 	return *this;
 }
 //--------------------------------------------------------------------------
 inline VeColor& VeColor::operator *= (const VeColor& c) noexcept
 {
-	VeMulv4f(VE_FLOAT_POINT_THIS, VE_FLOAT_POINT_THIS, c);
+	VE_VECTOR vec0 = VeLoadFloat4A(*this);
+	VE_VECTOR vec1 = VeLoadFloat4A(c);
+	vec0 = VeVectorMultiply(vec0, vec1);
+	VeStoreFloat4A(*this, vec0);
 	return *this;
 }
 //--------------------------------------------------------------------------
 inline VeColor& VeColor::operator /= (VeFloat32 f32Scalar) noexcept
 {
-	VeDivv4f(VE_FLOAT_POINT_THIS, VE_FLOAT_POINT_THIS, f32Scalar);
+	VE_VECTOR vec0 = VeLoadFloat4A(*this);
+	VE_VECTOR vec1 = VeVectorReplicate(f32Scalar);
+	vec0 = VeVectorDivide(vec0, vec1);
+	VeStoreFloat4A(*this, vec0);
 	return *this;
 }
 //--------------------------------------------------------------------------
 inline VeColor& VeColor::operator /= (const VeColor& c) noexcept
 {
-	VeDivv4f(VE_FLOAT_POINT_THIS, VE_FLOAT_POINT_THIS, c);
+	VE_VECTOR vec0 = VeLoadFloat4A(*this);
+	VE_VECTOR vec1 = VeLoadFloat4A(c);
+	vec0 = VeVectorDivide(vec0, vec1);
+	VeStoreFloat4A(*this, vec0);
 	return *this;
 }
 //--------------------------------------------------------------------------
 inline void VeColor::Clamp() noexcept
 {
-	VeClampv4f(VE_FLOAT_POINT_THIS, VE_FLOAT_POINT_THIS);
+	VE_VECTOR vec = VeLoadFloat4A(*this);	
+	vec = VeVectorClamp(vec, g_MathZero, g_MathOne);
+	VeStoreFloat4A(*this, vec);
 }
 //--------------------------------------------------------------------------
 inline void VeColor::Scale() noexcept

@@ -13,14 +13,14 @@
 ////////////////////////////////////////////////////////////////////////////
 
 //--------------------------------------------------------------------------
-inline VeVector2::operator VeFloat32* () noexcept
+inline VeVector2::operator VE_FLOAT2* () noexcept
 {
-	return VE_FLOAT_POINT_THIS;
+	return (VE_FLOAT2*)this;
 }
 //--------------------------------------------------------------------------
-inline VeVector2::operator const VeFloat32* () const noexcept
+inline VeVector2::operator const VE_FLOAT2* () const noexcept
 {
-	return VE_FLOAT_POINT_THIS;
+	return (VE_FLOAT2*)this;
 }
 //--------------------------------------------------------------------------
 inline VeFloat32& VeVector2::operator [] (Coord eCoord) noexcept
@@ -45,141 +45,192 @@ inline VeFloat32 VeVector2::operator () (Coord eCoord) const noexcept
 //--------------------------------------------------------------------------
 inline VeVector2& VeVector2::operator = (const VeVector2& kVector) noexcept
 {
-	x = kVector.x;
-	y = kVector.y;
+	VE_VECTOR vec = VeLoadFloat2(kVector);
+	VeStoreFloat2(*this, vec);
 	return *this;
 }
 //--------------------------------------------------------------------------
 inline VeVector2& VeVector2::operator += (const VeVector2& kVector) noexcept
 {
-	x += kVector.x;
-	y += kVector.y;
+	VE_VECTOR vec0 = VeLoadFloat2(*this);
+	VE_VECTOR vec1 = VeLoadFloat2(kVector);
+	vec0 = VeVectorAdd(vec0, vec1);
+	VeStoreFloat2(*this, vec0);
 	return *this;
 }
 //--------------------------------------------------------------------------
 inline VeVector2& VeVector2::operator -= (const VeVector2& kVector) noexcept
 {
-	x -= kVector.x;
-	y -= kVector.y;
+	VE_VECTOR vec0 = VeLoadFloat2(*this);
+	VE_VECTOR vec1 = VeLoadFloat2(kVector);
+	vec0 = VeVectorSubtract(vec0, vec1);
+	VeStoreFloat2(*this, vec0);
 	return *this;
 }
 //--------------------------------------------------------------------------
 inline VeVector2& VeVector2::operator *= (VeFloat32 f32Scale) noexcept
 {
-	x *= f32Scale;
-	y *= f32Scale;
+	VE_VECTOR vec = VeLoadFloat2(*this);	
+	vec = VeVectorScale(vec, f32Scale);
+	VeStoreFloat2(*this, vec);
 	return *this;
 }
 //--------------------------------------------------------------------------
 inline VeVector2& VeVector2::operator /= (VeFloat32 f32Scale) noexcept
 {
-	f32Scale = 1.0f / f32Scale;
-	x *= f32Scale;
-	y *= f32Scale;
+	VE_VECTOR vec0 = VeLoadFloat2(*this);
+	VE_VECTOR vec1 = VeVectorReplicate(f32Scale);
+	vec0 = VeVectorDivide(vec0, vec1);
+	VeStoreFloat2(*this, vec0);
 	return *this;
 }
 //--------------------------------------------------------------------------
 inline VeVector2 VeVector2::operator + () const noexcept
 {
-	return *this;
+	VeVector2 kRes;
+	VE_VECTOR vec = VeLoadFloat2(*this);
+	VeStoreFloat2(kRes, vec);
+	return kRes;
 }
 //--------------------------------------------------------------------------
 inline VeVector2 VeVector2::operator - () const noexcept
 {
-	return VeVector2(-x, -y);
+	VeVector2 kRes;
+	VE_VECTOR vec = VeLoadFloat2(*this);
+	vec = VeVectorNegate(vec);
+	VeStoreFloat2(kRes, vec);
+	return kRes;
 }
 //--------------------------------------------------------------------------
 inline VeVector2 VeVector2::operator + (
 	const VeVector2& kVector) const noexcept
 {
-	return VeVector2(x + kVector.x, y + kVector.y);
+	VeVector2 kRes;
+	VE_VECTOR vec0 = VeLoadFloat2(*this);
+	VE_VECTOR vec1 = VeLoadFloat2(kVector);
+	vec0 = VeVectorAdd(vec0, vec1);
+	VeStoreFloat2(kRes, vec0);
+	return kRes;
 }
 //--------------------------------------------------------------------------
 inline VeVector2 VeVector2::operator - (
 	const VeVector2& kVector) const noexcept
 {
-	return VeVector2(x - kVector.x, y - kVector.y);
+	VeVector2 kRes;
+	VE_VECTOR vec0 = VeLoadFloat2(*this);
+	VE_VECTOR vec1 = VeLoadFloat2(kVector);
+	vec0 = VeVectorSubtract(vec0, vec1);
+	VeStoreFloat2(kRes, vec0);
+	return kRes;
 }
 //--------------------------------------------------------------------------
 inline VeVector2 VeVector2::operator * (
 	VeFloat32 f32Scale) const noexcept
 {
-	return VeVector2(x * f32Scale, y * f32Scale);
+	VeVector2 kRes;
+	VE_VECTOR vec = VeLoadFloat2(*this);
+	vec = VeVectorScale(vec, f32Scale);
+	VeStoreFloat2(kRes, vec);
+	return kRes;
 }
 //--------------------------------------------------------------------------
 inline VeVector2 VeVector2::operator / (
 	VeFloat32 f32Scale) const noexcept
 {
-	f32Scale = 1.0f / f32Scale;
-	return VeVector2(x * f32Scale, y * f32Scale);
+	VeVector2 kRes;
+	VE_VECTOR vec0 = VeLoadFloat2(*this);
+	VE_VECTOR vec1 = VeVectorReplicate(f32Scale);
+	vec0 = VeVectorDivide(vec0, vec1);
+	VeStoreFloat2(kRes, vec0);
+	return kRes;
 }
 //--------------------------------------------------------------------------
 inline VeVector2 operator * (VeFloat32 f32Scale,
 	const VeVector2& kVector) noexcept
 {
-	return kVector * f32Scale;
+	VeVector2 kRes;
+	VE_VECTOR vec = VeLoadFloat2(kVector);
+	vec = VeVectorScale(vec, f32Scale);
+	VeStoreFloat2(kRes, vec);
+	return kRes;
 }
 //--------------------------------------------------------------------------
 inline bool VeVector2::operator == (
 	const VeVector2& kVector) const noexcept
 {
-	return (x == kVector.x) && (y == kVector.y);
+	VE_VECTOR vec0 = VeLoadFloat2(*this);
+	VE_VECTOR vec1 = VeLoadFloat2(kVector);
+	return VeVector2Equal(vec0, vec1);
 }
 //--------------------------------------------------------------------------
 inline bool VeVector2::operator != (
 	const VeVector2& kVector) const noexcept
 {
-	return (x != kVector.x) || (y != kVector.y);
+	VE_VECTOR vec0 = VeLoadFloat2(*this);
+	VE_VECTOR vec1 = VeLoadFloat2(kVector);
+	return VeVector2NotEqual(vec0, vec1);
 }
 //--------------------------------------------------------------------------
 inline void VeVector2::SetZero() noexcept
 {
-	x = 0;
-	y = 0;
+	VE_VECTOR vec = VeVectorZero();
+	VeStoreFloat2(*this, vec);
 }
 //--------------------------------------------------------------------------
 inline void VeVector2::Set(VeFloat32 f32X, VeFloat32 f32Y) noexcept
 {
-	x = f32X;
-	y = f32Y;
+	VE_VECTOR vec = VeVectorSet(f32X, f32Y, 0, 0);
+	VeStoreFloat2(*this, vec);
 }
 //--------------------------------------------------------------------------
 inline void VeVector2::Scale(const VeVector2& kVector,
 	VeFloat32 f32Scale) noexcept
 {
-	*this = kVector * f32Scale;
+	VE_VECTOR vec = VeLoadFloat2(kVector);
+	vec = VeVectorScale(vec, f32Scale);
+	VeStoreFloat2(*this, vec);
 }
 //--------------------------------------------------------------------------
 inline VeFloat32 VeVector2::Length() const noexcept
 {
-	return VeSqrtf(LengthSquared());
+	VeFloat32 f32Res;
+	VE_VECTOR vec = VeLoadFloat2(*this);
+	vec = VeVector2Length(vec);
+	VeStoreFloat(&f32Res, vec);
+	return f32Res;
 }
 //--------------------------------------------------------------------------
 inline VeFloat32 VeVector2::LengthSquared() const noexcept
 {
-	return x * x + y * y;
+	VeFloat32 f32Res;
+	VE_VECTOR vec = VeLoadFloat2(*this);
+	vec = VeVector2LengthSq(vec);
+	VeStoreFloat(&f32Res, vec);
+	return f32Res;
 }
 //--------------------------------------------------------------------------
 inline void VeVector2::Normalise() noexcept
 {
-	VeFloat32 f32LengthSquared = LengthSquared();
-	if (f32LengthSquared)
-	{
-		*this *= VeInvSqrtf(f32LengthSquared);
-	}
+	VE_VECTOR vec = VeLoadFloat2(*this);
+	vec = VeVector2Normalize(vec);
+	VeStoreFloat2(*this, vec);
 }
 //--------------------------------------------------------------------------
 inline void VeVector2::ParaMul(const VeVector2& kVector) noexcept
 {
-	x *= kVector.x;
-	y *= kVector.y;
+	VE_VECTOR vec0 = VeLoadFloat2(*this);
+	VE_VECTOR vec1 = VeLoadFloat2(kVector);
+	vec0 = VeVectorMultiply(vec0, vec1);
+	VeStoreFloat2(*this, vec0);
 }
 //--------------------------------------------------------------------------
 inline void VeVector2::ParaMul(const VeVector2& kVector0,
 	const VeVector2& kVector1) noexcept
 {
-	x = kVector0.x * kVector1.x;
-	y = kVector0.y * kVector1.y;
+	VE_VECTOR vec0 = VeLoadFloat2(kVector0);
+	VE_VECTOR vec1 = VeLoadFloat2(kVector1);
+	vec0 = VeVectorMultiply(vec0, vec1);
+	VeStoreFloat2(*this, vec0);
 }
 //--------------------------------------------------------------------------
 inline void VeVector2::Lerp(const VeVector2& kVector0,
@@ -191,24 +242,40 @@ inline void VeVector2::Lerp(const VeVector2& kVector0,
 inline void VeVector2::Clamp(const VeVector2& kLower,
 	const VeVector2& kUpper) noexcept
 {
-	*this = VeClampEx(kLower, *this, kUpper);
+	VE_VECTOR vec = VeLoadFloat2(*this);
+	VE_VECTOR min = VeLoadFloat2(kLower);
+	VE_VECTOR max = VeLoadFloat2(kUpper);
+	vec = VeVectorClamp(vec, min, max);
+	VeStoreFloat2(*this, vec);
 }
 //--------------------------------------------------------------------------
 inline VeVector2 VeVector2::UnitVector() const noexcept
 {
-	VeVector2 kResVector(*this);
-	kResVector.Normalise();
-	return kResVector;
+	VeVector2 kRes;
+	VE_VECTOR vec = VeLoadFloat2(*this);
+	vec = VeVector2Normalize(vec);
+	VeStoreFloat2(kRes, vec);
+	return kRes;
 }
 //--------------------------------------------------------------------------
 inline VeFloat32 VeVector2::Dot(const VeVector2& kVector) const noexcept
 {
-	return x * kVector.x + y * kVector.y;
+	VeFloat32 f32Res;
+	VE_VECTOR vec0 = VeLoadFloat2(*this);
+	VE_VECTOR vec1 = VeLoadFloat2(kVector);
+	vec0 = VeVector2Dot(vec0, vec1);
+	VeStoreFloat(&f32Res, vec0);
+	return f32Res;
 }
 //--------------------------------------------------------------------------
 inline VeFloat32 VeVector2::Cross(const VeVector2& kVector) const noexcept
 {
-	return x * y - y * x;
+	VeFloat32 f32Res;
+	VE_VECTOR vec0 = VeLoadFloat2(*this);
+	VE_VECTOR vec1 = VeLoadFloat2(kVector);
+	vec0 = VeVector2Cross(vec0, vec1);
+	VeStoreFloat(&f32Res, vec0);
+	return f32Res;
 }
 //--------------------------------------------------------------------------
 inline void VeVector2::ProjectOnto(const VeVector2& kVector0,
@@ -228,8 +295,10 @@ inline VeVector2 VeVector2::ProjectOnto(
 inline bool VeAlmostEqual(const VeVector2& kVector0,
 	const VeVector2& kVector1, const VeFloat32 f32Epsilon) noexcept
 {
-	return VeAlmostEqual(kVector0.x, kVector1.x, f32Epsilon)
-		&& VeAlmostEqual(kVector0.y, kVector1.y, f32Epsilon);
+	VE_VECTOR vec0 = VeLoadFloat2(kVector0);
+	VE_VECTOR vec1 = VeLoadFloat2(kVector1);
+	VE_VECTOR e = VeVectorReplicate(f32Epsilon);
+	return VeVector2NearEqual(vec0, vec1, e);
 }
 //--------------------------------------------------------------------------
 inline VeFloat32 VeDistance(const VeVector2& kVector0,

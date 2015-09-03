@@ -153,7 +153,6 @@ void VeRenderWindowD3D12::Init(VeRendererD3D12& kRenderer) noexcept
 		kResDesc.SampleDesc.Quality = 0;
 		kResDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
 		kResDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
-
 		
 		VE_ASSERT_GE(kRenderer.m_pkDevice->CreateCommittedResource(
 			&kHeapProp,
