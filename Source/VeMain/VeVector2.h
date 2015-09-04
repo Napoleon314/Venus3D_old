@@ -137,4 +137,127 @@ inline VeFloat32 VeDistance(const VeVector2& kVector0, const VeVector2& kVector1
 
 inline VeFloat32 VeDistanceSquared(const VeVector2& kVector0, const VeVector2& kVector1) noexcept;
 
+class VE_MAIN_API alignas(16) VeVector2A : public VeMemA16Object
+{
+public:
+	VeFloat32 x, y;
+
+	enum Coord
+	{
+		X = 0,
+		Y = 1
+	};
+
+	VeVector2A() noexcept
+	{
+		SetZero();
+	}
+
+	VeVector2A(VeFloat32 f32X, VeFloat32 f32Y) noexcept
+	{
+		Set(f32X, f32Y);
+	}
+
+	VeVector2A(const VeFloat32* pf32Vector) noexcept
+	{
+		VE_VECTOR vec = VeLoadFloat2((const VE_FLOAT2*)pf32Vector);
+		VeStoreFloat2A(*this, vec);
+	}
+
+	VeVector2A(const VeVector2A& kVector) noexcept
+	{
+		VE_VECTOR vec = VeLoadFloat2A(kVector);
+		VeStoreFloat2A(*this, vec);
+	}
+
+	VeVector2A(std::initializer_list<VeFloat32> kInitList) noexcept
+	{
+		VE_VECTOR vec = VeLoadFloat2((const VE_FLOAT2*)kInitList.begin());
+		VeStoreFloat2A(*this, vec);
+	}
+
+	inline operator VE_FLOAT2A* () noexcept;
+
+	inline operator const VE_FLOAT2A* () const noexcept;
+
+	inline VeFloat32& operator [] (Coord eCoord) noexcept;
+
+	inline VeFloat32 operator [] (Coord eCoord) const noexcept;
+
+	inline VeFloat32& operator () (Coord eCoord) noexcept;
+
+	inline VeFloat32 operator () (Coord eCoord) const noexcept;
+
+	inline VeVector2A& operator = (const VeVector2A& kVector) noexcept;
+
+	inline VeVector2A& operator += (const VeVector2A& kVector) noexcept;
+
+	inline VeVector2A& operator -= (const VeVector2A& kVector) noexcept;
+
+	inline VeVector2A& operator *= (VeFloat32 f32Scale) noexcept;
+
+	inline VeVector2A& operator /= (VeFloat32 f32Scale) noexcept;
+
+	inline VeVector2A operator + () const noexcept;
+
+	inline VeVector2A operator - () const noexcept;
+
+	inline VeVector2A operator + (const VeVector2A& kVector) const noexcept;
+
+	inline VeVector2A operator - (const VeVector2A& kVector) const noexcept;
+
+	inline VeVector2A operator * (VeFloat32 f32Scale) const noexcept;
+
+	inline VeVector2A operator / (VeFloat32 f32Scale) const noexcept;
+
+	friend inline VeVector2A operator * (VeFloat32 f32Scale, const VeVector2A& kVector) noexcept;
+
+	inline bool operator == (const VeVector2A& kVector) const noexcept;
+
+	inline bool operator != (const VeVector2A& kVector) const noexcept;
+
+	inline void SetZero() noexcept;
+
+	inline void Set(VeFloat32 f32X, VeFloat32 f32Y) noexcept;
+
+	inline void Scale(const VeVector2A& kVector, VeFloat32 f32Scale) noexcept;
+
+	inline VeFloat32 Length() const noexcept;
+
+	inline VeFloat32 LengthSquared() const noexcept;
+
+	inline void Normalise() noexcept;
+
+	inline void ParaMul(const VeVector2A& kVector) noexcept;
+
+	inline void ParaMul(const VeVector2A& kVector0, const VeVector2A& kVector1) noexcept;
+
+	inline void Lerp(const VeVector2A& kVector0, const VeVector2A& kVector1, VeFloat32 f32Alpha) noexcept;
+
+	inline void Clamp(const VeVector2A& kLower, const VeVector2A& kUpper) noexcept;
+
+	inline VeVector2A UnitVector() const noexcept;
+
+	inline VeFloat32 Dot(const VeVector2A& kVector) const noexcept;
+
+	inline VeFloat32 Cross(const VeVector2A& kVector) const noexcept;
+
+	inline void ProjectOnto(const VeVector2A& kVector0, const VeVector2A& kVector1) noexcept;
+
+	inline VeVector2A ProjectOnto(const VeVector2A& kVector) const noexcept;
+
+	static const VeVector2A ZERO;
+
+	static const VeVector2A UNIT_X;
+
+	static const VeVector2A UNIT_Y;
+
+};
+
+inline bool VeAlmostEqual(const VeVector2A& kVector0, const VeVector2A& kVector1, const VeFloat32 f32Epsilon = VE_MATH_EPSILON_F) noexcept;
+
+inline VeFloat32 VeDistance(const VeVector2A& kVector0, const VeVector2A& kVector1) noexcept;
+
+inline VeFloat32 VeDistanceSquared(const VeVector2A& kVector0, const VeVector2A& kVector1) noexcept;
+
 #include "VeVector2.inl"

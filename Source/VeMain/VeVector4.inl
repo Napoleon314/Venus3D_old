@@ -13,6 +13,26 @@
 ////////////////////////////////////////////////////////////////////////////
 
 //--------------------------------------------------------------------------
+inline VeVector4::operator VE_FLOAT2A* () noexcept
+{
+	return (VE_FLOAT2A*)this;
+}
+//--------------------------------------------------------------------------
+inline VeVector4::operator const VE_FLOAT2A* () const noexcept
+{
+	return (const VE_FLOAT2A*)this;
+}
+//--------------------------------------------------------------------------
+inline VeVector4::operator VE_FLOAT3A* () noexcept
+{
+	return (VE_FLOAT3A*)this;
+}
+//--------------------------------------------------------------------------
+inline VeVector4::operator const VE_FLOAT3A* () const noexcept
+{
+	return (const VE_FLOAT3A*)this;
+}
+//--------------------------------------------------------------------------
 inline VeVector4::operator VE_FLOAT4A* () noexcept
 {
 	return (VE_FLOAT4A*)this;

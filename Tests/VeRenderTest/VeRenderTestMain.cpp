@@ -38,10 +38,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
 	//spShader->Load();
 
-	VeVector2 kVec = { 1.0f, 2.0f };
-
-	
-
 	VeRenderWindowPtr spRenderWindow = ve_renderer_ptr->CreateRenderWindow(
 		"RenderTest", VE_WINDOWPOS_CENTERED, VE_WINDOWPOS_CENTERED, 1280, 720, VE_WINDOW_ALLOW_HIGHDPI);
 

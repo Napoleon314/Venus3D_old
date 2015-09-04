@@ -309,6 +309,7 @@
     <ClInclude Include="..\..\..\..\Source\VeMain\VeMouse.h" />
     <ClInclude Include="..\..\..\..\Source\VeMain\VePipelineState.h" />
     <ClInclude Include="..\..\..\..\Source\VeMain\VePixel.h" />
+    <ClInclude Include="..\..\..\..\Source\VeMain\VeQuaternion.h" />
     <ClInclude Include="..\..\..\..\Source\VeMain\VeRect.h" />
     <ClInclude Include="..\..\..\..\Source\VeMain\VeRenderer.h" />
     <ClInclude Include="..\..\..\..\Source\VeMain\VeRenderWindow.h" />
@@ -362,6 +363,7 @@
     <ClCompile Include="..\..\..\..\Source\VeMain\VeMouse.cpp" />
     <ClCompile Include="..\..\..\..\Source\VeMain\VePipelineState.cpp" />
     <ClCompile Include="..\..\..\..\Source\VeMain\VePixel.cpp" />
+    <ClCompile Include="..\..\..\..\Source\VeMain\VeQuaternion.cpp" />
     <ClCompile Include="..\..\..\..\Source\VeMain\VeRect.cpp" />
     <ClCompile Include="..\..\..\..\Source\VeMain\VeRenderer.cpp" />
     <ClCompile Include="..\..\..\..\Source\VeMain\VeRenderWindow.cpp" />
@@ -403,6 +405,7 @@
     <None Include="..\..\..\..\Source\VeMain\VeMouse.inl" />
     <None Include="..\..\..\..\Source\VeMain\VePipelineState.inl" />
     <None Include="..\..\..\..\Source\VeMain\VePixel.inl" />
+    <None Include="..\..\..\..\Source\VeMain\VeQuaternion.inl" />
     <None Include="..\..\..\..\Source\VeMain\VeRect.inl" />
     <None Include="..\..\..\..\Source\VeMain\VeRenderer.inl" />
     <None Include="..\..\..\..\Source\VeMain\VeRenderWindow.inl" />

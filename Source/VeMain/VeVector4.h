@@ -14,7 +14,7 @@
 
 #pragma once
 
-class VE_MAIN_API alignas(16) VeVector4 : public VeMemObject
+class VE_MAIN_API alignas(16) VeVector4 : public VeMemA16Object
 {
 public:
 	VeFloat32 x, y, z, w;
@@ -59,6 +59,14 @@ public:
 		VE_VECTOR vec = VeLoadFloat4((const VE_FLOAT4*)kInitList.begin());
 		VeStoreFloat4A(*this, vec);
 	}
+
+	inline operator VE_FLOAT2A* () noexcept;
+
+	inline operator const VE_FLOAT2A* () const noexcept;
+
+	inline operator VE_FLOAT3A* () noexcept;
+
+	inline operator const VE_FLOAT3A* () const noexcept;
 
 	inline operator VE_FLOAT4A* () noexcept;
 
