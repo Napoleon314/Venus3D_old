@@ -27,16 +27,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 	ve_engine.Init();
 
 	ve_res_mgr.SetupGroupFromJSON("{\"startup\":{\"r\":[\"file#shaders/cache\",\"file#shaders\"],\"w\":\"file#shaders/cache\"}}");
-
-	//VeResourceManager::FileCachePtr spCache = ve_res_mgr.CacheFile("startup$test.vso");
-
-
+	
 	ve_res_mgr.LoadFile("startup$shaders.json");
 	ve_res_mgr.LoadFile("startup$root_signatures.json");
 	ve_res_mgr.LoadFile("startup$pipeline_states.json");
-	//VeShaderPtr spShader = ve_res_mgr.Get<VeShader>("test@vs");
-
-	//spShader->Load();
 
 	VeRenderWindowPtr spRenderWindow = ve_renderer_ptr->CreateRenderWindow(
 		"RenderTest", VE_WINDOWPOS_CENTERED, VE_WINDOWPOS_CENTERED, 1280, 720, VE_WINDOW_ALLOW_HIGHDPI);

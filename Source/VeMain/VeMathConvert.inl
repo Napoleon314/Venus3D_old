@@ -531,6 +531,128 @@ inline VE_VECTOR VE_MATH_CALLCONV VeLoadUInt4(
 #	endif
 }
 //--------------------------------------------------------------------------
+inline VE_MATRIX4X3 VE_MATH_CALLCONV VeLoadFloat4x3(
+	const VE_FLOAT4X3* pSource) noexcept
+{
+	VE_ASSERT(pSource);
+#	if defined(VE_NO_INTRINSICS)
+	VE_MATRIX4X3 M;
+	M.r[0].vector4_f32[0] = pSource->m[0][0];
+	M.r[0].vector4_f32[1] = pSource->m[0][1];
+	M.r[0].vector4_f32[2] = pSource->m[0][2];
+	M.r[0].vector4_f32[3] = pSource->m[0][3];
+	M.r[1].vector4_f32[0] = pSource->m[1][0];
+	M.r[1].vector4_f32[1] = pSource->m[1][1];
+	M.r[1].vector4_f32[2] = pSource->m[1][2];
+	M.r[1].vector4_f32[3] = pSource->m[1][3];
+	M.r[2].vector4_f32[0] = pSource->m[2][0];
+	M.r[2].vector4_f32[1] = pSource->m[2][1];
+	M.r[2].vector4_f32[2] = pSource->m[2][2];
+	M.r[2].vector4_f32[3] = pSource->m[2][3];
+	return M;
+#	elif defined(VE_ENABLE_SSE)
+	VE_MATRIX4X3 M;
+	M.r[0] = _mm_loadu_ps(&pSource->_11);
+	M.r[1] = _mm_loadu_ps(&pSource->_12);
+	M.r[2] = _mm_loadu_ps(&pSource->_13);
+	return M;
+#	endif
+}
+//--------------------------------------------------------------------------
+inline VE_MATRIX4X3 VE_MATH_CALLCONV VeLoadFloat4x3A(
+	const VE_FLOAT4X3A* pSource) noexcept
+{
+	VE_ASSERT(pSource);
+#	if defined(VE_NO_INTRINSICS)
+	VE_MATRIX4X3 M;
+	M.r[0].vector4_f32[0] = pSource->m[0][0];
+	M.r[0].vector4_f32[1] = pSource->m[0][1];
+	M.r[0].vector4_f32[2] = pSource->m[0][2];
+	M.r[0].vector4_f32[3] = pSource->m[0][3];
+	M.r[1].vector4_f32[0] = pSource->m[1][0];
+	M.r[1].vector4_f32[1] = pSource->m[1][1];
+	M.r[1].vector4_f32[2] = pSource->m[1][2];
+	M.r[1].vector4_f32[3] = pSource->m[1][3];
+	M.r[2].vector4_f32[0] = pSource->m[2][0];
+	M.r[2].vector4_f32[1] = pSource->m[2][1];
+	M.r[2].vector4_f32[2] = pSource->m[2][2];
+	M.r[2].vector4_f32[3] = pSource->m[2][3];
+	return M;
+#	elif defined(VE_ENABLE_SSE)
+	VE_MATRIX4X3 M;
+	M.r[0] = _mm_load_ps(&pSource->_11);
+	M.r[1] = _mm_load_ps(&pSource->_12);
+	M.r[2] = _mm_load_ps(&pSource->_13);
+	return M;
+#	endif
+}
+//--------------------------------------------------------------------------
+inline VE_MATRIX VE_MATH_CALLCONV VeLoadFloat4x4(
+	const VE_FLOAT4X4* pSource) noexcept
+{
+	VE_ASSERT(pSource);
+#	if defined(VE_NO_INTRINSICS)
+	VE_MATRIX M;
+	M.r[0].vector4_f32[0] = pSource->m[0][0];
+	M.r[0].vector4_f32[1] = pSource->m[0][1];
+	M.r[0].vector4_f32[2] = pSource->m[0][2];
+	M.r[0].vector4_f32[3] = pSource->m[0][3];
+	M.r[1].vector4_f32[0] = pSource->m[1][0];
+	M.r[1].vector4_f32[1] = pSource->m[1][1];
+	M.r[1].vector4_f32[2] = pSource->m[1][2];
+	M.r[1].vector4_f32[3] = pSource->m[1][3];
+	M.r[2].vector4_f32[0] = pSource->m[2][0];
+	M.r[2].vector4_f32[1] = pSource->m[2][1];
+	M.r[2].vector4_f32[2] = pSource->m[2][2];
+	M.r[2].vector4_f32[3] = pSource->m[2][3];
+	M.r[3].vector4_f32[0] = pSource->m[3][0];
+	M.r[3].vector4_f32[1] = pSource->m[3][1];
+	M.r[3].vector4_f32[2] = pSource->m[3][2];
+	M.r[3].vector4_f32[3] = pSource->m[3][3];
+	return M;
+#	elif defined(VE_ENABLE_SSE)
+	VE_MATRIX M;
+	M.r[0] = _mm_loadu_ps(&pSource->_11);
+	M.r[1] = _mm_loadu_ps(&pSource->_12);
+	M.r[2] = _mm_loadu_ps(&pSource->_13);
+	M.r[3] = _mm_loadu_ps(&pSource->_14);
+	return M;
+#	endif
+}
+//--------------------------------------------------------------------------
+inline VE_MATRIX VE_MATH_CALLCONV VeLoadFloat4x4A(
+	const VE_FLOAT4X4A* pSource) noexcept
+{
+	VE_ASSERT(pSource);
+#	if defined(VE_NO_INTRINSICS)
+	VE_MATRIX M;
+	M.r[0].vector4_f32[0] = pSource->m[0][0];
+	M.r[0].vector4_f32[1] = pSource->m[0][1];
+	M.r[0].vector4_f32[2] = pSource->m[0][2];
+	M.r[0].vector4_f32[3] = pSource->m[0][3];
+	M.r[1].vector4_f32[0] = pSource->m[1][0];
+	M.r[1].vector4_f32[1] = pSource->m[1][1];
+	M.r[1].vector4_f32[2] = pSource->m[1][2];
+	M.r[1].vector4_f32[3] = pSource->m[1][3];
+	M.r[2].vector4_f32[0] = pSource->m[2][0];
+	M.r[2].vector4_f32[1] = pSource->m[2][1];
+	M.r[2].vector4_f32[2] = pSource->m[2][2];
+	M.r[2].vector4_f32[3] = pSource->m[2][3];
+	M.r[3].vector4_f32[0] = pSource->m[3][0];
+	M.r[3].vector4_f32[1] = pSource->m[3][1];
+	M.r[3].vector4_f32[2] = pSource->m[3][2];
+	M.r[3].vector4_f32[3] = pSource->m[3][3];
+	return M;
+#	elif defined(VE_ENABLE_SSE)
+	VE_MATRIX M;
+	M.r[0] = _mm_load_ps(&pSource->_11);
+	M.r[1] = _mm_load_ps(&pSource->_12);
+	M.r[2] = _mm_load_ps(&pSource->_13);
+	M.r[3] = _mm_load_ps(&pSource->_14);
+	return M;
+#	endif
+}
+//--------------------------------------------------------------------------
 inline void VE_MATH_CALLCONV VeStoreInt(
 	VeUInt32* pDestination, VE_FVECTOR V) noexcept
 {
@@ -863,6 +985,112 @@ inline void VE_MATH_CALLCONV VeStoreUInt4(
 	vResult = _mm_xor_ps(_mm_castsi128_ps(vResulti), vMask);
 	vResult = _mm_or_ps(vResult, vOverflow);
 	_mm_storeu_si128(reinterpret_cast<__m128i*>(pDestination), _mm_castps_si128(vResult));
+#	endif
+}
+//--------------------------------------------------------------------------
+inline void VE_MATH_CALLCONV VeStoreFloat4x3(
+	VE_FLOAT4X3* pDestination, VE_FMATRIX4X3 M) noexcept
+{
+	VE_ASSERT(pDestination);
+#	if defined(VE_NO_INTRINSICS)
+	pDestination->m[0][0] = M.r[0].vector4_f32[0];
+	pDestination->m[0][1] = M.r[0].vector4_f32[1];
+	pDestination->m[0][2] = M.r[0].vector4_f32[2];
+	pDestination->m[0][3] = M.r[0].vector4_f32[3];
+	pDestination->m[1][0] = M.r[1].vector4_f32[0];
+	pDestination->m[1][1] = M.r[1].vector4_f32[1];
+	pDestination->m[1][2] = M.r[1].vector4_f32[2];
+	pDestination->m[1][3] = M.r[1].vector4_f32[3];
+	pDestination->m[2][0] = M.r[2].vector4_f32[0];
+	pDestination->m[2][1] = M.r[2].vector4_f32[1];
+	pDestination->m[2][2] = M.r[2].vector4_f32[2];
+	pDestination->m[2][3] = M.r[2].vector4_f32[3];
+#	elif defined(VE_ENABLE_SSE)
+	_mm_storeu_ps(&pDestination->_11, M.r[0]);
+	_mm_storeu_ps(&pDestination->_12, M.r[1]);
+	_mm_storeu_ps(&pDestination->_13, M.r[2]);
+#	endif
+}
+//--------------------------------------------------------------------------
+inline void VE_MATH_CALLCONV VeStoreFloat4x3A(
+	VE_FLOAT4X3A* pDestination, VE_FMATRIX4X3 M) noexcept
+{
+	VE_ASSERT(pDestination);
+#	if defined(VE_NO_INTRINSICS)
+	pDestination->m[0][0] = M.r[0].vector4_f32[0];
+	pDestination->m[0][1] = M.r[0].vector4_f32[1];
+	pDestination->m[0][2] = M.r[0].vector4_f32[2];
+	pDestination->m[0][3] = M.r[0].vector4_f32[3];
+	pDestination->m[1][0] = M.r[1].vector4_f32[0];
+	pDestination->m[1][1] = M.r[1].vector4_f32[1];
+	pDestination->m[1][2] = M.r[1].vector4_f32[2];
+	pDestination->m[1][3] = M.r[1].vector4_f32[3];
+	pDestination->m[2][0] = M.r[2].vector4_f32[0];
+	pDestination->m[2][1] = M.r[2].vector4_f32[1];
+	pDestination->m[2][2] = M.r[2].vector4_f32[2];
+	pDestination->m[2][3] = M.r[2].vector4_f32[3];
+#	elif defined(VE_ENABLE_SSE)
+	_mm_store_ps(&pDestination->_11, M.r[0]);
+	_mm_store_ps(&pDestination->_12, M.r[1]);
+	_mm_store_ps(&pDestination->_13, M.r[2]);
+#	endif
+}
+//--------------------------------------------------------------------------
+inline void VE_MATH_CALLCONV VeStoreFloat4x4(
+	VE_FLOAT4X4* pDestination, VE_FMATRIX M) noexcept
+{
+	VE_ASSERT(pDestination);
+#	if defined(VE_NO_INTRINSICS)
+	pDestination->m[0][0] = M.r[0].vector4_f32[0];
+	pDestination->m[0][1] = M.r[0].vector4_f32[1];
+	pDestination->m[0][2] = M.r[0].vector4_f32[2];
+	pDestination->m[0][3] = M.r[0].vector4_f32[3];
+	pDestination->m[1][0] = M.r[1].vector4_f32[0];
+	pDestination->m[1][1] = M.r[1].vector4_f32[1];
+	pDestination->m[1][2] = M.r[1].vector4_f32[2];
+	pDestination->m[1][3] = M.r[1].vector4_f32[3];
+	pDestination->m[2][0] = M.r[2].vector4_f32[0];
+	pDestination->m[2][1] = M.r[2].vector4_f32[1];
+	pDestination->m[2][2] = M.r[2].vector4_f32[2];
+	pDestination->m[2][3] = M.r[2].vector4_f32[3];
+	pDestination->m[3][0] = M.r[3].vector4_f32[0];
+	pDestination->m[3][1] = M.r[3].vector4_f32[1];
+	pDestination->m[3][2] = M.r[3].vector4_f32[2];
+	pDestination->m[3][3] = M.r[3].vector4_f32[3];
+#	elif defined(VE_ENABLE_SSE)
+	_mm_storeu_ps(&pDestination->_11, M.r[0]);
+	_mm_storeu_ps(&pDestination->_12, M.r[1]);
+	_mm_storeu_ps(&pDestination->_13, M.r[2]);
+	_mm_storeu_ps(&pDestination->_14, M.r[3]);
+#	endif
+}
+//--------------------------------------------------------------------------
+inline void VE_MATH_CALLCONV VeStoreFloat4x4A(
+	VE_FLOAT4X4A* pDestination, VE_FMATRIX M) noexcept
+{
+	VE_ASSERT(pDestination);
+#	if defined(VE_NO_INTRINSICS)
+	pDestination->m[0][0] = M.r[0].vector4_f32[0];
+	pDestination->m[0][1] = M.r[0].vector4_f32[1];
+	pDestination->m[0][2] = M.r[0].vector4_f32[2];
+	pDestination->m[0][3] = M.r[0].vector4_f32[3];
+	pDestination->m[1][0] = M.r[1].vector4_f32[0];
+	pDestination->m[1][1] = M.r[1].vector4_f32[1];
+	pDestination->m[1][2] = M.r[1].vector4_f32[2];
+	pDestination->m[1][3] = M.r[1].vector4_f32[3];
+	pDestination->m[2][0] = M.r[2].vector4_f32[0];
+	pDestination->m[2][1] = M.r[2].vector4_f32[1];
+	pDestination->m[2][2] = M.r[2].vector4_f32[2];
+	pDestination->m[2][3] = M.r[2].vector4_f32[3];
+	pDestination->m[3][0] = M.r[3].vector4_f32[0];
+	pDestination->m[3][1] = M.r[3].vector4_f32[1];
+	pDestination->m[3][2] = M.r[3].vector4_f32[2];
+	pDestination->m[3][3] = M.r[3].vector4_f32[3];
+#	elif defined(VE_ENABLE_SSE)
+	_mm_store_ps(&pDestination->_11, M.r[0]);
+	_mm_store_ps(&pDestination->_12, M.r[1]);
+	_mm_store_ps(&pDestination->_13, M.r[2]);
+	_mm_store_ps(&pDestination->_14, M.r[3]);
 #	endif
 }
 //--------------------------------------------------------------------------

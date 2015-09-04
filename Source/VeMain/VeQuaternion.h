@@ -17,7 +17,16 @@
 class VE_MAIN_API alignas(16) VeQuaternion : public VeMemA16Object
 {
 public:
-	VeFloat32 x, y, z, w;
+	union
+	{
+		struct
+		{
+			VeFloat32 x, y, z, w;
+		};
+		VeFloat32 f[4];
+		VE_FLOAT3A v3;
+		VE_FLOAT4A v;
+	};
 
 	enum Coord
 	{
@@ -40,13 +49,13 @@ public:
 	VeQuaternion(const VeFloat32* pf32Quat) noexcept
 	{
 		VE_VECTOR vec = VeLoadFloat4((const VE_FLOAT4*)pf32Quat);
-		VeStoreFloat4A(*this, vec);
+		VeStoreFloat4A(&v, vec);
 	}
 
 	VeQuaternion(const VeQuaternion& kQuat) noexcept
 	{
-		VE_VECTOR vec = VeLoadFloat4A(kQuat);
-		VeStoreFloat4A(*this, vec);
+		VE_VECTOR vec = VeLoadFloat4A(&kQuat.v);
+		VeStoreFloat4A(&v, vec);
 	}
 
 	VeQuaternion(const VeVector3& kVec, VeFloat32 f32Angle) noexcept
@@ -57,12 +66,10 @@ public:
 	VeQuaternion(std::initializer_list<VeFloat32> kInitList) noexcept
 	{
 		VE_VECTOR vec = VeLoadFloat4((const VE_FLOAT4*)kInitList.begin());
-		VeStoreFloat4A(*this, vec);
+		VeStoreFloat4A(&v, vec);
 	}
 
-	inline operator VE_FLOAT4A* () noexcept;
-
-	inline operator const VE_FLOAT4A* () const noexcept;
+	inline VeQuaternion& operator = (const VeQuaternion& kQuat) noexcept;
 
 	inline VeQuaternion& operator += (const VeQuaternion& kQuat) noexcept;
 

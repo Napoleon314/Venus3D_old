@@ -112,6 +112,9 @@
     <ClInclude Include="..\..\..\..\Source\VeMain\VeQuaternion.h">
       <Filter>Math</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\VeMain\VeMatrix.h">
+      <Filter>Math</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\Source\VeMain\VeMain.cpp">
@@ -189,6 +192,9 @@
     <ClCompile Include="..\..\..\..\Source\VeMain\VeQuaternion.cpp">
       <Filter>Math</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\Source\VeMain\VeMatrix.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\..\Source\VeMain\VeRenderer.inl">
@@ -249,6 +255,9 @@
       <Filter>Renderer</Filter>
     </None>
     <None Include="..\..\..\..\Source\VeMain\VeQuaternion.inl">
+      <Filter>Math</Filter>
+    </None>
+    <None Include="..\..\..\..\Source\VeMain\VeMatrix.inl">
       <Filter>Math</Filter>
     </None>
   </ItemGroup>

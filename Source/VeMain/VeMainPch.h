@@ -21,6 +21,7 @@
 #include "VeVector3.h"
 #include "VeVector4.h"
 #include "VeQuaternion.h"
+#include "VeMatrix.h"
 #include "VeRect.h"
 #include "VePixel.h"
 #include "VeSurface.h"

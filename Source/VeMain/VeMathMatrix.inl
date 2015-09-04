@@ -12,7 +12,6 @@
 //  http://www.venusie.com
 ////////////////////////////////////////////////////////////////////////////
 
-
 //--------------------------------------------------------------------------
 inline bool VE_MATH_CALLCONV VeMatrixIsNaN(
 	VE_FMATRIX M) noexcept
@@ -683,6 +682,15 @@ inline bool VE_MATH_CALLCONV VeMatrixDecompose(VE_VECTOR* outScale,
 //--------------------------------------------------------------------------
 #undef VE3_DECOMP_EPSILON
 #undef VE3RANKDECOMPOSE
+//--------------------------------------------------------------------------
+inline VE_MATRIX4X3 VE_MATH_CALLCONV VeMatrix4X3Identity() noexcept
+{
+	VE_MATRIX4X3 M;
+	M.r[0] = g_MathIdentityR0.v;
+	M.r[1] = g_MathIdentityR1.v;
+	M.r[2] = g_MathIdentityR2.v;
+	return M;
+}
 //--------------------------------------------------------------------------
 inline VE_MATRIX VE_MATH_CALLCONV VeMatrixIdentity() noexcept
 {

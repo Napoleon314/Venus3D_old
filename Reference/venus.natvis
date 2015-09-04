@@ -11,15 +11,178 @@
 		</Expand>
 	</Type>
 	
+	<Type Name="VeRefNode&lt;*&gt;">
+		<DisplayString>{m_Content}</DisplayString>
+		<Expand>
+			<Item Name="[content]">m_Content</Item>
+			<Item Name="[Pre]">_Pre</Item>
+			<Item Name="[Next]">_Next</Item>
+			<Item Name="[list]">_Parent</Item>
+		</Expand>
+  </Type>
+	
+	<Type Name="VeRefList&lt;*&gt;">
+		<DisplayString>{{ size={_Size} }}</DisplayString>
+		<Expand>			
+			<LinkedListItems>
+				<Size>_Size</Size>
+				<HeadPointer>_Head</HeadPointer>
+				<NextPointer>_Next</NextPointer>
+				<ValueNode>m_Content</ValueNode>
+			</LinkedListItems>
+			<Item Name="[head]">_Head</Item>
+			<Item Name="[tail]">_Tail</Item>
+			<Item Name="[iterator]">_InnerIter</Item>
+		</Expand>
+  </Type>
+	
 	<Type Name="VeFixedString">
 		<DisplayString Condition="m_kHandle == 0">{{empty}}</DisplayString>
-		<DisplayString Condition="m_kHandle != 0">{m_kHandle,na}</DisplayString>
-		<StringView Condition="m_kHandle != 0">m_kHandle,na</StringView>
+		<DisplayString Condition="m_kHandle != 0">{m_kHandle,s8}</DisplayString>
+		<StringView Condition="m_kHandle != 0">m_kHandle,s8</StringView>
 		<Expand>
-			<Item Condition="m_kHandle != 0" Name="[str]">m_kHandle,na</Item>
+			<Item Condition="m_kHandle != 0" Name="[str]">m_kHandle,s8</Item>
 			<Item Condition="m_kHandle != 0" Name="[ref]">*(unsigned short*)((char*)(m_kHandle)-8)</Item>
 			<Item Condition="m_kHandle != 0" Name="[len]">*(unsigned short*)((char*)(m_kHandle)-6)</Item>
 			<Item Condition="m_kHandle != 0" Name="[hash]">*(unsigned int*)((char*)(m_kHandle)-4)</Item>
+		</Expand>
+  </Type>
+  
+  <Type Name="VE_FLOAT2">
+		<DisplayString>({x}, {y})</DisplayString>
+		<Expand>
+			<Item Name="[x]">x</Item>
+			<Item Name="[y]">y</Item>
+		</Expand>
+  </Type>
+  
+  <Type Name="VE_FLOAT2A">
+		<DisplayString>({x}, {y})</DisplayString>
+		<Expand>
+			<Item Name="[x]">x</Item>
+			<Item Name="[y]">y</Item>
+		</Expand>
+  </Type>
+  
+  <Type Name="VeVector2">
+		<DisplayString>({x}, {y})</DisplayString>
+		<Expand>
+			<Item Name="[x]">x</Item>
+			<Item Name="[y]">y</Item>
+		</Expand>
+  </Type>
+  
+  <Type Name="VeVector2A">
+		<DisplayString>({x}, {y})</DisplayString>
+		<Expand>
+			<Item Name="[x]">x</Item>
+			<Item Name="[y]">y</Item>
+		</Expand>
+  </Type>
+  
+  <Type Name="VE_FLOAT3">
+		<DisplayString>({x}, {y}, {z})</DisplayString>
+		<Expand>
+			<Item Name="[x]">x</Item>
+			<Item Name="[y]">y</Item>
+			<Item Name="[z]">z</Item>
+		</Expand>
+  </Type>
+  
+  <Type Name="VE_FLOAT3A">
+		<DisplayString>({x}, {y}, {z})</DisplayString>
+		<Expand>
+			<Item Name="[x]">x</Item>
+			<Item Name="[y]">y</Item>
+			<Item Name="[z]">z</Item>
+		</Expand>
+  </Type>
+  
+  <Type Name="VeVector3">
+		<DisplayString>({x}, {y}, {z})</DisplayString>
+		<Expand>
+			<Item Name="[x]">x</Item>
+			<Item Name="[y]">y</Item>
+			<Item Name="[z]">z</Item>
+		</Expand>
+  </Type>
+  
+  <Type Name="VeVector3A">
+		<DisplayString>({x}, {y}, {z})</DisplayString>
+		<Expand>
+			<Item Name="[x]">x</Item>
+			<Item Name="[y]">y</Item>
+			<Item Name="[z]">z</Item>
+		</Expand>
+  </Type>
+  
+  <Type Name="VE_FLOAT4">
+		<DisplayString>({x}, {y}, {z}, {w})</DisplayString>
+		<Expand>
+			<Item Name="[x]">x</Item>
+			<Item Name="[y]">y</Item>
+			<Item Name="[z]">z</Item>
+			<Item Name="[w]">w</Item>
+		</Expand>
+  </Type>
+  
+  <Type Name="VE_FLOAT4A">
+		<DisplayString>({x}, {y}, {z}, {w})</DisplayString>
+		<Expand>
+			<Item Name="[x]">x</Item>
+			<Item Name="[y]">y</Item>
+			<Item Name="[z]">z</Item>
+			<Item Name="[w]">w</Item>
+		</Expand>
+  </Type>
+  
+  <Type Name="VeVector4">
+		<DisplayString>({x}, {y}, {z}, {w})</DisplayString>
+		<Expand>
+			<Item Name="[x]">x</Item>
+			<Item Name="[y]">y</Item>
+			<Item Name="[z]">z</Item>
+			<Item Name="[w]">w</Item>
+		</Expand>
+  </Type>
+  
+  <Type Name="VeQuaternion">
+		<DisplayString>({x}, {y}, {z}, {w})</DisplayString>
+		<Expand>
+			<Item Name="[x]">x</Item>
+			<Item Name="[y]">y</Item>
+			<Item Name="[z]">z</Item>
+			<Item Name="[w]">w</Item>
+		</Expand>
+  </Type>
+  
+  <Type Name="VeColor">
+		<DisplayString>({r}, {g}, {b}, {a})</DisplayString>
+		<Expand>
+			<Item Name="[red]">r</Item>
+			<Item Name="[green]">g</Item>
+			<Item Name="[blue]">b</Item>
+			<Item Name="[alpha]">a</Item>
+		</Expand>
+  </Type>
+  
+  <Type Name="VeRGBA">
+		<DisplayString>({(int)r}, {(int)g}, {(int)b}, {(int)a})</DisplayString>
+		<Expand>
+			<Item Name="[red]">(int)r</Item>
+			<Item Name="[green]">(int)g</Item>
+			<Item Name="[blue]">(int)b</Item>
+			<Item Name="[alpha]">(int)a</Item>
+			<Item Name="[code]">m_u32Color,H</Item>
+		</Expand>
+  </Type>
+  
+  <Type Name="VeMatrix4X3">
+		<DisplayString>{{{v[0]}, {v[1]}, {v[2]}}}</DisplayString>
+		<Expand>
+			<Item Name="[col0]">v[0]</Item>
+			<Item Name="[col1]">v[1]</Item>
+			<Item Name="[col2]">v[2]</Item>
 		</Expand>
   </Type>
     

@@ -160,6 +160,38 @@ struct alignas(16) VE_VECTORU32
 #	endif
 };
 //--------------------------------------------------------------------------
+struct VE_MATRIX4X3;
+#ifndef VE_NO_INTRINSICS
+typedef const VE_MATRIX4X3 VE_FMATRIX4X3;
+#else
+typedef const VE_MATRIX4X3& VE_FMATRIX4X3;
+#endif
+//--------------------------------------------------------------------------
+typedef const VE_MATRIX4X3& VE_CMATRIX4X3;
+//--------------------------------------------------------------------------
+struct alignas(16) VE_MATRIX4X3
+{
+#	ifdef VE_NO_INTRINSICS
+	union
+	{
+		VE_VECTOR r[3];
+		struct
+		{
+			VeFloat32 _11, _21, _31, _41;
+			VeFloat32 _12, _22, _32, _42;
+			VeFloat32 _13, _23, _33, _43;
+		};
+		VeFloat32 m[3][4];
+	};
+#	else
+	VE_VECTOR r[3];
+#	endif
+
+	VE_MATRIX4X3() noexcept = default;
+	VE_MATRIX4X3(VE_FVECTOR R0, VE_FVECTOR R1, VE_FVECTOR R2) noexcept { r[0] = R0; r[1] = R1; r[2] = R2; }
+
+};
+//--------------------------------------------------------------------------
 struct VE_MATRIX;
 //--------------------------------------------------------------------------
 #ifndef VE_NO_INTRINSICS

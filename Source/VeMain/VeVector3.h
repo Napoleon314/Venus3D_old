@@ -17,14 +17,23 @@
 class VE_MAIN_API VeVector3 : public VeMemObject
 {
 public:
-	VeFloat32 x, y, z;
+	union
+	{
+		struct
+		{
+			VeFloat32 x, y, z;
+		};
+		VeFloat32 f[3];
+		VE_FLOAT2 v2;
+		VE_FLOAT3 v;
+	};
 
 	enum Coord
 	{
 		X = 0,
 		Y = 1,
 		Z = 2
-	};
+	};	
 
 	VeVector3() noexcept
 	{
@@ -36,27 +45,23 @@ public:
 		Set(f32X, f32Y, f32Z);
 	}
 
-	VeVector3(const VeFloat32* pf32Vector) noexcept
+	VeVector3(const VE_FLOAT3& kVector) noexcept
 	{
-		VE_VECTOR vec = VeLoadFloat3((const VE_FLOAT3*)pf32Vector);
-		VeStoreFloat3(*this, vec);
+		VE_VECTOR vec = VeLoadFloat3(&kVector);
+		VeStoreFloat3(&v, vec);
 	}
 
 	VeVector3(const VeVector3& kVector) noexcept
 	{
-		VE_VECTOR vec = VeLoadFloat3(kVector);
-		VeStoreFloat3(*this, vec);
+		VE_VECTOR vec = VeLoadFloat3(&kVector.v);
+		VeStoreFloat3(&v, vec);
 	}
 
 	VeVector3(std::initializer_list<VeFloat32> kInitList) noexcept
 	{
 		VE_VECTOR vec = VeLoadFloat3((const VE_FLOAT3*)kInitList.begin());
-		VeStoreFloat3(*this, vec);
+		VeStoreFloat3(&v, vec);
 	}
-
-	inline operator VE_FLOAT3* () noexcept;
-
-	inline operator const VE_FLOAT3* () const noexcept;
 
 	inline VeFloat32& operator [] (Coord eCoord) noexcept;
 
@@ -151,7 +156,16 @@ inline VeFloat32 VeDistanceSquared(const VeVector3& kVector0, const VeVector3& k
 class VE_MAIN_API VeVector3A : public VeMemA16Object
 {
 public:
-	VeFloat32 x, y, z;
+	union
+	{
+		struct
+		{
+			VeFloat32 x, y, z;
+		};
+		VeFloat32 f[3];
+		VE_FLOAT2A v2;
+		VE_FLOAT3A v;
+	};
 
 	enum Coord
 	{
@@ -170,27 +184,35 @@ public:
 		Set(f32X, f32Y, f32Z);
 	}
 
+	VeVector3A(const VE_FLOAT3& kVector) noexcept
+	{
+		VE_VECTOR vec = VeLoadFloat3(&kVector);
+		VeStoreFloat3A(&v, vec);
+	}
+
+	VeVector3A(const VE_FLOAT3A& kVector) noexcept
+	{
+		VE_VECTOR vec = VeLoadFloat3A(&kVector);
+		VeStoreFloat3A(&v, vec);
+	}
+
 	VeVector3A(const VeFloat32* pf32Vector) noexcept
 	{
 		VE_VECTOR vec = VeLoadFloat3((const VE_FLOAT3*)pf32Vector);
-		VeStoreFloat3A(*this, vec);
+		VeStoreFloat3A(&v, vec);
 	}
 
 	VeVector3A(const VeVector3A& kVector) noexcept
 	{
-		VE_VECTOR vec = VeLoadFloat3A(kVector);
-		VeStoreFloat3A(*this, vec);
+		VE_VECTOR vec = VeLoadFloat3A(&kVector.v);
+		VeStoreFloat3A(&v, vec);
 	}
 
 	VeVector3A(std::initializer_list<VeFloat32> kInitList) noexcept
 	{
 		VE_VECTOR vec = VeLoadFloat3((const VE_FLOAT3*)kInitList.begin());
-		VeStoreFloat3A(*this, vec);
+		VeStoreFloat3A(&v, vec);
 	}
-
-	inline operator VE_FLOAT3A* () noexcept;
-
-	inline operator const VE_FLOAT3A* () const noexcept;
 
 	inline VeFloat32& operator [] (Coord eCoord) noexcept;
 

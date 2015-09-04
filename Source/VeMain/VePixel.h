@@ -222,25 +222,29 @@ class VeRGBA;
 class VE_MAIN_API alignas(16) VeColor : public VeMemA16Object
 {
 public:
-	VeFloat32 r, g, b, a;
+	union
+	{
+		struct
+		{
+			VeFloat32 r, g, b, a;
+		};
+		VeFloat32 f[4];
+		VE_FLOAT4A v;
+	};
 
 	VeColor(VeFloat32 fR = 0.0f, VeFloat32 fG = 0.0f, VeFloat32 fB = 0.0f, VeFloat32 fA = 0.0f) noexcept
 	{
 		VE_VECTOR vec = VeVectorSet(fR, fG, fB, fA);
-		VeStoreFloat4A(*this, vec);
+		VeStoreFloat4A(&v, vec);
 	}
 
 	VeColor(std::initializer_list<VeFloat32> kInitList) noexcept
 	{
 		VE_VECTOR vec = VeLoadFloat4((const VE_FLOAT4*)kInitList.begin());
-		VeStoreFloat4A(*this, vec);
+		VeStoreFloat4A(&v, vec);
 	}
 
 	inline operator VeRGBA () const noexcept;
-
-	inline operator VE_FLOAT4A* () noexcept;
-
-	inline operator const VE_FLOAT4A* () const noexcept;
 
 	inline VeColor& operator = (VeFloat32 f32Scalar) noexcept;
 
@@ -291,51 +295,33 @@ public:
 class VE_MAIN_API VeRGBA : public VeMemObject
 {
 public:
-	enum
-	{
-		R, G, B, A
-	};
-
-	struct Color
-	{
-		VeUInt8 r, g, b, a;
-	};
-
 	union
 	{
-		Color m_kColor;
+		struct
+		{
+			VeUInt8 r, g, b, a;
+		};
 		VeUInt8 m_au8Channel[4];
 		VeUInt32 m_u32Color;
 	};
 
+	enum
+	{
+		R, G, B, A
+	};	
+
 	VeRGBA(VeUInt32 u32Color) noexcept
 		: m_u32Color(u32Color) {}
 
-	VeRGBA(VeUInt8 r = 0, VeUInt8 g = 0, VeUInt8 b = 0, VeUInt8 a = 0) noexcept
+	VeRGBA(VeUInt8 u8Red = 0, VeUInt8 u8Green = 0, VeUInt8 u8Blue = 0, VeUInt8 u8Alpha = 0) noexcept
 	{
-		m_kColor.r = r;
-		m_kColor.g = g;
-		m_kColor.b = b;
-		m_kColor.a = a;
+		r = u8Red;
+		g = u8Green;
+		b = u8Blue;
+		a = u8Alpha;
 	}
 
 	inline operator VeColor () noexcept;
-
-	inline VeUInt8& r() noexcept;
-
-	inline const VeUInt8& r() const noexcept;
-
-	inline VeUInt8& g() noexcept;
-
-	inline const VeUInt8& g() const noexcept;
-
-	inline VeUInt8& b() noexcept;
-
-	inline const VeUInt8& b() const noexcept;
-
-	inline VeUInt8& a() noexcept;
-
-	inline const VeUInt8& a() const noexcept;
 
 	inline VeRGBA& operator = (VeUInt8 uiValue) noexcept;
 

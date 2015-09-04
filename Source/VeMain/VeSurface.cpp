@@ -55,12 +55,12 @@ VeSurfacePtr VeSurface::CreateRGBSurface(VeUInt32 u32Flags,
 		VE_ASSERT(spPattle);
 		if (spPattle->m_kColors.size() == 2)
 		{
-			spPattle->m_kColors[0].r() = 0xFF;
-			spPattle->m_kColors[0].g() = 0xFF;
-			spPattle->m_kColors[0].b() = 0xFF;
-			spPattle->m_kColors[1].r() = 0x00;
-			spPattle->m_kColors[1].g() = 0x00;
-			spPattle->m_kColors[1].b() = 0x00;
+			spPattle->m_kColors[0].r = 0xFF;
+			spPattle->m_kColors[0].g = 0xFF;
+			spPattle->m_kColors[0].b = 0xFF;
+			spPattle->m_kColors[1].r = 0x00;
+			spPattle->m_kColors[1].g = 0x00;
+			spPattle->m_kColors[1].b = 0x00;
 		}
 		spSurface->SetPalette(spPattle);
 	}

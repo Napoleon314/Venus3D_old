@@ -306,6 +306,7 @@
     <ClInclude Include="..\..\..\..\Source\VeMain\VeMath.h" />
     <ClInclude Include="..\..\..\..\Source\VeMain\VeMathMisc.h" />
     <ClInclude Include="..\..\..\..\Source\VeMain\VeMathSIMD.inl" />
+    <ClInclude Include="..\..\..\..\Source\VeMain\VeMatrix.h" />
     <ClInclude Include="..\..\..\..\Source\VeMain\VeMouse.h" />
     <ClInclude Include="..\..\..\..\Source\VeMain\VePipelineState.h" />
     <ClInclude Include="..\..\..\..\Source\VeMain\VePixel.h" />
@@ -360,6 +361,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\..\..\..\Source\VeMain\VeMath.cpp" />
+    <ClCompile Include="..\..\..\..\Source\VeMain\VeMatrix.cpp" />
     <ClCompile Include="..\..\..\..\Source\VeMain\VeMouse.cpp" />
     <ClCompile Include="..\..\..\..\Source\VeMain\VePipelineState.cpp" />
     <ClCompile Include="..\..\..\..\Source\VeMain\VePixel.cpp" />
@@ -402,6 +404,7 @@
     <None Include="..\..\..\..\Source\VeMain\VeMathConvert.inl" />
     <None Include="..\..\..\..\Source\VeMain\VeMathMatrix.inl" />
     <None Include="..\..\..\..\Source\VeMain\VeMathVector.inl" />
+    <None Include="..\..\..\..\Source\VeMain\VeMatrix.inl" />
     <None Include="..\..\..\..\Source\VeMain\VeMouse.inl" />
     <None Include="..\..\..\..\Source\VeMain\VePipelineState.inl" />
     <None Include="..\..\..\..\Source\VeMain\VePixel.inl" />

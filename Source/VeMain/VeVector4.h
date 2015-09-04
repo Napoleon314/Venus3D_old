@@ -17,7 +17,17 @@
 class VE_MAIN_API alignas(16) VeVector4 : public VeMemA16Object
 {
 public:
-	VeFloat32 x, y, z, w;
+	union
+	{
+		struct
+		{
+			VeFloat32 x, y, z, w;
+		};
+		VeFloat32 f[4];
+		VE_FLOAT2A v2;
+		VE_FLOAT3A v3;
+		VE_FLOAT4A v;
+	};
 
 	enum Coord
 	{
@@ -37,16 +47,22 @@ public:
 		Set(f32X, f32Y, f32Z, f32W);
 	}
 
-	VeVector4(const VeFloat32* pf32Vector) noexcept
+	VeVector4(const VE_FLOAT4& kVector) noexcept
 	{
-		VE_VECTOR vec = VeLoadFloat4((const VE_FLOAT4*)pf32Vector);
-		VeStoreFloat4A(*this, vec);
+		VE_VECTOR vec = VeLoadFloat4(&kVector);
+		VeStoreFloat4A(&v, vec);
+	}
+
+	VeVector4(const VE_FLOAT4A& kVector) noexcept
+	{
+		VE_VECTOR vec = VeLoadFloat4A(&kVector);
+		VeStoreFloat4A(&v, vec);
 	}
 
 	VeVector4(const VeVector4& kVector) noexcept
 	{
-		VE_VECTOR vec = VeLoadFloat4A(kVector);
-		VeStoreFloat4A(*this, vec);
+		VE_VECTOR vec = VeLoadFloat4A(&kVector.v);
+		VeStoreFloat4A(&v, vec);
 	}
 
 	VeVector4(const VeVector3& kVector, VeFloat32 f32W) noexcept
@@ -57,20 +73,8 @@ public:
 	VeVector4(std::initializer_list<VeFloat32> kInitList) noexcept
 	{
 		VE_VECTOR vec = VeLoadFloat4((const VE_FLOAT4*)kInitList.begin());
-		VeStoreFloat4A(*this, vec);
+		VeStoreFloat4A(&v, vec);
 	}
-
-	inline operator VE_FLOAT2A* () noexcept;
-
-	inline operator const VE_FLOAT2A* () const noexcept;
-
-	inline operator VE_FLOAT3A* () noexcept;
-
-	inline operator const VE_FLOAT3A* () const noexcept;
-
-	inline operator VE_FLOAT4A* () noexcept;
-
-	inline operator const VE_FLOAT4A* () const noexcept;
 
 	inline VeFloat32& operator [] (Coord eCoord) noexcept;
 
