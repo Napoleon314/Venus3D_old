@@ -32,6 +32,17 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 	ve_res_mgr.LoadFile("startup$root_signatures.json");
 	ve_res_mgr.LoadFile("startup$pipeline_states.json");
 
+	VeMatrix4X3 kRot;
+	kRot.SetRotateZ(VE_MATH_PI_2_F);
+
+	VeMatrix4X3 kScale;
+	kScale.SetScale(2, 2, 2);
+
+	VeMatrix4X3 kTrans;
+	kTrans.SetTranslation(10, 11, 12);
+
+	kRot = kRot * kScale;
+
 	VeRenderWindowPtr spRenderWindow = ve_renderer_ptr->CreateRenderWindow(
 		"RenderTest", VE_WINDOWPOS_CENTERED, VE_WINDOWPOS_CENTERED, 1280, 720, VE_WINDOW_ALLOW_HIGHDPI);
 

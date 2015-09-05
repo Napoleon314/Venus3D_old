@@ -57,6 +57,11 @@
 //--------------------------------------------------------------------------
 #define VE_STREAM_PS(p,a) _mm_stream_ps(p,a)
 #define VE_PERMUTE_PS(v,c) _mm_shuffle_ps(v,v,c)
+#define _mm_replicate_x_ps(v)  _mm_shuffle_ps(v,v,_MM_SHUFFLE(0, 0, 0, 0))
+#define _mm_replicate_y_ps(v)  _mm_shuffle_ps(v,v,_MM_SHUFFLE(1, 1, 1, 1))
+#define _mm_replicate_z_ps(v)  _mm_shuffle_ps(v,v,_MM_SHUFFLE(2, 2, 2, 2))
+#define _mm_replicate_w_ps(v)  _mm_shuffle_ps(v,v,_MM_SHUFFLE(3, 3, 3, 3))
+#define _mm_madd_ps(a,b,c) _mm_add_ps(_mm_mul_ps(a,b),c)
 //--------------------------------------------------------------------------
 inline bool VeComparisonAllTrue(VeUInt32 CR) noexcept { return (((CR)& VE_CRMASK_CR6TRUE) == VE_CRMASK_CR6TRUE); }
 inline bool VeComparisonAnyTrue(VeUInt32 CR) noexcept { return (((CR)& VE_CRMASK_CR6FALSE) != VE_CRMASK_CR6FALSE); }
@@ -666,6 +671,9 @@ inline VE_VECTOR VE_MATH_CALLCONV VeVectorSetBinaryConstant(
 	return _mm_castsi128_ps(vTemp);
 #	endif
 }
+//--------------------------------------------------------------------------
+inline VE_VECTOR VE_MATH_CALLCONV VeConvertVectorIntToFloat(
+	VE_FVECTOR VInt, VeUInt32 DivExponent) noexcept;
 //--------------------------------------------------------------------------
 inline VE_VECTOR VE_MATH_CALLCONV VeVectorSplatConstant(
 	VeInt32 IntConstant, VeUInt32 DivExponent) noexcept

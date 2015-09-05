@@ -25,8 +25,10 @@ public:
 			VeFloat32 _12, _22, _32, _42;
 			VeFloat32 _13, _23, _33, _43;
 		};
-		VeFloat32 m[3][4];
+		VeFloat32 f[3][4];
 		VE_FLOAT4A v[3];
+		VeVector4 vec[3];
+		VE_FLOAT4X3A m;
 	};
 
 	VeMatrix4X3() noexcept
@@ -37,13 +39,13 @@ public:
 	VeMatrix4X3(const VeFloat32* pf32Matrix) noexcept
 	{
 		VE_MATRIX4X3 mat = VeLoadFloat4x3((const VE_FLOAT4X3*)pf32Matrix);
-		VeStoreFloat4x3A(*this, mat);
+		VeStoreFloat4x3A(&m, mat);
 	}
 
 	VeMatrix4X3(const VeMatrix4X3& kMatrix) noexcept
 	{
-		VE_MATRIX4X3 mat = VeLoadFloat4x3A(kMatrix);
-		VeStoreFloat4x3A(*this, mat);
+		VE_MATRIX4X3 mat = VeLoadFloat4x3A(&kMatrix.m);
+		VeStoreFloat4x3A(&m, mat);
 	}
 
 	VeMatrix4X3(
@@ -51,28 +53,62 @@ public:
 		VeFloat32 _12, VeFloat32 _22, VeFloat32 _32, VeFloat32 _42,
 		VeFloat32 _13, VeFloat32 _23, VeFloat32 _33, VeFloat32 _43) noexcept
 	{
-		VE_MATRIX4X3 mat;
-		mat.r[0] = VeVectorSet(_11, _21, _31, _41);
-		mat.r[1] = VeVectorSet(_12, _22, _32, _42);
-		mat.r[2] = VeVectorSet(_13, _23, _33, _43);
-		VeStoreFloat4x3A(*this, mat);
+		VE_MATRIX4X3 mat = VeMatrix4X3Set(_11, _21, _31, _41,
+			_12, _22, _32, _42, _13, _23, _33, _43);
+		VeStoreFloat4x3A(&m, mat);
 	}
 
 	VeMatrix4X3(std::initializer_list<VeFloat32> kInitList) noexcept
 	{
 		VE_MATRIX4X3 mat = VeLoadFloat4x3((const VE_FLOAT4X3*)kInitList.begin());
-		VeStoreFloat4x3A(*this, mat);
+		VeStoreFloat4x3A(&m, mat);
 	}
 
 	VeMatrix4X3(std::initializer_list<VeVector4> kInitList) noexcept
 	{
 		VE_MATRIX4X3 mat = VeLoadFloat4x3A((const VE_FLOAT4X3A*)kInitList.begin());
-		VeStoreFloat4x3A(*this, mat);
+		VeStoreFloat4x3A(&m, mat);
 	}
 
-	inline operator VE_FLOAT4X3A* () noexcept;
+	inline VeFloat32& operator () (VeUInt32 u32Col, VeUInt32 u32Row) noexcept;
 
-	inline operator const VE_FLOAT4X3A* () const noexcept;
+	inline const VeFloat32& operator () (VeUInt32 u32Col, VeUInt32 u32Row) const noexcept;
+
+	inline VeVector4& operator [] (VeUInt32 i) noexcept;
+
+	inline const VeVector4& operator [] (VeUInt32 i) const noexcept;
+
+	inline VeMatrix4X3& operator = (const VeMatrix4X3& kMatrix) noexcept;
+
+	inline VeMatrix4X3& operator += (const VeMatrix4X3& kMatrix) noexcept;
+
+	inline VeMatrix4X3& operator -= (const VeMatrix4X3& kMatrix) noexcept;
+
+	inline VeMatrix4X3& operator *= (VeFloat32 f32Scale) noexcept;
+
+	inline VeMatrix4X3& operator /= (VeFloat32 f32Scale) noexcept;
+
+	inline VeMatrix4X3& operator *= (const VeMatrix4X3& kMatrix) noexcept;
+
+	inline VeMatrix4X3 operator + () const noexcept;
+
+	inline VeMatrix4X3 operator - () const noexcept;
+
+	inline VeMatrix4X3 operator * (const VeMatrix4X3& kMatrix) const noexcept;
+
+	inline VeMatrix4X3 operator + (const VeMatrix4X3& kMatrix) const noexcept;
+
+	inline VeMatrix4X3 operator - (const VeMatrix4X3& kMatrix) const noexcept;
+
+	inline VeMatrix4X3 operator * (VeFloat32 f32Scale) const noexcept;
+
+	inline VeMatrix4X3 operator / (VeFloat32 f32Scale) const noexcept;
+
+	friend inline VeMatrix4X3 operator * (VeFloat32 f32Scale, const VeMatrix4X3& kMatrix) noexcept;
+
+	inline bool operator == (const VeMatrix4X3& kMatrix) const noexcept;
+
+	inline bool operator != (const VeMatrix4X3& kMatrix) const noexcept;
 
 	inline VeVector4& Row(VeUInt32 i) noexcept;
 
@@ -87,6 +123,18 @@ public:
 	inline void SetZero() noexcept;
 
 	inline void SetIdentity() noexcept;
+
+	inline void SetScale(VeFloat32 x, VeFloat32 y, VeFloat32 z) noexcept;
+
+	inline void SetRotateX(VeFloat32 f32Angle) noexcept;
+
+	inline void SetRotateY(VeFloat32 f32Angle) noexcept;
+
+	inline void SetRotateZ(VeFloat32 f32Angle) noexcept;
+
+	inline void SetRotate(const VeQuaternion& kQuat) noexcept;
+
+	inline void SetTranslation(VeFloat32 x, VeFloat32 y, VeFloat32 z) noexcept;
 
 };
 

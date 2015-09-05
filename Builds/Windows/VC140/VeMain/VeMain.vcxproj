@@ -304,7 +304,7 @@
     <ClInclude Include="..\..\..\..\Source\VeMain\VeMain.h" />
     <ClInclude Include="..\..\..\..\Source\VeMain\VeMainPch.h" />
     <ClInclude Include="..\..\..\..\Source\VeMain\VeMath.h" />
-    <ClInclude Include="..\..\..\..\Source\VeMain\VeMathMisc.h" />
+    <ClInclude Include="..\..\..\..\Source\VeMain\VeMathMisc.inl" />
     <ClInclude Include="..\..\..\..\Source\VeMain\VeMathSIMD.inl" />
     <ClInclude Include="..\..\..\..\Source\VeMain\VeMatrix.h" />
     <ClInclude Include="..\..\..\..\Source\VeMain\VeMouse.h" />

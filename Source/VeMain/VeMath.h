@@ -119,6 +119,12 @@
 #define VE_FLOAT_POINT_CONST(p) ((const VeFloat32*)p)
 #define VE_FLOAT_POINT_THIS ((VeFloat32*)this)
 
+inline void VeSinCosf(VeFloat32& f32Sin, VeFloat32& f32Cos, VeFloat32 f32Angle) noexcept
+{
+	f32Sin = VeSinf(f32Angle);
+	f32Cos = VeCosf(f32Angle);
+}
+
 inline VeFloat32 VeSignf(VeFloat32 f32Value) noexcept
 {
 	return f32Value > 0 ? 1.0f : (f32Value < 0 ? -1.0f : 0.0f);
@@ -181,4 +187,4 @@ VE_MAIN_API VeInt32 VeRand() noexcept;
 #include "VeMathConvert.inl"
 #include "VeMathVector.inl"
 #include "VeMathMatrix.inl"
-#include "VeMathMisc.h"
+#include "VeMathMisc.inl"

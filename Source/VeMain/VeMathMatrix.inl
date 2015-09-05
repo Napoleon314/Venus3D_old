@@ -118,6 +118,45 @@ inline bool VE_MATH_CALLCONV VeMatrixIsIdentity(
 #	endif
 }
 //--------------------------------------------------------------------------
+inline VE_MATRIX4X3 VE_MATH_CALLCONV VeMatrix4X3Multiply(
+	VE_FMATRIX4X3 M1, VE_CMATRIX4X3 M2) noexcept
+{
+#	if defined(VE_NO_INTRINSICS)
+	VE_MATRIX4X3 mResult;
+	mResult._11 = M1._11 * M2._11 + M1._12 * M2._21 + M1._13 * M2._31;
+	mResult._21 = M1._21 * M2._11 + M1._22 * M2._21 + M1._23 * M2._31;
+	mResult._31 = M1._31 * M2._11 + M1._32 * M2._21 + M1._33 * M2._31;
+	mResult._41 = M1._41 * M2._11 + M1._42 * M2._21 + M1._43 * M2._31 + M2._41;
+	mResult._12 = M1._11 * M2._12 + M1._12 * M2._22 + M1._13 * M2._32;
+	mResult._22 = M1._21 * M2._12 + M1._22 * M2._22 + M1._23 * M2._32;
+	mResult._32 = M1._31 * M2._12 + M1._32 * M2._22 + M1._33 * M2._32;
+	mResult._42 = M1._41 * M2._12 + M1._42 * M2._22 + M1._43 * M2._32 + M2._42;
+	mResult._13 = M1._11 * M2._13 + M1._12 * M2._23 + M1._13 * M2._33;
+	mResult._23 = M1._21 * M2._13 + M1._22 * M2._23 + M1._23 * M2._33;
+	mResult._33 = M1._31 * M2._13 + M1._32 * M2._23 + M1._33 * M2._33;
+	mResult._43 = M1._41 * M2._13 + M1._42 * M2._23 + M1._43 * M2._33 + M2._43;
+	return mResult;
+#	elif defined(VE_ENABLE_SSE)
+	VE_MATRIX4X3 mResult;
+	mResult.r[0] = _mm_mul_ps(M1.r[0], _mm_replicate_x_ps(M2.r[0]));
+	mResult.r[1] = _mm_mul_ps(M1.r[0], _mm_replicate_x_ps(M2.r[1]));
+	mResult.r[2] = _mm_mul_ps(M1.r[0], _mm_replicate_x_ps(M2.r[2]));
+
+	mResult.r[0] = _mm_madd_ps(M1.r[1], _mm_replicate_y_ps(M2.r[0]), mResult.r[0]);
+	mResult.r[1] = _mm_madd_ps(M1.r[1], _mm_replicate_y_ps(M2.r[1]), mResult.r[1]);
+	mResult.r[2] = _mm_madd_ps(M1.r[1], _mm_replicate_y_ps(M2.r[2]), mResult.r[2]);
+
+	mResult.r[0] = _mm_madd_ps(M1.r[2], _mm_replicate_z_ps(M2.r[0]), mResult.r[0]);
+	mResult.r[1] = _mm_madd_ps(M1.r[2], _mm_replicate_z_ps(M2.r[1]), mResult.r[1]);
+	mResult.r[2] = _mm_madd_ps(M1.r[2], _mm_replicate_z_ps(M2.r[2]), mResult.r[2]);
+
+	mResult.r[0] = _mm_madd_ps(g_MathIdentityR3, _mm_replicate_w_ps(M2.r[0]), mResult.r[0]);
+	mResult.r[1] = _mm_madd_ps(g_MathIdentityR3, _mm_replicate_w_ps(M2.r[1]), mResult.r[1]);
+	mResult.r[2] = _mm_madd_ps(g_MathIdentityR3, _mm_replicate_w_ps(M2.r[2]), mResult.r[2]);
+	return mResult;
+#	endif
+}
+//--------------------------------------------------------------------------
 inline VE_MATRIX VE_MATH_CALLCONV VeMatrixMultiply(
 	VE_FMATRIX M1, VE_CMATRIX M2) noexcept
 {
@@ -702,10 +741,28 @@ inline VE_MATRIX VE_MATH_CALLCONV VeMatrixIdentity() noexcept
 	return M;
 }
 //--------------------------------------------------------------------------
+inline VE_MATRIX4X3 VE_MATH_CALLCONV VeMatrix4X3Set(
+	VeFloat32 _11, VeFloat32 _21, VeFloat32 _31, VeFloat32 _41,
+	VeFloat32 _12, VeFloat32 _22, VeFloat32 _32, VeFloat32 _42,
+	VeFloat32 _13, VeFloat32 _23, VeFloat32 _33, VeFloat32 _43) noexcept
+{
+	VE_MATRIX4X3 M;
+#	if defined(VE_NO_INTRINSICS)
+	M.m[0][0] = _11; M.m[0][1] = _21; M.m[0][2] = _31; M.m[0][3] = _41;
+	M.m[1][0] = _12; M.m[1][1] = _22; M.m[1][2] = _32; M.m[1][3] = _42;
+	M.m[2][0] = _13; M.m[2][1] = _23; M.m[2][2] = _33; M.m[2][3] = _43;
+#	else
+	M.r[0] = VeVectorSet(_11, _21, _31, _41);
+	M.r[1] = VeVectorSet(_12, _22, _32, _42);
+	M.r[2] = VeVectorSet(_13, _23, _33, _43);
+#	endif
+	return M;
+}
+//--------------------------------------------------------------------------
 inline VE_MATRIX VE_MATH_CALLCONV VeMatrixSet(
 	VeFloat32 m00, VeFloat32 m01, VeFloat32 m02, VeFloat32 m03,
 	VeFloat32 m10, VeFloat32 m11, VeFloat32 m12, VeFloat32 m13,
-	VeFloat32 m20, VeFloat32 m21, VeFloat32 m22, float m23,
+	VeFloat32 m20, VeFloat32 m21, VeFloat32 m22, VeFloat32 m23,
 	VeFloat32 m30, VeFloat32 m31, VeFloat32 m32, VeFloat32 m33
 	) noexcept
 {
@@ -724,34 +781,29 @@ inline VE_MATRIX VE_MATH_CALLCONV VeMatrixSet(
 	return M;
 }
 //--------------------------------------------------------------------------
-inline VE_MATRIX VE_MATH_CALLCONV VeMatrixTranslation(
+inline VE_MATRIX4X3 VE_MATH_CALLCONV VeMatrixTranslation(
 	VeFloat32 OffsetX, VeFloat32 OffsetY, VeFloat32 OffsetZ) noexcept
 {
 #	if defined(VE_NO_INTRINSICS)
-	VE_MATRIX M;
+	VE_MATRIX4X3 M;
 	M.m[0][0] = 1.0f;
 	M.m[0][1] = 0.0f;
 	M.m[0][2] = 0.0f;
-	M.m[0][3] = 0.0f;
+	M.m[0][3] = OffsetX;
 	M.m[1][0] = 0.0f;
 	M.m[1][1] = 1.0f;
 	M.m[1][2] = 0.0f;
-	M.m[1][3] = 0.0f;
+	M.m[1][3] = OffsetY;
 	M.m[2][0] = 0.0f;
 	M.m[2][1] = 0.0f;
 	M.m[2][2] = 1.0f;
-	M.m[2][3] = 0.0f;
-	M.m[3][0] = OffsetX;
-	M.m[3][1] = OffsetY;
-	M.m[3][2] = OffsetZ;
-	M.m[3][3] = 1.0f;
+	M.m[2][3] = OffsetZ;
 	return M;
 #	elif defined(VE_ENABLE_SSE)
-	VE_MATRIX M;
-	M.r[0] = g_MathIdentityR0.v;
-	M.r[1] = g_MathIdentityR1.v;
-	M.r[2] = g_MathIdentityR2.v;
-	M.r[3] = VeVectorSet(OffsetX, OffsetY, OffsetZ, 1.f);
+	VE_MATRIX4X3 M;
+	M.r[0] = VeVectorSet(1, 0, 0, OffsetX);
+	M.r[1] = VeVectorSet(0, 1, 0, OffsetY);
+	M.r[2] = VeVectorSet(0, 0, 1, OffsetZ);
 	return M;
 #	endif
 }
@@ -788,11 +840,11 @@ inline VE_MATRIX VE_MATH_CALLCONV VeMatrixTranslationFromVector(
 #	endif
 }
 //--------------------------------------------------------------------------
-inline VE_MATRIX VE_MATH_CALLCONV VeMatrixScaling(
+inline VE_MATRIX4X3 VE_MATH_CALLCONV VeMatrixScaling(
 	VeFloat32 ScaleX, VeFloat32 ScaleY, VeFloat32 ScaleZ) noexcept
 {
 #	if defined(VE_NO_INTRINSICS)
-	VE_MATRIX M;
+	VE_MATRIX4X3 M;
 	M.m[0][0] = ScaleX;
 	M.m[0][1] = 0.0f;
 	M.m[0][2] = 0.0f;
@@ -805,17 +857,12 @@ inline VE_MATRIX VE_MATH_CALLCONV VeMatrixScaling(
 	M.m[2][1] = 0.0f;
 	M.m[2][2] = ScaleZ;
 	M.m[2][3] = 0.0f;
-	M.m[3][0] = 0.0f;
-	M.m[3][1] = 0.0f;
-	M.m[3][2] = 0.0f;
-	M.m[3][3] = 1.0f;
 	return M;
 #	elif defined(VE_ENABLE_SSE)
-	VE_MATRIX M;
+	VE_MATRIX4X3 M;
 	M.r[0] = _mm_set_ps(0, 0, 0, ScaleX);
 	M.r[1] = _mm_set_ps(0, 0, ScaleY, 0);
 	M.r[2] = _mm_set_ps(0, ScaleZ, 0, 0);
-	M.r[3] = g_MathIdentityR3.v;
 	return M;
 #	endif
 }
@@ -855,106 +902,85 @@ inline VE_MATRIX VE_MATH_CALLCONV VeMatrixScalingFromVector(
 inline void VeScalarSinCos(VeFloat32* pSin, VeFloat32* pCos,
 	VeFloat32  Value) noexcept;
 //--------------------------------------------------------------------------
-inline VE_MATRIX VE_MATH_CALLCONV VeMatrixRotationX(
+inline VE_MATRIX4X3 VE_MATH_CALLCONV VeMatrixRotationX(
 	VeFloat32 Angle) noexcept
 {
 #	if defined(VE_NO_INTRINSICS)
 	VeFloat32 fSinAngle;
 	VeFloat32 fCosAngle;
 	VeScalarSinCos(&fSinAngle, &fCosAngle, Angle);
-	VE_MATRIX M;
+	VE_MATRIX4X3 M;
 	M.m[0][0] = 1.0f;
 	M.m[0][1] = 0.0f;
 	M.m[0][2] = 0.0f;
 	M.m[0][3] = 0.0f;
 	M.m[1][0] = 0.0f;
 	M.m[1][1] = fCosAngle;
-	M.m[1][2] = fSinAngle;
+	M.m[1][2] = -fSinAngle;
 	M.m[1][3] = 0.0f;
 	M.m[2][0] = 0.0f;
-	M.m[2][1] = -fSinAngle;
+	M.m[2][1] = fSinAngle;
 	M.m[2][2] = fCosAngle;
 	M.m[2][3] = 0.0f;
-	M.m[3][0] = 0.0f;
-	M.m[3][1] = 0.0f;
-	M.m[3][2] = 0.0f;
-	M.m[3][3] = 1.0f;
 	return M;
 #	elif defined(VE_ENABLE_SSE)
 	VeFloat32 SinAngle;
 	VeFloat32 CosAngle;
 	VeScalarSinCos(&SinAngle, &CosAngle, Angle);
-	VE_VECTOR vSin = _mm_set_ss(SinAngle);
-	VE_VECTOR vCos = _mm_set_ss(CosAngle);
-	vCos = _mm_shuffle_ps(vCos, vSin, _MM_SHUFFLE(3, 0, 0, 3));
-	VE_MATRIX M;
+	VE_MATRIX4X3 M;
 	M.r[0] = g_MathIdentityR0;
-	M.r[1] = vCos;
-	vCos = VE_PERMUTE_PS(vCos, _MM_SHUFFLE(3, 1, 2, 0));
-	vCos = _mm_mul_ps(vCos, g_MathNegateY);
-	M.r[2] = vCos;
-	M.r[3] = g_MathIdentityR3;
+	M.r[1] = _mm_set_ps(0, -SinAngle, CosAngle, 0);
+	M.r[2] = _mm_set_ps(0, CosAngle, SinAngle, 0);
 	return M;
 #	endif
 }
-
 //--------------------------------------------------------------------------
-inline VE_MATRIX VE_MATH_CALLCONV VeMatrixRotationY(
+inline VE_MATRIX4X3 VE_MATH_CALLCONV VeMatrixRotationY(
 	VeFloat32 Angle) noexcept
 {
 #	if defined(VE_NO_INTRINSICS)
 	VeFloat32 fSinAngle;
 	VeFloat32 fCosAngle;
 	VeScalarSinCos(&fSinAngle, &fCosAngle, Angle);
-	VE_MATRIX M;
+	VE_MATRIX4X3 M;
 	M.m[0][0] = fCosAngle;
 	M.m[0][1] = 0.0f;
-	M.m[0][2] = -fSinAngle;
+	M.m[0][2] = fSinAngle;
 	M.m[0][3] = 0.0f;
 	M.m[1][0] = 0.0f;
 	M.m[1][1] = 1.0f;
 	M.m[1][2] = 0.0f;
 	M.m[1][3] = 0.0f;
-	M.m[2][0] = fSinAngle;
+	M.m[2][0] = -fSinAngle;
 	M.m[2][1] = 0.0f;
 	M.m[2][2] = fCosAngle;
 	M.m[2][3] = 0.0f;
-	M.m[3][0] = 0.0f;
-	M.m[3][1] = 0.0f;
-	M.m[3][2] = 0.0f;
-	M.m[3][3] = 1.0f;
 	return M;
 #	elif defined(VE_ENABLE_SSE)
 	VeFloat32 SinAngle;
 	VeFloat32 CosAngle;
 	VeScalarSinCos(&SinAngle, &CosAngle, Angle);
-	VE_VECTOR vSin = _mm_set_ss(SinAngle);
-	VE_VECTOR vCos = _mm_set_ss(CosAngle);
-	vSin = _mm_shuffle_ps(vSin, vCos, _MM_SHUFFLE(3, 0, 3, 0));
-	VE_MATRIX M;
-	M.r[2] = vSin;
-	M.r[1] = g_MathIdentityR1;
-	vSin = VE_PERMUTE_PS(vSin, _MM_SHUFFLE(3, 0, 1, 2));
-	vSin = _mm_mul_ps(vSin, g_MathNegateZ);
-	M.r[0] = vSin;
-	M.r[3] = g_MathIdentityR3;
+	VE_MATRIX4X3 M;
+	M.r[0] = _mm_set_ps(0, SinAngle, 0, CosAngle);
+	M.r[1] = _mm_set_ps(0, 0, 1, 0);
+	M.r[2] = _mm_set_ps(0, CosAngle, 0, -SinAngle);
 	return M;
 #	endif
 }
 //--------------------------------------------------------------------------
-inline VE_MATRIX VE_MATH_CALLCONV VeMatrixRotationZ(
+inline VE_MATRIX4X3 VE_MATH_CALLCONV VeMatrixRotationZ(
 	VeFloat32 Angle) noexcept
 {
 #	if defined(VE_NO_INTRINSICS)
 	VeFloat32 fSinAngle;
 	VeFloat32 fCosAngle;
 	VeScalarSinCos(&fSinAngle, &fCosAngle, Angle);
-	VE_MATRIX M;
+	VE_MATRIX4X3 M;
 	M.m[0][0] = fCosAngle;
-	M.m[0][1] = fSinAngle;
+	M.m[0][1] = -fSinAngle;
 	M.m[0][2] = 0.0f;
 	M.m[0][3] = 0.0f;
-	M.m[1][0] = -fSinAngle;
+	M.m[1][0] = fSinAngle;
 	M.m[1][1] = fCosAngle;
 	M.m[1][2] = 0.0f;
 	M.m[1][3] = 0.0f;
@@ -962,25 +988,15 @@ inline VE_MATRIX VE_MATH_CALLCONV VeMatrixRotationZ(
 	M.m[2][1] = 0.0f;
 	M.m[2][2] = 1.0f;
 	M.m[2][3] = 0.0f;
-	M.m[3][0] = 0.0f;
-	M.m[3][1] = 0.0f;
-	M.m[3][2] = 0.0f;
-	M.m[3][3] = 1.0f;
 	return M;
 #	elif defined(VE_ENABLE_SSE)
 	VeFloat32 SinAngle;
 	VeFloat32 CosAngle;
 	VeScalarSinCos(&SinAngle, &CosAngle, Angle);
-	VE_VECTOR vSin = _mm_set_ss(SinAngle);
-	VE_VECTOR vCos = _mm_set_ss(CosAngle);
-	vCos = _mm_unpacklo_ps(vCos, vSin);
-	VE_MATRIX M;
-	M.r[0] = vCos;
-	vCos = VE_PERMUTE_PS(vCos, _MM_SHUFFLE(3, 2, 0, 1));
-	vCos = _mm_mul_ps(vCos, g_MathNegateX);
-	M.r[1] = vCos;
+	VE_MATRIX4X3 M;
+	M.r[0] = _mm_set_ps(0, 0, -SinAngle, CosAngle);
+	M.r[1] = _mm_set_ps(0, 0, CosAngle, SinAngle);
 	M.r[2] = g_MathIdentityR2;
-	M.r[3] = g_MathIdentityR3;
 	return M;
 #	endif
 }
@@ -1145,31 +1161,31 @@ inline VE_MATRIX VE_MATH_CALLCONV VeMatrixRotationQuaternion(
 #	endif
 }
 //--------------------------------------------------------------------------
-inline VE_MATRIX VE_MATH_CALLCONV VeMatrixTransformation2D(
-	VE_FVECTOR ScalingOrigin, VeFloat32 ScalingOrientation,
-	VE_FVECTOR Scaling, VE_FVECTOR RotationOrigin, VeFloat32 Rotation,
-	VE_GVECTOR Translation) noexcept
-{
-	VE_VECTOR VScalingOrigin = VeVectorSelect(g_MathSelect1100.v, ScalingOrigin, g_MathSelect1100.v);
-	VE_VECTOR NegScalingOrigin = VeVectorNegate(VScalingOrigin);
-	VE_MATRIX MScalingOriginI = VeMatrixTranslationFromVector(NegScalingOrigin);
-	VE_MATRIX MScalingOrientation = VeMatrixRotationZ(ScalingOrientation);
-	VE_MATRIX MScalingOrientationT = VeMatrixTranspose(MScalingOrientation);
-	VE_VECTOR VScaling = VeVectorSelect(g_MathOne.v, Scaling, g_MathSelect1100.v);
-	VE_MATRIX MScaling = VeMatrixScalingFromVector(VScaling);
-	VE_VECTOR VRotationOrigin = VeVectorSelect(g_MathSelect1100.v, RotationOrigin, g_MathSelect1100.v);
-	VE_MATRIX MRotation = VeMatrixRotationZ(Rotation);
-	VE_VECTOR VTranslation = VeVectorSelect(g_MathSelect1100.v, Translation, g_MathSelect1100.v);
-	VE_MATRIX M = VeMatrixMultiply(MScalingOriginI, MScalingOrientationT);
-	M = VeMatrixMultiply(M, MScaling);
-	M = VeMatrixMultiply(M, MScalingOrientation);
-	M.r[3] = VeVectorAdd(M.r[3], VScalingOrigin);
-	M.r[3] = VeVectorSubtract(M.r[3], VRotationOrigin);
-	M = VeMatrixMultiply(M, MRotation);
-	M.r[3] = VeVectorAdd(M.r[3], VRotationOrigin);
-	M.r[3] = VeVectorAdd(M.r[3], VTranslation);
-	return M;
-}
+//inline VE_MATRIX VE_MATH_CALLCONV VeMatrixTransformation2D(
+//	VE_FVECTOR ScalingOrigin, VeFloat32 ScalingOrientation,
+//	VE_FVECTOR Scaling, VE_FVECTOR RotationOrigin, VeFloat32 Rotation,
+//	VE_GVECTOR Translation) noexcept
+//{
+//	VE_VECTOR VScalingOrigin = VeVectorSelect(g_MathSelect1100.v, ScalingOrigin, g_MathSelect1100.v);
+//	VE_VECTOR NegScalingOrigin = VeVectorNegate(VScalingOrigin);
+//	VE_MATRIX MScalingOriginI = VeMatrixTranslationFromVector(NegScalingOrigin);
+//	VE_MATRIX MScalingOrientation = VeMatrixRotationZ(ScalingOrientation);
+//	VE_MATRIX MScalingOrientationT = VeMatrixTranspose(MScalingOrientation);
+//	VE_VECTOR VScaling = VeVectorSelect(g_MathOne.v, Scaling, g_MathSelect1100.v);
+//	VE_MATRIX MScaling = VeMatrixScalingFromVector(VScaling);
+//	VE_VECTOR VRotationOrigin = VeVectorSelect(g_MathSelect1100.v, RotationOrigin, g_MathSelect1100.v);
+//	VE_MATRIX MRotation = VeMatrixRotationZ(Rotation);
+//	VE_VECTOR VTranslation = VeVectorSelect(g_MathSelect1100.v, Translation, g_MathSelect1100.v);
+//	VE_MATRIX M = VeMatrixMultiply(MScalingOriginI, MScalingOrientationT);
+//	M = VeMatrixMultiply(M, MScaling);
+//	M = VeMatrixMultiply(M, MScalingOrientation);
+//	M.r[3] = VeVectorAdd(M.r[3], VScalingOrigin);
+//	M.r[3] = VeVectorSubtract(M.r[3], VRotationOrigin);
+//	M = VeMatrixMultiply(M, MRotation);
+//	M.r[3] = VeVectorAdd(M.r[3], VRotationOrigin);
+//	M.r[3] = VeVectorAdd(M.r[3], VTranslation);
+//	return M;
+//}
 //--------------------------------------------------------------------------
 inline VE_MATRIX VE_MATH_CALLCONV VeMatrixTransformation(
 	VE_FVECTOR ScalingOrigin, VE_FVECTOR ScalingOrientationQuaternion,
@@ -1197,23 +1213,23 @@ inline VE_MATRIX VE_MATH_CALLCONV VeMatrixTransformation(
 	return M;
 }
 //--------------------------------------------------------------------------
-inline VE_MATRIX VE_MATH_CALLCONV VeMatrixAffineTransformation2D(
-	VE_FVECTOR Scaling, VE_FVECTOR RotationOrigin, VeFloat32 Rotation,
-	VE_FVECTOR Translation) noexcept
-{
-	VE_VECTOR VScaling = VeVectorSelect(g_MathOne.v, Scaling, g_MathSelect1100.v);
-	VE_MATRIX MScaling = VeMatrixScalingFromVector(VScaling);
-	VE_VECTOR VRotationOrigin = VeVectorSelect(g_MathSelect1100.v, RotationOrigin, g_MathSelect1100.v);
-	VE_MATRIX MRotation = VeMatrixRotationZ(Rotation);
-	VE_VECTOR VTranslation = VeVectorSelect(g_MathSelect1100.v, Translation, g_MathSelect1100.v);
-	VE_MATRIX M;
-	M = MScaling;
-	M.r[3] = VeVectorSubtract(M.r[3], VRotationOrigin);
-	M = VeMatrixMultiply(M, MRotation);
-	M.r[3] = VeVectorAdd(M.r[3], VRotationOrigin);
-	M.r[3] = VeVectorAdd(M.r[3], VTranslation);
-	return M;
-}
+//inline VE_MATRIX VE_MATH_CALLCONV VeMatrixAffineTransformation2D(
+//	VE_FVECTOR Scaling, VE_FVECTOR RotationOrigin, VeFloat32 Rotation,
+//	VE_FVECTOR Translation) noexcept
+//{
+//	VE_VECTOR VScaling = VeVectorSelect(g_MathOne.v, Scaling, g_MathSelect1100.v);
+//	VE_MATRIX MScaling = VeMatrixScalingFromVector(VScaling);
+//	VE_VECTOR VRotationOrigin = VeVectorSelect(g_MathSelect1100.v, RotationOrigin, g_MathSelect1100.v);
+//	VE_MATRIX MRotation = VeMatrixRotationZ(Rotation);
+//	VE_VECTOR VTranslation = VeVectorSelect(g_MathSelect1100.v, Translation, g_MathSelect1100.v);
+//	VE_MATRIX M;
+//	M = MScaling;
+//	M.r[3] = VeVectorSubtract(M.r[3], VRotationOrigin);
+//	M = VeMatrixMultiply(M, MRotation);
+//	M.r[3] = VeVectorAdd(M.r[3], VRotationOrigin);
+//	M.r[3] = VeVectorAdd(M.r[3], VTranslation);
+//	return M;
+//}
 //--------------------------------------------------------------------------
 inline VE_MATRIX VE_MATH_CALLCONV VeMatrixAffineTransformation(
 	VE_FVECTOR Scaling, VE_FVECTOR RotationOrigin,

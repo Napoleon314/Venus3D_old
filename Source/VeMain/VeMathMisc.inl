@@ -4,8 +4,8 @@
 //  Copyright (C), Venus Interactive Entertainment.2012
 // -------------------------------------------------------------------------
 //  Module:      VeMain
-//  File name:   VeMathMisc.h
-//  Created:     2015/08/22 by Napoleon
+//  File name:   VeMathMisc.inl
+//  Created:     2015/09/05 by Napoleon
 //  Description: 
 // -------------------------------------------------------------------------
 //  History:
