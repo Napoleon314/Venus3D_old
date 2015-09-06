@@ -7386,6 +7386,31 @@ inline VE_VECTOR VE_MATH_CALLCONV VeVector4AngleBetweenVectors(
 }
 //--------------------------------------------------------------------------
 inline VE_VECTOR VE_MATH_CALLCONV VeVector4Transform(
+	VE_FVECTOR V, VE_FMATRIX4X3 M) noexcept
+{
+#	if defined(VE_NO_INTRINSICS)
+	VeFloat32 fX = (M.m[0][0] * V.vector4_f32[0]) + (M.m[1][0] * V.vector4_f32[1]) + (M.m[2][0] * V.vector4_f32[2]) + (M.m[3][0] * V.vector4_f32[3]);
+	VeFloat32 fY = (M.m[0][1] * V.vector4_f32[0]) + (M.m[1][1] * V.vector4_f32[1]) + (M.m[2][1] * V.vector4_f32[2]) + (M.m[3][1] * V.vector4_f32[3]);
+	VeFloat32 fZ = (M.m[0][2] * V.vector4_f32[0]) + (M.m[1][2] * V.vector4_f32[1]) + (M.m[2][2] * V.vector4_f32[2]) + (M.m[3][2] * V.vector4_f32[3]);
+	VeFloat32 fW = (M.m[0][3] * V.vector4_f32[0]) + (M.m[1][3] * V.vector4_f32[1]) + (M.m[2][3] * V.vector4_f32[2]) + (M.m[3][3] * V.vector4_f32[3]);
+	VE_VECTOR vResult;
+	vResult.vector4_f32[0] = fX;
+	vResult.vector4_f32[1] = fY;
+	vResult.vector4_f32[2] = fZ;
+	vResult.vector4_f32[3] = fW;
+	return vResult;
+#	elif defined(VE_ENABLE_SSE)
+	VE_VECTOR vTempX = _mm_dp_ps(V, M.r[0], 0xf1);
+	VE_VECTOR vTempY = _mm_dp_ps(V, M.r[1], 0xf2);
+	VE_VECTOR vTempZ = _mm_dp_ps(V, M.r[2], 0xf4);
+	VE_VECTOR vTempW = _mm_and_ps(V, g_MathMaskW);
+	vTempX = _mm_add_ps(vTempX, vTempY);
+	vTempY = _mm_add_ps(vTempZ, vTempW);
+	return _mm_add_ps(vTempX, vTempY);
+#	endif
+}
+//--------------------------------------------------------------------------
+inline VE_VECTOR VE_MATH_CALLCONV VeVector4Transform(
 	VE_FVECTOR V, VE_FMATRIX M) noexcept
 {
 #	if defined(VE_NO_INTRINSICS)
@@ -7400,18 +7425,13 @@ inline VE_VECTOR VE_MATH_CALLCONV VeVector4Transform(
 	vResult.vector4_f32[3] = fW;
 	return vResult;
 #	elif defined(VE_ENABLE_SSE)
-	VE_VECTOR vTempX = VE_PERMUTE_PS(V, _MM_SHUFFLE(0, 0, 0, 0));
-	VE_VECTOR vTempY = VE_PERMUTE_PS(V, _MM_SHUFFLE(1, 1, 1, 1));
-	VE_VECTOR vTempZ = VE_PERMUTE_PS(V, _MM_SHUFFLE(2, 2, 2, 2));
-	VE_VECTOR vTempW = VE_PERMUTE_PS(V, _MM_SHUFFLE(3, 3, 3, 3));
-	vTempX = _mm_mul_ps(vTempX, M.r[0]);
-	vTempY = _mm_mul_ps(vTempY, M.r[1]);
-	vTempZ = _mm_mul_ps(vTempZ, M.r[2]);
-	vTempW = _mm_mul_ps(vTempW, M.r[3]);
+	VE_VECTOR vTempX = _mm_dp_ps(V, M.r[0], 0xf1);
+	VE_VECTOR vTempY = _mm_dp_ps(V, M.r[1], 0xf2);
+	VE_VECTOR vTempZ = _mm_dp_ps(V, M.r[2], 0xf4);
+	VE_VECTOR vTempW = _mm_dp_ps(V, M.r[3], 0xf8);
 	vTempX = _mm_add_ps(vTempX, vTempY);
-	vTempZ = _mm_add_ps(vTempZ, vTempW);
-	vTempX = _mm_add_ps(vTempX, vTempZ);
-	return vTempX;
+	vTempY = _mm_add_ps(vTempZ, vTempW);
+	return _mm_add_ps(vTempX, vTempY);
 #	endif
 }
 //--------------------------------------------------------------------------

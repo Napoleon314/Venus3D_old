@@ -130,6 +130,14 @@ inline VeFloat32 VeSignf(VeFloat32 f32Value) noexcept
 	return f32Value > 0 ? 1.0f : (f32Value < 0 ? -1.0f : 0.0f);
 }
 
+/**
+* This function is my regards to the great Carmack.
+* It has never been used.
+*
+* @param f32Value the value.
+*
+* @return the reciprocal of the square root
+*/
 inline VeFloat32 VeFastInvSqrtf(VeFloat32 f32Value) noexcept
 {
 	union VeFloatBin

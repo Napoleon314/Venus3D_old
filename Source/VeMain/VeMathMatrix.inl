@@ -118,7 +118,7 @@ inline bool VE_MATH_CALLCONV VeMatrixIsIdentity(
 #	endif
 }
 //--------------------------------------------------------------------------
-inline VE_MATRIX4X3 VE_MATH_CALLCONV VeMatrix4X3Multiply(
+inline VE_MATRIX4X3 VE_MATH_CALLCONV VeMatrixMultiply(
 	VE_FMATRIX4X3 M1, VE_CMATRIX4X3 M2) noexcept
 {
 #	if defined(VE_NO_INTRINSICS)
@@ -141,15 +141,12 @@ inline VE_MATRIX4X3 VE_MATH_CALLCONV VeMatrix4X3Multiply(
 	mResult.r[0] = _mm_mul_ps(M1.r[0], _mm_replicate_x_ps(M2.r[0]));
 	mResult.r[1] = _mm_mul_ps(M1.r[0], _mm_replicate_x_ps(M2.r[1]));
 	mResult.r[2] = _mm_mul_ps(M1.r[0], _mm_replicate_x_ps(M2.r[2]));
-
 	mResult.r[0] = _mm_madd_ps(M1.r[1], _mm_replicate_y_ps(M2.r[0]), mResult.r[0]);
 	mResult.r[1] = _mm_madd_ps(M1.r[1], _mm_replicate_y_ps(M2.r[1]), mResult.r[1]);
 	mResult.r[2] = _mm_madd_ps(M1.r[1], _mm_replicate_y_ps(M2.r[2]), mResult.r[2]);
-
 	mResult.r[0] = _mm_madd_ps(M1.r[2], _mm_replicate_z_ps(M2.r[0]), mResult.r[0]);
 	mResult.r[1] = _mm_madd_ps(M1.r[2], _mm_replicate_z_ps(M2.r[1]), mResult.r[1]);
 	mResult.r[2] = _mm_madd_ps(M1.r[2], _mm_replicate_z_ps(M2.r[2]), mResult.r[2]);
-
 	mResult.r[0] = _mm_madd_ps(g_MathIdentityR3, _mm_replicate_w_ps(M2.r[0]), mResult.r[0]);
 	mResult.r[1] = _mm_madd_ps(g_MathIdentityR3, _mm_replicate_w_ps(M2.r[1]), mResult.r[1]);
 	mResult.r[2] = _mm_madd_ps(g_MathIdentityR3, _mm_replicate_w_ps(M2.r[2]), mResult.r[2]);
@@ -197,58 +194,22 @@ inline VE_MATRIX VE_MATH_CALLCONV VeMatrixMultiply(
 	return mResult;
 #	elif defined(VE_ENABLE_SSE)
 	VE_MATRIX mResult;
-	VE_VECTOR vW = M1.r[0];
-	VE_VECTOR vX = VE_PERMUTE_PS(vW, _MM_SHUFFLE(0, 0, 0, 0));
-	VE_VECTOR vY = VE_PERMUTE_PS(vW, _MM_SHUFFLE(1, 1, 1, 1));
-	VE_VECTOR vZ = VE_PERMUTE_PS(vW, _MM_SHUFFLE(2, 2, 2, 2));
-	vW = VE_PERMUTE_PS(vW, _MM_SHUFFLE(3, 3, 3, 3));
-	vX = _mm_mul_ps(vX, M2.r[0]);
-	vY = _mm_mul_ps(vY, M2.r[1]);
-	vZ = _mm_mul_ps(vZ, M2.r[2]);
-	vW = _mm_mul_ps(vW, M2.r[3]);
-	vX = _mm_add_ps(vX, vZ);
-	vY = _mm_add_ps(vY, vW);
-	vX = _mm_add_ps(vX, vY);
-	mResult.r[0] = vX;
-	vW = M1.r[1];
-	vX = VE_PERMUTE_PS(vW, _MM_SHUFFLE(0, 0, 0, 0));
-	vY = VE_PERMUTE_PS(vW, _MM_SHUFFLE(1, 1, 1, 1));
-	vZ = VE_PERMUTE_PS(vW, _MM_SHUFFLE(2, 2, 2, 2));
-	vW = VE_PERMUTE_PS(vW, _MM_SHUFFLE(3, 3, 3, 3));
-	vX = _mm_mul_ps(vX, M2.r[0]);
-	vY = _mm_mul_ps(vY, M2.r[1]);
-	vZ = _mm_mul_ps(vZ, M2.r[2]);
-	vW = _mm_mul_ps(vW, M2.r[3]);
-	vX = _mm_add_ps(vX, vZ);
-	vY = _mm_add_ps(vY, vW);
-	vX = _mm_add_ps(vX, vY);
-	mResult.r[1] = vX;
-	vW = M1.r[2];
-	vX = VE_PERMUTE_PS(vW, _MM_SHUFFLE(0, 0, 0, 0));
-	vY = VE_PERMUTE_PS(vW, _MM_SHUFFLE(1, 1, 1, 1));
-	vZ = VE_PERMUTE_PS(vW, _MM_SHUFFLE(2, 2, 2, 2));
-	vW = VE_PERMUTE_PS(vW, _MM_SHUFFLE(3, 3, 3, 3));
-	vX = _mm_mul_ps(vX, M2.r[0]);
-	vY = _mm_mul_ps(vY, M2.r[1]);
-	vZ = _mm_mul_ps(vZ, M2.r[2]);
-	vW = _mm_mul_ps(vW, M2.r[3]);
-	vX = _mm_add_ps(vX, vZ);
-	vY = _mm_add_ps(vY, vW);
-	vX = _mm_add_ps(vX, vY);
-	mResult.r[2] = vX;
-	vW = M1.r[3];
-	vX = VE_PERMUTE_PS(vW, _MM_SHUFFLE(0, 0, 0, 0));
-	vY = VE_PERMUTE_PS(vW, _MM_SHUFFLE(1, 1, 1, 1));
-	vZ = VE_PERMUTE_PS(vW, _MM_SHUFFLE(2, 2, 2, 2));
-	vW = VE_PERMUTE_PS(vW, _MM_SHUFFLE(3, 3, 3, 3));
-	vX = _mm_mul_ps(vX, M2.r[0]);
-	vY = _mm_mul_ps(vY, M2.r[1]);
-	vZ = _mm_mul_ps(vZ, M2.r[2]);
-	vW = _mm_mul_ps(vW, M2.r[3]);
-	vX = _mm_add_ps(vX, vZ);
-	vY = _mm_add_ps(vY, vW);
-	vX = _mm_add_ps(vX, vY);
-	mResult.r[3] = vX;
+	mResult.r[0] = _mm_mul_ps(M1.r[0], _mm_replicate_x_ps(M2.r[0]));
+	mResult.r[1] = _mm_mul_ps(M1.r[0], _mm_replicate_x_ps(M2.r[1]));
+	mResult.r[2] = _mm_mul_ps(M1.r[0], _mm_replicate_x_ps(M2.r[2]));
+	mResult.r[3] = _mm_mul_ps(M1.r[0], _mm_replicate_x_ps(M2.r[3]));
+	mResult.r[0] = _mm_madd_ps(M1.r[1], _mm_replicate_y_ps(M2.r[0]), mResult.r[0]);
+	mResult.r[1] = _mm_madd_ps(M1.r[1], _mm_replicate_y_ps(M2.r[1]), mResult.r[1]);
+	mResult.r[2] = _mm_madd_ps(M1.r[1], _mm_replicate_y_ps(M2.r[2]), mResult.r[2]);
+	mResult.r[3] = _mm_madd_ps(M1.r[1], _mm_replicate_y_ps(M2.r[3]), mResult.r[3]);
+	mResult.r[0] = _mm_madd_ps(M1.r[2], _mm_replicate_z_ps(M2.r[0]), mResult.r[0]);
+	mResult.r[1] = _mm_madd_ps(M1.r[2], _mm_replicate_z_ps(M2.r[1]), mResult.r[1]);
+	mResult.r[2] = _mm_madd_ps(M1.r[2], _mm_replicate_z_ps(M2.r[2]), mResult.r[2]);
+	mResult.r[3] = _mm_madd_ps(M1.r[2], _mm_replicate_z_ps(M2.r[3]), mResult.r[3]);
+	mResult.r[0] = _mm_madd_ps(M1.r[3], _mm_replicate_w_ps(M2.r[0]), mResult.r[0]);
+	mResult.r[1] = _mm_madd_ps(M1.r[3], _mm_replicate_w_ps(M2.r[1]), mResult.r[1]);
+	mResult.r[2] = _mm_madd_ps(M1.r[3], _mm_replicate_w_ps(M2.r[2]), mResult.r[2]);
+	mResult.r[3] = _mm_madd_ps(M1.r[3], _mm_replicate_w_ps(M2.r[3]), mResult.r[3]);
 	return mResult;
 #	endif
 }
@@ -382,6 +343,117 @@ inline VE_MATRIX VE_MATH_CALLCONV VeMatrixTranspose(
 	mResult.r[1] = _mm_shuffle_ps(vTemp1, vTemp2, _MM_SHUFFLE(3, 1, 3, 1));
 	mResult.r[2] = _mm_shuffle_ps(vTemp3, vTemp4, _MM_SHUFFLE(2, 0, 2, 0));
 	mResult.r[3] = _mm_shuffle_ps(vTemp3, vTemp4, _MM_SHUFFLE(3, 1, 3, 1));
+	return mResult;
+#	endif
+}
+//--------------------------------------------------------------------------
+inline VE_MATRIX4X3 VE_MATH_CALLCONV VeOrthogonalMatrixInverse(
+	VE_MATRIX4X3 M) noexcept
+{
+#	if defined(VE_NO_INTRINSICS)
+	VE_MATRIX P;
+	P.r[0] = VeVectorMergeXY(M.r[0], M.r[2]);
+	P.r[1] = VeVectorMergeXY(M.r[1], M.r[3]);
+	P.r[2] = VeVectorMergeZW(M.r[0], M.r[2]);
+	P.r[3] = VeVectorMergeZW(M.r[1], M.r[3]);
+	VE_MATRIX MT;
+	MT.r[0] = VeVectorMergeXY(P.r[0], P.r[1]);
+	MT.r[1] = VeVectorMergeZW(P.r[0], P.r[1]);
+	MT.r[2] = VeVectorMergeXY(P.r[2], P.r[3]);
+	MT.r[3] = VeVectorMergeZW(P.r[2], P.r[3]);
+	return MT;
+#	elif defined(VE_ENABLE_SSE)
+	VE_VECTOR vTemp1 = _mm_shuffle_ps(M.r[0], M.r[1], _MM_SHUFFLE(1, 0, 1, 0));
+	VE_VECTOR vTemp3 = _mm_shuffle_ps(M.r[0], M.r[1], _MM_SHUFFLE(3, 2, 3, 2));
+	VE_VECTOR vTemp2 = _mm_shuffle_ps(M.r[2], g_MathZero, _MM_SHUFFLE(1, 0, 1, 0));
+	VE_VECTOR vTemp4 = _mm_shuffle_ps(M.r[2], g_MathZero, _MM_SHUFFLE(3, 2, 3, 2));
+	VE_MATRIX4X3 mResult;
+	mResult.r[0] = _mm_shuffle_ps(vTemp1, vTemp2, _MM_SHUFFLE(2, 0, 2, 0));
+	mResult.r[1] = _mm_shuffle_ps(vTemp1, vTemp2, _MM_SHUFFLE(3, 1, 3, 1));
+	mResult.r[2] = _mm_shuffle_ps(vTemp3, vTemp4, _MM_SHUFFLE(2, 0, 2, 0));
+	vTemp1 = _mm_shuffle_ps(vTemp3, vTemp4, _MM_SHUFFLE(3, 1, 3, 1));
+	vTemp1 = _mm_sub_ps(g_MathZero, vTemp1);	
+	vTemp2 = _mm_mul_ps(vTemp1, mResult.r[0]);
+	vTemp3 = VE_PERMUTE_PS(vTemp2, _MM_SHUFFLE(2, 1, 2, 1));
+	vTemp2 = _mm_add_ss(vTemp2, vTemp3);
+	vTemp3 = VE_PERMUTE_PS(vTemp3, _MM_SHUFFLE(1, 1, 1, 1));
+	vTemp2 = _mm_add_ss(vTemp2, vTemp3);
+	vTemp2 = VE_PERMUTE_PS(vTemp2, _MM_SHUFFLE(0, 3, 3, 3));
+	mResult.r[0] = _mm_add_ps(mResult.r[0], vTemp2);	
+	vTemp2 = _mm_mul_ps(vTemp1, mResult.r[1]);
+	vTemp3 = VE_PERMUTE_PS(vTemp2, _MM_SHUFFLE(2, 1, 2, 1));
+	vTemp2 = _mm_add_ss(vTemp2, vTemp3);
+	vTemp3 = VE_PERMUTE_PS(vTemp3, _MM_SHUFFLE(1, 1, 1, 1));
+	vTemp2 = _mm_add_ss(vTemp2, vTemp3);
+	vTemp2 = VE_PERMUTE_PS(vTemp2, _MM_SHUFFLE(0, 3, 3, 3));
+	mResult.r[1] = _mm_add_ps(mResult.r[1], vTemp2);
+	vTemp2 = _mm_mul_ps(vTemp1, mResult.r[2]);
+	vTemp3 = VE_PERMUTE_PS(vTemp2, _MM_SHUFFLE(2, 1, 2, 1));
+	vTemp2 = _mm_add_ss(vTemp2, vTemp3);
+	vTemp3 = VE_PERMUTE_PS(vTemp3, _MM_SHUFFLE(1, 1, 1, 1));
+	vTemp2 = _mm_add_ss(vTemp2, vTemp3);
+	vTemp2 = VE_PERMUTE_PS(vTemp2, _MM_SHUFFLE(0, 3, 3, 3));
+	mResult.r[2] = _mm_add_ps(mResult.r[2], vTemp2);
+	return mResult;
+#	endif
+}
+//--------------------------------------------------------------------------
+inline VE_MATRIX4X3 VE_MATH_CALLCONV VeMatrixInverse(
+	VE_MATRIX4X3 M) noexcept
+{
+#	if defined(VE_NO_INTRINSICS)
+	VE_MATRIX P;
+	P.r[0] = VeVectorMergeXY(M.r[0], M.r[2]);
+	P.r[1] = VeVectorMergeXY(M.r[1], M.r[3]);
+	P.r[2] = VeVectorMergeZW(M.r[0], M.r[2]);
+	P.r[3] = VeVectorMergeZW(M.r[1], M.r[3]);
+	VE_MATRIX MT;
+	MT.r[0] = VeVectorMergeXY(P.r[0], P.r[1]);
+	MT.r[1] = VeVectorMergeZW(P.r[0], P.r[1]);
+	MT.r[2] = VeVectorMergeXY(P.r[2], P.r[3]);
+	MT.r[3] = VeVectorMergeZW(P.r[2], P.r[3]);
+	return MT;
+#	elif defined(VE_ENABLE_SSE)
+	VE_VECTOR vTemp1 = _mm_shuffle_ps(M.r[0], M.r[1], _MM_SHUFFLE(1, 0, 1, 0));
+	VE_VECTOR vTemp3 = _mm_shuffle_ps(M.r[0], M.r[1], _MM_SHUFFLE(3, 2, 3, 2));
+	VE_VECTOR vTemp2 = _mm_shuffle_ps(M.r[2], g_MathZero, _MM_SHUFFLE(1, 0, 1, 0));
+	VE_VECTOR vTemp4 = _mm_shuffle_ps(M.r[2], g_MathZero, _MM_SHUFFLE(3, 2, 3, 2));
+	VE_MATRIX4X3 mResult;
+	mResult.r[0] = _mm_shuffle_ps(vTemp1, vTemp2, _MM_SHUFFLE(2, 0, 2, 0));
+	mResult.r[1] = _mm_shuffle_ps(vTemp1, vTemp2, _MM_SHUFFLE(3, 1, 3, 1));
+	mResult.r[2] = _mm_shuffle_ps(vTemp3, vTemp4, _MM_SHUFFLE(2, 0, 2, 0));
+	vTemp1 = _mm_shuffle_ps(vTemp3, vTemp4, _MM_SHUFFLE(3, 1, 3, 1));
+	vTemp1 = _mm_sub_ps(g_MathZero, vTemp1);
+	vTemp4 = VeVector3ReciprocalLengthEst(mResult.r[0]);
+	mResult.r[0] = _mm_mul_ps(mResult.r[0], vTemp4);
+	vTemp2 = _mm_mul_ps(vTemp1, mResult.r[0]);
+	vTemp3 = VE_PERMUTE_PS(vTemp2, _MM_SHUFFLE(2, 1, 2, 1));
+	vTemp2 = _mm_add_ss(vTemp2, vTemp3);
+	vTemp3 = VE_PERMUTE_PS(vTemp3, _MM_SHUFFLE(1, 1, 1, 1));
+	vTemp2 = _mm_add_ss(vTemp2, vTemp3);
+	vTemp2 = VE_PERMUTE_PS(vTemp2, _MM_SHUFFLE(0, 3, 3, 3));
+	mResult.r[0] = _mm_add_ps(mResult.r[0], vTemp2);
+	mResult.r[0] = _mm_mul_ps(mResult.r[0], vTemp4);
+	vTemp4 = VeVector3ReciprocalLengthEst(mResult.r[1]);
+	mResult.r[1] = _mm_mul_ps(mResult.r[1], vTemp4);
+	vTemp2 = _mm_mul_ps(vTemp1, mResult.r[1]);
+	vTemp3 = VE_PERMUTE_PS(vTemp2, _MM_SHUFFLE(2, 1, 2, 1));
+	vTemp2 = _mm_add_ss(vTemp2, vTemp3);
+	vTemp3 = VE_PERMUTE_PS(vTemp3, _MM_SHUFFLE(1, 1, 1, 1));
+	vTemp2 = _mm_add_ss(vTemp2, vTemp3);
+	vTemp2 = VE_PERMUTE_PS(vTemp2, _MM_SHUFFLE(0, 3, 3, 3));
+	mResult.r[1] = _mm_add_ps(mResult.r[1], vTemp2);
+	mResult.r[1] = _mm_mul_ps(mResult.r[1], vTemp4);
+	vTemp4 = VeVector3ReciprocalLengthEst(mResult.r[2]);
+	mResult.r[2] = _mm_mul_ps(mResult.r[2], vTemp4);
+	vTemp2 = _mm_mul_ps(vTemp1, mResult.r[2]);
+	vTemp3 = VE_PERMUTE_PS(vTemp2, _MM_SHUFFLE(2, 1, 2, 1));
+	vTemp2 = _mm_add_ss(vTemp2, vTemp3);
+	vTemp3 = VE_PERMUTE_PS(vTemp3, _MM_SHUFFLE(1, 1, 1, 1));
+	vTemp2 = _mm_add_ss(vTemp2, vTemp3);
+	vTemp2 = VE_PERMUTE_PS(vTemp2, _MM_SHUFFLE(0, 3, 3, 3));
+	mResult.r[2] = _mm_add_ps(mResult.r[2], vTemp2);
+	mResult.r[2] = _mm_mul_ps(mResult.r[2], vTemp4);
 	return mResult;
 #	endif
 }
@@ -760,23 +832,22 @@ inline VE_MATRIX4X3 VE_MATH_CALLCONV VeMatrix4X3Set(
 }
 //--------------------------------------------------------------------------
 inline VE_MATRIX VE_MATH_CALLCONV VeMatrixSet(
-	VeFloat32 m00, VeFloat32 m01, VeFloat32 m02, VeFloat32 m03,
-	VeFloat32 m10, VeFloat32 m11, VeFloat32 m12, VeFloat32 m13,
-	VeFloat32 m20, VeFloat32 m21, VeFloat32 m22, VeFloat32 m23,
-	VeFloat32 m30, VeFloat32 m31, VeFloat32 m32, VeFloat32 m33
-	) noexcept
+	VeFloat32 _11, VeFloat32 _21, VeFloat32 _31, VeFloat32 _41,
+	VeFloat32 _12, VeFloat32 _22, VeFloat32 _32, VeFloat32 _42,
+	VeFloat32 _13, VeFloat32 _23, VeFloat32 _33, VeFloat32 _43,
+	VeFloat32 _14, VeFloat32 _24, VeFloat32 _34, VeFloat32 _44) noexcept
 {
 	VE_MATRIX M;
 #	if defined(VE_NO_INTRINSICS)
-	M.m[0][0] = m00; M.m[0][1] = m01; M.m[0][2] = m02; M.m[0][3] = m03;
-	M.m[1][0] = m10; M.m[1][1] = m11; M.m[1][2] = m12; M.m[1][3] = m13;
-	M.m[2][0] = m20; M.m[2][1] = m21; M.m[2][2] = m22; M.m[2][3] = m23;
-	M.m[3][0] = m30; M.m[3][1] = m31; M.m[3][2] = m32; M.m[3][3] = m33;
+	M.m[0][0] = _11; M.m[0][1] = _21; M.m[0][2] = _31; M.m[0][3] = _41;
+	M.m[1][0] = _12; M.m[1][1] = _22; M.m[1][2] = _32; M.m[1][3] = _42;
+	M.m[2][0] = _13; M.m[2][1] = _23; M.m[2][2] = _33; M.m[2][3] = _43;
+	M.m[3][0] = _14; M.m[3][1] = _24; M.m[3][2] = _34; M.m[3][3] = _44;
 #	else
-	M.r[0] = VeVectorSet(m00, m01, m02, m03);
-	M.r[1] = VeVectorSet(m10, m11, m12, m13);
-	M.r[2] = VeVectorSet(m20, m21, m22, m23);
-	M.r[3] = VeVectorSet(m30, m31, m32, m33);
+	M.r[0] = VeVectorSet(_11, _21, _31, _41);
+	M.r[1] = VeVectorSet(_12, _22, _32, _42);
+	M.r[2] = VeVectorSet(_13, _23, _33, _43);
+	M.r[3] = VeVectorSet(_14, _24, _34, _44);
 #	endif
 	return M;
 }
@@ -1001,10 +1072,10 @@ inline VE_MATRIX4X3 VE_MATH_CALLCONV VeMatrixRotationZ(
 #	endif
 }
 //--------------------------------------------------------------------------
-inline VE_MATRIX VE_MATH_CALLCONV VeMatrixRotationRollPitchYawFromVector(
+inline VE_MATRIX4X3 VE_MATH_CALLCONV VeMatrixRotationRollPitchYawFromVector(
 	VE_FVECTOR Angles) noexcept;
 //--------------------------------------------------------------------------
-inline VE_MATRIX VE_MATH_CALLCONV VeMatrixRotationRollPitchYaw(
+inline VE_MATRIX4X3 VE_MATH_CALLCONV VeMatrixRotationRollPitchYaw(
 	VeFloat32 Pitch, VeFloat32 Yaw, VeFloat32 Roll) noexcept
 {
 	VE_VECTOR Angles = VeVectorSet(Pitch, Yaw, Roll, 0.0f);
@@ -1014,10 +1085,10 @@ inline VE_MATRIX VE_MATH_CALLCONV VeMatrixRotationRollPitchYaw(
 inline VE_VECTOR VE_MATH_CALLCONV VeQuaternionRotationRollPitchYawFromVector(
 	VE_FVECTOR Angles) noexcept;
 //--------------------------------------------------------------------------
-inline VE_MATRIX VE_MATH_CALLCONV VeMatrixRotationQuaternion(
+inline VE_MATRIX4X3 VE_MATH_CALLCONV VeMatrixRotationQuaternion(
 	VE_FVECTOR Quaternion) noexcept;
 //--------------------------------------------------------------------------
-inline VE_MATRIX VE_MATH_CALLCONV VeMatrixRotationRollPitchYawFromVector(
+inline VE_MATRIX4X3 VE_MATH_CALLCONV VeMatrixRotationRollPitchYawFromVector(
 	VE_FVECTOR Angles) noexcept
 {
 	VE_VECTOR Q = VeQuaternionRotationRollPitchYawFromVector(Angles);
@@ -1098,7 +1169,7 @@ inline VE_MATRIX VE_MATH_CALLCONV VeMatrixRotationAxis(
 	return VeMatrixRotationNormal(Normal, Angle);
 }
 //--------------------------------------------------------------------------
-inline VE_MATRIX VE_MATH_CALLCONV VeMatrixRotationQuaternion(
+inline VE_MATRIX4X3 VE_MATH_CALLCONV VeMatrixRotationQuaternion(
 	VE_FVECTOR Quaternion) noexcept
 {
 #	if defined(VE_NO_INTRINSICS)
@@ -1115,15 +1186,14 @@ inline VE_MATRIX VE_MATH_CALLCONV VeMatrixRotationQuaternion(
 	V1 = VeVectorSplatW(Quaternion);
 	VE_VECTOR V2 = VeVectorSwizzle<VE_SWIZZLE_Y, VE_SWIZZLE_Z, VE_SWIZZLE_X, VE_SWIZZLE_W>(Q0);
 	V1 = VeVectorMultiply(V1, V2);
-	VE_VECTOR R1 = VeVectorAdd(V0, V1);
-	VE_VECTOR R2 = VeVectorSubtract(V0, V1);
+	VE_VECTOR R1 = VeVectorSubtract(V0, V1);
+	VE_VECTOR R2 = VeVectorAdd(V0, V1);
 	V0 = VeVectorPermute<VE_PERMUTE_0Y, VE_PERMUTE_1X, VE_PERMUTE_1Y, VE_PERMUTE_0Z>(R1, R2);
 	V1 = VeVectorPermute<VE_PERMUTE_0X, VE_PERMUTE_1Z, VE_PERMUTE_0X, VE_PERMUTE_1Z>(R1, R2);
-	VE_MATRIX M;
+	VE_MATRIX4X3 M;
 	M.r[0] = VeVectorPermute<VE_PERMUTE_0X, VE_PERMUTE_1X, VE_PERMUTE_1Y, VE_PERMUTE_0W>(R0, V0);
 	M.r[1] = VeVectorPermute<VE_PERMUTE_1Z, VE_PERMUTE_0Y, VE_PERMUTE_1W, VE_PERMUTE_0W>(R0, V0);
 	M.r[2] = VeVectorPermute<VE_PERMUTE_1X, VE_PERMUTE_1Y, VE_PERMUTE_0Z, VE_PERMUTE_0W>(R0, V1);
-	M.r[3] = g_MathIdentityR3.v;
 	return M;
 #	elif defined(VE_ENABLE_SSE)
 	static const VE_VECTORF32 Constant1110 = { 1.0f, 1.0f, 1.0f, 0.0f };
@@ -1134,29 +1204,28 @@ inline VE_MATRIX VE_MATH_CALLCONV VeMatrixRotationQuaternion(
 	VE_VECTOR V1 = VE_PERMUTE_PS(Q1, _MM_SHUFFLE(3, 1, 2, 2));
 	V1 = _mm_and_ps(V1, g_MathMask3);
 	VE_VECTOR R0 = _mm_sub_ps(Constant1110, V0);
-	R0 = _mm_sub_ps(R0, V1);
+	R0 = _mm_sub_ps(R0, V1);// R0 = 1-2(y^2+z^2),1-2(x^2+z^2),1-2(x^2+y^2),0
 	V0 = VE_PERMUTE_PS(Quaternion, _MM_SHUFFLE(3, 1, 0, 0));
 	V1 = VE_PERMUTE_PS(Q0, _MM_SHUFFLE(3, 2, 1, 2));
-	V0 = _mm_mul_ps(V0, V1);
+	V0 = _mm_mul_ps(V0, V1);// V0 = 2xz,2xy,2yz,2w^2
 	V1 = VE_PERMUTE_PS(Quaternion, _MM_SHUFFLE(3, 3, 3, 3));
 	VE_VECTOR V2 = VE_PERMUTE_PS(Q0, _MM_SHUFFLE(3, 0, 2, 1));
-	V1 = _mm_mul_ps(V1, V2);
-	VE_VECTOR R1 = _mm_add_ps(V0, V1);
-	VE_VECTOR R2 = _mm_sub_ps(V0, V1);
-	V0 = _mm_shuffle_ps(R1, R2, _MM_SHUFFLE(1, 0, 2, 1));
-	V0 = VE_PERMUTE_PS(V0, _MM_SHUFFLE(1, 3, 2, 0));
-	V1 = _mm_shuffle_ps(R1, R2, _MM_SHUFFLE(2, 2, 0, 0));
-	V1 = VE_PERMUTE_PS(V1, _MM_SHUFFLE(2, 0, 2, 0));
-	Q1 = _mm_shuffle_ps(R0, V0, _MM_SHUFFLE(1, 0, 3, 0));
-	Q1 = VE_PERMUTE_PS(Q1, _MM_SHUFFLE(1, 3, 2, 0));
-	VE_MATRIX M;
+	V1 = _mm_mul_ps(V1, V2);// V1 = 2yw,2zw,2xw,2w^2
+	VE_VECTOR R1 = _mm_sub_ps(V0, V1);//R1 = 2xz+2yw,2xy+2zw,2yz+2xw,4w^2
+	VE_VECTOR R2 = _mm_add_ps(V0, V1);//R2 = 2xz-2yw,2xy-2zw,2yz-2xw,4w^2
+	V0 = _mm_shuffle_ps(R1, R2, _MM_SHUFFLE(1, 0, 2, 1));	//V0 = 2xy+2zw,2yz+2xw,2xz-2yw,2xy-2zw
+	V0 = VE_PERMUTE_PS(V0, _MM_SHUFFLE(1, 3, 2, 0));		//V0 = 2xy+2zw,2xz-2yw,2xy-2zw,2yz+2xw
+	V1 = _mm_shuffle_ps(R1, R2, _MM_SHUFFLE(2, 2, 0, 0));	//V1 = 2xz+2yw,2xz+2yw,2yz-2xw,2yz-2xw
+	V1 = VE_PERMUTE_PS(V1, _MM_SHUFFLE(2, 0, 2, 0));		//V1 = 2xz+2yw,2yz-2xw,2xz+2yw,2yz-2xw
+	Q1 = _mm_shuffle_ps(R0, V0, _MM_SHUFFLE(1, 0, 3, 0));	//Q1 = 1-2(y^2+z^2),0,2xy+2zw,2xz-2yw
+	Q1 = VE_PERMUTE_PS(Q1, _MM_SHUFFLE(1, 3, 2, 0));		//Q1 = 1-2(y^2+z^2), 2(xy+zw), 2(xz-yw), 0
+	VE_MATRIX4X3 M;
 	M.r[0] = Q1;
 	Q1 = _mm_shuffle_ps(R0, V0, _MM_SHUFFLE(3, 2, 3, 1));
 	Q1 = VE_PERMUTE_PS(Q1, _MM_SHUFFLE(1, 3, 0, 2));
 	M.r[1] = Q1;
 	Q1 = _mm_shuffle_ps(V1, R0, _MM_SHUFFLE(3, 2, 1, 0));
 	M.r[2] = Q1;
-	M.r[3] = g_MathIdentityR3;
 	return M;
 #	endif
 }
@@ -1187,31 +1256,31 @@ inline VE_MATRIX VE_MATH_CALLCONV VeMatrixRotationQuaternion(
 //	return M;
 //}
 //--------------------------------------------------------------------------
-inline VE_MATRIX VE_MATH_CALLCONV VeMatrixTransformation(
-	VE_FVECTOR ScalingOrigin, VE_FVECTOR ScalingOrientationQuaternion,
-	VE_FVECTOR Scaling, VE_GVECTOR RotationOrigin,
-	VE_HVECTOR RotationQuaternion, VE_HVECTOR Translation) noexcept
-{
-	VE_VECTOR VScalingOrigin = VeVectorSelect(g_MathSelect1110.v, ScalingOrigin, g_MathSelect1110.v);
-	VE_VECTOR NegScalingOrigin = VeVectorNegate(ScalingOrigin);
-	VE_MATRIX MScalingOriginI = VeMatrixTranslationFromVector(NegScalingOrigin);
-	VE_MATRIX MScalingOrientation = VeMatrixRotationQuaternion(ScalingOrientationQuaternion);
-	VE_MATRIX MScalingOrientationT = VeMatrixTranspose(MScalingOrientation);
-	VE_MATRIX MScaling = VeMatrixScalingFromVector(Scaling);
-	VE_VECTOR VRotationOrigin = VeVectorSelect(g_MathSelect1110.v, RotationOrigin, g_MathSelect1110.v);
-	VE_MATRIX MRotation = VeMatrixRotationQuaternion(RotationQuaternion);
-	VE_VECTOR VTranslation = VeVectorSelect(g_MathSelect1110.v, Translation, g_MathSelect1110.v);
-	VE_MATRIX M;
-	M = VeMatrixMultiply(MScalingOriginI, MScalingOrientationT);
-	M = VeMatrixMultiply(M, MScaling);
-	M = VeMatrixMultiply(M, MScalingOrientation);
-	M.r[3] = VeVectorAdd(M.r[3], VScalingOrigin);
-	M.r[3] = VeVectorSubtract(M.r[3], VRotationOrigin);
-	M = VeMatrixMultiply(M, MRotation);
-	M.r[3] = VeVectorAdd(M.r[3], VRotationOrigin);
-	M.r[3] = VeVectorAdd(M.r[3], VTranslation);
-	return M;
-}
+//inline VE_MATRIX VE_MATH_CALLCONV VeMatrixTransformation(
+//	VE_FVECTOR ScalingOrigin, VE_FVECTOR ScalingOrientationQuaternion,
+//	VE_FVECTOR Scaling, VE_GVECTOR RotationOrigin,
+//	VE_HVECTOR RotationQuaternion, VE_HVECTOR Translation) noexcept
+//{
+//	VE_VECTOR VScalingOrigin = VeVectorSelect(g_MathSelect1110.v, ScalingOrigin, g_MathSelect1110.v);
+//	VE_VECTOR NegScalingOrigin = VeVectorNegate(ScalingOrigin);
+//	VE_MATRIX MScalingOriginI = VeMatrixTranslationFromVector(NegScalingOrigin);
+//	VE_MATRIX MScalingOrientation = VeMatrixRotationQuaternion(ScalingOrientationQuaternion);
+//	VE_MATRIX MScalingOrientationT = VeMatrixTranspose(MScalingOrientation);
+//	VE_MATRIX MScaling = VeMatrixScalingFromVector(Scaling);
+//	VE_VECTOR VRotationOrigin = VeVectorSelect(g_MathSelect1110.v, RotationOrigin, g_MathSelect1110.v);
+//	VE_MATRIX MRotation = VeMatrixRotationQuaternion(RotationQuaternion);
+//	VE_VECTOR VTranslation = VeVectorSelect(g_MathSelect1110.v, Translation, g_MathSelect1110.v);
+//	VE_MATRIX M;
+//	M = VeMatrixMultiply(MScalingOriginI, MScalingOrientationT);
+//	M = VeMatrixMultiply(M, MScaling);
+//	M = VeMatrixMultiply(M, MScalingOrientation);
+//	M.r[3] = VeVectorAdd(M.r[3], VScalingOrigin);
+//	M.r[3] = VeVectorSubtract(M.r[3], VRotationOrigin);
+//	M = VeMatrixMultiply(M, MRotation);
+//	M.r[3] = VeVectorAdd(M.r[3], VRotationOrigin);
+//	M.r[3] = VeVectorAdd(M.r[3], VTranslation);
+//	return M;
+//}
 //--------------------------------------------------------------------------
 //inline VE_MATRIX VE_MATH_CALLCONV VeMatrixAffineTransformation2D(
 //	VE_FVECTOR Scaling, VE_FVECTOR RotationOrigin, VeFloat32 Rotation,
@@ -1231,22 +1300,22 @@ inline VE_MATRIX VE_MATH_CALLCONV VeMatrixTransformation(
 //	return M;
 //}
 //--------------------------------------------------------------------------
-inline VE_MATRIX VE_MATH_CALLCONV VeMatrixAffineTransformation(
-	VE_FVECTOR Scaling, VE_FVECTOR RotationOrigin,
-	VE_FVECTOR RotationQuaternion, VE_GVECTOR Translation) noexcept
-{
-	VE_MATRIX MScaling = VeMatrixScalingFromVector(Scaling);
-	VE_VECTOR VRotationOrigin = VeVectorSelect(g_MathSelect1110.v, RotationOrigin, g_MathSelect1110.v);
-	VE_MATRIX MRotation = VeMatrixRotationQuaternion(RotationQuaternion);
-	VE_VECTOR VTranslation = VeVectorSelect(g_MathSelect1110.v, Translation, g_MathSelect1110.v);
-	VE_MATRIX M;
-	M = MScaling;
-	M.r[3] = VeVectorSubtract(M.r[3], VRotationOrigin);
-	M = VeMatrixMultiply(M, MRotation);
-	M.r[3] = VeVectorAdd(M.r[3], VRotationOrigin);
-	M.r[3] = VeVectorAdd(M.r[3], VTranslation);
-	return M;
-}
+//inline VE_MATRIX VE_MATH_CALLCONV VeMatrixAffineTransformation(
+//	VE_FVECTOR Scaling, VE_FVECTOR RotationOrigin,
+//	VE_FVECTOR RotationQuaternion, VE_GVECTOR Translation) noexcept
+//{
+//	VE_MATRIX MScaling = VeMatrixScalingFromVector(Scaling);
+//	VE_VECTOR VRotationOrigin = VeVectorSelect(g_MathSelect1110.v, RotationOrigin, g_MathSelect1110.v);
+//	VE_MATRIX MRotation = VeMatrixRotationQuaternion(RotationQuaternion);
+//	VE_VECTOR VTranslation = VeVectorSelect(g_MathSelect1110.v, Translation, g_MathSelect1110.v);
+//	VE_MATRIX M;
+//	M = MScaling;
+//	M.r[3] = VeVectorSubtract(M.r[3], VRotationOrigin);
+//	M = VeMatrixMultiply(M, MRotation);
+//	M.r[3] = VeVectorAdd(M.r[3], VRotationOrigin);
+//	M.r[3] = VeVectorAdd(M.r[3], VTranslation);
+//	return M;
+//}
 //--------------------------------------------------------------------------
 inline bool VE_MATH_CALLCONV VePlaneIsInfinite(VE_FVECTOR P) noexcept;
 //--------------------------------------------------------------------------
@@ -1461,18 +1530,15 @@ inline VE_MATRIX VE_MATH_CALLCONV VeMatrixPerspectiveRH(VeFloat32 ViewWidth,
 }
 //--------------------------------------------------------------------------
 inline VE_MATRIX VE_MATH_CALLCONV VeMatrixPerspectiveFovLH(
-	VeFloat32 FovAngleY, VeFloat32 AspectHByW, VeFloat32 NearZ,
+	VeFloat32 FovAngleY, VeFloat32 AspectWByH, VeFloat32 NearZ,
 	VeFloat32 FarZ) noexcept
 {
-	VE_ASSERT(!VeScalarNearEqual(FovAngleY, 0.0f, 0.00001f * 2.0f));
-	VE_ASSERT(!VeScalarNearEqual(AspectHByW, 0.0f, 0.00001f));
-	VE_ASSERT(!VeScalarNearEqual(FarZ, NearZ, 0.00001f));
 #	if defined(VE_NO_INTRINSICS)
 	VeFloat32 SinFov;
 	VeFloat32 CosFov;
 	VeScalarSinCos(&SinFov, &CosFov, 0.5f * FovAngleY);
 	VeFloat32 Height = CosFov / SinFov;
-	VeFloat32 Width = Height / AspectHByW;
+	VeFloat32 Width = Height * AspectWByH;
 	VeFloat32 fRange = FarZ / (FarZ - NearZ);
 	VE_MATRIX M;
 	M.m[0][0] = Width;
@@ -1486,10 +1552,10 @@ inline VE_MATRIX VE_MATH_CALLCONV VeMatrixPerspectiveFovLH(
 	M.m[2][0] = 0.0f;
 	M.m[2][1] = 0.0f;
 	M.m[2][2] = fRange;
-	M.m[2][3] = 1.0f;
+	M.m[2][3] = -fRange * NearZ;
 	M.m[3][0] = 0.0f;
 	M.m[3][1] = 0.0f;
-	M.m[3][2] = -fRange * NearZ;
+	M.m[3][2] = 1.0f;
 	M.m[3][3] = 0.0f;
 	return M;
 #	elif defined(VE_ENABLE_SSE)
@@ -1498,27 +1564,11 @@ inline VE_MATRIX VE_MATH_CALLCONV VeMatrixPerspectiveFovLH(
 	VeScalarSinCos(&SinFov, &CosFov, 0.5f * FovAngleY);
 	VeFloat32 fRange = FarZ / (FarZ - NearZ);
 	VeFloat32 Height = CosFov / SinFov;
-	VE_VECTOR rMem =
-	{
-		Height / AspectHByW,
-		Height,
-		fRange,
-		-fRange * NearZ
-	};
-	VE_VECTOR vValues = rMem;
-	VE_VECTOR vTemp = _mm_setzero_ps();
-	vTemp = _mm_move_ss(vTemp, vValues);
 	VE_MATRIX M;
-	M.r[0] = vTemp;
-	vTemp = vValues;
-	vTemp = _mm_and_ps(vTemp, g_MathMaskY);
-	M.r[1] = vTemp;
-	vTemp = _mm_setzero_ps();
-	vValues = _mm_shuffle_ps(vValues, g_MathIdentityR3, _MM_SHUFFLE(3, 2, 3, 2));
-	vTemp = _mm_shuffle_ps(vTemp, vValues, _MM_SHUFFLE(3, 0, 0, 0));
-	M.r[2] = vTemp;
-	vTemp = _mm_shuffle_ps(vTemp, vValues, _MM_SHUFFLE(2, 1, 0, 0));
-	M.r[3] = vTemp;
+	M.r[0] = _mm_set_ps(0.0f, 0.0f, 0.0f, Height * AspectWByH);
+	M.r[1] = _mm_set_ps(0.0f, 0.0f, Height, 0.0f);
+	M.r[2] = _mm_set_ps(-fRange * NearZ, fRange, 0.0f, 0.0f);
+	M.r[3] = g_MathIdentityR2;
 	return M;
 #	endif
 }
