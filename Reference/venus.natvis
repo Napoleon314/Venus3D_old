@@ -185,5 +185,15 @@
 			<Item Name="[col2]">v[2]</Item>
 		</Expand>
   </Type>
+  
+  <Type Name="VeMatrix">
+		<DisplayString>{{{v[0]}, {v[1]}, {v[2]}, {v[3]}}}</DisplayString>
+		<Expand>
+			<Item Name="[col0]">v[0]</Item>
+			<Item Name="[col1]">v[1]</Item>
+			<Item Name="[col2]">v[2]</Item>
+			<Item Name="[col3]">v[3]</Item>
+		</Expand>
+  </Type>
     
 </AutoVisualizer>
