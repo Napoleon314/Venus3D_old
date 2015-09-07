@@ -1354,30 +1354,26 @@ inline VE_MATRIX VE_MATH_CALLCONV VeMatrixShadow(
 	return M;
 }
 //--------------------------------------------------------------------------
-inline VE_MATRIX VE_MATH_CALLCONV VeMatrixLookToLH(VE_FVECTOR EyePosition,
+inline VE_MATRIX4X3 VE_MATH_CALLCONV VeMatrixLookToLH(VE_FVECTOR EyePosition,
 	VE_FVECTOR EyeDirection, VE_FVECTOR UpDirection) noexcept;
 //--------------------------------------------------------------------------
-inline VE_MATRIX VE_MATH_CALLCONV VeMatrixLookAtLH(VE_FVECTOR EyePosition,
+inline VE_MATRIX4X3 VE_MATH_CALLCONV VeMatrixLookAtLH(VE_FVECTOR EyePosition,
 	VE_FVECTOR FocusPosition, VE_FVECTOR UpDirection) noexcept
 {
 	VE_VECTOR EyeDirection = VeVectorSubtract(FocusPosition, EyePosition);
 	return VeMatrixLookToLH(EyePosition, EyeDirection, UpDirection);
 }
 //--------------------------------------------------------------------------
-inline VE_MATRIX VE_MATH_CALLCONV VeMatrixLookAtRH(VE_FVECTOR EyePosition,
+inline VE_MATRIX4X3 VE_MATH_CALLCONV VeMatrixLookAtRH(VE_FVECTOR EyePosition,
 	VE_FVECTOR FocusPosition, VE_FVECTOR UpDirection) noexcept
 {
 	VE_VECTOR NegEyeDirection = VeVectorSubtract(EyePosition, FocusPosition);
 	return VeMatrixLookToLH(EyePosition, NegEyeDirection, UpDirection);
 }
 //--------------------------------------------------------------------------
-inline VE_MATRIX VE_MATH_CALLCONV VeMatrixLookToLH(VE_FVECTOR EyePosition,
+inline VE_MATRIX4X3 VE_MATH_CALLCONV VeMatrixLookToLH(VE_FVECTOR EyePosition,
 	VE_FVECTOR EyeDirection, VE_FVECTOR UpDirection) noexcept
 {
-	VE_ASSERT(!VeVector3Equal(EyeDirection, VeVectorZero()));
-	VE_ASSERT(!VeVector3IsInfinite(EyeDirection));
-	VE_ASSERT(!VeVector3Equal(UpDirection, VeVectorZero()));
-	VE_ASSERT(!VeVector3IsInfinite(UpDirection));
 	VE_VECTOR R2 = VeVector3Normalize(EyeDirection);
 	VE_VECTOR R0 = VeVector3Cross(UpDirection, R2);
 	R0 = VeVector3Normalize(R0);
@@ -1386,16 +1382,14 @@ inline VE_MATRIX VE_MATH_CALLCONV VeMatrixLookToLH(VE_FVECTOR EyePosition,
 	VE_VECTOR D0 = VeVector3Dot(R0, NegEyePosition);
 	VE_VECTOR D1 = VeVector3Dot(R1, NegEyePosition);
 	VE_VECTOR D2 = VeVector3Dot(R2, NegEyePosition);
-	VE_MATRIX M;
+	VE_MATRIX4X3 M;
 	M.r[0] = VeVectorSelect(D0, R0, g_MathSelect1110.v);
 	M.r[1] = VeVectorSelect(D1, R1, g_MathSelect1110.v);
 	M.r[2] = VeVectorSelect(D2, R2, g_MathSelect1110.v);
-	M.r[3] = g_MathIdentityR3.v;
-	M = VeMatrixTranspose(M);
 	return M;
 }
 //--------------------------------------------------------------------------
-inline VE_MATRIX VE_MATH_CALLCONV VeMatrixLookToRH(VE_FVECTOR EyePosition,
+inline VE_MATRIX4X3 VE_MATH_CALLCONV VeMatrixLookToRH(VE_FVECTOR EyePosition,
 	VE_FVECTOR EyeDirection, VE_FVECTOR UpDirection) noexcept
 {
 	VE_VECTOR NegEyeDirection = VeVectorNegate(EyeDirection);

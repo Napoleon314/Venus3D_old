@@ -25,6 +25,8 @@ VeRTTIImpl(VeRendererD3D12::RootSignatureD3D12, VeRenderer::RootSignature);
 //--------------------------------------------------------------------------
 VeRTTIImpl(VeRendererD3D12::PipelineStateD3D12, VeRenderer::PipelineState);
 //--------------------------------------------------------------------------
+VeRTTIImpl(VeRendererD3D12::DynamicCBufferD3D12, VeRenderer::DynamicCBuffer);
+//--------------------------------------------------------------------------
 VeRendererD3D12::VeRendererD3D12() noexcept
 	: VeRenderer(API_D3D12)
 {
@@ -89,6 +91,7 @@ bool VeRendererD3D12::Init() noexcept
 
 	m_kRTVHeap.Init(m_pkDevice);
 	m_kDSVHeap.Init(m_pkDevice);
+	m_kSRVHeap.Init(m_pkDevice);
 	InitCopyQueue();
 
 	ve_sys.CORE.I.LogFormat("VeRendererD3D12 renderer is created.");
@@ -101,16 +104,24 @@ void VeRendererD3D12::Term() noexcept
 	{
 		win->Term();
 	}
+	VE_ASSERT(m_kRenderWindowList.empty());
+	for (auto cb : m_kDyanmicCBufferList)
+	{
+		cb->Term();
+	}
+	VE_ASSERT(m_kDyanmicCBufferList.empty());
 	for (auto obj : m_kRootSignatureList)
 	{
 		VE_SAFE_RELEASE(obj->m_pkRootSignature);
 	}
+	m_kRootSignatureList.clear();
 	for (auto obj : m_kPipelineStateList)
 	{
 		VE_SAFE_RELEASE(obj->m_pkPipelineState);
 	}
-	VE_ASSERT(m_kRenderWindowList.empty());
+	m_kPipelineStateList.clear();
 	TermCopyQueue();
+	m_kSRVHeap.Term();
 	m_kDSVHeap.Term();
 	m_kRTVHeap.Term();
 	VE_SAFE_RELEASE(m_pkDevice);
@@ -898,6 +909,14 @@ VeRenderer::PipelineStatePtr VeRendererD3D12::CreateComputePipelineState(
 	VeJSONValue& kConfig) noexcept
 {
 	return nullptr;
+}
+//--------------------------------------------------------------------------
+VeRenderer::DynamicCBufferPtr VeRendererD3D12::CreateDynamicCBuffer(
+	VeSizeT stSize) noexcept
+{
+	DynamicCBufferD3D12* pkCBuffer = VE_NEW DynamicCBufferD3D12(stSize);
+	pkCBuffer->Init(*this);
+	return pkCBuffer;
 }
 //--------------------------------------------------------------------------
 void VeRendererD3D12::InitParsers() noexcept

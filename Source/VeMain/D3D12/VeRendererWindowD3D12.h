@@ -49,8 +49,20 @@ public:
 
 		kFrame.m_pkDirectList->SetGraphicsRootSignature(
 			kRenderer.m_kRootSignatureList.get_head_node()->m_Content->m_pkRootSignature);
+
 		kFrame.m_pkDirectList->RSSetViewports(1, &m_kViewport);
 		kFrame.m_pkDirectList->RSSetScissorRects(1, &m_kScissorRect);
+
+		//VeRendererD3D12::DynamicCBufferD3D12* pkCB = kRenderer.m_kDyanmicCBufferList.get_head_node()->m_Content;
+		ID3D12DescriptorHeap* ppHeaps[] = { kRenderer.m_kSRVHeap.Get() };
+		kFrame.m_pkDirectList->SetDescriptorHeaps(1, ppHeaps);
+
+
+		kFrame.m_pkDirectList->SetGraphicsRootDescriptorTable(
+			0, kRenderer.m_kDyanmicCBufferList.get_head_node()->m_Content->GetActive());
+
+
+		
 
 		D3D12_RESOURCE_BARRIER kBarrier;
 		kBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;

@@ -30,6 +30,7 @@ public:
 	static constexpr VeUInt32 FRAME_COUNT = 3;
 	static constexpr VeUInt32 RTV_COUNT = 32;
 	static constexpr VeUInt32 DSV_COUNT = 1;
+	static constexpr VeUInt32 SRV_COUNT = 4096;
 
 	enum BlendType
 	{
@@ -93,6 +94,124 @@ public:
 
 	};
 
+	class DynamicCBufferD3D12 : public DynamicCBuffer
+	{
+		VeNoCopy(DynamicCBufferD3D12);
+		VeRTTIDecl(DynamicCBufferD3D12, DynamicCBuffer);
+	public:
+		DynamicCBufferD3D12(VeSizeT stSize) noexcept
+		{
+			m_stSize = (stSize + 255) & (~255);
+			m_kNode.m_Content = this;
+		}
+
+		virtual ~DynamicCBufferD3D12() noexcept
+		{
+			Term();
+		}
+
+		void Init(VeRendererD3D12& kRenderer) noexcept
+		{
+			D3D12_HEAP_PROPERTIES kHeapProp =
+			{
+				D3D12_HEAP_TYPE_UPLOAD,
+				D3D12_CPU_PAGE_PROPERTY_UNKNOWN,
+				D3D12_MEMORY_POOL_UNKNOWN,
+				0,
+				0
+			};
+			D3D12_RESOURCE_DESC kResDesc =
+			{
+				D3D12_RESOURCE_DIMENSION_BUFFER,
+				0,
+				m_stSize * FRAME_COUNT,
+				1,
+				1,
+				1,
+				DXGI_FORMAT_UNKNOWN,
+				{ 1, 0 },
+				D3D12_TEXTURE_LAYOUT_ROW_MAJOR,
+				D3D12_RESOURCE_FLAG_NONE
+			};
+			VE_ASSERT_GE(kRenderer.m_pkDevice->CreateCommittedResource(
+				&kHeapProp, D3D12_HEAP_FLAG_NONE, &kResDesc,
+				D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
+				__uuidof(ID3D12Resource), (void**)&m_pkResource), S_OK);
+			VE_ASSERT_GE(m_pkResource->Map(0, nullptr, &m_pvMappedBuffer), S_OK);
+			VE_ASSERT(!(((VeSizeT)m_pvMappedBuffer) & 0xf));
+			for (VeUInt32 i(0); i < FRAME_COUNT; ++i)
+			{
+				m_ahCBV[i].m_u32Offset = kRenderer.m_kSRVHeap.Alloc();
+				m_ahCBV[i].m_kCPUHandle.ptr = kRenderer.m_kSRVHeap.GetCPUStart().ptr + m_ahCBV[i].m_u32Offset;
+				m_ahCBV[i].m_kGPUHandle.ptr = kRenderer.m_kSRVHeap.GetGPUStart().ptr + m_ahCBV[i].m_u32Offset;
+				D3D12_CONSTANT_BUFFER_VIEW_DESC kCBVDesc = {
+					m_pkResource->GetGPUVirtualAddress() + i * m_stSize,
+					(UINT)m_stSize
+				};
+				kRenderer.m_pkDevice->CreateConstantBufferView(&kCBVDesc, m_ahCBV[i].m_kCPUHandle);
+			}
+			kRenderer.m_kDyanmicCBufferList.attach_back(m_kNode);
+		}
+
+		void Term() noexcept
+		{
+			if (m_kNode.is_attach())
+			{
+				VeRendererD3D12& kRenderer = *VeMemberCast(
+					&VeRendererD3D12::m_kDyanmicCBufferList, m_kNode.get_list());
+
+				for (VeUInt32 i(FRAME_COUNT-1); i < FRAME_COUNT; --i)
+				{
+					kRenderer.m_kSRVHeap.Free(m_ahCBV[i].m_u32Offset);
+				}
+				m_pvMappedBuffer = nullptr;
+				m_pkResource->Unmap(0, nullptr);
+				VE_SAFE_RELEASE(m_pkResource);
+			}
+		}
+
+		void* GetActiveBuffer() noexcept
+		{
+			return (VeByte*)m_pvMappedBuffer + m_stSize * m_u32Active;
+		}
+
+		D3D12_GPU_DESCRIPTOR_HANDLE GetActive() noexcept
+		{
+			return m_ahCBV[m_u32Active].m_kGPUHandle;
+		}
+
+		virtual void* Map() noexcept
+		{
+			if ((++m_u32Active) >= FRAME_COUNT)
+				m_u32Active -= FRAME_COUNT;
+			return GetActiveBuffer();
+		}
+
+		virtual void Unmap() noexcept
+		{
+
+		}
+
+		virtual void Update(void* pvData) noexcept
+		{
+			if ((++m_u32Active) >= FRAME_COUNT)
+				m_u32Active -= FRAME_COUNT;
+			VeCrazyCopy(GetActiveBuffer(), pvData, m_stSize);
+		}
+		
+		VeRefNode<DynamicCBufferD3D12*> m_kNode;
+		ID3D12Resource* m_pkResource = nullptr;
+		void* m_pvMappedBuffer = nullptr;
+		struct  
+		{
+			VeUInt32 m_u32Offset;
+			D3D12_CPU_DESCRIPTOR_HANDLE m_kCPUHandle;
+			D3D12_GPU_DESCRIPTOR_HANDLE m_kGPUHandle;
+		} m_ahCBV[FRAME_COUNT];
+		VeUInt32 m_u32Active = FRAME_COUNT - 1;
+
+	};
+
 	template <D3D12_DESCRIPTOR_HEAP_TYPE TYPE, VeUInt32 NUM, D3D12_DESCRIPTOR_HEAP_FLAGS FLAGS>
 	class DescriptorHeapShell
 	{
@@ -105,10 +224,9 @@ public:
 			{
 				TYPE, NUM, FLAGS, 0
 			};
-			VE_ASSERT_EQ(pkDevice->CreateDescriptorHeap(
+			VE_ASSERT_GE(pkDevice->CreateDescriptorHeap(
 				&kHeapDesc, __uuidof(ID3D12DescriptorHeap), (void**)&m_pkHeap), S_OK);
 			VE_ASSERT(m_pkHeap);
-			m_kRoot = m_pkHeap->GetCPUDescriptorHandleForHeapStart();
 			m_u32DescIncSize = pkDevice->GetDescriptorHandleIncrementSize(TYPE);
 		}
 
@@ -118,42 +236,49 @@ public:
 			m_kFreeIndexList.clear();
 		}
 
-		D3D12_CPU_DESCRIPTOR_HANDLE Alloc() noexcept
-		{
-			D3D12_CPU_DESCRIPTOR_HANDLE kRes;			
+		VeUInt32 Alloc() noexcept
+		{	
 			if(m_kFreeIndexList.size())
 			{
-				kRes.ptr = m_kRoot.ptr + m_kFreeIndexList.back();
+				VeUInt32 u32Pointer = m_kFreeIndexList.back();
 				m_kFreeIndexList.pop_back();
+				return u32Pointer;
 			}
 			else if (m_u32FreeStart < NUM)
 			{
-				kRes.ptr = m_kRoot.ptr + m_u32FreeStart * m_u32DescIncSize;
-				++m_u32FreeStart;
+				return (m_u32FreeStart++) * m_u32DescIncSize;
 			}
 			else
 			{
-				kRes.ptr = 0;
+				VE_ASSERT(!"Can not alloc");
+				return VE_UINT32_MAX;
 			}
-			return kRes;
 		}
 
-		void Free(D3D12_CPU_DESCRIPTOR_HANDLE hHandle) noexcept
+		void Free(VeUInt32 u32Pointer) noexcept
 		{
-			if (hHandle.ptr >= m_kRoot.ptr)
-			{
-				VeUInt32 u32Delta = (VeUInt32)(hHandle.ptr - m_kRoot.ptr);
-				if ((u32Delta % m_u32DescIncSize == 0)
-					&& (u32Delta / m_u32DescIncSize < NUM))
-				{
-					m_kFreeIndexList.push_back(u32Delta);
-				}
-			}
-	
+			VE_ASSERT(u32Pointer % m_u32DescIncSize == 0
+				&& (u32Pointer / m_u32DescIncSize) < NUM);
+			m_kFreeIndexList.push_back(u32Pointer);
 		}
+
+		ID3D12DescriptorHeap* Get() noexcept
+		{
+			return m_pkHeap;
+		}
+
+		D3D12_CPU_DESCRIPTOR_HANDLE GetCPUStart() noexcept
+		{
+			return m_pkHeap->GetCPUDescriptorHandleForHeapStart();
+		}
+
+		D3D12_GPU_DESCRIPTOR_HANDLE GetGPUStart() noexcept
+		{
+			return m_pkHeap->GetGPUDescriptorHandleForHeapStart();
+		}
+
 	private:
 		ID3D12DescriptorHeap* m_pkHeap = nullptr;
-		D3D12_CPU_DESCRIPTOR_HANDLE m_kRoot;
 		VeUInt32 m_u32DescIncSize = 0;
 		VeUInt32 m_u32FreeStart = 0;
 		VeVector<VeUInt32> m_kFreeIndexList;
@@ -161,6 +286,7 @@ public:
 
 	typedef DescriptorHeapShell<D3D12_DESCRIPTOR_HEAP_TYPE_RTV, RTV_COUNT, D3D12_DESCRIPTOR_HEAP_FLAG_NONE> RTVHeap;
 	typedef DescriptorHeapShell<D3D12_DESCRIPTOR_HEAP_TYPE_DSV, DSV_COUNT, D3D12_DESCRIPTOR_HEAP_FLAG_NONE> DSVHeap;
+	typedef DescriptorHeapShell<D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, SRV_COUNT, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE> SRVHeap;
 
 	VeRendererD3D12() noexcept;
 
@@ -191,6 +317,8 @@ public:
 
 	PipelineStatePtr CreateComputePipelineState(VeJSONValue& kConfig) noexcept;
 
+	virtual DynamicCBufferPtr CreateDynamicCBuffer(VeSizeT stSize) noexcept override;
+
 protected:
 	friend class VeRenderWindowD3D12;
 
@@ -220,10 +348,12 @@ protected:
 
 	RTVHeap m_kRTVHeap;
 	DSVHeap m_kDSVHeap;
+	SRVHeap m_kSRVHeap;
 
 	VeRefList<VeRenderWindowD3D12*> m_kRenderWindowList;
 	VeRefList<RootSignatureD3D12*> m_kRootSignatureList;
 	VeRefList<PipelineStateD3D12*> m_kPipelineStateList;
+	VeRefList<DynamicCBufferD3D12*> m_kDyanmicCBufferList;
 
 	HRESULT (WINAPI* D3D12GetDebugInterface)(
 		_In_ REFIID riid, _COM_Outptr_opt_ void** ppvDebug) = nullptr;

@@ -32,6 +32,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 	ve_res_mgr.LoadFile("startup$root_signatures.json");
 	ve_res_mgr.LoadFile("startup$pipeline_states.json");
 
+	VeRenderer::DynamicCBufferPtr spCB = ve_renderer_ptr->CreateDynamicCBuffer(1024);
+
 	VeRenderWindowPtr spRenderWindow = ve_renderer_ptr->CreateRenderWindow(
 		"RenderTest", VE_WINDOWPOS_CENTERED, VE_WINDOWPOS_CENTERED, 1280, 720, VE_WINDOW_ALLOW_HIGHDPI);
 
@@ -98,12 +100,38 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 					s_f32TimeCount -= VeFloorf(s_f32TimeCount);
 					s_u32FrameCount = 0;
 				}
+
+				VE_VECTOR eye = { 500,0,500,0 };
+				VE_VECTOR focus = { 0,0,0,0 };
+				VE_VECTOR up = g_MathIdentityR2;
+				VE_MATRIX4X3 view = VeMatrixLookAtLH(eye, focus, up);
+
+				VE_MATRIX view4;
+				view4.r[0] = view.r[0];
+				view4.r[1] = view.r[1];
+				view4.r[2] = view.r[2];
+				view4.r[3] = g_MathIdentityR3;
+				VE_MATRIX proj = VeMatrixPerspectiveFovLH(VE_MATH_PI_2_F, 720.f / 1280.f, 0.25f, 8000.f);
+
+				view4 = VeMatrixMultiply(view4, proj);
+
+
+				//static VeFloat32 s_Test = 0.0f;
+				//s_Test -= ve_time.GetDeltaTime() * 0.3f;
+
+				VE_FLOAT4X4A* pvData = (VE_FLOAT4X4A*)spCB->Map();
+				//VE_VECTOR v = { 0, s_Test, 0.5f, 0.5f };
+				//VeStoreFloat4A(pvData, v);
+				VeStoreFloat4x4A(pvData, view4);
+				spCB->Unmap();
+
 				spRenderWindow->Update();
 			}
 		}		
 	}
 
 	VE_ASSERT(!spRenderWindow);
+	spCB = nullptr;
 
 	ve_engine.Term();
 	ve_sys.Term();

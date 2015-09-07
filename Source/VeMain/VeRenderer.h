@@ -34,7 +34,7 @@ public:
 	{
 		VeNoCopy(RootSignature);
 		VeRTTIDecl(RootSignature);
-	public:
+	protected:
 		RootSignature() noexcept = default;
 		virtual ~RootSignature() noexcept = default;
 
@@ -46,13 +46,36 @@ public:
 	{
 		VeNoCopy(PipelineState);
 		VeRTTIDecl(PipelineState);
-	public:
+	protected:
 		PipelineState() noexcept = default;
 		virtual ~PipelineState() noexcept = default;
 
 	};
 
 	typedef VePointer<PipelineState> PipelineStatePtr;
+
+	class VE_MAIN_API DynamicCBuffer : public VeRefObject
+	{
+		VeNoCopy(DynamicCBuffer);
+		VeRTTIDecl(DynamicCBuffer);
+	public:
+		VeSizeT GetSize() noexcept { return m_stSize; }
+
+		virtual void* Map() noexcept = 0;
+
+		virtual void Unmap() noexcept = 0;
+
+		virtual void Update(void* pvData) noexcept = 0;
+
+	protected:
+		DynamicCBuffer() noexcept = default;
+		virtual ~DynamicCBuffer() noexcept = default;
+
+		VeSizeT m_stSize = 0;
+
+	};
+
+	typedef VePointer<DynamicCBuffer> DynamicCBufferPtr;
 
 	inline API GetAPI() const noexcept;
 
@@ -83,6 +106,8 @@ public:
 	virtual RootSignaturePtr CreateRootSignature(const VeBlobPtr& spBlob) noexcept = 0;
 
 	virtual PipelineStatePtr CreatePipelineState(VeJSONValue& kConfig) noexcept = 0;
+
+	virtual DynamicCBufferPtr CreateDynamicCBuffer(VeSizeT stSize) noexcept = 0;
 
 protected:
 	VeRenderer(API eType) noexcept;
