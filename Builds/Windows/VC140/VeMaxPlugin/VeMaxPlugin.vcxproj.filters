@@ -21,5 +21,13 @@
     <ClInclude Include="..\..\..\..\Source\VeMaxPlugin\stdafx.h">
       <Filter>Pch</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\VeMaxPlugin\Entry.h">
+      <Filter>Entry</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="VeMaxPlugin.def">
+      <Filter>Entry</Filter>
+    </None>
   </ItemGroup>
 </Project>

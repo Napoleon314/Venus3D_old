@@ -13,3 +13,44 @@
 ////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
+
+//--------------------------------------------------------------------------
+BOOL WINAPI DllMain(HINSTANCE hinstDLL, ULONG fdwReason, LPVOID)
+{
+	if (fdwReason == DLL_PROCESS_ATTACH)
+	{
+		DisableThreadLibraryCalls(hinstDLL);
+	}
+	return TRUE;
+}
+//--------------------------------------------------------------------------
+__declspec(dllexport) const TCHAR* LibDescription()
+{
+	return VE_MAX_LIB_DESC;
+}
+//--------------------------------------------------------------------------
+__declspec(dllexport) int LibNumberClasses()
+{
+	return 0;
+}
+//--------------------------------------------------------------------------
+__declspec(dllexport) ClassDesc* LibClassDesc(int i)
+{
+	return nullptr;
+}
+//--------------------------------------------------------------------------
+__declspec(dllexport) ULONG LibVersion()
+{
+	return VERSION_3DSMAX;
+}
+//--------------------------------------------------------------------------
+__declspec(dllexport) int LibInitialize(void)
+{
+	return TRUE;
+}
+//--------------------------------------------------------------------------
+__declspec(dllexport) int LibShutdown(void)
+{
+	return TRUE;
+}
+//--------------------------------------------------------------------------
