@@ -166,6 +166,10 @@ public:
 
 	inline void ApplyVector(VeVector4& kOut, const VeVector4& kIn) const noexcept;
 
+	static const VeMatrix4X3 ZERO;
+
+	static const VeMatrix4X3 IDENTITY;
+
 };
 
 class VE_MAIN_API alignas(16) VeMatrix : public VeMemA16Object
@@ -318,6 +322,10 @@ public:
 	inline VeVector4 ApplyVector(const VeVector4& kVector) const noexcept;
 
 	inline void ApplyVector(VeVector4& kOut, const VeVector4& kIn) const noexcept;
+
+	static const VeMatrix ZERO;
+
+	static const VeMatrix IDENTITY;
 
 };
 
