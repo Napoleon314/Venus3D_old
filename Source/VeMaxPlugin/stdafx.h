@@ -14,10 +14,13 @@
 
 #pragma once
 
+#include <VeMainPch.h>
+
 #include <istdplug.h>
 #include <iparamb2.h>
 #include <iparamm2.h>
 #include <maxtypes.h>
-#include <VeMainPch.h>
+#include <impexp.h>
 
-#include "Entry.h"
+#include "VeMaxEntry.h"
+#include "VeExportClass.h"
