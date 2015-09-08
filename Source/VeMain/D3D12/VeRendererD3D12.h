@@ -101,8 +101,8 @@ public:
 	public:
 		DynamicCBufferD3D12(VeSizeT stSize) noexcept
 		{
-			m_stSize = (stSize + 255) & (~255);
 			m_kNode.m_Content = this;
+			m_stSize = (stSize + 255) & (~255);
 		}
 
 		virtual ~DynamicCBufferD3D12() noexcept
@@ -180,26 +180,32 @@ public:
 			return m_ahCBV[m_u32Active].m_kGPUHandle;
 		}
 
-		virtual void* Map() noexcept
+		virtual void* Map() noexcept override
 		{
 			if ((++m_u32Active) >= FRAME_COUNT)
 				m_u32Active -= FRAME_COUNT;
 			return GetActiveBuffer();
 		}
 
-		virtual void Unmap() noexcept
+		virtual void Unmap() noexcept override
 		{
 
 		}
 
-		virtual void Update(void* pvData) noexcept
+		virtual void Update(void* pvData) noexcept override
 		{
 			if ((++m_u32Active) >= FRAME_COUNT)
 				m_u32Active -= FRAME_COUNT;
 			VeCrazyCopy(GetActiveBuffer(), pvData, m_stSize);
 		}
+
+		virtual VeSizeT GetSize() noexcept override
+		{
+			return m_stSize;
+		}
 		
 		VeRefNode<DynamicCBufferD3D12*> m_kNode;
+		VeSizeT m_stSize = 0;
 		ID3D12Resource* m_pkResource = nullptr;
 		void* m_pvMappedBuffer = nullptr;
 		struct  
@@ -209,6 +215,37 @@ public:
 			D3D12_GPU_DESCRIPTOR_HANDLE m_kGPUHandle;
 		} m_ahCBV[FRAME_COUNT];
 		VeUInt32 m_u32Active = FRAME_COUNT - 1;
+
+	};
+
+	class StaticVBufferD3D12 : public StaticVBuffer
+	{
+		VeNoCopy(StaticVBufferD3D12);
+		VeRTTIDecl(StaticVBufferD3D12, StaticVBuffer);
+	public:
+		StaticVBufferD3D12() noexcept
+		{
+			m_kNode.m_Content = this;
+		}
+
+		virtual ~StaticVBufferD3D12() noexcept
+		{
+			
+		}
+
+		void Init(VeRendererD3D12& kRenderer) noexcept
+		{
+			
+		}
+
+		void Term() noexcept
+		{
+
+		}
+
+		VeRefNode<StaticVBufferD3D12*> m_kNode;
+		ID3D12Resource* m_pkBuffer = nullptr;
+		VeVector<D3D12_VERTEX_BUFFER_VIEW> m_kViewList;
 
 	};
 
@@ -296,6 +333,10 @@ public:
 
 	virtual void Term() noexcept override;
 
+	virtual void BeginSyncCopy() noexcept override;
+
+	virtual void EndSyncCopy() noexcept override;
+
 	virtual VeRenderWindowPtr CreateRenderWindow(const VeWindowPtr& spWindow) noexcept override;
 
 	virtual bool IsSupported(const VeChar8* pcPlatform) noexcept override;
@@ -344,7 +385,7 @@ protected:
 	ID3D12Fence* m_pkCopyFence = nullptr;
 	HANDLE m_kCopyFenceEvent = nullptr;
 	VeUInt64 m_u64CopyFenceValue = 0;
-	VeTaskQueue m_kCopyQueue;
+	bool m_bHasCopyTask = false;
 
 	RTVHeap m_kRTVHeap;
 	DSVHeap m_kDSVHeap;

@@ -59,7 +59,7 @@ public:
 		VeNoCopy(DynamicCBuffer);
 		VeRTTIDecl(DynamicCBuffer);
 	public:
-		VeSizeT GetSize() noexcept { return m_stSize; }
+		virtual VeSizeT GetSize() noexcept = 0;
 
 		virtual void* Map() noexcept = 0;
 
@@ -71,11 +71,23 @@ public:
 		DynamicCBuffer() noexcept = default;
 		virtual ~DynamicCBuffer() noexcept = default;
 
-		VeSizeT m_stSize = 0;
-
 	};
 
 	typedef VePointer<DynamicCBuffer> DynamicCBufferPtr;
+
+	class VE_MAIN_API StaticVBuffer : public VeRefObject
+	{
+		VeNoCopy(StaticVBuffer);
+		VeRTTIDecl(StaticVBuffer);
+	public:
+
+	protected:
+		StaticVBuffer() noexcept = default;
+		virtual ~StaticVBuffer() noexcept = default;
+
+	};
+
+	typedef VePointer<StaticVBuffer> StaticVBufferPtr;
 
 	inline API GetAPI() const noexcept;
 
@@ -89,6 +101,10 @@ public:
 	virtual bool Init() noexcept = 0;
 
 	virtual void Term() noexcept = 0;
+
+	virtual void BeginSyncCopy() noexcept = 0;
+
+	virtual void EndSyncCopy() noexcept = 0;
 
 	virtual VeRenderWindowPtr CreateRenderWindow(const VeWindowPtr& spWindow) noexcept = 0;
 
@@ -108,6 +124,8 @@ public:
 	virtual PipelineStatePtr CreatePipelineState(VeJSONValue& kConfig) noexcept = 0;
 
 	virtual DynamicCBufferPtr CreateDynamicCBuffer(VeSizeT stSize) noexcept = 0;
+
+	//virtual StaticVBufferPtr CreateStaticVBuffer(const VeSizeT* pstSize)
 
 protected:
 	VeRenderer(API eType) noexcept;

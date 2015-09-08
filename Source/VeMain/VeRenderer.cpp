@@ -23,6 +23,8 @@ VeRTTIImpl(VeRenderer::PipelineState);
 //--------------------------------------------------------------------------
 VeRTTIImpl(VeRenderer::DynamicCBuffer);
 //--------------------------------------------------------------------------
+VeRTTIImpl(VeRenderer::StaticVBuffer);
+//--------------------------------------------------------------------------
 VeRenderer::VeRenderer(API eType) noexcept
 	: m_eType(eType)
 {

@@ -81,9 +81,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 			kEventCache.clear();
 			ve_sys.Update();
 			ve_engine.Update();
+			ve_renderer_ptr->BeginSyncCopy();
+			ve_renderer_ptr->EndSyncCopy();
 
 			if (spRenderWindow)
 			{
+
 				static VeFloat32 s_f32TimeCount(0);
 				static VeUInt32 s_u32FrameCount(0);
 				static VeUInt32 s_u32FPS;

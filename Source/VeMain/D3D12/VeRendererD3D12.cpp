@@ -136,6 +136,32 @@ void VeRendererD3D12::Term() noexcept
 	TermParsers();
 }
 //--------------------------------------------------------------------------
+void VeRendererD3D12::BeginSyncCopy() noexcept
+{
+	const VeUInt64 u64LastCompleted = m_pkCopyFence->GetCompletedValue();
+	if (u64LastCompleted < m_u64CopyFenceValue)
+	{
+		VE_ASSERT_GE(m_pkCopyFence->SetEventOnCompletion(
+			m_u64CopyFenceValue, m_kCopyFenceEvent), S_OK);
+		WaitForSingleObject(m_kCopyFenceEvent, INFINITE);
+	}
+	if (m_bHasCopyTask)
+	{
+		VE_ASSERT_GE(m_pkCopyAllocator->Reset(), S_OK);
+		VE_ASSERT_GE(m_pkCopyCommandList->Reset(m_pkCopyAllocator, nullptr), S_OK);
+		m_bHasCopyTask = false;
+	}
+}
+//--------------------------------------------------------------------------
+void VeRendererD3D12::EndSyncCopy() noexcept
+{
+	if (m_bHasCopyTask)
+	{
+		m_pkCopyQueue->ExecuteCommandLists(1, (ID3D12CommandList*const*)&m_pkCopyCommandList);
+		VE_ASSERT_GE(m_pkCopyQueue->Signal(m_pkCopyFence, ++m_u64CopyFenceValue), S_OK);
+	}
+}
+//--------------------------------------------------------------------------
 VeRenderWindowPtr VeRendererD3D12::CreateRenderWindow(
 	const VeWindowPtr& spWindow) noexcept
 {
@@ -1257,13 +1283,16 @@ void VeRendererD3D12::InitCopyQueue() noexcept
 		D3D12_FENCE_FLAG_SHARED, __uuidof(ID3D12Fence), (void**)&m_pkCopyFence), S_OK);
 	m_kCopyFenceEvent = CreateEventEx(nullptr, FALSE, FALSE, EVENT_ALL_ACCESS);
 	VE_ASSERT(m_kCopyFenceEvent);
+	VE_ASSERT_GE(m_pkCopyQueue->Signal(m_pkCopyFence, m_u64CopyFenceValue), S_OK);
+	VE_ASSERT_GE(m_pkCopyFence->SetEventOnCompletion(m_u64CopyFenceValue, m_kCopyFenceEvent), S_OK);
+	WaitForSingleObject(m_kCopyFenceEvent, INFINITE);
+	m_bHasCopyTask = false;
 }
 //--------------------------------------------------------------------------
 void VeRendererD3D12::TermCopyQueue() noexcept
 {
-	while (m_kCopyQueue.HasTask()) ;	
 	const VeUInt64 u64LastCompleted = m_pkCopyFence->GetCompletedValue();
-	VE_ASSERT_GE(m_pkCopyQueue->Signal(m_pkCopyFence, m_u64CopyFenceValue), S_OK);
+	VE_ASSERT_GE(m_pkCopyQueue->Signal(m_pkCopyFence, ++m_u64CopyFenceValue), S_OK);
 	if (u64LastCompleted < m_u64CopyFenceValue)
 	{
 		VE_ASSERT_GE(m_pkCopyFence->SetEventOnCompletion(

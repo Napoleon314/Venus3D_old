@@ -57,12 +57,8 @@ public:
 		ID3D12DescriptorHeap* ppHeaps[] = { kRenderer.m_kSRVHeap.Get() };
 		kFrame.m_pkDirectList->SetDescriptorHeaps(1, ppHeaps);
 
-
 		kFrame.m_pkDirectList->SetGraphicsRootDescriptorTable(
-			0, kRenderer.m_kDyanmicCBufferList.get_head_node()->m_Content->GetActive());
-
-
-		
+			0, kRenderer.m_kDyanmicCBufferList.get_head_node()->m_Content->GetActive());		
 
 		D3D12_RESOURCE_BARRIER kBarrier;
 		kBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
@@ -92,10 +88,15 @@ public:
 
 		VE_ASSERT_GE(kFrame.m_pkDirectList->Close(), S_OK);
 
+		if (kRenderer.m_bHasCopyTask)
+		{
+			m_pkCommandQueue->Wait(kRenderer.m_pkCopyFence, kRenderer.m_u64CopyFenceValue);
+		}
+
 		ID3D12CommandList* ppCommandLists[] = { kFrame.m_pkDirectList };
 		m_pkCommandQueue->ExecuteCommandLists(1, ppCommandLists);		
 
-		VE_ASSERT_GE(m_pkSwapChain->Present(1, 0), S_OK);
+		VE_ASSERT_GE(m_pkSwapChain->Present(0, 0), S_OK);
 
 		m_u32FrameIndex = m_pkSwapChain->GetCurrentBackBufferIndex();
 
