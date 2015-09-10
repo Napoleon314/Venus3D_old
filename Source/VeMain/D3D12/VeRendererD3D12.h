@@ -22,6 +22,33 @@
 
 #define D3D_COMPLIER "d3dcompiler_47"
 
+inline D3D12_HEAP_PROPERTIES HeapProp(D3D12_HEAP_TYPE eType) noexcept
+{
+	return{ eType,D3D12_CPU_PAGE_PROPERTY_UNKNOWN,D3D12_MEMORY_POOL_UNKNOWN,0,0 };
+}
+
+inline D3D12_RESOURCE_DESC BufferDesc(VeUInt32 u32Size) noexcept
+{
+	return{ D3D12_RESOURCE_DIMENSION_BUFFER,0,u32Size,1,1,1,DXGI_FORMAT_UNKNOWN,{ 1,0 },D3D12_TEXTURE_LAYOUT_ROW_MAJOR,D3D12_RESOURCE_FLAG_NONE };
+}
+
+inline D3D12_RESOURCE_BARRIER BarrierTransition(
+	ID3D12Resource* pkResource,
+	D3D12_RESOURCE_STATES eStateBefore,
+	D3D12_RESOURCE_STATES eStateAfter,
+	UINT u32Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES,
+	D3D12_RESOURCE_BARRIER_FLAGS eFlags = D3D12_RESOURCE_BARRIER_FLAG_NONE) noexcept
+{
+	D3D12_RESOURCE_BARRIER result;
+	result.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+	result.Flags = eFlags;
+	result.Transition.pResource = pkResource;
+	result.Transition.StateBefore = eStateBefore;
+	result.Transition.StateAfter = eStateAfter;
+	result.Transition.Subresource = u32Subresource;
+	return result;
+}
+
 class VeRendererD3D12 : public VeRenderer
 {
 	VeNoCopy(VeRendererD3D12);
@@ -91,161 +118,6 @@ public:
 
 		VeRefNode<PipelineStateD3D12*> m_kNode;
 		ID3D12PipelineState* m_pkPipelineState = nullptr;
-
-	};
-
-	class DynamicCBufferD3D12 : public DynamicCBuffer
-	{
-		VeNoCopy(DynamicCBufferD3D12);
-		VeRTTIDecl(DynamicCBufferD3D12, DynamicCBuffer);
-	public:
-		DynamicCBufferD3D12(VeSizeT stSize) noexcept
-		{
-			m_kNode.m_Content = this;
-			m_stSize = (stSize + 255) & (~255);
-		}
-
-		virtual ~DynamicCBufferD3D12() noexcept
-		{
-			Term();
-		}
-
-		void Init(VeRendererD3D12& kRenderer) noexcept
-		{
-			D3D12_HEAP_PROPERTIES kHeapProp =
-			{
-				D3D12_HEAP_TYPE_UPLOAD,
-				D3D12_CPU_PAGE_PROPERTY_UNKNOWN,
-				D3D12_MEMORY_POOL_UNKNOWN,
-				0,
-				0
-			};
-			D3D12_RESOURCE_DESC kResDesc =
-			{
-				D3D12_RESOURCE_DIMENSION_BUFFER,
-				0,
-				m_stSize * FRAME_COUNT,
-				1,
-				1,
-				1,
-				DXGI_FORMAT_UNKNOWN,
-				{ 1, 0 },
-				D3D12_TEXTURE_LAYOUT_ROW_MAJOR,
-				D3D12_RESOURCE_FLAG_NONE
-			};
-			VE_ASSERT_GE(kRenderer.m_pkDevice->CreateCommittedResource(
-				&kHeapProp, D3D12_HEAP_FLAG_NONE, &kResDesc,
-				D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
-				__uuidof(ID3D12Resource), (void**)&m_pkResource), S_OK);
-			VE_ASSERT_GE(m_pkResource->Map(0, nullptr, &m_pvMappedBuffer), S_OK);
-			VE_ASSERT(!(((VeSizeT)m_pvMappedBuffer) & 0xf));
-			for (VeUInt32 i(0); i < FRAME_COUNT; ++i)
-			{
-				m_ahCBV[i].m_u32Offset = kRenderer.m_kSRVHeap.Alloc();
-				m_ahCBV[i].m_kCPUHandle.ptr = kRenderer.m_kSRVHeap.GetCPUStart().ptr + m_ahCBV[i].m_u32Offset;
-				m_ahCBV[i].m_kGPUHandle.ptr = kRenderer.m_kSRVHeap.GetGPUStart().ptr + m_ahCBV[i].m_u32Offset;
-				D3D12_CONSTANT_BUFFER_VIEW_DESC kCBVDesc = {
-					m_pkResource->GetGPUVirtualAddress() + i * m_stSize,
-					(UINT)m_stSize
-				};
-				kRenderer.m_pkDevice->CreateConstantBufferView(&kCBVDesc, m_ahCBV[i].m_kCPUHandle);
-			}
-			kRenderer.m_kDyanmicCBufferList.attach_back(m_kNode);
-		}
-
-		void Term() noexcept
-		{
-			if (m_kNode.is_attach())
-			{
-				VeRendererD3D12& kRenderer = *VeMemberCast(
-					&VeRendererD3D12::m_kDyanmicCBufferList, m_kNode.get_list());
-
-				for (VeUInt32 i(FRAME_COUNT-1); i < FRAME_COUNT; --i)
-				{
-					kRenderer.m_kSRVHeap.Free(m_ahCBV[i].m_u32Offset);
-				}
-				m_pvMappedBuffer = nullptr;
-				m_pkResource->Unmap(0, nullptr);
-				VE_SAFE_RELEASE(m_pkResource);
-			}
-		}
-
-		void* GetActiveBuffer() noexcept
-		{
-			return (VeByte*)m_pvMappedBuffer + m_stSize * m_u32Active;
-		}
-
-		D3D12_GPU_DESCRIPTOR_HANDLE GetActive() noexcept
-		{
-			return m_ahCBV[m_u32Active].m_kGPUHandle;
-		}
-
-		virtual void* Map() noexcept override
-		{
-			if ((++m_u32Active) >= FRAME_COUNT)
-				m_u32Active -= FRAME_COUNT;
-			return GetActiveBuffer();
-		}
-
-		virtual void Unmap() noexcept override
-		{
-
-		}
-
-		virtual void Update(void* pvData) noexcept override
-		{
-			if ((++m_u32Active) >= FRAME_COUNT)
-				m_u32Active -= FRAME_COUNT;
-			VeCrazyCopy(GetActiveBuffer(), pvData, m_stSize);
-		}
-
-		virtual VeSizeT GetSize() noexcept override
-		{
-			return m_stSize;
-		}
-		
-		VeRefNode<DynamicCBufferD3D12*> m_kNode;
-		VeSizeT m_stSize = 0;
-		ID3D12Resource* m_pkResource = nullptr;
-		void* m_pvMappedBuffer = nullptr;
-		struct  
-		{
-			VeUInt32 m_u32Offset;
-			D3D12_CPU_DESCRIPTOR_HANDLE m_kCPUHandle;
-			D3D12_GPU_DESCRIPTOR_HANDLE m_kGPUHandle;
-		} m_ahCBV[FRAME_COUNT];
-		VeUInt32 m_u32Active = FRAME_COUNT - 1;
-
-	};
-
-	class StaticVBufferD3D12 : public StaticVBuffer
-	{
-		VeNoCopy(StaticVBufferD3D12);
-		VeRTTIDecl(StaticVBufferD3D12, StaticVBuffer);
-	public:
-		StaticVBufferD3D12() noexcept
-		{
-			m_kNode.m_Content = this;
-		}
-
-		virtual ~StaticVBufferD3D12() noexcept
-		{
-			
-		}
-
-		void Init(VeRendererD3D12& kRenderer) noexcept
-		{
-			
-		}
-
-		void Term() noexcept
-		{
-
-		}
-
-		VeRefNode<StaticVBufferD3D12*> m_kNode;
-		ID3D12Resource* m_pkBuffer = nullptr;
-		VeVector<D3D12_VERTEX_BUFFER_VIEW> m_kViewList;
 
 	};
 
@@ -358,10 +230,14 @@ public:
 
 	PipelineStatePtr CreateComputePipelineState(VeJSONValue& kConfig) noexcept;
 
-	virtual DynamicCBufferPtr CreateDynamicCBuffer(VeSizeT stSize) noexcept override;
+	virtual VeRenderBufferPtr CreateBuffer(VeRenderBuffer::Type eType,
+		VeRenderBuffer::Useage eUse, VeUInt32 u32Size) noexcept override;
 
 protected:
 	friend class VeRenderWindowD3D12;
+	friend class VeRenderBufferD3D12;
+	friend class VeStaticBufferD3D12;
+	friend class VeDynamicBufferD3D12;
 
 	void InitParsers() noexcept;
 
@@ -385,16 +261,17 @@ protected:
 	ID3D12Fence* m_pkCopyFence = nullptr;
 	HANDLE m_kCopyFenceEvent = nullptr;
 	VeUInt64 m_u64CopyFenceValue = 0;
-	bool m_bHasCopyTask = false;
+	VeVector<ID3D12Resource*> m_kCopyResList;
 
 	RTVHeap m_kRTVHeap;
 	DSVHeap m_kDSVHeap;
 	SRVHeap m_kSRVHeap;
 
 	VeRefList<VeRenderWindowD3D12*> m_kRenderWindowList;
+	VeRefList<VeRenderBufferD3D12*> m_kRenderBufferList;
+
 	VeRefList<RootSignatureD3D12*> m_kRootSignatureList;
 	VeRefList<PipelineStateD3D12*> m_kPipelineStateList;
-	VeRefList<DynamicCBufferD3D12*> m_kDyanmicCBufferList;
 
 	HRESULT (WINAPI* D3D12GetDebugInterface)(
 		_In_ REFIID riid, _COM_Outptr_opt_ void** ppvDebug) = nullptr;

@@ -125,57 +125,14 @@ void VeRenderWindowD3D12::Init(VeRendererD3D12& kRenderer) noexcept
 	m_kScissorRect.bottom = m_spTargetWindow->GetHeight();
 
 	{
-		VE_FLOAT3 triangleVertices[] =
-		{
-			{ -100.0f, 100.0f, 0.0f },
-			{ 100.0f, -100.0f, 0.0f },
-			{ 100.0f, 100.0f, 0.0f }
-		};
-
-		const UINT vertexBufferSize = sizeof(triangleVertices);
-
-		D3D12_HEAP_PROPERTIES kHeapProp = {};
-		kHeapProp.Type = D3D12_HEAP_TYPE_UPLOAD;
-		kHeapProp.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
-		kHeapProp.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
-		kHeapProp.CreationNodeMask = 0;
-		kHeapProp.VisibleNodeMask = 0;
-
-		D3D12_RESOURCE_DESC kResDesc = {};
-		kResDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-		kResDesc.Alignment = 0;
-		kResDesc.Width = vertexBufferSize;
-		kResDesc.Height = 1;
-		kResDesc.DepthOrArraySize = 1;
-		kResDesc.MipLevels = 1;
-		kResDesc.Format = DXGI_FORMAT_UNKNOWN;
-		kResDesc.SampleDesc.Count = 1;
-		kResDesc.SampleDesc.Quality = 0;
-		kResDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-		kResDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
-		
-		VE_ASSERT_GE(kRenderer.m_pkDevice->CreateCommittedResource(
-			&kHeapProp,
-			D3D12_HEAP_FLAG_NONE,
-			&kResDesc,
-			D3D12_RESOURCE_STATE_GENERIC_READ,
-			nullptr,
-			IID_PPV_ARGS(&m_vertexBuffer)), S_OK);
-
-		UINT8* pVertexDataBegin;
-		VE_ASSERT_GE(m_vertexBuffer->Map(0, nullptr, reinterpret_cast<void**>(&pVertexDataBegin)), S_OK);
-		memcpy(pVertexDataBegin, triangleVertices, sizeof(triangleVertices));
-		m_vertexBuffer->Unmap(0, nullptr);
-
-		m_vertexBufferView.BufferLocation = m_vertexBuffer->GetGPUVirtualAddress();
+		m_vertexBufferView.BufferLocation = kRenderer.m_kRenderBufferList.get_tail_node()->m_Content->m_pkResource->GetGPUVirtualAddress();
 		m_vertexBufferView.StrideInBytes = sizeof(VE_FLOAT3);
-		m_vertexBufferView.SizeInBytes = vertexBufferSize;
+		m_vertexBufferView.SizeInBytes = kRenderer.m_kRenderBufferList.get_head_node()->m_Content->GetSize();
 	}
 }
 //--------------------------------------------------------------------------
 void VeRenderWindowD3D12::Term() noexcept
 {
-	VE_SAFE_RELEASE(m_vertexBuffer);
 	if (m_kNode.is_attach())
 	{
 		VeRendererD3D12& kRenderer = *VeMemberCast(

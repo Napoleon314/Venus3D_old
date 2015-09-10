@@ -77,7 +77,7 @@ public:
 
 	virtual bool IsValid() noexcept;
 
-	virtual void Update() noexcept = 0;
+	virtual void Update(void* pvCBuffer, void* pvVBuffer) noexcept = 0;
 
 protected:
 	friend class VeRenderer;

@@ -12,6 +12,8 @@
 //  http://www.venusie.com
 ////////////////////////////////////////////////////////////////////////////
 
+#include "VeRenderBufferD3D12.h"
+
 class VeRenderWindowD3D12 : public VeRenderWindow
 {
 	VeNoCopy(VeRenderWindowD3D12);
@@ -27,7 +29,7 @@ public:
 
 	virtual bool IsValid() noexcept override;
 
-	virtual void Update() noexcept override
+	virtual void Update(void* pvCBuffer, void* pvVBuffer) noexcept override
 	{
 		VE_ASSERT(m_kNode.is_attach());
 		VeRendererD3D12& kRenderer = *VeMemberCast(
@@ -53,12 +55,13 @@ public:
 		kFrame.m_pkDirectList->RSSetViewports(1, &m_kViewport);
 		kFrame.m_pkDirectList->RSSetScissorRects(1, &m_kScissorRect);
 
-		//VeRendererD3D12::DynamicCBufferD3D12* pkCB = kRenderer.m_kDyanmicCBufferList.get_head_node()->m_Content;
 		ID3D12DescriptorHeap* ppHeaps[] = { kRenderer.m_kSRVHeap.Get() };
 		kFrame.m_pkDirectList->SetDescriptorHeaps(1, ppHeaps);
 
+		VeDynamicBufferD3D12* pkCB = (VeDynamicBufferD3D12*)pvCBuffer;
+
 		kFrame.m_pkDirectList->SetGraphicsRootDescriptorTable(
-			0, kRenderer.m_kDyanmicCBufferList.get_head_node()->m_Content->GetActive());		
+			0, pkCB->m_pkCBView[pkCB->m_u32Active].m_kGPUHandle);
 
 		D3D12_RESOURCE_BARRIER kBarrier;
 		kBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
@@ -88,7 +91,7 @@ public:
 
 		VE_ASSERT_GE(kFrame.m_pkDirectList->Close(), S_OK);
 
-		if (kRenderer.m_bHasCopyTask)
+		if (kRenderer.m_kCopyResList.size())
 		{
 			m_pkCommandQueue->Wait(kRenderer.m_pkCopyFence, kRenderer.m_u64CopyFenceValue);
 		}
@@ -120,7 +123,6 @@ protected:
 	D3D12_VIEWPORT m_kViewport;
 	D3D12_RECT m_kScissorRect;
 
-	ID3D12Resource* m_vertexBuffer = nullptr;
 	D3D12_VERTEX_BUFFER_VIEW m_vertexBufferView;
 
 	ID3D12Fence* m_pkFence = nullptr;

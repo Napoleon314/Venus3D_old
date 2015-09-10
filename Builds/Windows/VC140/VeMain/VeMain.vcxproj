@@ -296,6 +296,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\..\Source\VeMain\D3D12\VeRenderBufferD3D12.h" />
     <ClInclude Include="..\..\..\..\Source\VeMain\D3D12\VeRendererD3D12.h" />
     <ClInclude Include="..\..\..\..\Source\VeMain\D3D12\VeRendererWindowD3D12.h" />
     <ClInclude Include="..\..\..\..\Source\VeMain\VeEngine.h" />
@@ -312,6 +313,7 @@
     <ClInclude Include="..\..\..\..\Source\VeMain\VePixel.h" />
     <ClInclude Include="..\..\..\..\Source\VeMain\VeQuaternion.h" />
     <ClInclude Include="..\..\..\..\Source\VeMain\VeRect.h" />
+    <ClInclude Include="..\..\..\..\Source\VeMain\VeRenderBuffer.h" />
     <ClInclude Include="..\..\..\..\Source\VeMain\VeRenderer.h" />
     <ClInclude Include="..\..\..\..\Source\VeMain\VeRenderWindow.h" />
     <ClInclude Include="..\..\..\..\Source\VeMain\VeRootSignature.h" />
@@ -326,6 +328,16 @@
     <ClInclude Include="..\..\..\..\Source\VeMain\Windows\WindowsVideo.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\..\Source\VeMain\D3D12\VeRenderBufferD3D12.cpp">
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../VeMainPch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ReleaseLib|Win32'">../VeMainPch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='DebugLib|Win32'">../VeMainPch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../VeMainPch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../VeMainPch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ReleaseLib|x64'">../VeMainPch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='DebugLib|x64'">../VeMainPch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../VeMainPch.h</PrecompiledHeaderFile>
+    </ClCompile>
     <ClCompile Include="..\..\..\..\Source\VeMain\D3D12\VeRendererD3D12.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../VeMainPch.h</PrecompiledHeaderFile>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ReleaseLib|Win32'">../VeMainPch.h</PrecompiledHeaderFile>
@@ -367,6 +379,7 @@
     <ClCompile Include="..\..\..\..\Source\VeMain\VePixel.cpp" />
     <ClCompile Include="..\..\..\..\Source\VeMain\VeQuaternion.cpp" />
     <ClCompile Include="..\..\..\..\Source\VeMain\VeRect.cpp" />
+    <ClCompile Include="..\..\..\..\Source\VeMain\VeRenderBuffer.cpp" />
     <ClCompile Include="..\..\..\..\Source\VeMain\VeRenderer.cpp" />
     <ClCompile Include="..\..\..\..\Source\VeMain\VeRenderWindow.cpp" />
     <ClCompile Include="..\..\..\..\Source\VeMain\VeRootSignature.cpp" />
@@ -410,6 +423,7 @@
     <None Include="..\..\..\..\Source\VeMain\VePixel.inl" />
     <None Include="..\..\..\..\Source\VeMain\VeQuaternion.inl" />
     <None Include="..\..\..\..\Source\VeMain\VeRect.inl" />
+    <None Include="..\..\..\..\Source\VeMain\VeRenderBuffer.inl" />
     <None Include="..\..\..\..\Source\VeMain\VeRenderer.inl" />
     <None Include="..\..\..\..\Source\VeMain\VeRenderWindow.inl" />
     <None Include="..\..\..\..\Source\VeMain\VeRootSignature.inl" />

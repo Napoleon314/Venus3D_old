@@ -15,6 +15,7 @@
 #include "../VeMainPch.h"
 #include "VeRendererD3D12.h"
 #include "VeRendererWindowD3D12.h"
+#include "VeRenderBufferD3D12.h"
 
 //--------------------------------------------------------------------------
 #ifdef VE_ENABLE_D3D12
@@ -24,8 +25,6 @@ VeRTTIImpl(VeRendererD3D12, VeRenderer);
 VeRTTIImpl(VeRendererD3D12::RootSignatureD3D12, VeRenderer::RootSignature);
 //--------------------------------------------------------------------------
 VeRTTIImpl(VeRendererD3D12::PipelineStateD3D12, VeRenderer::PipelineState);
-//--------------------------------------------------------------------------
-VeRTTIImpl(VeRendererD3D12::DynamicCBufferD3D12, VeRenderer::DynamicCBuffer);
 //--------------------------------------------------------------------------
 VeRendererD3D12::VeRendererD3D12() noexcept
 	: VeRenderer(API_D3D12)
@@ -100,16 +99,16 @@ bool VeRendererD3D12::Init() noexcept
 //--------------------------------------------------------------------------
 void VeRendererD3D12::Term() noexcept
 {
-	for (auto win : m_kRenderWindowList)
+	for (auto obj : m_kRenderWindowList)
 	{
-		win->Term();
+		obj->Term();
 	}
 	VE_ASSERT(m_kRenderWindowList.empty());
-	for (auto cb : m_kDyanmicCBufferList)
+	for (auto obj : m_kRenderBufferList)
 	{
-		cb->Term();
+		obj->Term();
 	}
-	VE_ASSERT(m_kDyanmicCBufferList.empty());
+	VE_ASSERT(m_kRenderBufferList.empty());
 	for (auto obj : m_kRootSignatureList)
 	{
 		VE_SAFE_RELEASE(obj->m_pkRootSignature);
@@ -145,18 +144,23 @@ void VeRendererD3D12::BeginSyncCopy() noexcept
 			m_u64CopyFenceValue, m_kCopyFenceEvent), S_OK);
 		WaitForSingleObject(m_kCopyFenceEvent, INFINITE);
 	}
-	if (m_bHasCopyTask)
+	if (m_kCopyResList.size())
 	{
+		for (auto res : m_kCopyResList)
+		{
+			res->Release();
+		}
+		m_kCopyResList.clear();
 		VE_ASSERT_GE(m_pkCopyAllocator->Reset(), S_OK);
 		VE_ASSERT_GE(m_pkCopyCommandList->Reset(m_pkCopyAllocator, nullptr), S_OK);
-		m_bHasCopyTask = false;
 	}
 }
 //--------------------------------------------------------------------------
 void VeRendererD3D12::EndSyncCopy() noexcept
 {
-	if (m_bHasCopyTask)
+	if (m_kCopyResList.size())
 	{
+		VE_ASSERT_GE(m_pkCopyCommandList->Close(), S_OK);
 		m_pkCopyQueue->ExecuteCommandLists(1, (ID3D12CommandList*const*)&m_pkCopyCommandList);
 		VE_ASSERT_GE(m_pkCopyQueue->Signal(m_pkCopyFence, ++m_u64CopyFenceValue), S_OK);
 	}
@@ -937,12 +941,22 @@ VeRenderer::PipelineStatePtr VeRendererD3D12::CreateComputePipelineState(
 	return nullptr;
 }
 //--------------------------------------------------------------------------
-VeRenderer::DynamicCBufferPtr VeRendererD3D12::CreateDynamicCBuffer(
-	VeSizeT stSize) noexcept
+VeRenderBufferPtr VeRendererD3D12::CreateBuffer(VeRenderBuffer::Type eType,
+	VeRenderBuffer::Useage eUse, VeUInt32 u32Size) noexcept
 {
-	DynamicCBufferD3D12* pkCBuffer = VE_NEW DynamicCBufferD3D12(stSize);
-	pkCBuffer->Init(*this);
-	return pkCBuffer;
+	if (eType == VeRenderBuffer::TYPE_STATIC)
+	{
+		VeStaticBufferD3D12* pkBuffer = VE_NEW VeStaticBufferD3D12(eUse, u32Size);
+		pkBuffer->Init(*this);
+		return pkBuffer;
+	}
+	else if (eType == VeRenderBuffer::TYPE_DYNAMIC)
+	{
+		VeDynamicBufferD3D12* pkBuffer = VE_NEW VeDynamicBufferD3D12(eUse, u32Size);
+		pkBuffer->Init(*this);
+		return pkBuffer;
+	}
+	return nullptr;
 }
 //--------------------------------------------------------------------------
 void VeRendererD3D12::InitParsers() noexcept
@@ -1286,7 +1300,6 @@ void VeRendererD3D12::InitCopyQueue() noexcept
 	VE_ASSERT_GE(m_pkCopyQueue->Signal(m_pkCopyFence, m_u64CopyFenceValue), S_OK);
 	VE_ASSERT_GE(m_pkCopyFence->SetEventOnCompletion(m_u64CopyFenceValue, m_kCopyFenceEvent), S_OK);
 	WaitForSingleObject(m_kCopyFenceEvent, INFINITE);
-	m_bHasCopyTask = false;
 }
 //--------------------------------------------------------------------------
 void VeRendererD3D12::TermCopyQueue() noexcept
@@ -1298,6 +1311,11 @@ void VeRendererD3D12::TermCopyQueue() noexcept
 		VE_ASSERT_GE(m_pkCopyFence->SetEventOnCompletion(
 			m_u64CopyFenceValue, m_kCopyFenceEvent), S_OK);
 		WaitForSingleObject(m_kCopyFenceEvent, INFINITE);
+		for (auto res : m_kCopyResList)
+		{
+			res->Release();
+		}
+		m_kCopyResList.clear();
 	}
 	CloseHandle(m_kCopyFenceEvent);
 	VE_SAFE_RELEASE(m_pkCopyFence);
