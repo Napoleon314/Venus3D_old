@@ -35,6 +35,10 @@ public:
 	virtual BOOL SupportsOptions(int ext, DWORD options);
 	virtual int	DoExport(const TCHAR *name, ExpInterface *ei, Interface *i, BOOL suppressPrompts = FALSE, DWORD options = 0);
 
+	void Parse(IGameMesh* pkMesh) noexcept;
+
+	//VeMaxMesh m_kMesh;
+
 };
 
 #define VE_EXPORT_CLASS_ID Class_ID(0x4a984915, 0x6d317c5a)

@@ -141,7 +141,7 @@ inline VeFloat32 VeDistance(const VeVector2& kVector0, const VeVector2& kVector1
 
 inline VeFloat32 VeDistanceSquared(const VeVector2& kVector0, const VeVector2& kVector1) noexcept;
 
-class VE_MAIN_API alignas(16) VeVector2A : public VeMemA16Object
+class VE_MAIN_API alignas(16) VeVector2A : public VeMemObject
 {
 public:
 	union

@@ -219,7 +219,7 @@ enum
 
 class VeRGBA;
 
-class VE_MAIN_API alignas(16) VeColor : public VeMemA16Object
+class VE_MAIN_API alignas(16) VeColor : public VeMemObject
 {
 public:
 	union
@@ -281,6 +281,10 @@ public:
 	inline VeColor& operator /= (const VeColor& c) noexcept;
 
 	inline void Clamp() noexcept;
+
+	inline void SetZero() noexcept;
+
+	inline void Set(VeFloat32 f32R, VeFloat32 f32G, VeFloat32 f32B, VeFloat32 f32A = 1.0f) noexcept;
 
 	inline void Scale() noexcept;
 

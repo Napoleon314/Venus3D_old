@@ -182,7 +182,10 @@ public:
 	virtual VeDirectoryPtr Open(const VeChar8* pcPath,
 		bool bTryCreate = true) const noexcept override;
 
-	virtual VeBinaryIStreamPtr OpenSync(
+	virtual VeBinaryIStreamPtr OpenIStream(
+		const VeChar8* pcFile) const noexcept override;
+
+	virtual VeBinaryOStreamPtr OpenOStream(
 		const VeChar8* pcFile) const noexcept override;
 
 	virtual void ReadAsync(const VeChar8* pcFile,
@@ -199,7 +202,9 @@ public:
 	static VeDirectoryPtr Create(const VeChar8* pcPath,
 		bool bTryCreate = true) noexcept;
 
-	static VeBinaryIStreamPtr CreateStream(const VeChar8* pcPath) noexcept;
+	static VeBinaryIStreamPtr CreateIStream(const VeChar8* pcPath) noexcept;
+
+	static VeBinaryOStreamPtr CreateOStream(const VeChar8* pcPath) noexcept;
 
 private:
 	VeFixedString m_kPath;

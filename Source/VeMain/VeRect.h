@@ -19,7 +19,7 @@ struct VePoint
 	VeInt32 x = 0, y = 0;
 };
 
-class VE_MAIN_API VeRect : public VeMemA16Object
+class VE_MAIN_API alignas(16) VeRect : public VeMemObject
 {
 public:
 	VeInt32 x = 0, y = 0, w = 0, h = 0;

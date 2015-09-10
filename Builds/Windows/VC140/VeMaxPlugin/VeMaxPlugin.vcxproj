@@ -67,7 +67,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(ADSK_3DSMAX_SDK_2016)\lib\x64\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>VeMain.lib;VePower.lib;core.lib;geom.lib;gfx.lib;mesh.lib;maxutil.lib;maxscrpt.lib;paramblk2.lib;igame.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>VeMain.lib;VePower.lib;comctl32.lib;core.lib;geom.lib;gfx.lib;mesh.lib;maxutil.lib;maxscrpt.lib;paramblk2.lib;msxml2.lib;igame.lib;assetmanagement.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ModuleDefinitionFile>VeMaxPlugin.def</ModuleDefinitionFile>
     </Link>
   </ItemDefinitionGroup>
@@ -90,7 +90,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>$(ADSK_3DSMAX_SDK_2016)\lib\x64\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>VeMain.lib;VePower.lib;core.lib;geom.lib;gfx.lib;mesh.lib;maxutil.lib;maxscrpt.lib;paramblk2.lib;igame.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>VeMain.lib;VePower.lib;comctl32.lib;core.lib;geom.lib;gfx.lib;mesh.lib;maxutil.lib;maxscrpt.lib;paramblk2.lib;msxml2.lib;igame.lib;assetmanagement.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ModuleDefinitionFile>VeMaxPlugin.def</ModuleDefinitionFile>
     </Link>
   </ItemDefinitionGroup>
@@ -101,11 +101,17 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugLib|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseLib|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\Source\VeMaxPlugin\VeMaxSceneLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\Source\VeMaxPlugin\VeMaxEntry.h" />
     <ClInclude Include="..\..\..\..\Source\VeMaxPlugin\VeExportClass.h" />
     <ClInclude Include="..\..\..\..\Source\VeMaxPlugin\stdafx.h" />
+    <ClInclude Include="..\..\..\..\Source\VeMaxPlugin\VeMaxMix.h" />
+    <ClInclude Include="..\..\..\..\Source\VeMaxPlugin\VeMaxNormalRender.h" />
+    <ClInclude Include="..\..\..\..\Source\VeMaxPlugin\VeMaxScene.h" />
+    <ClInclude Include="..\..\..\..\Source\VeMaxPlugin\VeMaxSceneLoader.h" />
+    <ClInclude Include="..\..\..\..\Source\VeMaxPlugin\VeMaxSerializer.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="VeMaxPlugin.def" />

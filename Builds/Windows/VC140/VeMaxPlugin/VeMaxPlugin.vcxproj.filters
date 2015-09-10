@@ -11,6 +11,9 @@
     <Filter Include="Classes">
       <UniqueIdentifier>{896f4af0-24bb-4d24-82c7-70261c555a23}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Kernel">
+      <UniqueIdentifier>{24e98708-35c1-40f0-9c61-2768686d425e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\Source\VeMaxPlugin\stdafx.cpp">
@@ -22,6 +25,9 @@
     <ClCompile Include="..\..\..\..\Source\VeMaxPlugin\VeExportClass.cpp">
       <Filter>Classes</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\Source\VeMaxPlugin\VeMaxSceneLoader.cpp">
+      <Filter>Kernel</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\Source\VeMaxPlugin\stdafx.h">
@@ -32,6 +38,21 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\Source\VeMaxPlugin\VeExportClass.h">
       <Filter>Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\VeMaxPlugin\VeMaxSerializer.h">
+      <Filter>Kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\VeMaxPlugin\VeMaxScene.h">
+      <Filter>Kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\VeMaxPlugin\VeMaxSceneLoader.h">
+      <Filter>Kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\VeMaxPlugin\VeMaxMix.h">
+      <Filter>Kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\VeMaxPlugin\VeMaxNormalRender.h">
+      <Filter>Kernel</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

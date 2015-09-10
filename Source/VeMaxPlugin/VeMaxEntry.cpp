@@ -51,6 +51,78 @@ ClassDesc* VeMaxEntry::GetClass(VeInt32 i32Index) noexcept
 	return nullptr;
 }
 //--------------------------------------------------------------------------
+VeFixedString ToStr(const TCHAR* pcStr) noexcept
+{
+	VeChar8* pcBuffer = nullptr;
+	VeInt32 i32Size;
+#	ifdef _UNICODE
+	i32Size = WideCharToMultiByte(CP_UTF8, 0, pcStr, -1, 0, 0, 0, FALSE);
+	if (i32Size > 0)
+	{
+		pcBuffer = VeStackAlloc(VeChar8, i32Size + 1);
+		WideCharToMultiByte(CP_UTF8, 0, pcStr,
+			-1, pcBuffer, i32Size, 0, FALSE);
+	}
+#	else
+	i32Size = (VeInt32)VeStrlen(pcStr);
+	if (i32Size > 0)
+	{
+		pcBuffer = VeStackAlloc(VeChar8, i32Size + 1);
+		VeStrcpy(pcBuffer, i32Size + 1, pcStr);
+	}
+#	endif
+	VeFixedString kRes;
+	if (pcBuffer)
+	{
+		kRes = pcBuffer;
+		VeStackFree(pcBuffer);
+		pcBuffer = nullptr;
+	}
+	return kRes;
+}
+//--------------------------------------------------------------------------
+VeFixedString ToStrReplaceIegality(const TCHAR* pcStr) noexcept
+{
+	VeChar8* pcBuffer = nullptr;
+	VeInt32 i32Size;
+#	ifdef _UNICODE
+	i32Size = WideCharToMultiByte(CP_UTF8, 0, pcStr, -1, 0, 0, 0, FALSE);
+	if (i32Size > 0)
+	{
+		pcBuffer = VeStackAlloc(VeChar8, i32Size + 1);
+		WideCharToMultiByte(CP_UTF8, 0, pcStr,
+			-1, pcBuffer, i32Size, 0, FALSE);
+	}
+#	else
+	i32Size = (VeInt32)VeStrlen(pcStr);
+	if (i32Size > 0)
+	{
+		pcBuffer = VeStackAlloc(VeChar8, i32Size + 1);
+		VeStrcpy(pcBuffer, i32Size + 1, pcStr);
+	}
+#	endif
+	VeFixedString kRes;
+	if (pcBuffer)
+	{
+		{
+			VeChar8* pcTemp = pcBuffer;
+			while (*pcTemp)
+			{
+				VeChar8 c = *pcTemp;
+				if (c == ' ' || c == '/' || c == '\\' || c == ':' || c == '#' || c == '.')
+				{
+					*pcTemp = '_';
+				}
+				++pcTemp;
+			}
+		}
+		kRes = pcBuffer;
+		VeStackFree(pcBuffer);
+		pcBuffer = nullptr;
+	}
+	return kRes;
+}
+//--------------------------------------------------------------------------
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, ULONG fdwReason, LPVOID)
 {
 	if (fdwReason == DLL_PROCESS_ATTACH)
@@ -87,6 +159,7 @@ VE_MAX_EXPORT int LibInitialize(void)
 	VeSystem::Create(VeSystem::TYPE_DEFAULT, "com.VenusIE.VeMaxPlugin");
 	VeEngine::Create();
 	VeMaxEntry::Create();
+	VeMaxSceneLoader::Create();
 	ve_sys.Init();
 	ve_engine.Init();
 	ve_max_ent.Init();
@@ -98,6 +171,7 @@ VE_MAX_EXPORT int LibShutdown(void)
 	ve_max_ent.Term();
 	ve_engine.Term();
 	ve_sys.Term();
+	VeMaxSceneLoader::Destory();
 	VeMaxEntry::Destory();
 	VeEngine::Destory();
 	VeSystem::Destory();

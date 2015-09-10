@@ -88,7 +88,7 @@ public:
 	virtual VeDirectoryPtr Open(const VeChar8* pcPath,
 		bool bTryCreate = true) const noexcept;
 
-	virtual VeBinaryIStreamPtr OpenSync(
+	virtual VeBinaryIStreamPtr OpenIStream(
 		const VeChar8* pcFile) const noexcept;
 
 	virtual void ReadAsync(const VeChar8* pcFile,

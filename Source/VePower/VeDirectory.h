@@ -54,8 +54,9 @@ public:
 	virtual VeDirectoryPtr Open(const VeChar8* pcPath,
 		bool bTryCreate = true) const noexcept = 0;
 
-	virtual VeBinaryIStreamPtr OpenSync(
-		const VeChar8* pcFile) const noexcept = 0;
+	virtual VeBinaryIStreamPtr OpenIStream(const VeChar8* pcFile) const noexcept { return nullptr; }
+
+	virtual VeBinaryOStreamPtr OpenOStream(const VeChar8* pcFile) const noexcept { return nullptr; };
 
 	virtual void ReadAsync(const VeChar8* pcFile,
 		ReadCallback kCallback) const noexcept = 0;

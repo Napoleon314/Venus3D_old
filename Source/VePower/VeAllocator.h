@@ -394,10 +394,21 @@ class _Alloc = venus::pool_allocator<_Kty>>
 class VeSet : public std::set<_Kty, _Pr, _Alloc> {};
 
 template<class _Kty,
+class _Pr = std::less<_Kty>,
+class _Alloc = venus::pool_allocator < _Kty >>
+class VeMultiSet : public std::multiset<_Kty, _Pr, _Alloc> {};
+
+template<class _Kty,
 class _Ty,
 class _Pr = std::less<_Kty>,
 class _Alloc = venus::pool_allocator<std::pair<const _Kty, _Ty>>>
 class VeMap : public std::map<_Kty, _Ty, _Pr, _Alloc> {};
+
+template<class _Kty,
+class _Ty,
+class _Pr = std::less<_Kty>,
+class _Alloc = venus::pool_allocator<std::pair<const _Kty, _Ty>>>
+class VeMultiMap : public std::multimap<_Kty, _Ty, _Pr, _Alloc> {};
 
 template<class _Kty,
 class _Hasher = std::hash<_Kty>,

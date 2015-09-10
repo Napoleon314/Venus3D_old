@@ -191,6 +191,8 @@ VE_MAIN_API void VeSrand(VeUInt32 u32Seed) noexcept;
 
 VE_MAIN_API VeInt32 VeRand() noexcept;
 
+
+
 #include "VeMathSIMD.inl"
 #include "VeMathConvert.inl"
 #include "VeMathVector.inl"

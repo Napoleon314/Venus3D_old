@@ -97,25 +97,47 @@ void VeResourceManager::UnregistDirCreator(const VeChar8* pcName) noexcept
 	}
 }
 //--------------------------------------------------------------------------
-void VeResourceManager::SetDefaultStreamCreator(
-	StreamCreator kCreator) noexcept
+void VeResourceManager::SetDefaultIStreamCreator(
+	IStreamCreator kCreator) noexcept
 {
-	m_kDefaultStreamCreator = kCreator;
+	m_kDefaultIStreamCreator = kCreator;
 }
 //--------------------------------------------------------------------------
-void VeResourceManager::RegistStreamCreator(const VeChar8* pcName,
-	StreamCreator kCreator) noexcept
+void VeResourceManager::RegistIStreamCreator(const VeChar8* pcName,
+	IStreamCreator kCreator) noexcept
 {
-	m_kStreamCreatorMap[pcName] = kCreator;
+	m_kIStreamCreatorMap[pcName] = kCreator;
 }
 //--------------------------------------------------------------------------
-void VeResourceManager::UnregistStreamCreator(
+void VeResourceManager::UnregistIStreamCreator(
 	const VeChar8* pcName) noexcept
 {
-	auto it = m_kStreamCreatorMap.find(pcName);
-	if (it != m_kStreamCreatorMap.end())
+	auto it = m_kIStreamCreatorMap.find(pcName);
+	if (it != m_kIStreamCreatorMap.end())
 	{
-		m_kStreamCreatorMap.erase(it);
+		m_kIStreamCreatorMap.erase(it);
+	}
+}
+//--------------------------------------------------------------------------
+void VeResourceManager::SetDefaultOStreamCreator(
+	OStreamCreator kCreator) noexcept
+{
+	m_kDefaultOStreamCreator = kCreator;
+}
+//--------------------------------------------------------------------------
+void VeResourceManager::RegistOStreamCreator(const VeChar8* pcName,
+	OStreamCreator kCreator) noexcept
+{
+	m_kOStreamCreatorMap[pcName] = kCreator;
+}
+//--------------------------------------------------------------------------
+void VeResourceManager::UnregistOStreamCreator(
+	const VeChar8* pcName) noexcept
+{
+	auto it = m_kOStreamCreatorMap.find(pcName);
+	if (it != m_kOStreamCreatorMap.end())
+	{
+		m_kOStreamCreatorMap.erase(it);
 	}
 }
 //--------------------------------------------------------------------------
@@ -141,7 +163,7 @@ VeDirectoryPtr VeResourceManager::CreateDir(const VeChar8* pcPath,
 	return nullptr;
 }
 //--------------------------------------------------------------------------
-VeBinaryIStreamPtr VeResourceManager::CreateStream(
+VeBinaryIStreamPtr VeResourceManager::CreateIStream(
 	const VeChar8* pcPath) noexcept
 {
 	VeChar8 acBuffer[VE_MAX_PATH_LEN];
@@ -150,15 +172,37 @@ VeBinaryIStreamPtr VeResourceManager::CreateStream(
 	VeChar8* pcTemp = VeStrtok(acBuffer, "#", &pcContext);
 	if (pcContext)
 	{
-		auto it = m_kStreamCreatorMap.find(pcTemp);
-		if (it != m_kStreamCreatorMap.end())
+		auto it = m_kIStreamCreatorMap.find(pcTemp);
+		if (it != m_kIStreamCreatorMap.end())
 		{
 			return it->second(pcContext);
 		}
 	}
 	else
 	{
-		return m_kDefaultStreamCreator(pcPath);
+		return m_kDefaultIStreamCreator(pcPath);
+	}
+	return nullptr;
+}
+//--------------------------------------------------------------------------
+VeBinaryOStreamPtr VeResourceManager::CreateOStream(
+	const VeChar8* pcPath) noexcept
+{
+	VeChar8 acBuffer[VE_MAX_PATH_LEN];
+	VeStrcpy(acBuffer, pcPath);
+	VeChar8* pcContext;
+	VeChar8* pcTemp = VeStrtok(acBuffer, "#", &pcContext);
+	if (pcContext)
+	{
+		auto it = m_kOStreamCreatorMap.find(pcTemp);
+		if (it != m_kOStreamCreatorMap.end())
+		{
+			return it->second(pcContext);
+		}
+	}
+	else
+	{
+		return m_kDefaultOStreamCreator(pcPath);
 	}
 	return nullptr;
 }
@@ -600,7 +644,7 @@ void VeResourceManager::FileCache::LoadSync() noexcept
 	m_spDir = m_spGroup->GetDir(m_kFileName);
 	if (m_spDir)
 	{
-		VeBinaryIStreamPtr spStream = m_spDir->OpenSync(m_kFileName);
+		VeBinaryIStreamPtr spStream = m_spDir->OpenIStream(m_kFileName);
 		VE_ASSERT(spStream);
 		VeSizeT stLen = spStream->RemainingLength();
 		VeBlobPtr spBlob = VE_NEW VeBlob(stLen);

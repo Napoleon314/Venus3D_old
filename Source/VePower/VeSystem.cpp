@@ -164,7 +164,8 @@ void VeSystem::TermResMgr() noexcept
 {
 	ve_res_mgr.UnregistFileCreator(VE_JSON_EXT);
 	ve_res_mgr.SetDefaultDirCreator(nullptr);
-	ve_res_mgr.SetDefaultStreamCreator(nullptr);
+	ve_res_mgr.SetDefaultIStreamCreator(nullptr);
+	ve_res_mgr.SetDefaultOStreamCreator(nullptr);
 #	ifdef VE_PLATFORM_ANDROID
 	ve_res_mgr.UnregistDirectory<VeFilePath>();
 	ve_res_mgr.UnregistDirectory<VeAssetPath>();

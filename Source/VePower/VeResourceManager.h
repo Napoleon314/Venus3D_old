@@ -32,7 +32,10 @@ public:
 		DirCreator;
 
 	typedef std::function<VeBinaryIStreamPtr(const VeChar8*)>
-		StreamCreator;
+		IStreamCreator;
+
+	typedef std::function<VeBinaryOStreamPtr(const VeChar8*)>
+		OStreamCreator;
 
 	class FileCache;
 	typedef VePointer<FileCache> FileCachePtr;
@@ -142,22 +145,31 @@ public:
 
 	void UnregistDirCreator(const VeChar8* pcName) noexcept;
 
-	void SetDefaultStreamCreator(StreamCreator kCreator) noexcept;
+	void SetDefaultIStreamCreator(IStreamCreator kCreator) noexcept;
 
-	void RegistStreamCreator(const VeChar8* pcName,
-		StreamCreator kCreator) noexcept;
+	void RegistIStreamCreator(const VeChar8* pcName,
+		IStreamCreator kCreator) noexcept;	
 
-	void UnregistStreamCreator(const VeChar8* pcName) noexcept;
+	void UnregistIStreamCreator(const VeChar8* pcName) noexcept;
+
+	void SetDefaultOStreamCreator(OStreamCreator kCreator) noexcept;
+
+	void RegistOStreamCreator(const VeChar8* pcName,
+		OStreamCreator kCreator) noexcept;
+
+	void UnregistOStreamCreator(const VeChar8* pcName) noexcept;
 
 	template <class _Ty>
 	void RegistDirectory(bool bDefault = false) noexcept
 	{
 		RegistDirCreator(_Ty::GetTypeName(), &_Ty::Create);
-		RegistStreamCreator(_Ty::GetTypeName(), &_Ty::CreateStream);
+		RegistIStreamCreator(_Ty::GetTypeName(), &_Ty::CreateIStream);
+		RegistOStreamCreator(_Ty::GetTypeName(), &_Ty::CreateOStream);
 		if (bDefault)
 		{
 			SetDefaultDirCreator(&_Ty::Create);
-			SetDefaultStreamCreator(&_Ty::CreateStream);
+			SetDefaultIStreamCreator(&_Ty::CreateIStream);
+			SetDefaultOStreamCreator(&_Ty::CreateOStream);
 		}
 	}
 
@@ -165,13 +177,16 @@ public:
 	void UnregistDirectory() noexcept
 	{
 		UnregistDirCreator(_Ty::GetTypeName());
-		UnregistStreamCreator(_Ty::GetTypeName());
+		UnregistIStreamCreator(_Ty::GetTypeName());
+		UnregistOStreamCreator(_Ty::GetTypeName());
 	}
 
 	VeDirectoryPtr CreateDir(const VeChar8* pcPath,
 		bool bTryCreate = true) noexcept;
 
-	VeBinaryIStreamPtr CreateStream(const VeChar8* pcPath) noexcept;
+	VeBinaryIStreamPtr CreateIStream(const VeChar8* pcPath) noexcept;
+
+	VeBinaryOStreamPtr CreateOStream(const VeChar8* pcPath) noexcept;
 
 	void RegistFileCreator(const VeChar8* pcExt, FileCreator kCreator, FileCreatorSync kCreatorSync) noexcept;
 
@@ -241,8 +256,10 @@ protected:
 	VeTaskQueue m_akTaskQueues[TASK_NUM];
 	DirCreator m_kDefaultDirCreator;
 	VeStringMap<DirCreator> m_kDirCreatorMap;
-	StreamCreator m_kDefaultStreamCreator;
-	VeStringMap<StreamCreator> m_kStreamCreatorMap;
+	IStreamCreator m_kDefaultIStreamCreator;
+	VeStringMap<IStreamCreator> m_kIStreamCreatorMap;
+	OStreamCreator m_kDefaultOStreamCreator;
+	VeStringMap<OStreamCreator> m_kOStreamCreatorMap;
 	VeStringMap<std::pair<FileCreator,FileCreatorSync>> m_kFileCreatorMap;	
 	VeStringMap<std::pair<JSONCreator,JSONCreatorSync>> m_kJSONCreatorMap;
 	VeStringMap<ResCreator> m_kResCreatorMap;

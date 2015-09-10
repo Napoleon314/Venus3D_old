@@ -19,6 +19,7 @@
 #define VeIsAlnum isalnum
 #define VeToLower tolower
 #define VeToSupper toupper
+#define VeAtoi atoi
 
 VE_POWER_API VeChar8* VeStrcpy(VeChar8* pcDest, VeSizeT stDestSize,
 	const VeChar8* pcSrc) noexcept;
@@ -400,6 +401,70 @@ inline VeChar8* VeStrstr<VeChar8>(VeChar8* _Str1,
 }
 
 template <class _Ty>
+inline _Ty* VeStrline(_Ty* _Str, _Ty** _Context) noexcept
+{
+	_Ty* _StrStart = _Str;
+	if ((!_StrStart) && _Context)
+	{
+		_StrStart = *_Context;
+	}
+	if (_StrStart)
+	{
+		_Ty* pcTemp = _StrStart;
+		while (pcTemp)
+		{
+			if ((*pcTemp == '\r') || (*pcTemp == '\n'))
+			{
+				break;
+			}				
+			else if (*pcTemp == '\0')
+			{
+				pcTemp = nullptr;
+				break;
+			}
+			else
+			{
+				++pcTemp;
+			}						
+		}		
+		if (pcTemp)
+		{
+			*(pcTemp++) = '\0';
+			if (_Context)
+			{
+				if (*pcTemp == '\n') ++pcTemp;
+				*_Context = pcTemp;
+			}
+			return _StrStart;
+		}
+		else if (*_StrStart)
+		{
+			if (_Context) *_Context = nullptr;
+			return _StrStart;
+		}
+		else
+		{
+			if (_Context) *_Context = nullptr;
+			return nullptr;
+		}
+	}
+	return nullptr;
+}
+
+template <class _Ty>
+inline _Ty* VeTrim(_Ty* _Str) noexcept
+{
+	VeSizeT i1 = VeStrlen(_Str);
+	VeSizeT i0(0);
+	while (i0 < i1 && VeIsSpace((int)_Str[i0]))
+		++i0;
+	while (i1 > 0 && VeIsSpace((int)_Str[i1-1]))
+		--i1;
+	_Str[i1] = 0;
+	return _Str + i0;
+}
+
+template <class _Ty>
 inline _Ty* VeStrtok(_Ty* _Str, const _Ty* _Delimit,
 	_Ty** _Context) noexcept
 {
@@ -431,13 +496,6 @@ inline _Ty* VeStrtok(_Ty* _Str, const _Ty* _Delimit,
 	}
 	return nullptr;
 }
-
-//typedef std::basic_string < VeChar8, std::char_traits<VeChar8>,
-//	venus::allocator < VeChar8 >> VeString;
-//typedef std::basic_string < VeChar16, std::char_traits<VeChar16>,
-//	venus::allocator < VeChar16 >> VeString16;
-//typedef std::basic_string < VeChar32, std::char_traits<VeChar32>,
-//	venus::allocator < VeChar32 >> VeString32;
 
 class VE_POWER_API VeFixedString : public VeMemObject
 {
@@ -564,6 +622,11 @@ private:
 	VeFixedString m_kEmpty;
 
 };
+
+template<class _Hasher = VeFixedString::Hash,
+class _Keyeq = std::equal_to<VeFixedString>,
+class _Alloc = venus::allocator <VeFixedString>>
+class VeStringSet : public std::unordered_set<VeFixedString, _Hasher, _Keyeq, _Alloc> {};
 
 template<class _Ty,
 class _Hasher = VeFixedString::Hash,

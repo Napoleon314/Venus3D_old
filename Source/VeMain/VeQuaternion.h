@@ -14,7 +14,7 @@
 
 #pragma once
 
-class VE_MAIN_API alignas(16) VeQuaternion : public VeMemA16Object
+class VE_MAIN_API alignas(16) VeQuaternion : public VeMemObject
 {
 public:
 	union

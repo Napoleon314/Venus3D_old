@@ -39,4 +39,8 @@ protected:
 
 };
 
+VeFixedString ToStr(const TCHAR* pcStr) noexcept;
+
+VeFixedString ToStrReplaceIegality(const TCHAR* pcStr) noexcept;
+
 #define ve_max_ent VeMaxEntry::GetSingleton()

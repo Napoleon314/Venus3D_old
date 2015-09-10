@@ -32,7 +32,7 @@ int VeExport::ExtCount()
 //--------------------------------------------------------------------------
 const TCHAR * VeExport::Ext(int n)
 {
-	return _T("JSON");
+	return _T("VMESH");
 }
 //--------------------------------------------------------------------------
 const TCHAR * VeExport::LongDesc()
@@ -80,11 +80,59 @@ BOOL VeExport::SupportsOptions(int ext, DWORD options)
 	return TRUE;
 }
 //--------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------
 int VeExport::DoExport(const TCHAR *name, ExpInterface *ei, Interface *i,
 	BOOL suppressPrompts, DWORD options)
 {
-	return FALSE;
+	VeFixedString kPath = ToStr(name);
+	VE_BOOL bRes = VE_FALSE;
+	if (scence_loader.Load(VE_MASK_HAS_ANY(options, SCENE_EXPORT_SELECTED)))
+	{
+		bRes = VE_TRUE;
+	}
+	return bRes;
 }
+//--------------------------------------------------------------------------
+void VeExport::Parse(IGameMesh* pkMesh) noexcept
+{
+	//m_kMesh.Reset();
+	/*bool bHasNormal = false;
+	{
+		Mesh* pkMaxMesh = pkMesh->GetMaxMesh();
+		if (pkMaxMesh && pkMaxMesh->normalCount > 0)
+			bHasNormal = true;
+	}
+
+	VeInt32 i32TangentMapChannel = -1;
+	{
+		for (VeInt32 i32MapChannel(-2); i32MapChannel <= 99; ++i32MapChannel)
+		{
+			if (pkMesh->GetNumberOfTangents(i32MapChannel) > 0)
+			{
+				i32TangentMapChannel = i32MapChannel;
+				break;
+			}
+		}
+	}
+
+	int faceTotalCount = 0;
+	auto matIDs = pkMesh->GetActiveMatIDs();
+	int matIDCount = matIDs.Count();
+	for (int matIdx = 0; matIdx < matIDCount; ++matIdx)
+	{
+		int matID = matIDs[matIdx];
+		auto faces = pkMesh->GetFacesFromMatID(matID);
+		int numFaces = faces.Count();
+		faceTotalCount += numFaces;
+		assert(numFaces > 0);
+
+		FaceEx* face = faces[0];
+
+
+	}*/
+}
+
 //--------------------------------------------------------------------------
 VeExportClassDesc VeExportClassDesc::ms_kInstance;
 //--------------------------------------------------------------------------

@@ -14,7 +14,7 @@
 
 #pragma once
 
-class VE_MAIN_API alignas(16) VeVector4 : public VeMemA16Object
+class VE_MAIN_API alignas(16) VeVector4 : public VeMemObject
 {
 public:
 	union

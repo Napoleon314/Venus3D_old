@@ -21,6 +21,25 @@
 #include <iparamm2.h>
 #include <maxtypes.h>
 #include <impexp.h>
+#include <triobj.h>
+#include <iskin.h>
+
+#include <CS/Phyexp.h>
+#include <CS/bipexp.h>
+#include <IGame/IGame.h>
+#include <IGame/IGameType.h>
+#include <IGame/IGameObject.h> 
+#include <IGame/IGameModifier.h>
+#if defined(MAX_RELEASE_R12_ALPHA) && MAX_RELEASE >= MAX_RELEASE_R12_ALPHA
+#include <IFileResolutionManager.h>
+#else
+#include <IPathConfigMgr.h>
+#endif
 
 #include "VeMaxEntry.h"
+#include "VeMaxMix.h"
+#include "VeMaxNormalRender.h"
+#include "VeMaxScene.h"
+#include "VeMaxSerializer.h"
 #include "VeExportClass.h"
+#include "VeMaxSceneLoader.h"

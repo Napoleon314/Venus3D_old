@@ -423,7 +423,7 @@ VeDirectoryPtr VeFilePath::Open(const VeChar8* pcPath,
 	return Create(acBuffer, bTryCreate);
 }
 //--------------------------------------------------------------------------
-VeBinaryIStreamPtr VeFilePath::OpenSync(
+VeBinaryIStreamPtr VeFilePath::OpenIStream(
 	const VeChar8* pcFile) const noexcept
 {
 	if (HasFile(pcFile))
@@ -431,6 +431,18 @@ VeBinaryIStreamPtr VeFilePath::OpenSync(
 		VeChar8 acBuffer[VE_MAX_PATH_LEN];
 		PATH_CAT(acBuffer, m_kPath, pcFile);
 		return VE_NEW VeFileIStream(acBuffer);
+	}
+	return nullptr;
+}
+//--------------------------------------------------------------------------
+VeBinaryOStreamPtr VeFilePath::OpenOStream(
+	const VeChar8* pcFile) const noexcept
+{
+	if (HasFile(pcFile))
+	{
+		VeChar8 acBuffer[VE_MAX_PATH_LEN];
+		PATH_CAT(acBuffer, m_kPath, pcFile);
+		return VE_NEW VeFileOStream(acBuffer);
 	}
 	return nullptr;
 }
@@ -594,7 +606,7 @@ VeDirectoryPtr VeFilePath::Create(const VeChar8* pcPath,
 	return nullptr;
 }
 //--------------------------------------------------------------------------
-VeBinaryIStreamPtr VeFilePath::CreateStream(const VeChar8* pcPath) noexcept
+VeBinaryIStreamPtr VeFilePath::CreateIStream(const VeChar8* pcPath) noexcept
 {
 	PathInfo kInfo;
 	if (TestPath(pcPath, kInfo))
@@ -605,6 +617,11 @@ VeBinaryIStreamPtr VeFilePath::CreateStream(const VeChar8* pcPath) noexcept
 		}
 	}
 	return nullptr;
+}
+//--------------------------------------------------------------------------
+VeBinaryOStreamPtr VeFilePath::CreateOStream(const VeChar8* pcPath) noexcept
+{
+	return VE_NEW VeFileOStream(pcPath);
 }
 //--------------------------------------------------------------------------
 VeFilePath::ReadTask::ReadTask(const VeChar8* pcFullPath,

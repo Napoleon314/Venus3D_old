@@ -178,6 +178,19 @@ inline void VeColor::Clamp() noexcept
 	VeStoreFloat4A(&v, vec);
 }
 //--------------------------------------------------------------------------
+inline void VeColor::SetZero() noexcept
+{
+	VE_VECTOR vec = VeVectorZero();
+	VeStoreFloat4A(&v, vec);
+}
+//--------------------------------------------------------------------------
+inline void VeColor::Set(VeFloat32 f32R, VeFloat32 f32G, VeFloat32 f32B,
+	VeFloat32 f32A) noexcept
+{
+	VE_VECTOR vec = VeVectorSet(f32R, f32G, f32B, f32A);
+	VeStoreFloat4A(&v, vec);
+}
+//--------------------------------------------------------------------------
 inline void VeColor::Scale() noexcept
 {
 	VeFloat32 f32Temp = VE_MAX(VE_MAX(r, g), b);
