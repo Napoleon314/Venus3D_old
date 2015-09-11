@@ -262,6 +262,7 @@
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"$(VENUS3D_PATH)/SDK/Include",
+					"$(VENUS3D_PATH)/Externals",
 				);
 				INFOPLIST_FILE = VePowerTest/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -296,6 +297,7 @@
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"$(VENUS3D_PATH)/SDK/Include",
+					"$(VENUS3D_PATH)/Externals",
 				);
 				INFOPLIST_FILE = VePowerTest/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
