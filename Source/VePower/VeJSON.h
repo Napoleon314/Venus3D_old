@@ -247,7 +247,7 @@ namespace rapidjson
 	};
 
 	template <class _Ty>
-	struct ValueTranslator : std::_If <
+	struct ValueTranslator : std::conditional <
 		std::is_enum<_Ty>::value,
 		EnumTranslator<_Ty>,
 		NormalTranslator<_Ty >>::type {};

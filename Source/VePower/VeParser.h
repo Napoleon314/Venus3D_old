@@ -95,7 +95,7 @@ public:
 	{
 		VeChar8 acBuffer[VE_MAX_PATH_LEN];
 		VeChar8* pcTemp = nullptr;
-		for (auto val : m_kValueList)
+		for (auto val : m_kValueMap)
 		{
 			if (VE_MASK_HAS_ALL(eFlags, val.first))
 			{
