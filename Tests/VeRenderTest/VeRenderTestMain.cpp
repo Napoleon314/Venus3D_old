@@ -28,6 +28,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
 	ve_res_mgr.SetupGroupFromJSON("{\"startup\":{\"r\":[\"file#shaders/cache\",\"file#shaders\"],\"w\":\"file#shaders/cache\"}}");
 
+	VeJSONDoc kDoc;
+	kDoc.Parse<0>("{\"startup\":{\"r\":[\"file#shaders/cache\",\"file#shaders\"],\"w\":\"file#shaders/cache\"}}");
+	VeJSONValue& val = kDoc["startup"];
+	auto a = val("r", "aa");
+
+
 	ve_res_mgr.LoadFile("startup$shaders.json");
 	ve_res_mgr.LoadFile("startup$root_signatures.json");
 	ve_res_mgr.LoadFile("startup$pipeline_states.json");

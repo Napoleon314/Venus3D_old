@@ -348,10 +348,10 @@ VeBlobPtr VeRendererD3D12::SerializeRootSignature(const VeChar8* pcName,
 						if (!kValueRange.IsObject()) return nullptr;
 
 						kRange.RangeType = VeToEnum(kValueRange, "type", m_kDescriptorRangeTypeParser, D3D12_DESCRIPTOR_RANGE_TYPE_SRV);
-						kRange.NumDescriptors = VeToNumber(kValueRange, "num", 0u);
-						kRange.BaseShaderRegister = VeToNumber(kValueRange, "register", 0u);
-						kRange.RegisterSpace = VeToNumber(kValueRange, "space", 0u);
-						kRange.OffsetInDescriptorsFromTableStart = VeToNumber(kValueRange, "offset", 0u);
+						kRange.NumDescriptors = kValueRange("num", 0u);
+						kRange.BaseShaderRegister = kValueRange("register", 0u);
+						kRange.RegisterSpace = kValueRange("space", 0u);
+						kRange.OffsetInDescriptorsFromTableStart = kValueRange("offset", 0u);
 					}
 				}
 				kParameter.ShaderVisibility = VeToEnum(kValue, "visibility", m_kShaderVisibilityParser, D3D12_SHADER_VISIBILITY_ALL);
@@ -359,17 +359,17 @@ VeBlobPtr VeRendererD3D12::SerializeRootSignature(const VeChar8* pcName,
 			break;
 			case D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS:
 			{
-				kParameter.Constants.Num32BitValues = VeToNumber(kValue, "num", 0u);
-				kParameter.Constants.ShaderRegister = VeToNumber(kValue, "register", 0u);
-				kParameter.Constants.RegisterSpace = VeToNumber(kValue, "space", 0u);
+				kParameter.Constants.Num32BitValues = kValue("num", 0u);
+				kParameter.Constants.ShaderRegister = kValue("register", 0u);
+				kParameter.Constants.RegisterSpace = kValue("space", 0u);
 			}
 			break;
 			case D3D12_ROOT_PARAMETER_TYPE_CBV:
 			case D3D12_ROOT_PARAMETER_TYPE_SRV:
 			case D3D12_ROOT_PARAMETER_TYPE_UAV:
 			{
-				kParameter.Descriptor.ShaderRegister = VeToNumber(kValue, "register", 0u);
-				kParameter.Descriptor.RegisterSpace = VeToNumber(kValue, "space", 0u);
+				kParameter.Descriptor.ShaderRegister = kValue("register", 0u);
+				kParameter.Descriptor.RegisterSpace = kValue("space", 0u);
 			}
 			break;
 			default:
@@ -392,14 +392,14 @@ VeBlobPtr VeRendererD3D12::SerializeRootSignature(const VeChar8* pcName,
 			kSampler.AddressU = VeToEnum(kValue, "addU", m_kTexAddressModeParser, D3D12_TEXTURE_ADDRESS_MODE_WRAP);
 			kSampler.AddressV = VeToEnum(kValue, "addV", m_kTexAddressModeParser, D3D12_TEXTURE_ADDRESS_MODE_WRAP);
 			kSampler.AddressW = VeToEnum(kValue, "addW", m_kTexAddressModeParser, D3D12_TEXTURE_ADDRESS_MODE_WRAP);
-			kSampler.MipLODBias = VeToNumber(kValue, "lod_bias", 0.0f);
-			kSampler.MaxAnisotropy = VeToNumber(kValue, "max_ani", 0u);
+			kSampler.MipLODBias = kValue("lod_bias", 0.0f);
+			kSampler.MaxAnisotropy = kValue("max_ani", 0u);
 			kSampler.ComparisonFunc = VeToEnum(kValue, "comp_func", m_kComparisonFuncParser, D3D12_COMPARISON_FUNC_ALWAYS);
 			kSampler.BorderColor = VeToEnum(kValue, "border_color", m_kStaticBorderColorParser, D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK);
-			kSampler.MinLOD = VeToNumber(kValue, "min_lod", 0.0f);
-			kSampler.MaxLOD = VeToNumber(kValue, "max_lod", D3D12_FLOAT32_MAX);
-			kSampler.ShaderRegister = VeToNumber(kValue, "register", 0u);
-			kSampler.RegisterSpace = VeToNumber(kValue, "space", 0u);
+			kSampler.MinLOD = kValue("min_lod", 0.0f);
+			kSampler.MaxLOD = kValue("max_lod", D3D12_FLOAT32_MAX);
+			kSampler.ShaderRegister = kValue("register", 0u);
+			kSampler.RegisterSpace = kValue("space", 0u);
 			kSampler.ShaderVisibility = VeToEnum(kValue, "visibility", m_kShaderVisibilityParser, D3D12_SHADER_VISIBILITY_ALL);
 		}
 	}	
@@ -473,7 +473,7 @@ VeRendererD3D12::RootSignaturePtr VeRendererD3D12::CreateRootSignature(
 VeRenderer::PipelineStatePtr VeRendererD3D12::CreatePipelineState(
 	VeJSONValue& kConfig) noexcept
 {
-	bool bGraphics = VeToBoolean(kConfig, "graphics", true);
+	bool bGraphics = kConfig("graphics", true);
 	return bGraphics ? CreateGraphicsPipelineState(kConfig)
 		: CreateComputePipelineState(kConfig);
 }
@@ -671,16 +671,16 @@ VeRenderer::PipelineStatePtr VeRendererD3D12::CreateGraphicsPipelineState(
 			{
 				bNeed = false;
 				VeJSONValue& kBlend = itBlend->value;
-				kDesc.BlendState.AlphaToCoverageEnable = VeToBool(kBlend, "alpha_to_coverage");
-				kDesc.BlendState.IndependentBlendEnable = VeToBool(kBlend, "independent");				
+				kDesc.BlendState.AlphaToCoverageEnable = kBlend("alpha_to_coverage", false);
+				kDesc.BlendState.IndependentBlendEnable = kBlend("independent", false);
 				auto itRTBlend = kBlend.FindMember("blend");
 				if (itRTBlend != kBlend.MemberEnd())
 				{
 					VeUInt32 u32Count(0);
 					if (itRTBlend->value.IsObject())
 					{						
-						kDesc.BlendState.RenderTarget[u32Count].BlendEnable = VeToBool(itRTBlend->value, "blend");
-						kDesc.BlendState.RenderTarget[u32Count].LogicOpEnable = VeToBool(itRTBlend->value, "logic_op");
+						kDesc.BlendState.RenderTarget[u32Count].BlendEnable = itRTBlend->value("blend", false);
+						kDesc.BlendState.RenderTarget[u32Count].LogicOpEnable = itRTBlend->value("logic_op", false);
 						kDesc.BlendState.RenderTarget[u32Count].SrcBlend = VeToEnum(itRTBlend->value, "src", m_kBlendParser, D3D12_BLEND_ZERO);
 						kDesc.BlendState.RenderTarget[u32Count].DestBlend = VeToEnum(itRTBlend->value, "dst", m_kBlendParser, D3D12_BLEND_ZERO);
 						kDesc.BlendState.RenderTarget[u32Count].BlendOp = VeToEnum(itRTBlend->value, "op", m_kBlendOpParser, D3D12_BLEND_OP_ADD);
@@ -719,8 +719,8 @@ VeRenderer::PipelineStatePtr VeRendererD3D12::CreateGraphicsPipelineState(
 							if (itRT->IsObject())
 							{
 								
-								kDesc.BlendState.RenderTarget[u32Count].BlendEnable = VeToBool(itRTBlend->value, "blend");
-								kDesc.BlendState.RenderTarget[u32Count].LogicOpEnable = VeToBool(itRTBlend->value, "logic_op");
+								kDesc.BlendState.RenderTarget[u32Count].BlendEnable = itRTBlend->value("blend", false);
+								kDesc.BlendState.RenderTarget[u32Count].LogicOpEnable = itRTBlend->value("logic_op", false);
 								kDesc.BlendState.RenderTarget[u32Count].SrcBlend = VeToEnum(itRTBlend->value, "src", m_kBlendParser, D3D12_BLEND_ZERO);
 								kDesc.BlendState.RenderTarget[u32Count].DestBlend = VeToEnum(itRTBlend->value, "dst", m_kBlendParser, D3D12_BLEND_ZERO);
 								kDesc.BlendState.RenderTarget[u32Count].BlendOp = VeToEnum(itRTBlend->value, "op", m_kBlendOpParser, D3D12_BLEND_OP_ADD);
@@ -768,7 +768,7 @@ VeRenderer::PipelineStatePtr VeRendererD3D12::CreateGraphicsPipelineState(
 		{
 			FillBlendState(kDesc.BlendState, REPLACE);
 		}
-		kDesc.SampleMask = VeToNumber(kConfig, "sample_mask", VE_UINT32_MAX);
+		kDesc.SampleMask = kConfig("sample_mask", VE_UINT32_MAX);
 	}
 	{
 		bool bNeed = true;
@@ -789,15 +789,15 @@ VeRenderer::PipelineStatePtr VeRendererD3D12::CreateGraphicsPipelineState(
 				bNeed = false;
 				kDesc.RasterizerState.FillMode = VeToEnum(itRaster->value, "fill_mode", m_kFillModeParser, D3D12_FILL_MODE_SOLID);
 				kDesc.RasterizerState.CullMode = VeToEnum(itRaster->value, "cull_mode", m_kCullModeParser, D3D12_CULL_MODE_BACK);
-				kDesc.RasterizerState.FrontCounterClockwise = VeToBool(itRaster->value, "front_ccw");
-				kDesc.RasterizerState.DepthBias = VeToNumber(itRaster->value, "depth_bias", 0);
-				kDesc.RasterizerState.DepthBiasClamp = VeToNumber(itRaster->value, "depth_bias_clamp", 0.0f);
-				kDesc.RasterizerState.SlopeScaledDepthBias = VeToNumber(itRaster->value, "slope_scaled_depth_bias", 0.0f);
-				kDesc.RasterizerState.DepthClipEnable = VeToBool(itRaster->value, "depth_clip", VE_TRUE);
-				kDesc.RasterizerState.MultisampleEnable = VeToBool(itRaster->value, "msaa");
-				kDesc.RasterizerState.AntialiasedLineEnable = VeToBool(itRaster->value, "aa_line");
-				kDesc.RasterizerState.ForcedSampleCount = VeToNumber(itRaster->value, "sample_count", 0u);
-				kDesc.RasterizerState.ConservativeRaster = VeToBool(itRaster->value, "conservative_raster") ? D3D12_CONSERVATIVE_RASTERIZATION_MODE_ON : D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
+				kDesc.RasterizerState.FrontCounterClockwise = itRaster->value("front_ccw", false);
+				kDesc.RasterizerState.DepthBias = itRaster->value("depth_bias", 0);
+				kDesc.RasterizerState.DepthBiasClamp = itRaster->value("depth_bias_clamp", 0.0f);
+				kDesc.RasterizerState.SlopeScaledDepthBias = itRaster->value("slope_scaled_depth_bias", 0.0f);
+				kDesc.RasterizerState.DepthClipEnable = itRaster->value("depth_clip", true);
+				kDesc.RasterizerState.MultisampleEnable = itRaster->value("msaa", false);
+				kDesc.RasterizerState.AntialiasedLineEnable = itRaster->value("aa_line", false);
+				kDesc.RasterizerState.ForcedSampleCount = itRaster->value("sample_count", 0u);
+				kDesc.RasterizerState.ConservativeRaster = itRaster->value("conservative_raster", false) ? D3D12_CONSERVATIVE_RASTERIZATION_MODE_ON : D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
 			}
 		}
 		if (bNeed)
@@ -822,12 +822,12 @@ VeRenderer::PipelineStatePtr VeRendererD3D12::CreateGraphicsPipelineState(
 			else if (itDepth->value.IsObject())
 			{
 				bNeed = false;
-				kDesc.DepthStencilState.DepthEnable = VeToBool(itDepth->value, "depth", VE_TRUE);
-				kDesc.DepthStencilState.DepthWriteMask = VeToBool(itDepth->value, "depth_write", VE_TRUE) ? D3D12_DEPTH_WRITE_MASK_ALL : D3D12_DEPTH_WRITE_MASK_ZERO;
+				kDesc.DepthStencilState.DepthEnable = itDepth->value("depth", true);
+				kDesc.DepthStencilState.DepthWriteMask = itDepth->value("depth_write", true) ? D3D12_DEPTH_WRITE_MASK_ALL : D3D12_DEPTH_WRITE_MASK_ZERO;
 				kDesc.DepthStencilState.DepthFunc = VeToEnum(itDepth->value, "depth_func", m_kComparisonFuncParser, D3D12_COMPARISON_FUNC_LESS_EQUAL);
-				kDesc.DepthStencilState.StencilEnable = VeToBool(itDepth->value, "stencil");
-				kDesc.DepthStencilState.StencilReadMask = (VeUInt8)VeToNumber(itDepth->value, "stencil_read", 0xffu);
-				kDesc.DepthStencilState.StencilWriteMask = (VeUInt8)VeToNumber(itDepth->value, "stencil_write", 0xffu);
+				kDesc.DepthStencilState.StencilEnable = itDepth->value("stencil", false);
+				kDesc.DepthStencilState.StencilReadMask = (VeUInt8)itDepth->value("stencil_read", 0xffu);
+				kDesc.DepthStencilState.StencilWriteMask = (VeUInt8)itDepth->value("stencil_write", 0xffu);
 				auto itStencilOp = itDepth->value.FindMember("stencil_op");
 				if (itStencilOp != itDepth->value.MemberEnd())
 				{
@@ -879,13 +879,13 @@ VeRenderer::PipelineStatePtr VeRendererD3D12::CreateGraphicsPipelineState(
 		{
 			D3D12_INPUT_ELEMENT_DESC& kElement = akElements[i];
 			VeJSONValue& kInputValue = itInput->value[i];
-			kElement.SemanticName = VeToString(kInputValue, "sem_name");
-			kElement.SemanticIndex = VeToNumber(kInputValue, "sem_index", 0u);
+			kElement.SemanticName = kInputValue("sem_name", "");
+			kElement.SemanticIndex = kInputValue("sem_index", 0u);
 			kElement.Format = VeToEnum(kInputValue, "format", m_kFormatParser, DXGI_FORMAT_UNKNOWN);
-			kElement.InputSlot = VeToNumber(kInputValue, "slot", 0u);
-			kElement.AlignedByteOffset = VeToNumber(kInputValue, "offset", 0u);
+			kElement.InputSlot = kInputValue("slot", 0u);
+			kElement.AlignedByteOffset = kInputValue("offset", 0u);
 			kElement.InputSlotClass = VeToEnum(kInputValue, "class", m_kInputClassParser, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA);
-			kElement.InstanceDataStepRate = VeToNumber(kInputValue, "step_rate", 0u);
+			kElement.InstanceDataStepRate = kInputValue("step_rate", 0u);
 		}
 	}
 	kDesc.IBStripCutValue = VeToEnum(kConfig, "ib_cut", m_kIBCutParser, D3D12_INDEX_BUFFER_STRIP_CUT_VALUE_DISABLED);
@@ -961,6 +961,14 @@ VeRenderBufferPtr VeRendererD3D12::CreateBuffer(VeRenderBuffer::Type eType,
 //--------------------------------------------------------------------------
 void VeRendererD3D12::InitParsers() noexcept
 {
+	VE_ENUM(BlendType,
+	{
+		{ REPLACE , "replace" },
+		{ ADD , "add" },
+		{ BLEND , "blend" }
+	});
+
+
 	m_kBlendTypeParser["replace"] = REPLACE;
 	m_kBlendTypeParser["add"] = ADD;
 	m_kBlendTypeParser["blend"] = BLEND;

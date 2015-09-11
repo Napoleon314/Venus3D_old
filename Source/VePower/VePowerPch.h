@@ -27,6 +27,7 @@
 #include "VeSingleton.h"
 #include "VeRefList.h"
 #include "VeString.h"
+#include "VeParser.h"
 #include "VeJSON.h"
 #include "VeTaskQueue.h"
 #include "VeLog.h"

@@ -16,7 +16,7 @@
 
 #define VE_LOG_BUFFER_SIZE (2048)
 
-class VE_POWER_API VeLog : public VeMemObject
+class VE_POWER_API VeLog : public VeRefObject
 {
 public:
 	enum Type
@@ -88,7 +88,7 @@ public:
 
 	VeLog();
 
-	~VeLog();
+	virtual ~VeLog();
 
 	inline void SetTarget(OutputFunc funcTarget) noexcept;
 
@@ -134,5 +134,7 @@ private:
 	VeSizeT m_stPointer = 0;
 
 };
+
+VeSmartPointer(VeLog);
 
 #include "VeLog.inl"

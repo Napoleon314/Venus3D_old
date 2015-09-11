@@ -56,13 +56,17 @@ public:
 	void Update() noexcept;
 
 private:
+	void InitParser() noexcept;
+
+	void TermParser() noexcept;
+
 	void InitLog() noexcept;
 
 	void TermLog() noexcept;
 
 	void InitResMgr() noexcept;
 
-	void TermResMgr() noexcept;
+	void TermResMgr() noexcept;	
 
 	const Type m_eType;
 	VeFixedString m_kPakName;

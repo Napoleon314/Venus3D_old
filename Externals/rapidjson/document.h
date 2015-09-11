@@ -404,6 +404,9 @@ template <typename T> struct IsGenericValue : IsGenericValueImpl<T>::Type {};
 
 } // namespace internal
 
+template <class _Ty>
+struct ValueTranslator;
+
 ///////////////////////////////////////////////////////////////////////////////
 // GenericValue
 
@@ -594,6 +597,17 @@ public:
             }
         }
     }
+
+	template<class _Ty>
+	_Ty operator () (const char* name, _Ty def)
+	{
+		auto iter = FindMember(name);
+		if (iter != MemberEnd())
+		{
+			return ValueTranslator<_Ty>::Trans(iter->value, def);
+		}
+		return def;		
+	}
 
     //@}
 
