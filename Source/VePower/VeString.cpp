@@ -147,6 +147,11 @@ VeFixedString::VeFixedString(const VeChar8* pcString) noexcept
 	m_kHandle = ve_str_tab.AddString(pcString);
 }
 //--------------------------------------------------------------------------
+VeFixedString::VeFixedString(const VeChar8* pcStr, VeUInt32 u32Len) noexcept
+{
+	m_kHandle = ve_str_tab.AddString(pcStr, u32Len);
+}
+//--------------------------------------------------------------------------
 VeFixedString::VeFixedString(const VeFixedString& kCopy) noexcept
 {
 	VeStringTable::IncRefCount(
@@ -352,6 +357,20 @@ const VeStringTable::StringHandle VeStringTable::AddString(
 		InsertString(kHandle, u32Hash);
 	}
 	return kHandle;
+}
+//--------------------------------------------------------------------------
+const VeStringTable::StringHandle VeStringTable::AddString(
+	const VeChar8* pcString, VeUInt32 u32Len) noexcept
+{
+	if (!pcString)
+		return nullptr;
+	VE_ASSERT(u32Len < VE_UINT16_MAX);
+	VeChar8* pcCopy = VeStackAlloc(VeChar8, u32Len + 1);
+	VeMemoryCopy(pcCopy, pcString, u32Len);
+	pcCopy[u32Len] = 0;
+	auto kRes = AddString(pcCopy);
+	VeStackFree(pcCopy);
+	return kRes;
 }
 //--------------------------------------------------------------------------
 VeSizeT VeStringTable::GetNumString() noexcept

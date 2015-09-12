@@ -56,7 +56,7 @@ class VeRendererD3D12 : public VeRenderer
 public:
 	static constexpr VeUInt32 FRAME_COUNT = 3;
 	static constexpr VeUInt32 RTV_COUNT = 32;
-	static constexpr VeUInt32 DSV_COUNT = 1;
+	static constexpr VeUInt32 DSV_COUNT = 16;
 	static constexpr VeUInt32 SRV_COUNT = 4096;
 
 	enum BlendType
@@ -239,9 +239,7 @@ protected:
 	friend class VeStaticBufferD3D12;
 	friend class VeDynamicBufferD3D12;
 
-	void InitParsers() noexcept;
-
-	void TermParsers() noexcept;
+	void InitEnums() noexcept;
 
 	void InitCopyQueue() noexcept;
 
@@ -296,30 +294,6 @@ protected:
 		CONST D3D_SHADER_MACRO* pDefines, ID3DInclude* pInclude,
 		LPCSTR pEntrypoint, LPCSTR pTarget, UINT Flags1, UINT Flags2,
 		ID3DBlob** ppCode, ID3DBlob** ppErrorMsgs) = nullptr;
-
-	VeStringMap<BlendType> m_kBlendTypeParser;
-	VeStringMap<RasterType> m_kRasterTypeParser;
-	VeStringMap<DepthStencilType> m_kDSTypeParser;
-
-	VeStringMap<D3D12_ROOT_PARAMETER_TYPE> m_kRootParameterTypeParser;
-	VeStringMap<D3D12_DESCRIPTOR_RANGE_TYPE> m_kDescriptorRangeTypeParser;
-	VeStringMap<D3D12_SHADER_VISIBILITY> m_kShaderVisibilityParser;
-	VeStringMap<D3D12_ROOT_SIGNATURE_FLAGS> m_kRootSignatureFlagsParser;
-	VeStringMap<D3D12_FILTER> m_kFilterParser;
-	VeStringMap<D3D12_TEXTURE_ADDRESS_MODE> m_kTexAddressModeParser;
-	VeStringMap<D3D12_COMPARISON_FUNC> m_kComparisonFuncParser;
-	VeStringMap<D3D12_STATIC_BORDER_COLOR> m_kStaticBorderColorParser;
-	VeStringMap<DXGI_FORMAT> m_kFormatParser;
-	VeStringMap<D3D12_INPUT_CLASSIFICATION> m_kInputClassParser;
-	VeStringMap<D3D12_BLEND> m_kBlendParser;
-	VeStringMap<D3D12_BLEND_OP> m_kBlendOpParser;
-	VeStringMap<D3D12_LOGIC_OP> m_kLogicOpParser;
-	VeStringMap<D3D12_COLOR_WRITE_ENABLE> m_kColorWriteParser;
-	VeStringMap<D3D12_FILL_MODE> m_kFillModeParser;
-	VeStringMap<D3D12_CULL_MODE> m_kCullModeParser;
-	VeStringMap<D3D12_STENCIL_OP> m_kStencilOpParser;
-	VeStringMap<D3D12_INDEX_BUFFER_STRIP_CUT_VALUE> m_kIBCutParser;
-	VeStringMap<D3D12_PRIMITIVE_TOPOLOGY_TYPE> m_kPrimTopoTypeParser;
 
 };
 

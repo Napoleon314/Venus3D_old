@@ -361,6 +361,7 @@
   <ItemGroup>
     <None Include="..\..\..\..\Source\VePower\VeAllocator.inl" />
     <None Include="..\..\..\..\Source\VePower\VeFile.inl" />
+    <None Include="..\..\..\..\Source\VePower\VeParser.inl" />
     <None Include="..\..\..\..\Source\VePower\VeResource.inl" />
     <None Include="..\..\..\..\Source\VePower\VeResourceGroup.inl" />
     <None Include="..\..\..\..\Source\VePower\VeTaskQueue.inl" />

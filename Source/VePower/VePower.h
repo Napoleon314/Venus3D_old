@@ -212,6 +212,9 @@ typedef double VeFloat64;
 #define VE_UINT64_MAX (0xffffffffffffffffui64)
 #define VE_SIZET_MAX ((VeSizeT)-1)
 
+#define VE_TMIN(t) ((t)0)
+#define VE_TMAX(t) ((t)VE_UINT32_MAX)
+
 #define VE_MAX_PATH_LEN (1024)
 
 #define VE_MASK(location) (VeUInt32(0x01<<(location)))

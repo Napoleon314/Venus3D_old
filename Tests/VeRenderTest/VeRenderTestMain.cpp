@@ -28,11 +28,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
 	ve_res_mgr.SetupGroupFromJSON("{\"startup\":{\"r\":[\"file#shaders/cache\",\"file#shaders\"],\"w\":\"file#shaders/cache\"}}");
 
-	VeJSONDoc kDoc;
-	kDoc.Parse<0>("{\"startup\":{\"r\":[\"file#shaders/cache\",\"file#shaders\"],\"w\":\"file#shaders/cache\"}}");
-	VeJSONValue& val = kDoc["startup"];
-	auto a = val("r", "aa");
-
+	VE_ASSERT(ve_parser.CalculateExpression("(20+10)*3/2-3") == 42.0);
+	VE_ASSERT(ve_parser.CalculateExpression("1 << 4") == 16.0);
+	VE_ASSERT(ve_parser.CalculateExpression("1+(-2*3)") == -5);
 
 	ve_res_mgr.LoadFile("startup$shaders.json");
 	ve_res_mgr.LoadFile("startup$root_signatures.json");
@@ -138,7 +136,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
 
 				static VeFloat32 s_Test = 0.0f;
-				s_Test += ve_time.GetDeltaTime() * 0.3f;
+				//s_Test += ve_time.GetDeltaTime() * 0.3f;
 
 				VE_FLOAT4A* pvData = (VE_FLOAT4A*)spCB->Map();
 				VE_VECTOR v = { 0, s_Test, 0.5f, 0.5f };

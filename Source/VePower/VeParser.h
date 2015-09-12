@@ -47,7 +47,7 @@ public:
 		auto it = m_kValueMap.find(_Ty(u32Value));
 		if (it != m_kValueMap.end())
 		{
-			return it->second;
+			return it->first;
 		}
 		return eDefault;
 	}
@@ -64,6 +64,7 @@ public:
 
 	_Ty ParseFlags(const VeChar8* pcStr, _Ty eStart) noexcept
 	{
+		VeUInt32 u32Flags = eStart;
 		VeChar8 acBuffer[VE_MAX_PATH_LEN];
 		VeStrcpy(acBuffer, pcStr);
 		VeChar8* pcContext;
@@ -74,11 +75,11 @@ public:
 			auto it = m_kNameMap.find(pcTemp);
 			if (it != m_kNameMap.end())
 			{
-				eStart |= it->second;
+				u32Flags |= it->second;
 			}
 			pcTemp = VeStrtok<VeChar8>(nullptr, "|", &pcContext);
 		}
-		return eStart;
+		return (_Ty)u32Flags;
 	}
 
 	VeFixedString EnumToStr(_Ty eFlags) noexcept
@@ -125,6 +126,29 @@ class VE_POWER_API VeParser : public VeSingleton<VeParser>
 {
 	VeNoCopy(VeParser);
 public:
+	enum TokenType
+	{
+		TYPE_NUMBER,
+		TYPE_STRING,
+		TYPE_MAX
+	};
+
+	struct TokenStr
+	{
+		const VeChar8* m_pcStr;
+		VeSizeT m_stLen;
+	};
+
+	struct Token
+	{
+		TokenType m_eType;
+		union
+		{
+			VeFloat32 m_f32Number;
+			TokenStr m_kString;
+		};
+	};
+
 	VeParser() noexcept;
 
 	virtual ~VeParser() noexcept;
@@ -135,35 +159,52 @@ public:
 		return eDefault;
 	}
 
-	/*template<class _Ty>
+	template<class _Ty>
+	_Ty ValueToEnum(VeUInt32 u32Value, _Ty eDefault) noexcept
+	{
+		return VeEnumParser<_Ty>::GetSingleton().ValueToEnum(u32Value, eDefault);
+	}
+
+	template<class _Ty>
 	_Ty ParseEnum(const VeChar8* pcStr, _Ty eDefault) noexcept
 	{
-		return VeEnumParser::GetSingleton().ParseEnum(pcStr, eDefault);
+		return VeEnumParser<_Ty>::GetSingleton().ParseEnum(pcStr, eDefault);
 	}
 
 	template<class _Ty>
 	_Ty ParseFlags(const VeChar8* pcStr, _Ty eStart) noexcept
 	{
-		return VeEnumParser::GetSingleton().ParseFlags(pcStr, eStart);
+		return VeEnumParser<_Ty>::GetSingleton().ParseFlags(pcStr, eStart);
 	}
 
 	template<class _Ty>
 	VeFixedString EnumToStr(_Ty eFlags) noexcept
 	{
-		return VeEnumParser::GetSingleton().EnumToStr(_Ty eFlags);
+		return VeEnumParser<_Ty>::GetSingleton().EnumToStr(_Ty eFlags);
 	}
 
 	template<class _Ty>
 	VeFixedString FlagsToStr(_Ty eFlags) noexcept
 	{
-		return VeEnumParser::GetSingleton().FlagsToStr(_Ty eFlags);
-	}*/
+		return VeEnumParser<_Ty>::GetSingleton().FlagsToStr(_Ty eFlags);
+	}
+
+	inline VeFloat32 GetValue(const VeChar8* pcName) noexcept;
+	
+	inline void SetValue(const VeChar8* pcName, VeFloat32 f32Value) noexcept;
 
 	void AddDestructor(std::function<void()> funcDest) noexcept;
 
+	VeFloat32 CalculateExpression(const VeChar8* pcExpr) noexcept;
+
 protected:
 	VeVector<std::function<void()>> m_kDestructList;
+	VeStringMap<VeInt32> m_kOpMap;
+	VeStringMap<VeFloat32> m_kValueMap;
+	
 
 };
 
 #define ve_parser VeParser::GetSingleton()
+
+#include "VeParser.inl"

@@ -83,10 +83,10 @@
     <ClCompile Include="..\..\..\..\Source\VePower\VeResource.cpp">
       <Filter>Resource</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\Source\VePower\VeJSON.cpp">
+    <ClCompile Include="..\..\..\..\Source\VePower\VeParser.cpp">
       <Filter>Parser</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\Source\VePower\VeParser.cpp">
+    <ClCompile Include="..\..\..\..\Source\VePower\VeJSON.cpp">
       <Filter>Parser</Filter>
     </ClCompile>
   </ItemGroup>
@@ -221,6 +221,9 @@
     </None>
     <None Include="..\..\..\..\Source\VePower\VeResource.inl">
       <Filter>Resource</Filter>
+    </None>
+    <None Include="..\..\..\..\Source\VePower\VeParser.inl">
+      <Filter>Parser</Filter>
     </None>
   </ItemGroup>
 </Project>

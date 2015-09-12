@@ -16,10 +16,14 @@
 
 #define VeIsAlpha isalpha
 #define VeIsSpace isspace
+#define VeIsDigit isdigit
 #define VeIsAlnum isalnum
 #define VeToLower tolower
 #define VeToSupper toupper
 #define VeAtoi atoi
+#define VeAtof atof
+#define VeStrtof strtof
+#define VeStrtod strtod
 
 VE_POWER_API VeChar8* VeStrcpy(VeChar8* pcDest, VeSizeT stDestSize,
 	const VeChar8* pcSrc) noexcept;
@@ -514,6 +518,8 @@ public:
 
 	VeFixedString(const VeChar8* pcString) noexcept;
 
+	VeFixedString(const VeChar8* pcStr, VeUInt32 u32Len) noexcept;
+
 	VeFixedString(const VeFixedString& kCopy) noexcept;
 
 	VeFixedString(VeFixedString&& kMove) noexcept;
@@ -577,6 +583,8 @@ public:
 	~VeStringTable() noexcept;
 
 	const StringHandle AddString(const VeChar8* pcString) noexcept;
+
+	const StringHandle AddString(const VeChar8* pcString, VeUInt32 u32Len) noexcept;
 
 	VeSizeT GetNumString() noexcept;
 

@@ -19,69 +19,6 @@
 typedef rapidjson::GenericDocument<rapidjson::UTF8<> > VeJSONDoc;
 typedef rapidjson::GenericValue<rapidjson::UTF8<> > VeJSONValue;
 
-template <class _Ty>
-inline _Ty VeToEnum(VeJSONValue& kValue, const VeChar8* pcName,
-	VeStringMap<_Ty>& kMap, _Ty tDefault) noexcept
-{
-	auto iter = kValue.FindMember(pcName);
-	if (iter != kValue.MemberEnd() && iter->value.IsString())
-	{
-		auto iterVal = kMap.find(iter->value.GetString());
-		if (iterVal != kMap.end())
-		{
-			return iterVal->second;
-		}
-	}
-	return tDefault;
-}
-
-template <class _Ty>
-inline _Ty VeToEnum(VeJSONValue& kValue, VeStringMap<_Ty>& kMap, _Ty tDefault) noexcept
-{
-	if (kValue.IsString())
-	{
-		auto iterVal = kMap.find(kValue.GetString());
-		if (iterVal != kMap.end())
-		{
-			return iterVal->second;
-		}
-	}
-	return tDefault;
-}
-
-//inline const VeChar8* VeToString(VeJSONValue& kValue, const VeChar8* pcName,
-//	const VeChar8* pcDefault = "") noexcept
-//{
-//	auto iter = kValue.FindMember(pcName);
-//	if (iter != kValue.MemberEnd() && iter->value.IsString())
-//	{
-//		return iter->value.GetString();
-//	}
-//	return pcDefault;
-//}
-
-//inline bool VeToBoolean(VeJSONValue& kValue, const VeChar8* pcName,
-//	bool bDefault = false) noexcept
-//{
-//	auto iter = kValue.FindMember(pcName);
-//	if (iter != kValue.MemberEnd() && iter->value.IsBool())
-//	{
-//		return iter->value.GetBool();
-//	}
-//	return bDefault;
-//}
-
-//inline VE_BOOL VeToBool(VeJSONValue& kValue, const VeChar8* pcName,
-//	VE_BOOL bDefault = VE_FALSE) noexcept
-//{
-//	auto iter = kValue.FindMember(pcName);
-//	if (iter != kValue.MemberEnd() && iter->value.IsBool())
-//	{
-//		return iter->value.GetBool() ? VE_TRUE : VE_FALSE;
-//	}
-//	return bDefault;
-//}
-
 #define VE_JSON_EXT { "json", "plist" }
 
 namespace rapidjson
@@ -96,11 +33,11 @@ namespace rapidjson
 		{
 			if (val.IsString())
 			{
-				return VeEnumParser<_Ty>::GetSingleton().EnumToStr(val.GetString(), def);
+				return ve_parser.ParseEnum(val.GetString(), def);
 			}
 			else if (val.IsUint())
 			{
-				return VeEnumParser<_Ty>::GetSingleton().ValueToEnum(val.GetUint(), def);
+				return ve_parser.ValueToEnum(val.GetUint(), def);
 			}
 			return def;
 		}
@@ -114,7 +51,7 @@ namespace rapidjson
 		{
 			if (val.IsString())
 			{
-				return ve_parser.Parse<_Ty>(val.GetString(), def);
+				return ve_parser.Parse(val.GetString(), def);
 			}
 			return def;
 		}
@@ -251,6 +188,15 @@ namespace rapidjson
 		std::is_enum<_Ty>::value,
 		EnumTranslator<_Ty>,
 		NormalTranslator<_Ty >>::type {};
+
+	template <typename _Ty, typename Encoding,
+		typename Allocator = MemoryPoolAllocator < >>
+		_Ty To(GenericValue<Encoding, Allocator>& val, _Ty def) noexcept
+	{
+		return ValueTranslator<_Ty>::Trans(val, def);
+	}
 }
 
-int VeJSON() noexcept;
+#define VeTo(val,def) rapidjson::To(val,def)
+
+VE_POWER_API VeJSONDoc operator "" _C(const VeChar8* pcStr, VeSizeT stNum) noexcept;

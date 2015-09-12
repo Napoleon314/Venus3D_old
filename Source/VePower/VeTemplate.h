@@ -75,6 +75,12 @@ public:
 		return _Stack[--_Pointer];
 	}
 
+	_Ty& top() noexcept
+	{
+		VE_ASSERT(_Pointer > 0);
+		return _Stack[_Pointer-1];
+	}
+
 	VeSizeT size() noexcept
 	{
 		return _Pointer;
