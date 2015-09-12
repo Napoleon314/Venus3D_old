@@ -37,4 +37,4 @@ protected:
 
 };
 
-#define ve_parallel VeParallel::GetSingleton()
+#define ve_paral VeParallel::GetSingleton()
