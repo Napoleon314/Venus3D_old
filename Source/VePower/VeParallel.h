@@ -21,10 +21,10 @@ public:
 
 	virtual ~VeParallel() noexcept;
 
-	void Do(std::function<void()> funcTask) noexcept;
+	void Do(std::function<void(VeUInt32)> funcTask) noexcept;
 
 protected:
-	std::function<void()> m_kTask;
+	std::function<void(VeUInt32)> m_kTask;
 	VeSizeT m_stThreadNum = 0;
 	std::thread* m_pkThreadArray = nullptr;
 	std::mutex m_kLoopMutex;

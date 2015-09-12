@@ -21,7 +21,7 @@ VeParallel::VeParallel() noexcept
 	m_pkThreadArray = VeAlloc(std::thread, m_stThreadNum);
 	for (VeSizeT i(0); i < m_stThreadNum; ++i)
 	{
-		new(m_pkThreadArray + i)std::thread([this]() noexcept
+		new(m_pkThreadArray + i)std::thread([this,i]() noexcept
 		{
 			do 
 			{
@@ -32,7 +32,7 @@ VeParallel::VeParallel() noexcept
 				}
 				if (m_kTask)
 				{
-					m_kTask();
+					m_kTask(VeUInt32(i));
 				}
 				if (m_u32Count.fetch_add(1, std::memory_order_relaxed) + 1 == m_stThreadNum)
 				{
@@ -64,7 +64,7 @@ VeParallel::~VeParallel() noexcept
 	m_stThreadNum = 0;
 }
 //--------------------------------------------------------------------------
-void VeParallel::Do(std::function<void()> funcTask) noexcept
+void VeParallel::Do(std::function<void(VeUInt32)> funcTask) noexcept
 {
 	m_kTask = funcTask;
 	m_u32Count.store(0, std::memory_order_relaxed);
