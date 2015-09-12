@@ -180,13 +180,13 @@ public:
 	template<class _Ty>
 	VeFixedString EnumToStr(_Ty eFlags) noexcept
 	{
-		return VeEnumParser<_Ty>::GetSingleton().EnumToStr(_Ty eFlags);
+		return VeEnumParser<_Ty>::GetSingleton().EnumToStr(eFlags);
 	}
 
 	template<class _Ty>
 	VeFixedString FlagsToStr(_Ty eFlags) noexcept
 	{
-		return VeEnumParser<_Ty>::GetSingleton().FlagsToStr(_Ty eFlags);
+		return VeEnumParser<_Ty>::GetSingleton().FlagsToStr(eFlags);
 	}
 
 	inline VeFloat32 GetValue(const VeChar8* pcName) noexcept;

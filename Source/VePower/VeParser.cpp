@@ -72,7 +72,7 @@ VeFloat32 VeParser::CalculateExpression(const VeChar8* pcExpr) noexcept
 				++pcExpr;
 			}
 			while (VeIsAlnum(*pcExpr) || (*pcExpr) == '_');
-			VeFixedString kStr(pcStr, pcExpr - pcStr);
+			VeFixedString kStr(pcStr, (VeUInt32)(pcExpr - pcStr));
 			auto it = m_kValueMap.find(kStr);
 			if (it == m_kValueMap.end())
 			{
