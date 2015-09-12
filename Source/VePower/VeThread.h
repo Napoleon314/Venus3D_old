@@ -101,7 +101,7 @@ public:
 	private:
 		std::mutex m_kMutex;
 		std::condition_variable m_kCondition;
-		volatile VeInt32 m_i32Count = 0;
+		VeInt32 m_i32Count = 0;
 
 	};
 

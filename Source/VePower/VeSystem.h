@@ -56,6 +56,10 @@ public:
 	void Update() noexcept;
 
 private:
+	void InitParallel() noexcept;
+
+	void TermParallel() noexcept;
+
 	void InitParser() noexcept;
 
 	void TermParser() noexcept;

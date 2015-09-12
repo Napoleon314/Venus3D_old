@@ -103,6 +103,7 @@ const VePoolAllocatorPtr& VeSystem::GetPoolAllocator(
 //--------------------------------------------------------------------------
 void VeSystem::Init() noexcept
 {
+	InitParallel();
 	InitParser();
 	InitLog();
 	InitResMgr();	
@@ -113,12 +114,23 @@ void VeSystem::Term() noexcept
 	TermResMgr();
 	TermLog();
 	TermParser();
+	TermParallel();
 }
 //--------------------------------------------------------------------------
 void VeSystem::Update() noexcept
 {
 	ve_time.Update();
 	ve_res_mgr.Update();
+}
+//--------------------------------------------------------------------------
+void VeSystem::InitParallel() noexcept
+{
+	VeParallel::Create();
+}
+//--------------------------------------------------------------------------
+void VeSystem::TermParallel() noexcept
+{
+	VeParallel::Destory();
 }
 //--------------------------------------------------------------------------
 void VeSystem::InitParser() noexcept

@@ -28,10 +28,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
 	ve_res_mgr.SetupGroupFromJSON("{\"startup\":{\"r\":[\"file#shaders/cache\",\"file#shaders\"],\"w\":\"file#shaders/cache\"}}");
 
-	VE_ASSERT(ve_parser.CalculateExpression("(20+10)*3/2-3") == 42.0);
-	VE_ASSERT(ve_parser.CalculateExpression("1 << 4") == 16.0);
-	VE_ASSERT(ve_parser.CalculateExpression("1+(-2*3)") == -5);
-
 	ve_res_mgr.LoadFile("startup$shaders.json");
 	ve_res_mgr.LoadFile("startup$root_signatures.json");
 	ve_res_mgr.LoadFile("startup$pipeline_states.json");

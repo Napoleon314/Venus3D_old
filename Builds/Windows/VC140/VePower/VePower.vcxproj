@@ -298,6 +298,7 @@
     <ClCompile Include="..\..\..\..\Source\VePower\VeCPUInfo.cpp" />
     <ClCompile Include="..\..\..\..\Source\VePower\VeFile.cpp" />
     <ClCompile Include="..\..\..\..\Source\VePower\VeJSON.cpp" />
+    <ClCompile Include="..\..\..\..\Source\VePower\VeParallel.cpp" />
     <ClCompile Include="..\..\..\..\Source\VePower\VeParser.cpp" />
     <ClCompile Include="..\..\..\..\Source\VePower\VeResource.cpp" />
     <ClCompile Include="..\..\..\..\Source\VePower\VeResourceGroup.cpp" />
@@ -333,6 +334,7 @@
     <ClInclude Include="..\..\..\..\Source\VePower\VeCPUInfo.h" />
     <ClInclude Include="..\..\..\..\Source\VePower\VeFile.h" />
     <ClInclude Include="..\..\..\..\Source\VePower\VeJSON.h" />
+    <ClInclude Include="..\..\..\..\Source\VePower\VeParallel.h" />
     <ClInclude Include="..\..\..\..\Source\VePower\VeParser.h" />
     <ClInclude Include="..\..\..\..\Source\VePower\VeResource.h" />
     <ClInclude Include="..\..\..\..\Source\VePower\VeResourceGroup.h" />

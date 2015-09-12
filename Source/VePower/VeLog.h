@@ -103,34 +103,16 @@ public:
 	template <class... _Params>
 	void Log(Type eType, const VeChar8* pcTag, _Params&... _Pak) noexcept
 	{
-		VeStrLinker<_Params&...>::Append(m_acBuffer, VE_LOG_BUFFER_SIZE, _Pak...);
-		Output(eType, pcTag);
+		VeChar8 acBuffer[VE_LOG_BUFFER_SIZE];
+		VeStrLinker<_Params&...>::Append(acBuffer, VE_LOG_BUFFER_SIZE, _Pak...);
+		Output(eType, pcTag, acBuffer);
 	}
-
-	void Begin() noexcept
-	{
-		m_stPointer = 0;
-	}
-
-	template <class _Ty>
-	void Append(const _Ty& _Val) noexcept
-	{
-		m_stPointer += VeTSprintf(m_acBuffer + m_stPointer,
-			VE_LOG_BUFFER_SIZE - m_stPointer, _Val);
-	}
-
-	void End(Type eType, const VeChar8* pcTag) noexcept
-	{
-		Output(eType, pcTag);
-	}
-
 
 private:
-	void Output(Type eType, const VeChar8* pcTag) noexcept;
+	void Output(Type eType, const VeChar8* pcTag, const VeChar8* pcContent) noexcept;
 
 	Level m_eLevel = LEVEL_STANDARD;
 	OutputFunc m_funcTarget = nullptr;
-	VeChar8 m_acBuffer[VE_LOG_BUFFER_SIZE];
 	VeSizeT m_stPointer = 0;
 
 };

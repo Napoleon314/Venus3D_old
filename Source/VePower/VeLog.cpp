@@ -17,7 +17,7 @@
 //--------------------------------------------------------------------------
 VeLog::VeLog()
 {
-	VeZeroMemory(m_acBuffer, sizeof(m_acBuffer));
+
 }
 //--------------------------------------------------------------------------
 VeLog::~VeLog()
@@ -39,18 +39,20 @@ void VeLog::LogFormat(Type eType, const VeChar8* pcTag,
 void VeLog::LogFormat(Type eType, const VeChar8* pcTag,
 	const VeChar8* pcFormat, va_list kArgs) noexcept
 {
-	VeVsprintf(m_acBuffer, VE_LOG_BUFFER_SIZE, pcFormat, kArgs);
-	Output(eType, pcTag);
+	VeChar8 acBuffer[VE_LOG_BUFFER_SIZE];
+	VeVsprintf(acBuffer, VE_LOG_BUFFER_SIZE, pcFormat, kArgs);
+	Output(eType, pcTag, acBuffer);
 }
 //--------------------------------------------------------------------------
-void VeLog::Output(Type eType, const VeChar8* pcTag) noexcept
+void VeLog::Output(Type eType, const VeChar8* pcTag,
+	const VeChar8* pcContent) noexcept
 {
 	if (m_funcTarget)
 	{
 #		ifdef VE_RELEASE
 		if (VeUInt32(eType) < VeUInt32(m_eLevel)) return;
 #		endif
-		m_funcTarget(eType, pcTag, m_acBuffer);
+		m_funcTarget(eType, pcTag, pcContent);
 	}
 }
 //--------------------------------------------------------------------------

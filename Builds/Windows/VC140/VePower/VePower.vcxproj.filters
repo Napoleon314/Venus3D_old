@@ -89,6 +89,9 @@
     <ClCompile Include="..\..\..\..\Source\VePower\VeJSON.cpp">
       <Filter>Parser</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\Source\VePower\VeParallel.cpp">
+      <Filter>Kernel</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\Source\VePower\VePowerPch.h">
@@ -177,6 +180,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\Source\VePower\VeParser.h">
       <Filter>Parser</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\VePower\VeParallel.h">
+      <Filter>Kernel</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
