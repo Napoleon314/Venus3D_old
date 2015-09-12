@@ -248,6 +248,7 @@
 		657899C31AA6CCB600220531 /* VeAllocator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = VeAllocator.h; path = ../../../Source/VePower/VeAllocator.h; sourceTree = "<group>"; };
 		6585E50D1AA840EC00106675 /* VeRefList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = VeRefList.h; path = ../../../Source/VePower/VeRefList.h; sourceTree = "<group>"; };
 		65A7E96B1A98907E00FC2A37 /* VeRTTI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = VeRTTI.h; path = ../../../Source/VePower/VeRTTI.h; sourceTree = "<group>"; };
+		65D893F61BA482C8004307A5 /* VeParser.inl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = VeParser.inl; path = ../../../Source/VePower/VeParser.inl; sourceTree = "<group>"; };
 		65EA718F1A9A3D3200D3CE1A /* VeSmartPointer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = VeSmartPointer.h; path = ../../../Source/VePower/VeSmartPointer.h; sourceTree = "<group>"; };
 		65EA71911A9A4F0000D3CE1A /* VeSingleton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = VeSingleton.h; path = ../../../Source/VePower/VeSingleton.h; sourceTree = "<group>"; };
 		65EA71921A9A4F0000D3CE1A /* VeString.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = VeString.cpp; path = ../../../Source/VePower/VeString.cpp; sourceTree = "<group>"; };
@@ -301,6 +302,7 @@
 				653B0B8B1BA2F57500D5C47F /* VeJSON.h */,
 				653B0B8C1BA2F57500D5C47F /* VeParser.cpp */,
 				653B0B8D1BA2F57500D5C47F /* VeParser.h */,
+				65D893F61BA482C8004307A5 /* VeParser.inl */,
 			);
 			name = Parser;
 			sourceTree = "<group>";
