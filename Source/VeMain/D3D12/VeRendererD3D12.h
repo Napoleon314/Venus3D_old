@@ -134,7 +134,7 @@ public:
 				TYPE, NUM, FLAGS, 0
 			};
 			VE_ASSERT_GE(pkDevice->CreateDescriptorHeap(
-				&kHeapDesc, __uuidof(ID3D12DescriptorHeap), (void**)&m_pkHeap), S_OK);
+				&kHeapDesc, IID_PPV_ARGS(&m_pkHeap)), S_OK);
 			VE_ASSERT(m_pkHeap);
 			m_u32DescIncSize = pkDevice->GetDescriptorHandleIncrementSize(TYPE);
 		}

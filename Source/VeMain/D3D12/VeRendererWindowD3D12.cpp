@@ -39,7 +39,7 @@ void VeRenderWindowD3D12::Init(VeRendererD3D12& kRenderer) noexcept
 		kQueueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
 		kQueueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
 		if (FAILED(kRenderer.m_pkDevice->CreateCommandQueue(&kQueueDesc,
-			__uuidof(ID3D12CommandQueue), (void**)&m_pkCommandQueue)))
+			IID_PPV_ARGS(&m_pkCommandQueue))))
 		{
 			VE_SAFE_RELEASE(m_pkCommandQueue);
 			VE_SAFE_RELEASE(m_pkSwapChain);
@@ -65,8 +65,7 @@ void VeRenderWindowD3D12::Init(VeRendererD3D12& kRenderer) noexcept
 			VE_SAFE_RELEASE(pkSwapChain);
 			return;
 		}
-		if (FAILED(pkSwapChain->QueryInterface(
-			__uuidof(IDXGISwapChain3), (void**)&m_pkSwapChain)))
+		if (FAILED(pkSwapChain->QueryInterface(IID_PPV_ARGS(&m_pkSwapChain))))
 		{
 			VE_SAFE_RELEASE(m_pkCommandQueue);
 			VE_SAFE_RELEASE(pkSwapChain);
@@ -82,25 +81,23 @@ void VeRenderWindowD3D12::Init(VeRendererD3D12& kRenderer) noexcept
 		for (VeInt32 i(0); i < VeRendererD3D12::FRAME_COUNT; ++i)
 		{
 			FrameCache& kFrame = m_akFrameCache[i];
-			VE_ASSERT_GE(m_pkSwapChain->GetBuffer(i, __uuidof(ID3D12Resource),
-				(void**)&kFrame.m_pkBufferResource), S_OK);
+			VE_ASSERT_GE(m_pkSwapChain->GetBuffer(i, IID_PPV_ARGS(&kFrame.m_pkBufferResource)), S_OK);
 			kFrame.m_hHandle.ptr = kRenderer.m_kRTVHeap.GetCPUStart().ptr + kRenderer.m_kRTVHeap.Alloc();
 			kRenderer.m_pkDevice->CreateRenderTargetView(
 				kFrame.m_pkBufferResource, nullptr, kFrame.m_hHandle);
 			VE_ASSERT_GE(kRenderer.m_pkDevice->CreateCommandAllocator(
-				D3D12_COMMAND_LIST_TYPE_DIRECT, __uuidof(ID3D12CommandAllocator),
-				(void**)&kFrame.m_pkDirectAllocator), S_OK);
+				D3D12_COMMAND_LIST_TYPE_DIRECT,
+				IID_PPV_ARGS(&kFrame.m_pkDirectAllocator)), S_OK);
 			VE_ASSERT_GE(kRenderer.m_pkDevice->CreateCommandList(0,
 				D3D12_COMMAND_LIST_TYPE_DIRECT, kFrame.m_pkDirectAllocator,
-				nullptr, __uuidof(ID3D12GraphicsCommandList),
-				(void**)&kFrame.m_pkDirectList), S_OK);
+				nullptr, IID_PPV_ARGS(&kFrame.m_pkDirectList)), S_OK);
 			VE_ASSERT_GE(kFrame.m_pkDirectList->Close(), S_OK);
 			kFrame.m_u64FenceValue = 0;
 		}
 
 		m_u64FenceValue = 0;
 		VE_ASSERT_GE(kRenderer.m_pkDevice->CreateFence(m_u64FenceValue++,
-			D3D12_FENCE_FLAG_NONE, __uuidof(ID3D12Fence), (void**)&m_pkFence), S_OK);
+			D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_pkFence)), S_OK);
 		m_kFenceEvent = CreateEventEx(nullptr, FALSE, FALSE, EVENT_ALL_ACCESS);
 		VE_ASSERT(m_kFenceEvent);
 		const VeUInt64 u64FenceToWaitFor = m_u64FenceValue++;

@@ -69,7 +69,7 @@ bool VeRendererD3D12::Init() noexcept
 #	ifdef VE_DEBUG
 	{
 		ID3D12Debug* pkDebugController(nullptr);
-		if (SUCCEEDED(D3D12GetDebugInterface(__uuidof(ID3D12Debug), (void**)&pkDebugController)))
+		if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&pkDebugController))))
 		{
 			pkDebugController->EnableDebugLayer();
 		}
@@ -77,14 +77,14 @@ bool VeRendererD3D12::Init() noexcept
 	}
 #	endif
 
-	if (VE_FAILED(CreateDXGIFactory1(__uuidof(IDXGIFactory1), (void**)&m_pkDXGIFactory)))
+	if (VE_FAILED(CreateDXGIFactory1(IID_PPV_ARGS(&m_pkDXGIFactory))))
 		return false;
 	
 	if(m_pkDXGIFactory->EnumAdapters1(0, &m_pkDefaultAdapter) == DXGI_ERROR_NOT_FOUND)
 		return false;	
 
 	if (VE_FAILED(D3D12CreateDevice(m_pkDefaultAdapter,
-		D3D_FEATURE_LEVEL_11_0, __uuidof(ID3D12Device), (void**)&m_pkDevice)))
+		D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&m_pkDevice))))
 		return false;
 
 	m_kRTVHeap.Init(m_pkDevice);
@@ -456,7 +456,7 @@ VeRendererD3D12::RootSignaturePtr VeRendererD3D12::CreateRootSignature(
 {
 	ID3D12RootSignature* pkRootSig(nullptr);
 	if (SUCCEEDED(m_pkDevice->CreateRootSignature(0, spBlob->GetBuffer(),
-		spBlob->GetSize(), __uuidof(ID3D12RootSignature), (void**)&pkRootSig)))
+		spBlob->GetSize(), IID_PPV_ARGS(&pkRootSig))))
 	{
 		RootSignatureD3D12* pkObj = VE_NEW RootSignatureD3D12(pkRootSig);
 		m_kRootSignatureList.attach_back(pkObj->m_kNode);
@@ -886,7 +886,7 @@ VeRenderer::PipelineStatePtr VeRendererD3D12::CreateGraphicsPipelineState(
 
 	ID3D12PipelineState* pkPipelineState(nullptr);
 	if (SUCCEEDED(m_pkDevice->CreateGraphicsPipelineState(&kDesc,
-		__uuidof(ID3D12PipelineState), (void**)&pkPipelineState)))
+		IID_PPV_ARGS(&pkPipelineState))))
 	{
 		PipelineStateD3D12* pkObj = VE_NEW PipelineStateD3D12(pkPipelineState);
 		m_kPipelineStateList.attach_back(pkObj->m_kNode);
@@ -1289,15 +1289,14 @@ void VeRendererD3D12::InitCopyQueue() noexcept
 		D3D12_COMMAND_QUEUE_FLAG_NONE
 	};
 	VE_ASSERT_GE(m_pkDevice->CreateCommandQueue(&kDesc,
-		__uuidof(ID3D12CommandQueue), (void**)&m_pkCopyQueue), S_OK);
+		IID_PPV_ARGS(&m_pkCopyQueue)), S_OK);
 	VE_ASSERT_GE(m_pkDevice->CreateCommandAllocator(
-		D3D12_COMMAND_LIST_TYPE_COPY, __uuidof(ID3D12CommandAllocator),
-		(void**)&m_pkCopyAllocator), S_OK);
+		D3D12_COMMAND_LIST_TYPE_COPY, IID_PPV_ARGS(&m_pkCopyAllocator)), S_OK);
 	VE_ASSERT_GE(m_pkDevice->CreateCommandList(0,
 		D3D12_COMMAND_LIST_TYPE_COPY, m_pkCopyAllocator, nullptr,
-		__uuidof(ID3D12GraphicsCommandList), (void**)&m_pkCopyCommandList), S_OK);
+		IID_PPV_ARGS(&m_pkCopyCommandList)), S_OK);
 	VE_ASSERT_GE(m_pkDevice->CreateFence(m_u64CopyFenceValue++,
-		D3D12_FENCE_FLAG_SHARED, __uuidof(ID3D12Fence), (void**)&m_pkCopyFence), S_OK);
+		D3D12_FENCE_FLAG_SHARED, IID_PPV_ARGS(&m_pkCopyFence)), S_OK);
 	m_kCopyFenceEvent = CreateEventEx(nullptr, FALSE, FALSE, EVENT_ALL_ACCESS);
 	VE_ASSERT(m_kCopyFenceEvent);
 	VE_ASSERT_GE(m_pkCopyQueue->Signal(m_pkCopyFence, m_u64CopyFenceValue), S_OK);
