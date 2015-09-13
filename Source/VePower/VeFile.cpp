@@ -300,8 +300,6 @@ void VeFileOStream::WriteBackCache() noexcept
 //--------------------------------------------------------------------------
 VeRTTIImpl(VeFilePath, VeDirectory);
 //--------------------------------------------------------------------------
-const VeChar8 * const VeFilePath::ms_pcType = "file";
-//--------------------------------------------------------------------------
 VeFilePath::VeFilePath(const VeChar8* pcPath) noexcept
 	: m_kPath(pcPath)
 {

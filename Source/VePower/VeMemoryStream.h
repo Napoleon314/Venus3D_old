@@ -28,11 +28,13 @@ public:
 
 	inline operator void*() noexcept;
 
+	inline operator const void*() const noexcept;
+
 	inline void* GetBuffer() noexcept;
 
 	inline void* GetBuffer(VeSizeT stPos) noexcept;
 
-	inline VeSizeT GetSize() noexcept;
+	inline VeSizeT GetSize() const noexcept;
 
 	void AddSize(VeSizeT stSize) noexcept;
 

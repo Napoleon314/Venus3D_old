@@ -173,91 +173,106 @@ VeRenderWindowPtr VeRendererD3D12::CreateRenderWindow(
 	return pkRenderWindow;
 }
 //--------------------------------------------------------------------------
-bool VeRendererD3D12::IsSupported(const VeChar8* pcPlatform) noexcept
+VeVector<D3D_SHADER_MACRO> GetMacro(VeJSONValue& val) noexcept
 {
-	VeChar8 acBuffer[VE_MAX_PATH_LEN];
-	VeStrcpy(acBuffer, pcPlatform);
-	VeChar8* pcContext;
-	VeChar8* pcTemp = VeStrtok(acBuffer, "|", &pcContext);
-	while (pcTemp)
+	VeVector<D3D_SHADER_MACRO> kRes;
+	auto it = val.FindMember("define");
+	if (it == val.MemberEnd()) return kRes;
+	VeJSONValue& def = it->value;
+	if (def.IsObject())
 	{
-		if (VeStricmp(pcTemp, "d12") == 0)
+		for (it = def.MemberBegin(); it != def.MemberEnd(); ++it)
 		{
-			return true;
+			if (it->value.IsString())
+			{
+				kRes.push_back({ it->name.GetString(), it->value.GetString() });
+			}
 		}
-		pcTemp = VeStrtok<VeChar8>(nullptr, "|", &pcContext);
 	}
-	return false;
+	if (kRes.size())
+	{
+		kRes.push_back({ nullptr,nullptr });
+	}
+	return kRes;
 }
 //--------------------------------------------------------------------------
-VeShader::Type VeRendererD3D12::GetShaderType(
-	const VeChar8* pcTarget) noexcept
+class ShaderInclude : public ID3DInclude
 {
-	switch (VeToLower(*pcTarget))
+public:
+	ShaderInclude(const VeStringMap<VeUInt32>& kShaderNameMap,
+		const VeVector<VeBlobPtr>& kShaderList) noexcept
+		: m_kShaderNameMap(kShaderNameMap), m_kShaderList(kShaderList) {}
+
+	HRESULT Open(D3D_INCLUDE_TYPE IncludeType, LPCSTR pFileName,
+		LPCVOID pParentData, LPCVOID* ppData, UINT* pBytes) override
 	{
-	case 'v':
-		return VeShader::TYPE_VS;
-	case 'p':
-		return VeShader::TYPE_PS;
-	case 'g':
-		return VeShader::TYPE_GS;
-	case 'h':
-		return VeShader::TYPE_HS;
-	case 'd':
-		return VeShader::TYPE_DS;
-	case 'c':
-		return VeShader::TYPE_CS;
-	default:
-		return VeShader::TYPE_NUM;
+		auto it = m_kShaderNameMap.find(pFileName);
+		if (it != m_kShaderNameMap.end())
+		{
+			const VeBlob& kBlob = *m_kShaderList[it->second];
+			*ppData = kBlob;
+			*pBytes = VeUInt32(kBlob.GetSize());
+			return S_OK;
+		}
+		return E_FAIL;
 	}
-}
+
+	HRESULT Close(LPCVOID pData) override
+	{
+		return S_OK;
+	}
+
+protected:
+	const VeStringMap<VeUInt32>& m_kShaderNameMap;
+	const VeVector<VeBlobPtr>& m_kShaderList;
+
+};
 //--------------------------------------------------------------------------
-VeBlobPtr VeRendererD3D12::CompileShader(
-	const VeChar8* pcName, const VeChar8* pcTarget,
-	const VeChar8* pcConfigPath, VeJSONValue& kConfig,
-	const VeResourceManager::FileCachePtr& spCache) noexcept
+std::pair<VeBlobPtr, VeRenderer::ShaderType>
+VeRendererD3D12::CompileShader(const VeChar8* pcFile,
+	const VeChar8* pcTarget, const VeChar8* pcPath, VeJSONValue& kConfig,
+	const VeStringMap<VeUInt32>& kShaderNameMap,
+	const VeVector<VeBlobPtr>& kShaderList) noexcept
 {
-	auto e = kConfig.FindMember("entry");
-	if (e == kConfig.MemberEnd() || (!e->value.IsString()))
+	auto it = kShaderNameMap.find(pcFile);
+	if (it == kShaderNameMap.end())
 	{
-		ve_sys.CORE.E.LogFormat("Shader script error in [\"%s\"].", pcConfigPath);
-		return nullptr;
+		ve_sys.CORE.E.LogFormat("Shader[\"%s\"] not found.", pcFile);
+		return std::make_pair(nullptr, SHADER_TYPE_NUM);
 	}
-	const VeChar8* pcEntry = e->value.GetString();
-	const VeBlobPtr& spHLSL = spCache->GetData()->GetBlob();
+	const VeBlob& kHLSL = *kShaderList[it->second];
+	const VeChar8* pcEntry = kConfig("entry", "");	
+	const D3D_SHADER_MACRO* pkMacro(nullptr);
+	auto kDefines = GetMacro(kConfig);
+	if (kDefines.size()) pkMacro = &kDefines.front();
+	ShaderInclude kInclude(kShaderNameMap, kShaderList);
 #	ifdef VE_DEBUG
 	VeUInt32 u32CompileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
 #	else
 	VeUInt32 u32CompileFlags = 0;
 #	endif
-	VeBlobPtr spBlob;
 	ID3DBlob* pkCode = nullptr;
 	ID3DBlob* pkError = nullptr;
-	if (SUCCEEDED(D3DCompile(spHLSL->GetBuffer(), spHLSL->GetSize(), spCache->GetFullPath(),
-		nullptr, nullptr, pcEntry, pcTarget, u32CompileFlags, 0, &pkCode, &pkError)))
+	if (SUCCEEDED(D3DCompile(kHLSL, kHLSL.GetSize(), pcPath,
+		pkMacro, &kInclude, pcEntry, pcTarget, u32CompileFlags, 0, &pkCode, &pkError)))
 	{
-		spBlob = VE_NEW VeBlob(pkCode->GetBufferSize());
+		VeBlobPtr spBlob = VE_NEW VeBlob(pkCode->GetBufferSize());
 		VeMemoryCopy(spBlob->GetBuffer(), pkCode->GetBufferPointer(), pkCode->GetBufferSize());
-		VeChar8 acBuffer[VE_MAX_PATH_LEN];
-		VeSprintf(acBuffer, "%s.%so", pcName, VeShader::GetTypeName(GetShaderType(pcTarget)));
-		spCache->GetGroup()->GetWriteDir()->WriteAsync(acBuffer, VE_NEW VeMemoryOStream(spBlob));
-		VeCoreDebugOutput("[\"%s\"===>\"%s\"] is successful.", spCache->GetFileName(), acBuffer);
+		VE_SAFE_RELEASE(pkCode);
+		VE_SAFE_RELEASE(pkError);
+		return std::make_pair(spBlob, GetTargetType(pcTarget));
 	}
-	else
+	if (pkError)
 	{
-		if (pkError)
-		{
-			ve_sys.CORE.E.LogFormat((const VeChar8*)pkError->GetBufferPointer());
-		}
-		spBlob = nullptr;
+		ve_sys.CORE.E.LogFormat((const VeChar8*)pkError->GetBufferPointer());
 	}
 	VE_SAFE_RELEASE(pkCode);
 	VE_SAFE_RELEASE(pkError);
-	return spBlob;
+	return std::make_pair(nullptr, TYPE_CS);
 }
 //--------------------------------------------------------------------------
-VeBlobPtr VeRendererD3D12::SerializeRootSignature(const VeChar8* pcName,
-	VeJSONValue& kConfig, const VeResourceGroupPtr& spGroup) noexcept
+VeBlobPtr VeRendererD3D12::SerializeRootSignature(
+	VeJSONValue& kConfig) noexcept
 {
 	struct Temp
 	{
@@ -310,7 +325,7 @@ VeBlobPtr VeRendererD3D12::SerializeRootSignature(const VeChar8* pcName,
 			m_pkSampler = VeStackAlloc(D3D12_STATIC_SAMPLER_DESC, u32Num);
 			VeZeroMemory(m_pkSampler, sizeof(D3D12_STATIC_SAMPLER_DESC) * u32Num);
 		}
-		
+
 		VeUInt32 m_u32ParametersNum = 0;
 		D3D12_ROOT_PARAMETER* m_pkParameter = nullptr;
 		VeUInt32 m_u32SamplersNum = 0;
@@ -374,7 +389,7 @@ VeBlobPtr VeRendererD3D12::SerializeRootSignature(const VeChar8* pcName,
 				return nullptr;
 			}
 		}
-	}	
+	}
 	auto iSamplers = kConfig.FindMember("samplers");
 	if (iSamplers != kConfig.MemberEnd()
 		&& iSamplers->value.IsArray()
@@ -400,8 +415,8 @@ VeBlobPtr VeRendererD3D12::SerializeRootSignature(const VeChar8* pcName,
 			kSampler.RegisterSpace = kValue("space", 0u);
 			kSampler.ShaderVisibility = kValue("visibility", D3D12_SHADER_VISIBILITY_ALL);
 		}
-	}	
-	
+	}
+
 	D3D12_ROOT_SIGNATURE_DESC kDesc;
 	kDesc.NumParameters = kStackBuffer.m_u32ParametersNum;
 	kDesc.pParameters = kStackBuffer.m_pkParameter;
@@ -414,8 +429,8 @@ VeBlobPtr VeRendererD3D12::SerializeRootSignature(const VeChar8* pcName,
 	if (!itFlags->value.IsString()) return nullptr;
 
 	kDesc.Flags |= ve_parser.ParseFlags(itFlags->value.GetString(),
-			D3D12_ROOT_SIGNATURE_FLAG_NONE);
-	
+		D3D12_ROOT_SIGNATURE_FLAG_NONE);
+
 	VeBlobPtr spBlob;
 	ID3DBlob* pkCode = nullptr;
 	ID3DBlob* pkError = nullptr;
@@ -423,9 +438,6 @@ VeBlobPtr VeRendererD3D12::SerializeRootSignature(const VeChar8* pcName,
 	{
 		spBlob = VE_NEW VeBlob(pkCode->GetBufferSize());
 		VeMemoryCopy(spBlob->GetBuffer(), pkCode->GetBufferPointer(), pkCode->GetBufferSize());
-		VeChar8 acBuffer[VE_MAX_PATH_LEN];
-		VeSprintf(acBuffer, "%s.rso", pcName);
-		spGroup->GetWriteDir()->WriteAsync(acBuffer, VE_NEW VeMemoryOStream(spBlob));
 	}
 	else
 	{
@@ -433,7 +445,6 @@ VeBlobPtr VeRendererD3D12::SerializeRootSignature(const VeChar8* pcName,
 		{
 			ve_sys.CORE.E.LogFormat((const VeChar8*)pkError->GetBufferPointer());
 		}
-		spBlob = nullptr;
 	}
 	VE_SAFE_RELEASE(pkCode);
 	VE_SAFE_RELEASE(pkError);
@@ -459,11 +470,13 @@ VeRendererD3D12::RootSignaturePtr VeRendererD3D12::CreateRootSignature(
 }
 //--------------------------------------------------------------------------
 VeRenderer::PipelineStatePtr VeRendererD3D12::CreatePipelineState(
-	VeJSONValue& kConfig) noexcept
+	VeJSONValue& kConfig, VeBlobPtr& spOut) noexcept
 {
+	VeMemoryOStream kStream;
+	spOut = kStream.GetBlob();
 	bool bGraphics = kConfig("graphics", true);
-	return bGraphics ? CreateGraphicsPipelineState(kConfig)
-		: CreateComputePipelineState(kConfig);
+	return bGraphics ? CreateGraphicsPipelineState(kConfig, kStream)
+		: CreateComputePipelineState(kConfig, kStream);
 }
 //--------------------------------------------------------------------------
 void FillBlendState(D3D12_BLEND_DESC& kDesc,
@@ -581,73 +594,60 @@ void FillStencilOp(VeJSONValue& kVal,
 }
 //--------------------------------------------------------------------------
 VeRenderer::PipelineStatePtr VeRendererD3D12::CreateGraphicsPipelineState(
-	VeJSONValue& kConfig) noexcept
+	VeJSONValue& kConfig, VeMemoryOStream& kOut) noexcept
 {
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC kDesc = {};
 	{
-		auto itName = kConfig.FindMember(VeRootSignature::GetName());
-		if (itName != kConfig.MemberEnd() && itName->value.IsString())
+		const VeChar8* pcName = kConfig("root_signature", "");
+		auto it = m_kRootSignatureMap.find(pcName);
+		if (it == m_kRootSignatureMap.end()) return nullptr;
+		RootSignatureD3D12* pkRootSig = VeDynamicCast(RootSignatureD3D12, it->second.p());
+		if ((!pkRootSig) || (!pkRootSig->m_pkRootSignature)) return nullptr;
+		kDesc.pRootSignature = pkRootSig->m_pkRootSignature;
+	}
+	{
+		const VeChar8* pcName = kConfig(ve_parser.EnumToStr(TYPE_VS), "");
+		auto it = m_akShaderMap[TYPE_VS].find(pcName);
+		if (it != m_akShaderMap[TYPE_VS].end())
 		{
-			VeRootSignaturePtr spRes = ve_res_mgr.Get<VeRootSignature>(VeRootSignature::GetName(), itName->value.GetString(), false);
-			if ((!spRes) || (!spRes->GetObject())) return nullptr;
-			RootSignatureD3D12* pkRootSig = VeDynamicCast(RootSignatureD3D12, &*spRes->GetObject());
-			if ((!pkRootSig) || (!pkRootSig->m_pkRootSignature)) return nullptr;
-			kDesc.pRootSignature = pkRootSig->m_pkRootSignature;
+			kDesc.VS.pShaderBytecode = it->second->GetBuffer();
+			kDesc.VS.BytecodeLength = it->second->GetSize();
 		}
 	}
 	{
-		auto itName = kConfig.FindMember(VeShader::GetTypeName(VeShader::TYPE_VS));
-		if (itName != kConfig.MemberEnd() && itName->value.IsString())
+		const VeChar8* pcName = kConfig(ve_parser.EnumToStr(TYPE_PS), "");
+		auto it = m_akShaderMap[TYPE_PS].find(pcName);
+		if (it != m_akShaderMap[TYPE_PS].end())
 		{
-			VeShaderPtr spRes = ve_res_mgr.Get<VeShader>(VeShader::GetTypeName(VeShader::TYPE_VS), itName->value.GetString(), false);
-			if ((!spRes) || (!spRes->GetObject())) return nullptr;
-			VeBlobPtr spBlob = spRes->GetObject();
-			kDesc.VS.pShaderBytecode = spBlob->GetBuffer();
-			kDesc.VS.BytecodeLength = spBlob->GetSize();
+			kDesc.PS.pShaderBytecode = it->second->GetBuffer();
+			kDesc.PS.BytecodeLength = it->second->GetSize();
 		}
 	}
 	{
-		auto itName = kConfig.FindMember(VeShader::GetTypeName(VeShader::TYPE_PS));
-		if (itName != kConfig.MemberEnd() && itName->value.IsString())
+		const VeChar8* pcName = kConfig(ve_parser.EnumToStr(TYPE_GS), "");
+		auto it = m_akShaderMap[TYPE_GS].find(pcName);
+		if (it != m_akShaderMap[TYPE_GS].end())
 		{
-			VeShaderPtr spRes = ve_res_mgr.Get<VeShader>(VeShader::GetTypeName(VeShader::TYPE_PS), itName->value.GetString(), false);
-			if ((!spRes) || (!spRes->GetObject())) return nullptr;
-			VeBlobPtr spBlob = spRes->GetObject();
-			kDesc.PS.pShaderBytecode = spBlob->GetBuffer();
-			kDesc.PS.BytecodeLength = spBlob->GetSize();
+			kDesc.GS.pShaderBytecode = it->second->GetBuffer();
+			kDesc.GS.BytecodeLength = it->second->GetSize();
 		}
 	}
 	{
-		auto itName = kConfig.FindMember(VeShader::GetTypeName(VeShader::TYPE_DS));
-		if (itName != kConfig.MemberEnd() && itName->value.IsString())
+		const VeChar8* pcName = kConfig(ve_parser.EnumToStr(TYPE_HS), "");
+		auto it = m_akShaderMap[TYPE_HS].find(pcName);
+		if (it != m_akShaderMap[TYPE_HS].end())
 		{
-			VeShaderPtr spRes = ve_res_mgr.Get<VeShader>(VeShader::GetTypeName(VeShader::TYPE_DS), itName->value.GetString(), false);
-			if ((!spRes) || (!spRes->GetObject())) return nullptr;
-			VeBlobPtr spBlob = spRes->GetObject();
-			kDesc.DS.pShaderBytecode = spBlob->GetBuffer();
-			kDesc.DS.BytecodeLength = spBlob->GetSize();
+			kDesc.HS.pShaderBytecode = it->second->GetBuffer();
+			kDesc.HS.BytecodeLength = it->second->GetSize();
 		}
 	}
 	{
-		auto itName = kConfig.FindMember(VeShader::GetTypeName(VeShader::TYPE_HS));
-		if (itName != kConfig.MemberEnd() && itName->value.IsString())
+		const VeChar8* pcName = kConfig(ve_parser.EnumToStr(TYPE_DS), "");
+		auto it = m_akShaderMap[TYPE_DS].find(pcName);
+		if (it != m_akShaderMap[TYPE_DS].end())
 		{
-			VeShaderPtr spRes = ve_res_mgr.Get<VeShader>(VeShader::GetTypeName(VeShader::TYPE_HS), itName->value.GetString(), false);
-			if ((!spRes) || (!spRes->GetObject())) return nullptr;
-			VeBlobPtr spBlob = spRes->GetObject();
-			kDesc.HS.pShaderBytecode = spBlob->GetBuffer();
-			kDesc.HS.BytecodeLength = spBlob->GetSize();
-		}
-	}
-	{
-		auto itName = kConfig.FindMember(VeShader::GetTypeName(VeShader::TYPE_GS));
-		if (itName != kConfig.MemberEnd() && itName->value.IsString())
-		{
-			VeShaderPtr spRes = ve_res_mgr.Get<VeShader>(VeShader::GetTypeName(VeShader::TYPE_GS), itName->value.GetString(), false);
-			if ((!spRes) || (!spRes->GetObject())) return nullptr;
-			VeBlobPtr spBlob = spRes->GetObject();
-			kDesc.GS.pShaderBytecode = spBlob->GetBuffer();
-			kDesc.GS.BytecodeLength = spBlob->GetSize();
+			kDesc.DS.pShaderBytecode = it->second->GetBuffer();
+			kDesc.DS.BytecodeLength = it->second->GetSize();
 		}
 	}
 	{
@@ -675,7 +675,7 @@ VeRenderer::PipelineStatePtr VeRendererD3D12::CreateGraphicsPipelineState(
 				{
 					VeUInt32 u32Count(0);
 					if (itRTBlend->value.IsObject())
-					{						
+					{
 						kDesc.BlendState.RenderTarget[u32Count].BlendEnable = itRTBlend->value("blend", false);
 						kDesc.BlendState.RenderTarget[u32Count].LogicOpEnable = itRTBlend->value("logic_op", false);
 						kDesc.BlendState.RenderTarget[u32Count].SrcBlend = itRTBlend->value("src", D3D12_BLEND_ZERO);
@@ -697,13 +697,13 @@ VeRenderer::PipelineStatePtr VeRendererD3D12::CreateGraphicsPipelineState(
 						}
 						++u32Count;
 					}
-					else if(itRTBlend->value.IsArray())
+					else if (itRTBlend->value.IsArray())
 					{
 						for (auto itRT = itRTBlend->value.Begin(); itRT != itRTBlend->value.End(); ++itRT)
 						{
 							if (itRT->IsObject())
 							{
-								
+
 								kDesc.BlendState.RenderTarget[u32Count].BlendEnable = itRTBlend->value("blend", false);
 								kDesc.BlendState.RenderTarget[u32Count].LogicOpEnable = itRTBlend->value("logic_op", false);
 								kDesc.BlendState.RenderTarget[u32Count].SrcBlend = itRTBlend->value("src", D3D12_BLEND_ZERO);
@@ -723,8 +723,8 @@ VeRenderer::PipelineStatePtr VeRendererD3D12::CreateGraphicsPipelineState(
 								{
 									kDesc.BlendState.RenderTarget[u32Count].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 								}
-								if((++u32Count) >= 8) break;
-							}								
+								if ((++u32Count) >= 8) break;
+							}
 						}
 					}
 					if (u32Count)
@@ -732,7 +732,7 @@ VeRenderer::PipelineStatePtr VeRendererD3D12::CreateGraphicsPipelineState(
 						for (VeUInt32 i(u32Count); i < 8; ++i)
 						{
 							kDesc.BlendState.RenderTarget[i] = kDesc.BlendState.RenderTarget[i - 1];
-						}						
+						}
 					}
 				}
 			}
@@ -880,8 +880,8 @@ VeRenderer::PipelineStatePtr VeRendererD3D12::CreateGraphicsPipelineState(
 				kDesc.DSVFormat = VeTo(itDSVFormat->value, DXGI_FORMAT_UNKNOWN);
 			}
 		}
-	}		
-	
+	}
+
 	kDesc.SampleDesc.Count = 1;
 
 	ID3D12PipelineState* pkPipelineState(nullptr);
@@ -900,7 +900,7 @@ VeRenderer::PipelineStatePtr VeRendererD3D12::CreateGraphicsPipelineState(
 }
 //--------------------------------------------------------------------------
 VeRenderer::PipelineStatePtr VeRendererD3D12::CreateComputePipelineState(
-	VeJSONValue& kConfig) noexcept
+	VeJSONValue& kConfig, VeMemoryOStream& kOut) noexcept
 {
 	return nullptr;
 }
@@ -1325,6 +1325,28 @@ void VeRendererD3D12::TermCopyQueue() noexcept
 	VE_SAFE_RELEASE(m_pkCopyCommandList);
 	VE_SAFE_RELEASE(m_pkCopyAllocator);
 	VE_SAFE_RELEASE(m_pkCopyQueue);
+}
+//--------------------------------------------------------------------------
+VeRenderer::ShaderType VeRendererD3D12::GetTargetType(
+	const VeChar8* pcTarget) noexcept
+{
+	switch (VeToLower(*pcTarget))
+	{
+	case 'v':
+		return TYPE_VS;
+	case 'p':
+		return TYPE_PS;
+	case 'g':
+		return TYPE_GS;
+	case 'h':
+		return TYPE_HS;
+	case 'd':
+		return TYPE_DS;
+	case 'c':
+		return TYPE_CS;
+	default:
+		return SHADER_TYPE_NUM;
+	}
 }
 //--------------------------------------------------------------------------
 VeRendererPtr CreateRendererD3D12() noexcept

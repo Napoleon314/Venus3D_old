@@ -28,35 +28,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
 	ve_res_mgr.SetupGroupFromJSON("{\"startup\":{\"r\":[\"file#shaders/cache\",\"file#shaders\"],\"w\":\"file#shaders/cache\"}}");
 
-	VE_ASSERT(ve_parser.CalculateExpression("(20+10)*3/2-3") == 42.0);
-	VE_ASSERT(ve_parser.CalculateExpression("1 << 4") == 16.0);
-	VE_ASSERT(ve_parser.CalculateExpression("1+(-2*3)") == -5);
+	//ve_res_mgr.LoadFile("startup$shaders.json");
+	//ve_res_mgr.LoadFile("startup$root_signatures.json");
+	//ve_res_mgr.LoadFile("startup$pipeline_states.json");
 
-	std::atomic_uint aa = 0;
-
-	ve_paral.Do([&aa](VeUInt32 u32Thread) noexcept
-	{
-		for (VeUInt32 i(0); i < 100; ++i)
-		{
-			VeDebugOutput("Thread%d: %d", u32Thread, aa.fetch_add(1, std::memory_order_relaxed));
-		}
-	});
-
-	VeDebugOutput("end");
-
-	ve_paral.Do([&aa](VeUInt32 u32Thread) noexcept
-	{
-		for (VeUInt32 i(0); i < 100; ++i)
-		{
-			VeDebugOutput("Thread%d: %d", u32Thread, aa.fetch_add(1, std::memory_order_relaxed));
-		}
-	});
-	VeDebugOutput("end");
-
-
-	ve_res_mgr.LoadFile("startup$shaders.json");
-	ve_res_mgr.LoadFile("startup$root_signatures.json");
-	ve_res_mgr.LoadFile("startup$pipeline_states.json");
+	ve_renderer_ptr->PreCache(ve_res_mgr.CreateDir("file#scripts/cache"),
+		ve_res_mgr.CreateDir("file#scripts/hlsl", false),
+		ve_res_mgr.CreateDir("file#scripts", false));
 
 	VeRenderBufferPtr spCB = ve_renderer_ptr->CreateBuffer(
 		VeRenderBuffer::TYPE_DYNAMIC, VeRenderBuffer::USEAGE_CB, 1024);

@@ -18,6 +18,11 @@ inline VeBlob::operator void*() noexcept
 	return m_pvBuffer;
 }
 //--------------------------------------------------------------------------
+inline VeBlob::operator const void*() const noexcept
+{
+	return m_pvBuffer;
+}
+//--------------------------------------------------------------------------
 inline void* VeBlob::GetBuffer() noexcept
 {
 	return m_pvBuffer;
@@ -29,7 +34,7 @@ inline void* VeBlob::GetBuffer(VeSizeT stPos) noexcept
 	return ((VeByte*)m_pvBuffer) +stPos;
 }
 //--------------------------------------------------------------------------
-inline VeSizeT VeBlob::GetSize() noexcept
+inline VeSizeT VeBlob::GetSize() const noexcept
 {
 	return m_stByteSize;
 }

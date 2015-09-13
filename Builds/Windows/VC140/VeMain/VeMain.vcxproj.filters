@@ -97,15 +97,6 @@
     <ClInclude Include="..\..\..\..\Source\VeMain\D3D12\VeRendererWindowD3D12.h">
       <Filter>Renderer\D3D12</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\Source\VeMain\VeShader.h">
-      <Filter>Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\Source\VeMain\VeRootSignature.h">
-      <Filter>Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\Source\VeMain\VePipelineState.h">
-      <Filter>Renderer</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\Source\VeMain\VeQuaternion.h">
       <Filter>Math</Filter>
     </ClInclude>
@@ -186,15 +177,6 @@
     <ClCompile Include="..\..\..\..\Source\VeMain\D3D12\VeRendererWindowD3D12.cpp">
       <Filter>Renderer\D3D12</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\Source\VeMain\VeShader.cpp">
-      <Filter>Renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\Source\VeMain\VeRootSignature.cpp">
-      <Filter>Renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\Source\VeMain\VePipelineState.cpp">
-      <Filter>Renderer</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\Source\VeMain\VeQuaternion.cpp">
       <Filter>Math</Filter>
     </ClCompile>
@@ -255,15 +237,6 @@
       <Filter>Math</Filter>
     </None>
     <None Include="..\..\..\..\Source\VeMain\VeRenderWindow.inl">
-      <Filter>Renderer</Filter>
-    </None>
-    <None Include="..\..\..\..\Source\VeMain\VeShader.inl">
-      <Filter>Renderer</Filter>
-    </None>
-    <None Include="..\..\..\..\Source\VeMain\VeRootSignature.inl">
-      <Filter>Renderer</Filter>
-    </None>
-    <None Include="..\..\..\..\Source\VeMain\VePipelineState.inl">
       <Filter>Renderer</Filter>
     </None>
     <None Include="..\..\..\..\Source\VeMain\VeQuaternion.inl">

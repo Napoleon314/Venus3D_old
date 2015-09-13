@@ -189,14 +189,45 @@ namespace rapidjson
 		EnumTranslator<_Ty>,
 		NormalTranslator<_Ty >>::type {};
 
-	template <typename _Ty, typename Encoding,
-		typename Allocator = MemoryPoolAllocator < >>
-		_Ty To(GenericValue<Encoding, Allocator>& val, _Ty def) noexcept
+	template <typename _Ty, typename Encoding, typename Allocator = MemoryPoolAllocator<>>
+	_Ty To(GenericValue<Encoding, Allocator>& val, _Ty def) noexcept
 	{
 		return ValueTranslator<_Ty>::Trans(val, def);
+	}
+
+	template <typename Encoding, typename Allocator = MemoryPoolAllocator<>>
+	VeVector<std::pair<const VeChar8*, const VeChar8*>> ToStrPairs(
+		GenericValue<Encoding, Allocator>& val) noexcept
+	{
+		VeVector<std::pair<const VeChar8*, const VeChar8*>> kRes;
+		if (val.IsObject())
+		{
+			for (auto it = val.MemberBegin(); it != val.MemberEnd(); ++it)
+			{
+				if (it->value.IsString())
+				{
+					kRes.push_back(std::make_pair(it->name.GetString(), it->value.GetString()));
+				}
+			}
+		}
+		return kRes;
+	}
+
+	template <typename Encoding, typename Allocator = MemoryPoolAllocator<>>
+	VeVector<std::pair<const VeChar8*, const VeChar8*>> GetStrPairs(
+		GenericValue<Encoding, Allocator>& val, const VeChar8* pcName) noexcept
+	{
+		auto it = val.FindMember(pcName);
+		if (it != val.MemberEnd())
+		{
+			return ToStrPairs(it->value);
+		}
+		return VeVector<std::pair<const VeChar8*, const VeChar8*>>();
 	}
 }
 
 #define VeTo(val,def) rapidjson::To(val,def)
+#define VeToStrPairs(val) rapidjson::ToStrPairs(val)
+#define VeGetStrPairs(val,n) rapidjson::GetStrPairs(val,n)
 
 VE_POWER_API VeJSONDoc operator "" _C(const VeChar8* pcStr, VeSizeT stNum) noexcept;

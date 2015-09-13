@@ -30,6 +30,17 @@ public:
 		API_MASK = 0xFF
 	};
 
+	enum ShaderType
+	{
+		TYPE_VS,
+		TYPE_PS,
+		TYPE_GS,
+		TYPE_HS,
+		TYPE_DS,
+		TYPE_CS,
+		SHADER_TYPE_NUM
+	};
+
 	class VE_MAIN_API RootSignature : public VeRefObject
 	{
 		VeNoCopy(RootSignature);
@@ -60,6 +71,9 @@ public:
 
 	void UnregistResTypes() noexcept;
 
+	void PreCache(const VeDirectoryPtr& spCache, const VeDirectoryPtr& spShader,
+		const VeDirectoryPtr& spScript) noexcept;
+
 	VeRenderWindowPtr CreateRenderWindow(const VeChar8* pcTitle, VeInt32 x, VeInt32 y,
 		VeInt32 w, VeInt32 h, VeUInt32 u32Flags) noexcept;
 
@@ -73,20 +87,16 @@ public:
 
 	virtual VeRenderWindowPtr CreateRenderWindow(const VeWindowPtr& spWindow) noexcept = 0;
 
-	virtual bool IsSupported(const VeChar8* pcPlatform) noexcept = 0;
+	virtual std::pair<VeBlobPtr, ShaderType> CompileShader(const VeChar8* pcFile,
+		const VeChar8* pcTarget, const VeChar8* pcPath, VeJSONValue& kConfig,
+		const VeStringMap<VeUInt32>& kShaderNameMap,
+		const VeVector<VeBlobPtr>& kShaderList) noexcept = 0;
 
-	virtual VeShader::Type GetShaderType(const VeChar8* pcTarget) noexcept = 0;
-
-	virtual VeBlobPtr CompileShader(const VeChar8* pcName, const VeChar8* pcTarget,
-		const VeChar8* pcConfigPath, VeJSONValue& kConfig,
-		const VeResourceManager::FileCachePtr& spCache) noexcept = 0;
-
-	virtual VeBlobPtr SerializeRootSignature(const VeChar8* pcName, VeJSONValue& kConfig,
-		const VeResourceGroupPtr& spGroup) noexcept = 0;
+	virtual VeBlobPtr SerializeRootSignature(VeJSONValue& kConfig) noexcept = 0;
 
 	virtual RootSignaturePtr CreateRootSignature(const VeBlobPtr& spBlob) noexcept = 0;
 
-	virtual PipelineStatePtr CreatePipelineState(VeJSONValue& kConfig) noexcept = 0;
+	virtual PipelineStatePtr CreatePipelineState(VeJSONValue& kConfig, VeBlobPtr& spOut) noexcept = 0;
 
 	virtual VeRenderBufferPtr CreateBuffer(VeRenderBuffer::Type eType,
 		VeRenderBuffer::Useage eUse, VeUInt32 u32Size) noexcept = 0;
@@ -97,6 +107,9 @@ protected:
 	virtual ~VeRenderer() noexcept;
 
 	const API m_eType;
+	VeStringMap<VeBlobPtr> m_akShaderMap[SHADER_TYPE_NUM];
+	VeStringMap<RootSignaturePtr> m_kRootSignatureMap;
+	VeStringMap<PipelineStatePtr> m_kPipelineStateMap;
 
 };
 

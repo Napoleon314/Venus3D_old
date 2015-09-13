@@ -211,24 +211,20 @@ public:
 
 	virtual VeRenderWindowPtr CreateRenderWindow(const VeWindowPtr& spWindow) noexcept override;
 
-	virtual bool IsSupported(const VeChar8* pcPlatform) noexcept override;
+	virtual std::pair<VeBlobPtr,ShaderType> CompileShader(const VeChar8* pcFile,
+		const VeChar8* pcTarget, const VeChar8* pcPath, VeJSONValue& kConfig,
+		const VeStringMap<VeUInt32>& kShaderNameMap,
+		const VeVector<VeBlobPtr>& kShaderList) noexcept override;	
 
-	virtual VeShader::Type GetShaderType(const VeChar8* pcTarget) noexcept override;
-
-	virtual VeBlobPtr CompileShader(const VeChar8* pcName, const VeChar8* pcTarget,
-		const VeChar8* pcConfigPath, VeJSONValue& kConfig,
-		const VeResourceManager::FileCachePtr& spCache) noexcept override;
-
-	virtual VeBlobPtr SerializeRootSignature(const VeChar8* pcName, VeJSONValue& kConfig,
-		const VeResourceGroupPtr& spGroup) noexcept override;
+	virtual VeBlobPtr SerializeRootSignature(VeJSONValue& kConfig) noexcept override;	
 
 	virtual RootSignaturePtr CreateRootSignature(const VeBlobPtr& spBlob) noexcept override;
 
-	virtual PipelineStatePtr CreatePipelineState(VeJSONValue& kConfig) noexcept override;
+	virtual PipelineStatePtr CreatePipelineState(VeJSONValue& kConfig, VeBlobPtr& spOut) noexcept override;
 
-	PipelineStatePtr CreateGraphicsPipelineState(VeJSONValue& kConfig) noexcept;
+	PipelineStatePtr CreateGraphicsPipelineState(VeJSONValue& kConfig, VeMemoryOStream& kOut) noexcept;
 
-	PipelineStatePtr CreateComputePipelineState(VeJSONValue& kConfig) noexcept;
+	PipelineStatePtr CreateComputePipelineState(VeJSONValue& kConfig, VeMemoryOStream& kOut) noexcept;
 
 	virtual VeRenderBufferPtr CreateBuffer(VeRenderBuffer::Type eType,
 		VeRenderBuffer::Useage eUse, VeUInt32 u32Size) noexcept override;
@@ -244,6 +240,8 @@ protected:
 	void InitCopyQueue() noexcept;
 
 	void TermCopyQueue() noexcept;
+
+	static ShaderType GetTargetType(const VeChar8* pcTarget) noexcept;
 
 	VeSharedLibPtr m_spD3D12;
 	VeSharedLibPtr m_spDXGI;

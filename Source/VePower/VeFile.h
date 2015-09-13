@@ -208,7 +208,6 @@ public:
 
 private:
 	VeFixedString m_kPath;
-	static const VeChar8 * const ms_pcType;
 
 };
 

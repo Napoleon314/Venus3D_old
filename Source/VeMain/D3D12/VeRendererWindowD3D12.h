@@ -45,8 +45,7 @@ public:
 		}
 
 		VE_ASSERT_GE(kFrame.m_pkDirectAllocator->Reset(), S_OK);
-		VE_ASSERT_GE(kFrame.m_pkDirectList->Reset(
-			kFrame.m_pkDirectAllocator,
+		VE_ASSERT_GE(kFrame.m_pkDirectList->Reset(kFrame.m_pkDirectAllocator,
 			kRenderer.m_kPipelineStateList.get_head_node()->m_Content->m_pkPipelineState), S_OK);
 
 		kFrame.m_pkDirectList->SetGraphicsRootSignature(
