@@ -32,6 +32,28 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 	VE_ASSERT(ve_parser.CalculateExpression("1 << 4") == 16.0);
 	VE_ASSERT(ve_parser.CalculateExpression("1+(-2*3)") == -5);
 
+	std::atomic_uint aa = 0;
+
+	ve_paral.Do([&aa](VeUInt32 u32Thread) noexcept
+	{
+		for (VeUInt32 i(0); i < 100; ++i)
+		{
+			VeDebugOutput("Thread%d: %d", u32Thread, aa.fetch_add(1, std::memory_order_relaxed));
+		}
+	});
+
+	VeDebugOutput("end");
+
+	ve_paral.Do([&aa](VeUInt32 u32Thread) noexcept
+	{
+		for (VeUInt32 i(0); i < 100; ++i)
+		{
+			VeDebugOutput("Thread%d: %d", u32Thread, aa.fetch_add(1, std::memory_order_relaxed));
+		}
+	});
+	VeDebugOutput("end");
+
+
 	ve_res_mgr.LoadFile("startup$shaders.json");
 	ve_res_mgr.LoadFile("startup$root_signatures.json");
 	ve_res_mgr.LoadFile("startup$pipeline_states.json");

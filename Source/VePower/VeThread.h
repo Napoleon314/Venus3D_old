@@ -27,7 +27,7 @@
 
 inline void VeSleep(VeUInt32 u32Millisecond)
 {
-	std::this_thread::sleep_for(std::chrono::milliseconds(200));
+	std::this_thread::sleep_for(std::chrono::milliseconds(u32Millisecond));
 }
 
 class VeSpinLock

@@ -17,6 +17,15 @@
 class VE_POWER_API VeParallel : public VeSingleton<VeParallel>
 {
 public:
+	struct ThreadData
+	{
+		ThreadData(std::function<void()> funcEntry) noexcept
+			: m_kThread(funcEntry) {}
+
+		std::thread m_kThread;
+		VeThread::Event m_kEvent;
+	};
+
 	VeParallel() noexcept;
 
 	virtual ~VeParallel() noexcept;
@@ -26,14 +35,13 @@ public:
 protected:
 	std::function<void(VeUInt32)> m_kTask;
 	VeSizeT m_stThreadNum = 0;
+	VeThread::Event* m_pkLoopEventArray;
 	std::thread* m_pkThreadArray = nullptr;
-	std::mutex m_kLoopMutex;
-	std::condition_variable m_kLoopCondition;
-	std::mutex m_kJoinMutex;
-	std::condition_variable m_kJoinCondition;
-	std::atomic_uint m_u32Count;
-	bool m_bEndFlag = false;
-	bool m_bLoop = false;
+	VeThread::Event m_kEvent;
+
+
+
+	bool m_bLoop = true;
 
 };
 

@@ -18,70 +18,56 @@
 VeParallel::VeParallel() noexcept
 {
 	m_stThreadNum = std::thread::hardware_concurrency();
+	m_pkLoopEventArray = VeAlloc(VeThread::Event, m_stThreadNum);
+	for (VeSizeT i(0); i < m_stThreadNum; ++i)
+	{
+		new(m_pkLoopEventArray + i)VeThread::Event();
+	}
 	m_pkThreadArray = VeAlloc(std::thread, m_stThreadNum);
 	for (VeSizeT i(0); i < m_stThreadNum; ++i)
 	{
 		new(m_pkThreadArray + i)std::thread([this,i]() noexcept
 		{
-			do 
+			do
 			{
-				{
-					std::unique_lock<std::mutex> kLock(m_kLoopMutex);
-					m_bLoop = true;
-					m_kLoopCondition.wait(kLock);
-				}
+				m_pkLoopEventArray[i].Wait();
 				if (m_kTask)
 				{
 					m_kTask(VeUInt32(i));
-				}
-				if (m_u32Count.fetch_add(1, std::memory_order_relaxed) + 1 == m_stThreadNum)
-				{
-					std::lock_guard<std::mutex> kLock(m_kJoinMutex);
-					m_bEndFlag = true;
-					m_kJoinCondition.notify_all();
-				}
-			}
-			while (m_bLoop);
+				}				
+				m_pkLoopEventArray[i].Reset();
+				m_kEvent.Set();
+			} while (m_bLoop);
 		});
 	}
 }
 //--------------------------------------------------------------------------
 VeParallel::~VeParallel() noexcept
 {
-	{
-		while (!m_bLoop);
-		std::lock_guard<std::mutex> kLock(m_kLoopMutex);
-		m_bLoop = false;
-		m_kLoopCondition.notify_all();
-	}
+	m_bLoop = false;
 	for (VeSizeT i(0); i < m_stThreadNum; ++i)
 	{
+		m_pkLoopEventArray[i].Set();
 		m_pkThreadArray[i].join();
 		m_pkThreadArray[i].~thread();
+		m_pkLoopEventArray[i].~Event();
 	}
 	VeFree(m_pkThreadArray);
 	m_pkThreadArray = nullptr;
+	VeFree(m_pkLoopEventArray);
+	m_pkLoopEventArray = nullptr;
 	m_stThreadNum = 0;
 }
 //--------------------------------------------------------------------------
 void VeParallel::Do(std::function<void(VeUInt32)> funcTask) noexcept
 {
 	m_kTask = funcTask;
-	m_u32Count.store(0, std::memory_order_relaxed);
-	m_bEndFlag = false;
+	m_kEvent.Reset(VeUInt32(m_stThreadNum));
+	for (VeSizeT i(0); i < m_stThreadNum; ++i)
 	{
-		while (!m_bLoop);
-		std::lock_guard<std::mutex> kLock(m_kLoopMutex);
-		m_kLoopCondition.notify_all();
+		m_pkLoopEventArray[i].Set();
 	}
-	{
-		std::unique_lock<std::mutex> kLock(m_kJoinMutex);
-		if (!m_bEndFlag)
-		{
-			m_kJoinCondition.wait(kLock);
-		}
-	}
-	VE_ASSERT(m_bEndFlag);
+	m_kEvent.Wait();
 	m_kTask = nullptr;
 }
 //--------------------------------------------------------------------------
