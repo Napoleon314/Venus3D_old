@@ -32,5 +32,7 @@
 #include "VeVideo.h"
 #include "VeEngine.h"
 #include "VeRenderWindow.h"
+#include "VeRenderResource.h"
 #include "VeRenderBuffer.h"
+#include "VerenderTexture.h"
 #include "VeRenderer.h"

@@ -57,27 +57,7 @@ public:
 	static constexpr VeUInt32 FRAME_COUNT = 3;
 	static constexpr VeUInt32 RTV_COUNT = 32;
 	static constexpr VeUInt32 DSV_COUNT = 16;
-	static constexpr VeUInt32 SRV_COUNT = 4096;
-
-	enum BlendType
-	{
-		REPLACE,
-		ADD,
-		BLEND
-	};
-
-	enum RasterType
-	{
-		CULL_BACK,
-		CULL_FRONT,
-		CULL_NONE
-	};
-
-	enum DepthStencilType
-	{
-		DS_NONE,
-		DS_STANDARD
-	};
+	static constexpr VeUInt32 SRV_COUNT = 4096;	
 
 	class RootSignatureD3D12 : public RootSignature
 	{
@@ -214,9 +194,9 @@ public:
 	virtual std::pair<VeBlobPtr,ShaderType> CompileShader(const VeChar8* pcFile,
 		const VeChar8* pcTarget, const VeChar8* pcPath, VeJSONValue& kConfig,
 		const VeStringMap<VeUInt32>& kShaderNameMap,
-		const VeVector<VeBlobPtr>& kShaderList) noexcept override;	
+		const VeVector<VeBlobPtr>& kShaderList) noexcept override;
 
-	virtual VeBlobPtr SerializeRootSignature(VeJSONValue& kConfig) noexcept override;	
+	virtual VeBlobPtr SerializeRootSignature(VeJSONValue& kConfig) noexcept override;
 
 	virtual RootSignaturePtr CreateRootSignature(const VeBlobPtr& spBlob) noexcept override;
 

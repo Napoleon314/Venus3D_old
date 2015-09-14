@@ -44,6 +44,26 @@ VeRenderer::VeRenderer(API eType) noexcept
 		{ TYPE_DS, "ds" },
 		{ TYPE_CS, "cs" }
 	});
+
+	VE_ENUM(BlendType,
+	{
+		{ REPLACE, "replace" },
+		{ ADD, "add" },
+		{ BLEND, "blend" }
+	});
+
+	VE_ENUM(RasterType,
+	{
+		{ CULL_BACK, "cull_back" },
+		{ CULL_FRONT, "cull_front" },
+		{ CULL_NONE, "cull_none" }
+	});
+
+	VE_ENUM(DepthStencilType,
+	{
+		{ DS_NONE, "cull_back" },
+		{ DS_STANDARD, "cull_none" }
+	});
 }
 //--------------------------------------------------------------------------
 VeRenderer::~VeRenderer() noexcept

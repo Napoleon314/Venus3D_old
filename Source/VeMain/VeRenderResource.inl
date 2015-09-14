@@ -1,19 +1,20 @@
 ////////////////////////////////////////////////////////////////////////////
 //
-//  Venus Engine Source File.
+//  Venus Engine Inline File.
 //  Copyright (C), Venus Interactive Entertainment.2012
 // -------------------------------------------------------------------------
 //  Module:      VeMain
-//  File name:   VeRenderBuffer.cpp
-//  Created:     2015/09/10 by Napoleon
+//  File name:   VeRenderResource.inl
+//  Created:     2015/09/14 by Napoleon
 //  Description: 
 // -------------------------------------------------------------------------
 //  History:
 //  http://www.venusie.com
 ////////////////////////////////////////////////////////////////////////////
 
-#include "VeMainPch.h"
-
 //--------------------------------------------------------------------------
-VeRTTIImpl(VeRenderBuffer, VeRenderResource);
+inline VeRenderResource::Dimension VeRenderResource::GetDimension() noexcept
+{
+	return m_eDimension;
+}
 //--------------------------------------------------------------------------

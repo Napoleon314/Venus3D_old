@@ -314,6 +314,8 @@
     <ClInclude Include="..\..\..\..\Source\VeMain\VeRect.h" />
     <ClInclude Include="..\..\..\..\Source\VeMain\VeRenderBuffer.h" />
     <ClInclude Include="..\..\..\..\Source\VeMain\VeRenderer.h" />
+    <ClInclude Include="..\..\..\..\Source\VeMain\VeRenderResource.h" />
+    <ClInclude Include="..\..\..\..\Source\VeMain\VeRenderTexture.h" />
     <ClInclude Include="..\..\..\..\Source\VeMain\VeRenderWindow.h" />
     <ClInclude Include="..\..\..\..\Source\VeMain\VeSurface.h" />
     <ClInclude Include="..\..\..\..\Source\VeMain\VeVector2.h" />
@@ -377,6 +379,8 @@
     <ClCompile Include="..\..\..\..\Source\VeMain\VeRect.cpp" />
     <ClCompile Include="..\..\..\..\Source\VeMain\VeRenderBuffer.cpp" />
     <ClCompile Include="..\..\..\..\Source\VeMain\VeRenderer.cpp" />
+    <ClCompile Include="..\..\..\..\Source\VeMain\VeRenderResource.cpp" />
+    <ClCompile Include="..\..\..\..\Source\VeMain\VeRenderTexture.cpp" />
     <ClCompile Include="..\..\..\..\Source\VeMain\VeRenderWindow.cpp" />
     <ClCompile Include="..\..\..\..\Source\VeMain\VeSurface.cpp" />
     <ClCompile Include="..\..\..\..\Source\VeMain\VeVector2.cpp" />
@@ -418,6 +422,8 @@
     <None Include="..\..\..\..\Source\VeMain\VeRect.inl" />
     <None Include="..\..\..\..\Source\VeMain\VeRenderBuffer.inl" />
     <None Include="..\..\..\..\Source\VeMain\VeRenderer.inl" />
+    <None Include="..\..\..\..\Source\VeMain\VeRenderResource.inl" />
+    <None Include="..\..\..\..\Source\VeMain\VeRenderTexture.inl" />
     <None Include="..\..\..\..\Source\VeMain\VeRenderWindow.inl" />
     <None Include="..\..\..\..\Source\VeMain\VeSurface.inl" />
     <None Include="..\..\..\..\Source\VeMain\VeVector2.inl" />

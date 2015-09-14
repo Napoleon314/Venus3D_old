@@ -14,10 +14,10 @@
 
 #pragma once
 
-class VE_MAIN_API VeRenderBuffer : public VeRefObject
+class VE_MAIN_API VeRenderBuffer : public VeRenderResource
 {
 	VeNoCopy(VeRenderBuffer);
-	VeRTTIDecl(VeRenderBuffer);
+	VeRTTIDecl(VeRenderBuffer, VeRenderResource);
 public:
 	enum Type
 	{
@@ -50,7 +50,8 @@ public:
 
 protected:
 	VeRenderBuffer(Type eType, Useage eUse, VeUInt32 u32Size) noexcept
-		: m_u16Type(eType), m_u16Useage(eUse), m_u32Size(u32Size) {}
+		: VeRenderResource(DIMENSION_BUFFER), m_u16Type(eType)
+		, m_u16Useage(eUse), m_u32Size(u32Size) {}
 
 	VeUInt16 m_u16Type;
 	VeUInt16 m_u16Useage;

@@ -14,6 +14,8 @@
 
 #pragma once
 
+VeSmartPointer(VeRenderBuffer);
+
 class VE_MAIN_API VeRenderer : public VeRefObject
 {
 	VeNoCopy(VeRenderer);
@@ -39,6 +41,26 @@ public:
 		TYPE_DS,
 		TYPE_CS,
 		SHADER_TYPE_NUM
+	};
+
+	enum BlendType
+	{
+		REPLACE,
+		ADD,
+		BLEND
+	};
+
+	enum RasterType
+	{
+		CULL_BACK,
+		CULL_FRONT,
+		CULL_NONE
+	};
+
+	enum DepthStencilType
+	{
+		DS_NONE,
+		DS_STANDARD
 	};
 
 	class VE_MAIN_API RootSignature : public VeRefObject

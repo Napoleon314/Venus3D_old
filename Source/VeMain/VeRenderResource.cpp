@@ -4,8 +4,8 @@
 //  Copyright (C), Venus Interactive Entertainment.2012
 // -------------------------------------------------------------------------
 //  Module:      VeMain
-//  File name:   VeRenderBuffer.cpp
-//  Created:     2015/09/10 by Napoleon
+//  File name:   VeRenderResource.cpp
+//  Created:     2015/09/14 by Napoleon
 //  Description: 
 // -------------------------------------------------------------------------
 //  History:
@@ -15,5 +15,5 @@
 #include "VeMainPch.h"
 
 //--------------------------------------------------------------------------
-VeRTTIImpl(VeRenderBuffer, VeRenderResource);
+VeRTTIImpl(VeRenderResource);
 //--------------------------------------------------------------------------

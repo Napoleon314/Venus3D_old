@@ -28,10 +28,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
 	ve_res_mgr.SetupGroupFromJSON("{\"startup\":{\"r\":[\"file#shaders/cache\",\"file#shaders\"],\"w\":\"file#shaders/cache\"}}");
 
-	//ve_res_mgr.LoadFile("startup$shaders.json");
-	//ve_res_mgr.LoadFile("startup$root_signatures.json");
-	//ve_res_mgr.LoadFile("startup$pipeline_states.json");
-
 	ve_renderer_ptr->PreCache(ve_res_mgr.CreateDir("file#scripts/cache"),
 		ve_res_mgr.CreateDir("file#scripts/hlsl", false),
 		ve_res_mgr.CreateDir("file#scripts", false));

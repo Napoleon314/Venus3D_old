@@ -112,6 +112,12 @@
     <ClInclude Include="..\..\..\..\Source\VeMain\D3D12\VeRenderBufferD3D12.h">
       <Filter>Renderer\D3D12</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\VeMain\VeRenderTexture.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\VeMain\VeRenderResource.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\Source\VeMain\VeMain.cpp">
@@ -189,6 +195,12 @@
     <ClCompile Include="..\..\..\..\Source\VeMain\D3D12\VeRenderBufferD3D12.cpp">
       <Filter>Renderer\D3D12</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\Source\VeMain\VeRenderTexture.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Source\VeMain\VeRenderResource.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\..\Source\VeMain\VeRenderer.inl">
@@ -246,6 +258,12 @@
       <Filter>Math</Filter>
     </None>
     <None Include="..\..\..\..\Source\VeMain\VeRenderBuffer.inl">
+      <Filter>Renderer</Filter>
+    </None>
+    <None Include="..\..\..\..\Source\VeMain\VeRenderTexture.inl">
+      <Filter>Renderer</Filter>
+    </None>
+    <None Include="..\..\..\..\Source\VeMain\VeRenderResource.inl">
       <Filter>Renderer</Filter>
     </None>
   </ItemGroup>
