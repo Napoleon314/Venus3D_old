@@ -13,7 +13,7 @@
 ////////////////////////////////////////////////////////////////////////////
 
 //--------------------------------------------------------------------------
-inline VeFloat32 VeParser::GetValue(const VeChar8* pcName) noexcept
+inline VeFloat64 VeParser::GetValue(const VeChar8* pcName) noexcept
 {
 	auto it = m_kValueMap.find(pcName);
 	if (it != m_kValueMap.end())
@@ -24,8 +24,8 @@ inline VeFloat32 VeParser::GetValue(const VeChar8* pcName) noexcept
 }
 //--------------------------------------------------------------------------
 inline void VeParser::SetValue(const VeChar8* pcName,
-	VeFloat32 f32Value) noexcept
+	VeFloat64 f64Value) noexcept
 {
-	m_kValueMap[pcName] = f32Value;
+	m_kValueMap[pcName] = f64Value;
 }
 //--------------------------------------------------------------------------

@@ -28,12 +28,6 @@ public:
 		USEAGE_MASK = 0xff
 	};
 
-	struct SampleDesc
-	{
-		VeUInt16 m_u16Count = 0;
-		VeUInt16 m_u16Qulity = 0;
-	};
-
 	inline Format GetFormat() noexcept;
 
 	inline VeUInt32 GetWidth() noexcept;
@@ -44,19 +38,23 @@ public:
 
 	inline VeUInt16 GetMipLevels() noexcept;
 
-	inline SampleDesc GetSampleDesc() noexcept;
+	inline std::pair<VeUInt16,VeUInt16> GetSampleDesc() noexcept;
 	
 protected:
 	VeRenderTexture(Dimension eDim, Format eFormat,
 		VeUInt32 u32Width, VeUInt32 u32Height, VeUInt16 u16Depth,
-		VeUInt16 u16MipLevels, VeUInt16 u16Count, VeUInt16 u16Qulity) noexcept;
+		VeUInt16 u16MipLevels, VeUInt16 u16Count, VeUInt16 u16Quality) noexcept
+		: VeRenderResource(eDim), m_eFormat(eFormat), m_u32Width(u32Width)
+		, m_u16Depth(u16Depth), m_u16MipLevels(u16MipLevels)
+		, m_u16Count(u16Count), m_u16Quality(u16Quality) {}
 
 	Format m_eFormat;
 	VeUInt32 m_u32Width;
 	VeUInt32 m_u32Height;
 	VeUInt16 m_u16Depth;
 	VeUInt16 m_u16MipLevels;
-	SampleDesc m_kSampleDesc;
+	VeUInt16 m_u16Count;
+	VeUInt16 m_u16Quality;
 
 };
 

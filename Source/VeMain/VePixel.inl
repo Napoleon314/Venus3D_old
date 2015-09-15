@@ -27,6 +27,13 @@ inline VeColor& VeColor::operator = (VeFloat32 f32Scalar) noexcept
 	return *this;
 }
 //--------------------------------------------------------------------------
+inline VeColor& VeColor::operator = (const VeColor& kColor) noexcept
+{
+	VE_VECTOR vec = VeLoadFloat4A(&kColor.v);
+	VeStoreFloat4A(&v, vec);
+	return *this;
+}
+//--------------------------------------------------------------------------
 inline bool VeColor::operator == (const VeColor& c) const noexcept
 {
 	VE_VECTOR vec0 = VeLoadFloat4A(&v);

@@ -248,6 +248,8 @@ public:
 
 	inline VeColor& operator = (VeFloat32 f32Scalar) noexcept;
 
+	inline VeColor& operator = (const VeColor& kColor) noexcept;
+
 	inline bool operator == (const VeColor& c) const noexcept;
 
 	inline bool operator != (const VeColor& c) const noexcept;
@@ -289,6 +291,8 @@ public:
 	inline void Scale() noexcept;
 
 	inline void GetAs(VeRGBA& kColor) const noexcept;
+
+	static VeColor Parse(const VeChar8* pcStr, const VeColor& kDefault) noexcept;
 
 	static const VeColor ZERO;
 	static const VeColor WHITE;

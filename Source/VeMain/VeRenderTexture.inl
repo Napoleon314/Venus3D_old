@@ -38,8 +38,9 @@ inline VeUInt16 VeRenderTexture::GetMipLevels() noexcept
 	return m_u16MipLevels;
 }
 //--------------------------------------------------------------------------
-inline VeRenderTexture::SampleDesc VeRenderTexture::GetSampleDesc() noexcept
+inline std::pair<VeUInt16, VeUInt16>
+VeRenderTexture::GetSampleDesc() noexcept
 {
-	return m_kSampleDesc;
+	return std::make_pair(m_u16Count, m_u16Quality);
 }
 //--------------------------------------------------------------------------

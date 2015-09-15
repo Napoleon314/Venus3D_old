@@ -67,6 +67,10 @@ namespace rapidjson
 			{
 				return val.GetUint();
 			}
+			else if(val.IsString())
+			{
+				return ve_parser.Parse(val.GetString(), def);
+			}
 			return def;
 		}
 	};
@@ -80,6 +84,10 @@ namespace rapidjson
 			if (val.IsUint64())
 			{
 				return val.GetUint64();
+			}
+			else if (val.IsString())
+			{
+				return ve_parser.Parse(val.GetString(), def);
 			}
 			return def;
 		}
@@ -95,6 +103,10 @@ namespace rapidjson
 			{
 				return val.GetInt();
 			}
+			else if (val.IsString())
+			{
+				return ve_parser.Parse(val.GetString(), def);
+			}
 			return def;
 		}
 	};
@@ -108,6 +120,10 @@ namespace rapidjson
 			if (val.IsInt64())
 			{
 				return val.GetInt64();
+			}
+			else if (val.IsString())
+			{
+				return ve_parser.Parse(val.GetString(), def);
 			}
 			return def;
 		}
@@ -123,6 +139,10 @@ namespace rapidjson
 			{
 				return (VeFloat32)val.GetDouble();
 			}
+			else if (val.IsString())
+			{
+				return ve_parser.Parse(val.GetString(), def);
+			}
 			return def;
 		}
 	};
@@ -136,6 +156,10 @@ namespace rapidjson
 			if (val.IsDouble())
 			{
 				return val.GetDouble();
+			}
+			else if (val.IsString())
+			{
+				return ve_parser.Parse(val.GetString(), def);
 			}
 			return def;
 		}
@@ -184,10 +208,8 @@ namespace rapidjson
 	};
 
 	template <class _Ty>
-	struct ValueTranslator : std::conditional <
-		std::is_enum<_Ty>::value,
-		EnumTranslator<_Ty>,
-		NormalTranslator<_Ty >>::type {};
+	struct ValueTranslator : std::conditional < std::is_enum<_Ty>::value,
+		EnumTranslator<_Ty>, NormalTranslator<_Ty> > ::type {};
 
 	template <typename _Ty, typename Encoding, typename Allocator = MemoryPoolAllocator<>>
 	_Ty To(GenericValue<Encoding, Allocator>& val, _Ty def) noexcept

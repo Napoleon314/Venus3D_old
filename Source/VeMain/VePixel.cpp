@@ -27,6 +27,40 @@ const VeRGBA VeRGBA::WHITE(255, 255, 255, 255);
 //--------------------------------------------------------------------------
 const VeRGBA VeRGBA::BLACK(0, 0, 0, 255);
 //--------------------------------------------------------------------------
+VeColor VeColor::Parse(const VeChar8* pcStr,
+	const VeColor& kDefault) noexcept
+{
+	VeChar8 acBuffer[VE_MAX_PATH_LEN];
+	VeStrcpy(acBuffer, pcStr);
+	VeColor kRes = kDefault;
+	VeChar8* pcContext;
+	VeChar8* pcTemp = VeStrtok(acBuffer, ",", &pcContext);
+	if (pcTemp)
+	{
+		pcTemp = VeTrim(pcTemp);
+		kRes.r = ve_parser.CalculateExpression(pcTemp, kDefault.r);
+	}
+	pcTemp = VeStrtok<VeChar8>(nullptr, ",", &pcContext);
+
+	if (pcTemp)
+	{
+		pcTemp = VeTrim(pcTemp);
+		kRes.g = ve_parser.CalculateExpression(pcTemp, kDefault.g);
+	}
+	pcTemp = VeStrtok<VeChar8>(nullptr, ",", &pcContext);
+	if (pcTemp)
+	{
+		pcTemp = VeTrim(pcTemp);
+		kRes.b = ve_parser.CalculateExpression(pcTemp, kDefault.b);
+	}
+	if (pcContext)
+	{
+		pcTemp = VeTrim(pcContext);
+		kRes.a = ve_parser.CalculateExpression(pcTemp, kDefault.a);
+	}
+	return kRes;
+}
+//--------------------------------------------------------------------------
 VePalette::VePalette(VeInt32 i32NumColors) noexcept
 {
 	VE_ASSERT(i32NumColors > 0);

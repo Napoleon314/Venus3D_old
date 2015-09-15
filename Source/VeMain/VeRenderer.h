@@ -63,6 +63,103 @@ public:
 		DS_STANDARD
 	};
 
+	enum FramePassType
+	{
+		PASS_CLEAR,
+		PASS_RENDER_QUAD,
+		PASS_MAX
+	};
+	
+	enum FrameTargetType
+	{
+		TARGET_NONE,
+		TARGET_INPUT,
+		TARGET_OUTPUT
+	};
+
+	enum ClearFlag
+	{
+		CLEAR_COLOR = 0x1,
+		CLEAR_DEPTH = 0x2,
+		CLEAR_STENCIL = 0x4,
+		CLEAR_ALL = 0xf
+	};
+
+	struct FramePass : public VeRefObject
+	{
+		FramePassType m_eType;		
+	};
+
+	typedef VePointer<FramePass> FramePassPtr;
+
+	struct FrameClear : public FramePass
+	{
+		VeUInt32 m_u32Flags = 0;
+		VeVector<VeColor> m_kColorArray;
+		VeFloat32 m_f32Depth = 0;
+		VeUInt8 m_u8Stencil = 0;
+	};
+
+	struct FrameClick
+	{
+		VeFixedString m_kTarget;
+		VeVector<FramePassPtr> m_kPassList;
+	};
+
+	struct FrameResource
+	{
+		VeFixedString m_kName;
+		VeRenderResource::Dimension m_eDimension;
+		VeRenderResource::Format m_eFormat;
+		VeUInt32 m_u32Width;
+		VeUInt32 m_u32Height;
+		VeUInt16 m_u16Depth;
+		VeUInt16 m_u16MipLevels;
+		VeUInt16 m_u16Count;
+		VeUInt16 m_u16Quality;
+	};	
+
+	struct FrameRTV
+	{
+		VeFixedString m_kResName;
+		VeUInt32 m_u32Param0;
+		VeUInt32 m_u32Param1;
+		VeUInt32 m_u32Param2;
+		VeUInt32 m_u32Param3;
+	};
+
+	struct FrameDSV
+	{
+		VeFixedString m_kResName;
+		VeUInt32 m_u32Param0;
+		VeUInt32 m_u32Param1;
+		VeUInt32 m_u32Param2;
+		VeUInt32 m_u32Param3;
+	};	
+
+	struct FrameTarget
+	{
+		VeFixedString m_kName;
+		FrameTargetType m_eType;
+		VeVector<FrameRTV> m_kRTVList;
+		FrameDSV m_kDSV;
+	};
+
+	struct FrameTechnique
+	{
+		VeFixedString m_kName;
+		VeVector<FrameResource> m_kResourceList;
+		VeVector<FrameTarget> m_kTargetList;
+		VeVector<FrameClick> m_kClickList;
+	};
+
+	struct FrameCompositor : public VeRefObject
+	{
+		VeVector<FrameTechnique> m_kTechniqueList;
+	};
+
+	typedef VePointer<FrameCompositor> FrameCompositorPtr;
+
 	class VE_MAIN_API RootSignature : public VeRefObject
 	{
 		VeNoCopy(RootSignature);
@@ -128,10 +225,29 @@ protected:
 
 	virtual ~VeRenderer() noexcept;
 
+	FrameCompositorPtr CreateCompositor(VeJSONValue& kValue) noexcept;
+
+	void SetTechnique(FrameTechnique& kTechnique, VeJSONValue& kValue) noexcept;
+
+	void SetResource(FrameResource& kResource, VeJSONValue& kValue) noexcept;
+
+	void SetTarget(FrameTarget& kTarget, VeJSONValue& kValue) noexcept;
+
+	void SetRTV(FrameRTV& kRTV, VeJSONValue& kValue) noexcept;
+
+	void SetDSV(FrameDSV& kDSV, VeJSONValue& kValue) noexcept;
+
+	void SetClick(FrameClick& kClick, VeJSONValue& kValue) noexcept;
+
+	FramePassPtr CreatePass(VeJSONValue& kValue) noexcept;
+
+	FramePassPtr CreateClear(VeJSONValue& kValue) noexcept;
+
 	const API m_eType;
 	VeStringMap<VeBlobPtr> m_akShaderMap[SHADER_TYPE_NUM];
 	VeStringMap<RootSignaturePtr> m_kRootSignatureMap;
 	VeStringMap<PipelineStatePtr> m_kPipelineStateMap;
+	VeStringMap<FrameCompositorPtr> m_kCompositorMap;
 
 };
 

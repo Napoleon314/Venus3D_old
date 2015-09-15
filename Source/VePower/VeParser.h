@@ -122,6 +122,12 @@ protected:
 
 #define VE_ENUM(ty,...) VE_NEW VeEnumParser<ty>(__VA_ARGS__)
 
+namespace venus
+{
+	template <class _Ty>
+	struct ValueParser;
+}
+
 class VE_POWER_API VeParser : public VeSingleton<VeParser>
 {
 	VeNoCopy(VeParser);
@@ -144,7 +150,7 @@ public:
 		TokenType m_eType;
 		union
 		{
-			VeFloat32 m_f32Number;
+			VeFloat64 m_f64Number;
 			TokenStr m_kString;
 		};
 	};
@@ -156,7 +162,7 @@ public:
 	template<class _Ty>
 	_Ty Parse(const VeChar8* pcStr, _Ty eDefault) noexcept
 	{
-		return eDefault;
+		return venus::ValueParser<_Ty>::Parse(pcStr, eDefault);
 	}
 
 	template<class _Ty>
@@ -189,22 +195,61 @@ public:
 		return VeEnumParser<_Ty>::GetSingleton().FlagsToStr(eFlags);
 	}
 
-	inline VeFloat32 GetValue(const VeChar8* pcName) noexcept;
+	inline VeFloat64 GetValue(const VeChar8* pcName) noexcept;
 	
-	inline void SetValue(const VeChar8* pcName, VeFloat32 f32Value) noexcept;
+	inline void SetValue(const VeChar8* pcName, VeFloat64 f64Value) noexcept;
 
 	void AddDestructor(std::function<void()> funcDest) noexcept;
 
-	VeFloat32 CalculateExpression(const VeChar8* pcExpr) noexcept;
+	VeFloat64 CalculateExpression(const VeChar8* pcExpr, VeFloat64 f64Default) noexcept;
 
 protected:
 	VeVector<std::function<void()>> m_kDestructList;
 	VeStringMap<VeInt32> m_kOpMap;
-	VeStringMap<VeFloat32> m_kValueMap;
+	VeStringMap<VeFloat64> m_kValueMap;
 	
 
 };
 
 #define ve_parser VeParser::GetSingleton()
+
+namespace venus
+{
+	template <class _Ty>
+	struct EnumParser
+	{
+		static_assert(std::is_enum<_Ty>::value, "_Ty has to be a enum");
+
+		static _Ty Parse(const VeChar8* str, _Ty def) noexcept
+		{
+			return ve_parser.ParseEnum(str, def);
+		}
+	};
+
+	template <class _Ty>
+	struct NumberParser
+	{
+		static_assert(std::is_arithmetic<_Ty>::value, "_Ty has to be a number");
+
+		static _Ty Parse(const VeChar8* str, _Ty def) noexcept
+		{
+			return (_Ty)ve_parser.CalculateExpression(str, (VeFloat64)def);
+		}
+	};
+
+	template <class _Ty>
+	struct NormalParser
+	{
+		static _Ty Parse(const VeChar8* str, _Ty def) noexcept
+		{
+			return _Ty::Parse(str, def);
+		}
+	};
+
+	template <class _Ty>
+	struct ValueParser : std::conditional <std::is_enum<_Ty>::value, EnumParser<_Ty>,
+		typename std::conditional < std::is_arithmetic<_Ty>::value, NumberParser<_Ty>,
+		NormalParser<_Ty> >::type > ::type {};
+}
 
 #include "VeParser.inl"

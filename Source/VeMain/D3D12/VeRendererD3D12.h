@@ -215,8 +215,6 @@ protected:
 	friend class VeStaticBufferD3D12;
 	friend class VeDynamicBufferD3D12;
 
-	void InitEnums() noexcept;
-
 	void InitCopyQueue() noexcept;
 
 	void TermCopyQueue() noexcept;
