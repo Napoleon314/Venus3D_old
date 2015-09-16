@@ -49,9 +49,7 @@ void VeRenderWindowD3D12::Init(VeRendererD3D12& kRenderer) noexcept
 		kSwapChainDesc.BufferCount = VeRendererD3D12::FRAME_COUNT;
 		kSwapChainDesc.BufferDesc.Width = m_spTargetWindow->GetWidth();
 		kSwapChainDesc.BufferDesc.Height = m_spTargetWindow->GetHeight();
-		kSwapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-		if(VE_MASK_HAS_ALL(m_spTargetWindow->GetFlags(), VE_WINDOW_ALLOW_HIGHDPI))
-			kSwapChainDesc.BufferDesc.Format = DXGI_FORMAT_R10G10B10A2_UNORM;			
+		kSwapChainDesc.BufferDesc.Format = DXGI_FORMAT_R10G10B10A2_UNORM;			
 		kSwapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 		kSwapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 		kSwapChainDesc.OutputWindow = m_spTargetWindow->GetWMInfo().win.window;
@@ -77,7 +75,6 @@ void VeRenderWindowD3D12::Init(VeRendererD3D12& kRenderer) noexcept
 			VE_SAFE_RELEASE(pkSwapChain);
 		}
 		VE_ASSERT(m_pkCommandQueue && m_pkSwapChain);
-		m_u32FrameIndex = m_pkSwapChain->GetCurrentBackBufferIndex();
 		for (VeInt32 i(0); i < VeRendererD3D12::FRAME_COUNT; ++i)
 		{
 			FrameCache& kFrame = m_akFrameCache[i];
@@ -95,6 +92,8 @@ void VeRenderWindowD3D12::Init(VeRendererD3D12& kRenderer) noexcept
 			kFrame.m_u64FenceValue = 0;
 		}
 
+		VE_ASSERT_GE(kRenderer.m_pkDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_BUNDLE, IID_PPV_ARGS(&m_pkBundleAllocator)), S_OK);
+
 		m_u64FenceValue = 0;
 		VE_ASSERT_GE(kRenderer.m_pkDevice->CreateFence(m_u64FenceValue++,
 			D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_pkFence)), S_OK);
@@ -104,10 +103,10 @@ void VeRenderWindowD3D12::Init(VeRendererD3D12& kRenderer) noexcept
 		VE_ASSERT_GE(m_pkCommandQueue->Signal(m_pkFence, u64FenceToWaitFor), S_OK);
 		VE_ASSERT_GE(m_pkFence->SetEventOnCompletion(u64FenceToWaitFor, m_kFenceEvent), S_OK);
 		WaitForSingleObject(m_kFenceEvent, INFINITE);
-
+		m_u32FrameIndex = m_pkSwapChain->GetCurrentBackBufferIndex();
 		kRenderer.m_kRenderWindowList.attach_back(m_kNode);
 	}
-	m_u32FrameIndex = m_pkSwapChain->GetCurrentBackBufferIndex();
+	
 
 	m_kViewport.TopLeftX = 0;
 	m_kViewport.TopLeftY = 0;
@@ -145,6 +144,14 @@ void VeRenderWindowD3D12::Term() noexcept
 		CloseHandle(m_kFenceEvent);
 		VE_SAFE_RELEASE(m_pkFence);
 
+		for (auto& list : m_kBundleCommandList)
+		{
+			VE_SAFE_RELEASE(list);
+		}
+		VE_SAFE_RELEASE(m_pkBundleAllocator);
+		m_kBundleCommandList.clear();
+		m_kBundleList.clear();
+
 		for (VeInt32 i(VeRendererD3D12::FRAME_COUNT - 1); i >= 0; --i)
 		{
 			FrameCache& kFrame = m_akFrameCache[i];
@@ -162,5 +169,42 @@ void VeRenderWindowD3D12::Term() noexcept
 bool VeRenderWindowD3D12::IsValid() noexcept
 {
 	return VeRenderWindow::IsValid() ? m_kNode.is_attach() : false;
+}
+//--------------------------------------------------------------------------
+void VeRenderWindowD3D12::SetupCompositorList(const VeChar8* pcHint,
+	const VeChar8** ppcList, VeSizeT stNum) noexcept
+{
+
+
+
+
+}
+//--------------------------------------------------------------------------
+void VeRenderWindowD3D12::ResetFrameForm() noexcept
+{
+	VE_ASSERT_GE(m_pkBundleAllocator->Reset(), S_OK);
+	for (auto& list : m_kBundleCommandList)
+	{
+		VE_ASSERT_GE(list->Reset(m_pkBundleAllocator, nullptr), S_OK);
+	}
+	m_stUsedBundleNum = 0;
+	m_kBundleList.clear();
+	m_kProcessList.clear();
+}
+//--------------------------------------------------------------------------
+ID3D12GraphicsCommandList* VeRenderWindowD3D12::AddBundle() noexcept
+{
+	VeRendererD3D12& kRenderer = *VeMemberCast(
+		&VeRendererD3D12::m_kRenderWindowList, m_kNode.get_list());
+	if (m_stUsedBundleNum >= m_kBundleCommandList.size())
+	{
+		ID3D12GraphicsCommandList* pkBundle = nullptr;
+		VE_ASSERT_GE(kRenderer.m_pkDevice->CreateCommandList(0,
+			D3D12_COMMAND_LIST_TYPE_BUNDLE, m_pkBundleAllocator,
+			nullptr, IID_PPV_ARGS(&pkBundle)), S_OK);
+		m_kBundleCommandList.push_back(pkBundle);
+	}
+	++m_stUsedBundleNum;
+	return m_kBundleCommandList.back();
 }
 //--------------------------------------------------------------------------

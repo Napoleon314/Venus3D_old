@@ -36,9 +36,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 		VeRenderBuffer::TYPE_DYNAMIC, VeRenderBuffer::USEAGE_CB, 1024);
 	VE_FLOAT3 triangleVertices[] =
 	{
-		{ -100.0f, 100.0f, 0.0f },
-		{ 100.0f, -100.0f, 0.0f },
-		{ 100.0f, 100.0f, 0.0f }
+		{ -1.0f, 1.0f, 0.0f },
+		{ 1.0f, -1.0f, 0.0f },
+		{ 1.0f, 1.0f, 0.0f }
 	};
 
 	VeRenderBufferPtr spVB = ve_renderer_ptr->CreateBuffer(VeRenderBuffer::TYPE_STATIC, VeRenderBuffer::USEAGE_VB, sizeof(triangleVertices));
@@ -47,7 +47,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 	ve_renderer_ptr->EndSyncCopy();
 
 	VeRenderWindowPtr spRenderWindow = ve_renderer_ptr->CreateRenderWindow(
-		"RenderTest", VE_WINDOWPOS_CENTERED, VE_WINDOWPOS_CENTERED, 1280, 720, VE_WINDOW_ALLOW_HIGHDPI);
+		"RenderTest", VE_WINDOWPOS_CENTERED, VE_WINDOWPOS_CENTERED, 1280, 720, 0);
 
 	{
 		bool bLoop(true);
@@ -132,7 +132,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
 
 				static VeFloat32 s_Test = 0.0f;
-				//s_Test += ve_time.GetDeltaTime() * 0.3f;
+				s_Test -= ve_time.GetDeltaTime() * 0.3f;
 
 				VE_FLOAT4A* pvData = (VE_FLOAT4A*)spCB->Map();
 				VE_VECTOR v = { 0, s_Test, 0.5f, 0.5f };

@@ -77,6 +77,9 @@ public:
 
 	virtual bool IsValid() noexcept;
 
+	virtual void SetupCompositorList(const VeChar8* pcHint,
+		const VeChar8** ppcList, VeSizeT stNum) noexcept = 0;
+
 	virtual void Update(void* pvCBuffer, void* pvVBuffer) noexcept = 0;
 
 protected:

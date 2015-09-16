@@ -19,6 +19,33 @@ class VeRenderWindowD3D12 : public VeRenderWindow
 	VeNoCopy(VeRenderWindowD3D12);
 	VeRTTIDecl(VeRenderWindowD3D12, VeRenderWindow);
 public:
+	enum QueueProcessType
+	{
+		TYPE_EXCUTE,
+		TYPE_SIGNAL,
+		TYPE_WAIT
+	};
+
+	struct QueueProcess
+	{
+		QueueProcessType m_eType;
+		union
+		{
+			VeUInt32 m_u32Value;
+			struct 
+			{
+				VeUInt16 m_u16Start;
+				VeUInt16 m_u16Num;
+			};
+		};		
+	};
+
+	struct Bundle
+	{
+		VeUInt16 m_u16BundleIndex;
+		VeUInt16 m_u16CommandListIndex;
+	};
+
 	VeRenderWindowD3D12(const VeWindowPtr& spWindow) noexcept;
 
 	virtual ~VeRenderWindowD3D12() noexcept;
@@ -28,6 +55,9 @@ public:
 	void Term() noexcept;
 
 	virtual bool IsValid() noexcept override;
+
+	virtual void SetupCompositorList(const VeChar8* pcHint,
+		const VeChar8** ppcList, VeSizeT stNum) noexcept override;
 
 	virtual void Update(void* pvCBuffer, void* pvVBuffer) noexcept override
 	{
@@ -107,9 +137,14 @@ public:
 	}
 
 protected:
+	void ResetFrameForm() noexcept;
+
+	ID3D12GraphicsCommandList*  AddBundle() noexcept;
+
 	VeRefNode<VeRenderWindowD3D12*> m_kNode;
 	ID3D12CommandQueue* m_pkCommandQueue = nullptr;
 	IDXGISwapChain3* m_pkSwapChain = nullptr;
+
 	struct FrameCache
 	{
 		ID3D12Resource* m_pkBufferResource = nullptr;
@@ -118,6 +153,15 @@ protected:
 		ID3D12GraphicsCommandList* m_pkDirectList = nullptr;
 		VeUInt64 m_u64FenceValue = 0;
 	} m_akFrameCache[VeRendererD3D12::FRAME_COUNT];
+
+	struct
+	{
+		ID3D12CommandAllocator* m_pkBundleAllocator = nullptr;
+		VeVector<ID3D12GraphicsCommandList*> m_kBundleCommandList;
+		VeSizeT m_stUsedBundleNum = 0;
+		VeVector<Bundle> m_kBundleList;
+		VeVector<QueueProcess> m_kProcessList;
+	};
 
 	D3D12_VIEWPORT m_kViewport;
 	D3D12_RECT m_kScissorRect;

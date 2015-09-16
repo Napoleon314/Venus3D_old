@@ -101,6 +101,41 @@ public:
 
 	};
 
+	class GeometryD3D12 : public Geometry
+	{
+		VeNoCopy(GeometryD3D12);
+		VeRTTIDecl(GeometryD3D12, Geometry);
+	public:
+		GeometryD3D12() noexcept = default;
+
+		virtual ~GeometryD3D12() noexcept = default;
+
+		virtual bool IsValid() noexcept override;
+		
+		virtual void SetPrimitiveTopologyType(PrimitiveTopologyType eType) noexcept override;
+
+		virtual void SetVertexBufferNum(VeUInt32 u32Num) noexcept override;
+
+		virtual void SetVertexBuffer(VeUInt32 u32Index, const VeRenderBufferPtr& spBuffer,
+			VeUInt32 u32Stride) noexcept override;
+
+		virtual void SetVertexBuffer(VeUInt32 u32Index, const VeRenderBufferPtr& spBuffer,
+			VeUInt32 u32Offset, VeUInt32 u32Size, VeUInt32 u32Stride) noexcept override;
+
+		virtual void ClearIndexBuffer() noexcept override;
+
+		virtual void SetIndexBuffer(const VeRenderBufferPtr& spBuffer,
+			bool bUse32Bit) noexcept override;
+
+		virtual void SetIndexBuffer(const VeRenderBufferPtr& spBuffer, VeUInt32 u32Offset,
+			VeUInt32 u32Size, bool bUse32Bit) noexcept override;
+
+		D3D12_PRIMITIVE_TOPOLOGY_TYPE m_eTopology = D3D12_PRIMITIVE_TOPOLOGY_TYPE_UNDEFINED;
+		VeVector<D3D12_VERTEX_BUFFER_VIEW> m_kVBVList;
+		D3D12_INDEX_BUFFER_VIEW m_kIBV = {};
+
+	};
+
 	template <D3D12_DESCRIPTOR_HEAP_TYPE TYPE, VeUInt32 NUM, D3D12_DESCRIPTOR_HEAP_FLAGS FLAGS>
 	class DescriptorHeapShell
 	{
@@ -205,6 +240,8 @@ public:
 	PipelineStatePtr CreateGraphicsPipelineState(VeJSONValue& kConfig, VeMemoryOStream& kOut) noexcept;
 
 	PipelineStatePtr CreateComputePipelineState(VeJSONValue& kConfig, VeMemoryOStream& kOut) noexcept;
+
+	virtual GeometryPtr CreateGeometry() noexcept;
 
 	virtual VeRenderBufferPtr CreateBuffer(VeRenderBuffer::Type eType,
 		VeRenderBuffer::Useage eUse, VeUInt32 u32Size) noexcept override;

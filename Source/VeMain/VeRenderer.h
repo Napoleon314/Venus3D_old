@@ -63,6 +63,15 @@ public:
 		DS_STANDARD
 	};
 
+	enum PrimitiveTopologyType
+	{
+		PRIMITIVE_TOPOLOGY_TYPE_UNDEFINED = 0,
+		PRIMITIVE_TOPOLOGY_TYPE_POINT = 1,
+		PRIMITIVE_TOPOLOGY_TYPE_LINE = 2,
+		PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE = 3,
+		PRIMITIVE_TOPOLOGY_TYPE_PATCH = 4
+	};
+
 	enum FramePassType
 	{
 		PASS_CLEAR,
@@ -184,6 +193,39 @@ public:
 
 	typedef VePointer<PipelineState> PipelineStatePtr;
 
+	class VE_MAIN_API Geometry : public VeRefObject
+	{
+		VeNoCopy(Geometry);
+		VeRTTIDecl(Geometry);
+	public:
+		virtual bool IsValid() noexcept = 0;
+
+		virtual void SetPrimitiveTopologyType(PrimitiveTopologyType eType) noexcept = 0;
+
+		virtual void SetVertexBufferNum(VeUInt32 u32Num) noexcept = 0;
+
+		virtual void SetVertexBuffer(VeUInt32 u32Index, const VeRenderBufferPtr& spBuffer,
+			VeUInt32 u32Stride) noexcept = 0;
+
+		virtual void SetVertexBuffer(VeUInt32 u32Index, const VeRenderBufferPtr& spBuffer,
+			VeUInt32 u32Offset, VeUInt32 u32Size, VeUInt32 u32Stride) noexcept = 0;
+
+		virtual void ClearIndexBuffer() noexcept = 0;
+
+		virtual void SetIndexBuffer(const VeRenderBufferPtr& spBuffer,
+			bool bUse32Bit = false) noexcept = 0;
+
+		virtual void SetIndexBuffer(const VeRenderBufferPtr& spBuffer, VeUInt32 u32Offset,
+			VeUInt32 u32Size, bool bUse32Bit = false) noexcept = 0;
+
+	protected:
+		Geometry() noexcept = default;
+		virtual ~Geometry() noexcept = default;
+
+	};
+
+	typedef VePointer<Geometry> GeometryPtr;
+
 	inline API GetAPI() const noexcept;
 
 	void RegistResTypes() noexcept;
@@ -216,6 +258,8 @@ public:
 	virtual RootSignaturePtr CreateRootSignature(const VeBlobPtr& spBlob) noexcept = 0;
 
 	virtual PipelineStatePtr CreatePipelineState(VeJSONValue& kConfig, VeBlobPtr& spOut) noexcept = 0;
+
+	virtual GeometryPtr CreateGeometry() noexcept = 0;
 
 	virtual VeRenderBufferPtr CreateBuffer(VeRenderBuffer::Type eType,
 		VeRenderBuffer::Useage eUse, VeUInt32 u32Size) noexcept = 0;

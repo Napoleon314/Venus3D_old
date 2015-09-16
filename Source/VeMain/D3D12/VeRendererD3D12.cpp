@@ -26,6 +26,8 @@ VeRTTIImpl(VeRendererD3D12::RootSignatureD3D12, VeRenderer::RootSignature);
 //--------------------------------------------------------------------------
 VeRTTIImpl(VeRendererD3D12::PipelineStateD3D12, VeRenderer::PipelineState);
 //--------------------------------------------------------------------------
+VeRTTIImpl(VeRendererD3D12::GeometryD3D12, VeRenderer::Geometry);
+//--------------------------------------------------------------------------
 VeRendererD3D12::VeRendererD3D12() noexcept
 	: VeRenderer(API_D3D12)
 {
@@ -496,16 +498,16 @@ VeBlobPtr VeRendererD3D12::SerializeRootSignature(
 					if (kPara.ParameterType == D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE)
 					{
 						VE_ASSERT(kPara.DescriptorTable.pDescriptorRanges);
-						VeStackFree(kPara.DescriptorTable.pDescriptorRanges);
+						VeFree((void*)kPara.DescriptorTable.pDescriptorRanges);
 					}
 				}
-				VeStackFree(m_pkParameter);
+				VeFree(m_pkParameter);
 				m_pkParameter = nullptr;
 			}
 
 			if (m_pkSampler && m_u32SamplersNum)
 			{
-				VeStackFree(m_pkSampler);
+				VeFree(m_pkSampler);
 				m_pkSampler = nullptr;
 			}
 		}
@@ -514,7 +516,7 @@ VeBlobPtr VeRendererD3D12::SerializeRootSignature(
 		{
 			VE_ASSERT(m_u32ParametersNum == 0 && m_pkParameter == nullptr);
 			m_u32ParametersNum = u32Num;
-			m_pkParameter = VeStackAlloc(D3D12_ROOT_PARAMETER, u32Num);
+			m_pkParameter = VeAlloc(D3D12_ROOT_PARAMETER, u32Num);
 			VeZeroMemory(m_pkParameter, sizeof(D3D12_ROOT_PARAMETER) * u32Num);
 		}
 
@@ -522,7 +524,7 @@ VeBlobPtr VeRendererD3D12::SerializeRootSignature(
 		{
 			VE_ASSERT(u32Index < m_u32ParametersNum && (m_pkParameter[u32Index].ParameterType == D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE));
 			m_pkParameter[u32Index].DescriptorTable.NumDescriptorRanges = u32Num;
-			D3D12_DESCRIPTOR_RANGE* pvRange = VeStackAlloc(D3D12_DESCRIPTOR_RANGE, u32Num);
+			D3D12_DESCRIPTOR_RANGE* pvRange = VeAlloc(D3D12_DESCRIPTOR_RANGE, u32Num);
 			VeZeroMemory(pvRange, sizeof(D3D12_DESCRIPTOR_RANGE) * u32Num);
 			m_pkParameter[u32Index].DescriptorTable.pDescriptorRanges = pvRange;
 			return pvRange;
@@ -532,7 +534,7 @@ VeBlobPtr VeRendererD3D12::SerializeRootSignature(
 		{
 			VE_ASSERT(m_u32SamplersNum == 0 && m_pkSampler == nullptr);
 			m_u32SamplersNum = u32Num;
-			m_pkSampler = VeStackAlloc(D3D12_STATIC_SAMPLER_DESC, u32Num);
+			m_pkSampler = VeAlloc(D3D12_STATIC_SAMPLER_DESC, u32Num);
 			VeZeroMemory(m_pkSampler, sizeof(D3D12_STATIC_SAMPLER_DESC) * u32Num);
 		}
 
@@ -1115,6 +1117,11 @@ VeRenderer::PipelineStatePtr VeRendererD3D12::CreateComputePipelineState(
 	return nullptr;
 }
 //--------------------------------------------------------------------------
+VeRendererD3D12::GeometryPtr VeRendererD3D12::CreateGeometry() noexcept
+{
+	return VE_NEW GeometryD3D12();
+}
+//--------------------------------------------------------------------------
 VeRenderBufferPtr VeRendererD3D12::CreateBuffer(VeRenderBuffer::Type eType,
 	VeRenderBuffer::Useage eUse, VeUInt32 u32Size) noexcept
 {
@@ -1199,6 +1206,74 @@ VeRenderer::ShaderType VeRendererD3D12::GetTargetType(
 	default:
 		return SHADER_TYPE_NUM;
 	}
+}
+//--------------------------------------------------------------------------
+bool VeRendererD3D12::GeometryD3D12::IsValid() noexcept
+{
+	return m_kVBVList.size()
+		&& m_eTopology > D3D12_PRIMITIVE_TOPOLOGY_TYPE_UNDEFINED
+		&& m_eTopology <= D3D12_PRIMITIVE_TOPOLOGY_TYPE_PATCH;
+}
+//--------------------------------------------------------------------------
+void VeRendererD3D12::GeometryD3D12::SetPrimitiveTopologyType(
+	PrimitiveTopologyType eType) noexcept
+{
+	m_eTopology = (D3D12_PRIMITIVE_TOPOLOGY_TYPE)eType;
+}
+//--------------------------------------------------------------------------
+void VeRendererD3D12::GeometryD3D12::SetVertexBufferNum(
+	VeUInt32 u32Num) noexcept
+{
+	m_kVBVList.resize(u32Num);
+}
+//--------------------------------------------------------------------------
+void VeRendererD3D12::GeometryD3D12::SetVertexBuffer(VeUInt32 u32Index,
+	const VeRenderBufferPtr& spBuffer, VeUInt32 u32Stride) noexcept
+{
+	VE_ASSERT(u32Index < m_kVBVList.size() && spBuffer);
+	D3D12_VERTEX_BUFFER_VIEW& kView = m_kVBVList[u32Index];
+	VeRenderBufferD3D12& kBuffer = (VeRenderBufferD3D12&)*spBuffer;
+	kView.BufferLocation = kBuffer.m_pkResource->GetGPUVirtualAddress();
+	kView.SizeInBytes = kBuffer.GetSize();
+	kView.StrideInBytes = u32Stride;
+}
+//--------------------------------------------------------------------------
+void VeRendererD3D12::GeometryD3D12::SetVertexBuffer(VeUInt32 u32Index,
+	const VeRenderBufferPtr& spBuffer, VeUInt32 u32Offset,
+	VeUInt32 u32Size, VeUInt32 u32Stride) noexcept
+{
+	VE_ASSERT(u32Index < m_kVBVList.size() && spBuffer);
+	D3D12_VERTEX_BUFFER_VIEW& kView = m_kVBVList[u32Index];
+	VeRenderBufferD3D12& kBuffer = (VeRenderBufferD3D12&)*spBuffer;
+	kView.BufferLocation = kBuffer.m_pkResource->GetGPUVirtualAddress() + u32Offset;
+	kView.SizeInBytes = u32Size;
+	kView.StrideInBytes = u32Stride;
+}
+//--------------------------------------------------------------------------
+void VeRendererD3D12::GeometryD3D12::ClearIndexBuffer() noexcept
+{
+	m_kIBV = {};
+}
+//--------------------------------------------------------------------------
+void VeRendererD3D12::GeometryD3D12::SetIndexBuffer(
+	const VeRenderBufferPtr& spBuffer, bool bUse32Bit) noexcept
+{
+	VE_ASSERT(spBuffer);
+	VeRenderBufferD3D12& kBuffer = (VeRenderBufferD3D12&)*spBuffer;
+	m_kIBV.BufferLocation = kBuffer.m_pkResource->GetGPUVirtualAddress();
+	m_kIBV.SizeInBytes = spBuffer->GetSize();
+	m_kIBV.Format = bUse32Bit ? DXGI_FORMAT_R32_UINT : DXGI_FORMAT_R16_UINT;
+}
+//--------------------------------------------------------------------------
+void VeRendererD3D12::GeometryD3D12::SetIndexBuffer(
+	const VeRenderBufferPtr& spBuffer, VeUInt32 u32Offset,
+	VeUInt32 u32Size, bool bUse32Bit) noexcept
+{
+	VE_ASSERT(spBuffer);
+	VeRenderBufferD3D12& kBuffer = (VeRenderBufferD3D12&)*spBuffer;
+	m_kIBV.BufferLocation = kBuffer.m_pkResource->GetGPUVirtualAddress() + u32Offset;
+	m_kIBV.SizeInBytes = u32Size;
+	m_kIBV.Format = bUse32Bit ? DXGI_FORMAT_R32_UINT : DXGI_FORMAT_R16_UINT;
 }
 //--------------------------------------------------------------------------
 VeRendererPtr CreateRendererD3D12() noexcept

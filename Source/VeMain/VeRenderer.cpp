@@ -21,6 +21,8 @@ VeRTTIImpl(VeRenderer::RootSignature);
 //--------------------------------------------------------------------------
 VeRTTIImpl(VeRenderer::PipelineState);
 //--------------------------------------------------------------------------
+VeRTTIImpl(VeRenderer::Geometry);
+//--------------------------------------------------------------------------
 VeRenderer::VeRenderer(API eType) noexcept
 	: m_eType(eType)
 {
@@ -63,6 +65,14 @@ VeRenderer::VeRenderer(API eType) noexcept
 	{
 		{ DS_NONE, "none" },
 		{ DS_STANDARD, "standard" }
+	});
+
+	VE_ENUM(PrimitiveTopologyType,
+	{
+		{ PRIMITIVE_TOPOLOGY_TYPE_POINT, "point" },
+		{ PRIMITIVE_TOPOLOGY_TYPE_LINE, "line" },
+		{ PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE, "triangle" },
+		{ PRIMITIVE_TOPOLOGY_TYPE_PATCH, "patch" }
 	});
 
 	VE_ENUM(FramePassType,
