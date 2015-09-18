@@ -155,3 +155,13 @@ inline void VeRenderWindow::SetGrab(bool bGrabbed) noexcept
 	m_spTargetWindow->SetGrab(bGrabbed);
 }
 //--------------------------------------------------------------------------
+inline bool VeRenderWindow::IsSync() noexcept
+{
+	return m_bSync;
+}
+//--------------------------------------------------------------------------
+inline void VeRenderWindow::SetSync(bool bEnable) noexcept
+{
+	m_bSync = bEnable;
+}
+//--------------------------------------------------------------------------

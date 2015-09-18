@@ -55,6 +55,7 @@ class VeRendererD3D12 : public VeRenderer
 	VeRTTIDecl(VeRendererD3D12, VeRenderer);
 public:
 	static constexpr VeUInt32 FRAME_COUNT = 3;
+	static constexpr VeUInt32 MAX_MRT_COUNT = 8;
 	static constexpr VeUInt32 RTV_COUNT = 32;
 	static constexpr VeUInt32 DSV_COUNT = 16;
 	static constexpr VeUInt32 SRV_COUNT = 4096;	
@@ -101,6 +102,52 @@ public:
 
 	};
 
+	class BindingD3D12 : public Binding
+	{
+		VeNoCopy(BindingD3D12);
+		VeRTTIDecl(BindingD3D12, Binding);
+	public:
+		enum Type
+		{
+			TYPE_UNKNOWN,
+			TYPE_CONTEXT_INDEX,
+			TYPE_CUSTOMER_INDEX,
+			TYPE_STATIC_HANDLE,
+			TYPE_DYANMIC_BUFFER
+		};
+
+		struct RootDescriptorTable
+		{
+			Type m_eType = TYPE_UNKNOWN;
+			VeUInt32 m_u32Index;
+			union
+			{
+				VeSizeT m_stContextIndex;
+				VeSizeT m_stCustomerIndex;
+				D3D12_GPU_DESCRIPTOR_HANDLE m_hHandle;
+				void* m_pvDynamicObject;
+			};
+		};
+
+		BindingD3D12() noexcept = default;
+
+		virtual ~BindingD3D12() noexcept = default;
+
+		virtual void ClearTableList() noexcept override;
+
+		virtual void AddContextIndex(VeUInt32 u32Index,
+			VeSizeT stContextIndex) noexcept override;
+
+		virtual void AddCustomer(VeUInt32 u32Index,
+			VeSizeT stCustomerIndex) noexcept override;
+
+		virtual void AddResource(VeUInt32 u32Index,
+			const VeRenderResourcePtr& spResource) noexcept override;
+
+		VeVector<RootDescriptorTable> m_kTableList;
+
+	};
+
 	class GeometryD3D12 : public Geometry
 	{
 		VeNoCopy(GeometryD3D12);
@@ -134,7 +181,7 @@ public:
 		VeVector<D3D12_VERTEX_BUFFER_VIEW> m_kVBVList;
 		D3D12_INDEX_BUFFER_VIEW m_kIBV = {};
 
-	};
+	};	
 
 	template <D3D12_DESCRIPTOR_HEAP_TYPE TYPE, VeUInt32 NUM, D3D12_DESCRIPTOR_HEAP_FLAGS FLAGS>
 	class DescriptorHeapShell
@@ -241,7 +288,9 @@ public:
 
 	PipelineStatePtr CreateComputePipelineState(VeJSONValue& kConfig, VeMemoryOStream& kOut) noexcept;
 
-	virtual GeometryPtr CreateGeometry() noexcept;
+	virtual GeometryPtr CreateGeometry() noexcept override;
+
+	virtual BindingPtr CreateBinding() noexcept override;
 
 	virtual VeRenderBufferPtr CreateBuffer(VeRenderBuffer::Type eType,
 		VeRenderBuffer::Useage eUse, VeUInt32 u32Size) noexcept override;

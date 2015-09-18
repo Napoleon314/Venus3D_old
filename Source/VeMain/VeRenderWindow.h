@@ -14,6 +14,8 @@
 
 #pragma once
 
+struct VeRenderDrawCall;
+
 class VE_MAIN_API VeRenderWindow : public VeRefObject
 {
 	VeNoCopy(VeRenderWindow);
@@ -75,12 +77,27 @@ public:
 
 	inline void SetGrab(bool bGrabbed) noexcept;
 
+	inline bool IsSync() noexcept;
+
+	inline void SetSync(bool bEnable) noexcept;
+
 	virtual bool IsValid() noexcept;
 
-	virtual void SetupCompositorList(const VeChar8* pcHint,
-		const VeChar8** ppcList, VeSizeT stNum) noexcept = 0;
+	virtual void SetupCompositorList(const VeChar8** ppcList,
+		VeSizeT stNum, const VeChar8* pcHint = nullptr) noexcept = 0;
 
-	virtual void Update(void* pvCBuffer, void* pvVBuffer) noexcept = 0;
+	virtual VeUInt32 GetRecorderNum() noexcept = 0;
+
+	virtual void Record(VeUInt32 u32Index) noexcept = 0;
+
+	virtual void BeginCommandLists(VeUInt32 u32Thread) noexcept = 0;
+
+	virtual void SendDrawCallList(VeUInt32 u32Thread, VeUInt32 u32Camera,
+		VeRenderDrawCall* pkDrawCallList, VeSizeT stNum) noexcept = 0;
+
+	virtual void Begin() noexcept = 0;
+
+	virtual void End() noexcept = 0;
 
 protected:
 	friend class VeRenderer;
@@ -91,6 +108,7 @@ protected:
 
 	VeWindowPtr m_spTargetWindow;
 	bool m_bNeedDestory = false;
+	bool m_bSync = false;
 
 };
 

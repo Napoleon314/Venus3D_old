@@ -21,6 +21,8 @@ VeRTTIImpl(VeRenderer::RootSignature);
 //--------------------------------------------------------------------------
 VeRTTIImpl(VeRenderer::PipelineState);
 //--------------------------------------------------------------------------
+VeRTTIImpl(VeRenderer::Binding);
+//--------------------------------------------------------------------------
 VeRTTIImpl(VeRenderer::Geometry);
 //--------------------------------------------------------------------------
 VeRenderer::VeRenderer(API eType) noexcept
@@ -390,8 +392,11 @@ void VeRenderer::PreCache(const VeDirectoryPtr& spCache,
 				auto kRes = CompileShader(pcFile, pcTarget, spShader->GetName(),
 					*pkValue, kShaderNameMap, kShaderList);
 				{
-					VE_LOCK_MUTEX(kLock);
-					m_akShaderMap[kRes.second][pcName] = kRes.first;
+					if (kRes.first)
+					{
+						VE_LOCK_MUTEX(kLock);
+						m_akShaderMap[kRes.second][pcName] = kRes.first;
+					}					
 				}				
 			}
 		}

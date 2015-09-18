@@ -49,6 +49,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 	VeRenderWindowPtr spRenderWindow = ve_renderer_ptr->CreateRenderWindow(
 		"RenderTest", VE_WINDOWPOS_CENTERED, VE_WINDOWPOS_CENTERED, 1280, 720, 0);
 
+	const VeChar8* apcList[] =
+	{
+		"final_output"
+	};
+
+	spRenderWindow->SetupCompositorList(apcList, sizeof(apcList) / sizeof(*apcList));
+
 	{
 		bool bLoop(true);
 		VeVector<VeEvent*> kEventCache;
@@ -144,7 +151,18 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 				//VeStoreFloat4x4A(pvData, view4);
 				//spCB->Unmap();
 
-				spRenderWindow->Update(spCB, spVB);
+				//spRenderWindow->Update(spCB, spVB);
+
+				spRenderWindow->Begin();
+
+				for (VeUInt32 i(0); i < spRenderWindow->GetRecorderNum(); ++i)
+				{
+					spRenderWindow->Record(i);
+				}
+
+				//spRenderWindow->Update(spCB, spVB);
+				spRenderWindow->End();
+
 			}
 		}		
 	}

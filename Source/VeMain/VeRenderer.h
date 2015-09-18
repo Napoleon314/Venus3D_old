@@ -181,6 +181,30 @@ public:
 
 	typedef VePointer<RootSignature> RootSignaturePtr;
 
+	class VE_MAIN_API Binding : public VeRefObject
+	{
+		VeNoCopy(Binding);
+		VeRTTIDecl(Binding);
+	public:
+		virtual void ClearTableList() noexcept = 0;
+
+		virtual void AddContextIndex(VeUInt32 u32Index,
+			VeSizeT stContextIndex) noexcept = 0;
+
+		virtual void AddCustomer(VeUInt32 u32Index,
+			VeSizeT stCustomerIndex) noexcept = 0;
+
+		virtual void AddResource(VeUInt32 u32Index,
+			const VeRenderResourcePtr& spResource) noexcept = 0;
+
+	protected:
+		Binding() noexcept = default;
+		virtual ~Binding() noexcept = default;
+
+	};
+
+	typedef VePointer<Binding> BindingPtr;
+
 	class VE_MAIN_API PipelineState : public VeRefObject
 	{
 		VeNoCopy(PipelineState);
@@ -224,7 +248,7 @@ public:
 
 	};
 
-	typedef VePointer<Geometry> GeometryPtr;
+	typedef VePointer<Geometry> GeometryPtr;	
 
 	inline API GetAPI() const noexcept;
 
@@ -261,6 +285,8 @@ public:
 
 	virtual GeometryPtr CreateGeometry() noexcept = 0;
 
+	virtual BindingPtr CreateBinding() noexcept = 0;
+
 	virtual VeRenderBufferPtr CreateBuffer(VeRenderBuffer::Type eType,
 		VeRenderBuffer::Useage eUse, VeUInt32 u32Size) noexcept = 0;
 
@@ -296,5 +322,16 @@ protected:
 };
 
 VeSmartPointer(VeRenderer);
+
+struct VeRenderDrawCall
+{
+	VeRenderer::RootSignature* m_pkRoot;
+	VeRenderer::PipelineState* m_pkState;
+	VeRenderer::Binding* m_pkBinding;
+	VeRenderer::Geometry* m_pkGeometry;
+	VeRenderResource* m_apkCustomerResList[3];
+	VeUInt32 m_u32InstanceCount;
+	VeUInt32 m_u32Group;
+};
 
 #include "VeRenderer.inl"

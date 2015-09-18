@@ -28,6 +28,8 @@ VeRTTIImpl(VeRendererD3D12::PipelineStateD3D12, VeRenderer::PipelineState);
 //--------------------------------------------------------------------------
 VeRTTIImpl(VeRendererD3D12::GeometryD3D12, VeRenderer::Geometry);
 //--------------------------------------------------------------------------
+VeRTTIImpl(VeRendererD3D12::BindingD3D12, VeRenderer::Binding);
+//--------------------------------------------------------------------------
 VeRendererD3D12::VeRendererD3D12() noexcept
 	: VeRenderer(API_D3D12)
 {
@@ -813,7 +815,7 @@ VeRenderer::PipelineStatePtr VeRendererD3D12::CreateGraphicsPipelineState(
 		const VeChar8* pcName = kConfig("root_signature", "");
 		auto it = m_kRootSignatureMap.find(pcName);
 		if (it == m_kRootSignatureMap.end()) return nullptr;
-		RootSignatureD3D12* pkRootSig = VeDynamicCast(RootSignatureD3D12, it->second.p());
+		RootSignatureD3D12* pkRootSig = VeSmartPointerCast(RootSignatureD3D12, it->second);
 		if ((!pkRootSig) || (!pkRootSig->m_pkRootSignature)) return nullptr;
 		kDesc.pRootSignature = pkRootSig->m_pkRootSignature;
 	}
@@ -1122,6 +1124,11 @@ VeRendererD3D12::GeometryPtr VeRendererD3D12::CreateGeometry() noexcept
 	return VE_NEW GeometryD3D12();
 }
 //--------------------------------------------------------------------------
+VeRendererD3D12::BindingPtr VeRendererD3D12::CreateBinding() noexcept
+{
+	return VE_NEW BindingD3D12();
+}
+//--------------------------------------------------------------------------
 VeRenderBufferPtr VeRendererD3D12::CreateBuffer(VeRenderBuffer::Type eType,
 	VeRenderBuffer::Useage eUse, VeUInt32 u32Size) noexcept
 {
@@ -1208,6 +1215,57 @@ VeRenderer::ShaderType VeRendererD3D12::GetTargetType(
 	}
 }
 //--------------------------------------------------------------------------
+void VeRendererD3D12::BindingD3D12::ClearTableList() noexcept
+{
+	m_kTableList.clear();
+}
+//--------------------------------------------------------------------------
+void VeRendererD3D12::BindingD3D12::AddContextIndex(
+	VeUInt32 u32Index, VeSizeT stContextIndex) noexcept
+{
+	m_kTableList.resize(m_kTableList.size() + 1);
+	m_kTableList.back().m_eType = TYPE_CONTEXT_INDEX;
+	m_kTableList.back().m_u32Index = u32Index;
+	m_kTableList.back().m_stContextIndex = stContextIndex;
+}
+//--------------------------------------------------------------------------
+void VeRendererD3D12::BindingD3D12::AddCustomer(
+	VeUInt32 u32Index, VeSizeT stCustomerIndex) noexcept
+{
+	m_kTableList.resize(m_kTableList.size() + 1);
+	m_kTableList.back().m_eType = TYPE_CUSTOMER_INDEX;
+	m_kTableList.back().m_u32Index = u32Index;
+	m_kTableList.back().m_stCustomerIndex = stCustomerIndex;
+}
+//--------------------------------------------------------------------------
+void VeRendererD3D12::BindingD3D12::AddResource(VeUInt32 u32Index,
+	const VeRenderResourcePtr& spResource) noexcept
+{
+	VE_ASSERT(spResource);
+	{
+		VeStaticBufferD3D12* pkObj = VeDynamicCast(VeStaticBufferD3D12, spResource.p());
+		if (pkObj && pkObj->CanUse(VeRenderBuffer::USEAGE_CB))
+		{
+			m_kTableList.resize(m_kTableList.size() + 1);
+			m_kTableList.back().m_eType = TYPE_STATIC_HANDLE;
+			m_kTableList.back().m_u32Index = u32Index;
+			m_kTableList.back().m_hHandle = pkObj->m_pkCBView->m_kGPUHandle;
+			return;
+		}
+	}
+	{
+		VeDynamicBufferD3D12* pkObj = VeDynamicCast(VeDynamicBufferD3D12, spResource.p());
+		if (pkObj && pkObj->CanUse(VeRenderBuffer::USEAGE_CB))
+		{
+			m_kTableList.resize(m_kTableList.size() + 1);
+			m_kTableList.back().m_eType = TYPE_DYANMIC_BUFFER;
+			m_kTableList.back().m_u32Index = u32Index;
+			m_kTableList.back().m_pvDynamicObject = pkObj;
+			return;
+		}
+	}
+}
+//--------------------------------------------------------------------------
 bool VeRendererD3D12::GeometryD3D12::IsValid() noexcept
 {
 	return m_kVBVList.size()
@@ -1230,7 +1288,8 @@ void VeRendererD3D12::GeometryD3D12::SetVertexBufferNum(
 void VeRendererD3D12::GeometryD3D12::SetVertexBuffer(VeUInt32 u32Index,
 	const VeRenderBufferPtr& spBuffer, VeUInt32 u32Stride) noexcept
 {
-	VE_ASSERT(u32Index < m_kVBVList.size() && spBuffer);
+	VE_ASSERT(u32Index < m_kVBVList.size() && spBuffer
+		&& spBuffer->CanUse(VeRenderBuffer::USEAGE_VB));
 	D3D12_VERTEX_BUFFER_VIEW& kView = m_kVBVList[u32Index];
 	VeRenderBufferD3D12& kBuffer = (VeRenderBufferD3D12&)*spBuffer;
 	kView.BufferLocation = kBuffer.m_pkResource->GetGPUVirtualAddress();
@@ -1242,7 +1301,8 @@ void VeRendererD3D12::GeometryD3D12::SetVertexBuffer(VeUInt32 u32Index,
 	const VeRenderBufferPtr& spBuffer, VeUInt32 u32Offset,
 	VeUInt32 u32Size, VeUInt32 u32Stride) noexcept
 {
-	VE_ASSERT(u32Index < m_kVBVList.size() && spBuffer);
+	VE_ASSERT(u32Index < m_kVBVList.size() && spBuffer
+		&& spBuffer->CanUse(VeRenderBuffer::USEAGE_VB));
 	D3D12_VERTEX_BUFFER_VIEW& kView = m_kVBVList[u32Index];
 	VeRenderBufferD3D12& kBuffer = (VeRenderBufferD3D12&)*spBuffer;
 	kView.BufferLocation = kBuffer.m_pkResource->GetGPUVirtualAddress() + u32Offset;
@@ -1258,7 +1318,7 @@ void VeRendererD3D12::GeometryD3D12::ClearIndexBuffer() noexcept
 void VeRendererD3D12::GeometryD3D12::SetIndexBuffer(
 	const VeRenderBufferPtr& spBuffer, bool bUse32Bit) noexcept
 {
-	VE_ASSERT(spBuffer);
+	VE_ASSERT(spBuffer && spBuffer->CanUse(VeRenderBuffer::USEAGE_IB));
 	VeRenderBufferD3D12& kBuffer = (VeRenderBufferD3D12&)*spBuffer;
 	m_kIBV.BufferLocation = kBuffer.m_pkResource->GetGPUVirtualAddress();
 	m_kIBV.SizeInBytes = spBuffer->GetSize();
@@ -1269,7 +1329,7 @@ void VeRendererD3D12::GeometryD3D12::SetIndexBuffer(
 	const VeRenderBufferPtr& spBuffer, VeUInt32 u32Offset,
 	VeUInt32 u32Size, bool bUse32Bit) noexcept
 {
-	VE_ASSERT(spBuffer);
+	VE_ASSERT(spBuffer && spBuffer->CanUse(VeRenderBuffer::USEAGE_IB));
 	VeRenderBufferD3D12& kBuffer = (VeRenderBufferD3D12&)*spBuffer;
 	m_kIBV.BufferLocation = kBuffer.m_pkResource->GetGPUVirtualAddress() + u32Offset;
 	m_kIBV.SizeInBytes = u32Size;
