@@ -18,9 +18,10 @@ inline const VeChar8* VeResource::GetName() const noexcept
 	return m_kName;
 }
 //--------------------------------------------------------------------------
-inline const VeChar8* VeResource::GetFullName() const noexcept
+inline const VeChar8* VeResource::GetExt() const noexcept
 {
-	return m_kFullName;
+	const VeChar8* pcExt = VeStrrchr((const VeChar8*)m_kName, '.');
+	return pcExt ? pcExt + 1 : "";
 }
 //--------------------------------------------------------------------------
 inline const VeChar8* VeResource::GetGroupName() const noexcept

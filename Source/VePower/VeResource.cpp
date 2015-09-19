@@ -17,9 +17,10 @@
 //--------------------------------------------------------------------------
 VeRTTIImpl(VeResource);
 //--------------------------------------------------------------------------
-VeResource::VeResource() noexcept
+VeResource::VeResource(const VeChar8* pcName) noexcept
 {
 	m_kNode.m_Content = this;
+	m_kName = pcName;
 	m_spGroup = ve_res_mgr.m_spDefaultGroup;
 	UpdateState();
 }
@@ -54,47 +55,16 @@ void VeResource::Free() noexcept
 //--------------------------------------------------------------------------
 void VeResource::Load() noexcept
 {
-	if (m_spGroup)
+	if (m_eState == UNLOADED || m_eState == LOADED)
 	{
-		if (m_eState == UNLOADED)
+		auto spCache = ve_res_mgr.CacheFile(m_kName, m_spGroup);
+		if (spCache)
 		{
-			m_eState = LOADING;
-			UpdateState();
-			VeChar8 acBuffer[VE_MAX_PATH_LEN];
-			VeSprintf(acBuffer, "%s.%s", (const VeChar8*)m_kName, GetTypeName());
-			ve_res_mgr.CacheFile(acBuffer, m_spGroup, [this](
-				VeResourceManager::FileCachePtr spCache) noexcept
-			{
-				if (spCache)
-				{
-					LoadImpl(spCache);
-				}
-				else
-				{
-					m_eState = UNLOADED;
-					UpdateState();
-					ve_sys.CORE.W.LogFormat("File not found occurred while loading resource[\"%s\"]", (const VeChar8*)m_kFullName);
-				}
-			});
+			LoadImpl(spCache);
 		}
-		else if (m_eState == LOADED)
+		else
 		{
-			Hold();
-			VeChar8 acBuffer[VE_MAX_PATH_LEN];
-			VeSprintf(acBuffer, "%s.%s", (const VeChar8*)m_kName, GetTypeName());
-			ve_res_mgr.CacheFile(acBuffer, m_spGroup, [this](
-				VeResourceManager::FileCachePtr spCache) noexcept
-			{
-				if (spCache)
-				{
-					UpdateImpl(spCache);
-				}
-				else
-				{
-					Free();
-					ve_sys.CORE.W.LogFormat("File not found occurred while updating resource[\"%s\"].", (const VeChar8*)m_kFullName);
-				}
-			});
+			OnResLoadFailed(ERR_FILE_NOT_FOUND);
 		}
 	}	
 }
@@ -105,6 +75,40 @@ void VeResource::Unload() noexcept
 	{
 		UnloadImpl();
 	}
+}
+//--------------------------------------------------------------------------
+void VeResource::LoadAsync() noexcept
+{
+	if (m_eState == LOADED)
+	{
+		Hold();
+	}
+	else
+	{
+		m_eState = LOADING;
+		UpdateState();
+	}
+	ve_res_mgr.CacheFile(m_kName, m_spGroup, [this](
+		VeResourceManager::FileCachePtr spCache) noexcept
+	{
+		if (spCache)
+		{
+			LoadImpl(spCache);
+		}
+		else
+		{
+			if (m_eState == LOADED)
+			{
+				Free();
+			}
+			else
+			{
+				m_eState = UNLOADED;
+				UpdateState();
+			}
+			OnResLoadFailed(ERR_FILE_NOT_FOUND);
+		}
+	});
 }
 //--------------------------------------------------------------------------
 void VeResource::UpdateState() noexcept
@@ -147,31 +151,23 @@ void VeResource::WaitResLoaded(VeResource* pkRes) noexcept
 	--m_u32WaitNumber;
 	if (m_u32WaitNumber == 0)
 	{
-		if (m_eState == LOADING)
-		{
-			OnResLoaded();
-		}
-		else
-		{
-			OnResUpdated();
-		}		
+		OnResLoaded();
 	}
 }
 //--------------------------------------------------------------------------
 void VeResource::OnResLoaded() noexcept
 {
 	VE_ASSERT(!m_u32WaitNumber);
-	m_eState = LOADED;
-	UpdateState();
-	ve_sys.CORE.I.LogFormat("Resource[\"%s\"] is loaded.", (const VeChar8*)m_kFullName);
-}
-//--------------------------------------------------------------------------
-void VeResource::OnResUpdated() noexcept
-{
-	VE_ASSERT(!m_u32WaitNumber);
-	m_eState = LOADED;
-	UpdateState();
-	ve_sys.CORE.I.LogFormat("Resource[\"%s\"] is updated.", (const VeChar8*)m_kFullName);
+	if (m_eState != LOADED)
+	{
+		m_eState = LOADED;
+		UpdateState();
+		ve_sys.CORE.I.LogFormat("Resource[\"%s\"] is loaded.", (const VeChar8*)m_kName);
+	}
+	else
+	{
+		ve_sys.CORE.I.LogFormat("Resource[\"%s\"] is updated.", (const VeChar8*)m_kName);
+	}	
 }
 //--------------------------------------------------------------------------
 void VeResource::OnResUnloaded() noexcept
@@ -179,30 +175,27 @@ void VeResource::OnResUnloaded() noexcept
 	VE_ASSERT(m_u32HoldCount == 0);
 	m_eState = UNLOADED;
 	UpdateState();
-	ve_sys.CORE.I.LogFormat("Resource[\"%s\"] is unloaded.", (const VeChar8*)m_kFullName);
+	ve_sys.CORE.I.LogFormat("Resource[\"%s\"] is unloaded.", (const VeChar8*)m_kName);
+}
+//--------------------------------------------------------------------------
+void VeResource::OnResLoadFailed(Error eError) noexcept
+{
+	ve_sys.CORE.E.LogFormat("%s occurred while %s resource[\"%s\"]",
+		ve_parser.EnumToStr(eError),
+		m_eState == LOADED ? "updating" : "loading",
+		(const VeChar8*)m_kName);
 }
 //--------------------------------------------------------------------------
 void VeResource::LoadImpl(VeResourceManager::FileCachePtr spCache) noexcept
 {
-	ParseStream(spCache->GetData());
 	if (m_u32WaitNumber == 0)
 	{
 		OnResLoaded();
 	}
 }
 //--------------------------------------------------------------------------
-void VeResource::UpdateImpl(VeResourceManager::FileCachePtr spCache) noexcept
-{
-	ParseStream(spCache->GetData());
-	if (m_u32WaitNumber == 0)
-	{
-		OnResUpdated();
-	}
-}
-//--------------------------------------------------------------------------
 void VeResource::UnloadImpl() noexcept
 {
-	Clear();
 	OnResUnloaded();
 }
 //--------------------------------------------------------------------------

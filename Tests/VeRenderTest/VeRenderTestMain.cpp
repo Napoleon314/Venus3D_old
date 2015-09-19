@@ -26,7 +26,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 	ve_sys.Init();
 	ve_engine.Init();
 
-	ve_res_mgr.SetupGroupFromJSON("{\"startup\":{\"r\":[\"file#shaders/cache\",\"file#shaders\"],\"w\":\"file#shaders/cache\"}}");
+	ve_res_mgr.SetupGroupFromJSON("{\"default\":{\"r\":[\"file#\"]}}");
+
+	auto spRes = ve_res_mgr.GetResource("stone_d.dds");
+	spRes->Load();
 
 	ve_renderer_ptr->PreCache(ve_res_mgr.CreateDir("file#scripts/cache"),
 		ve_res_mgr.CreateDir("file#scripts/hlsl", false),
@@ -168,6 +171,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 	}
 
 	VE_ASSERT(!spRenderWindow);
+	spRes = nullptr;
 	//spCB = nullptr;
 	//spVB = nullptr;
 

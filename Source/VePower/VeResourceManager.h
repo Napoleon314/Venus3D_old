@@ -55,7 +55,7 @@ public:
 
 	typedef std::function<void(const FileCachePtr&,VeJSONValue&)> JSONCreatorSync;
 
-	typedef std::function<VeResourcePtr(const VeChar8*,const VeChar8*)> ResCreator;
+	typedef std::function<VeResourcePtr(const VeChar8*)> ResCreator;
 
 	class VE_POWER_API FileCache : public VeRefObject
 	{
@@ -73,7 +73,7 @@ public:
 
 		inline const VeResourceGroupPtr& GetGroup() const noexcept;
 
-		inline const VeMemoryIStreamPtr& GetData() noexcept;
+		inline const VeBlobPtr& GetData() noexcept;
 
 		void Load() noexcept;
 
@@ -90,7 +90,7 @@ public:
 		VeFixedString m_kFileName;
 		VeResourceGroupPtr m_spGroup;
 		VeDirectoryPtr m_spDir;
-		VeMemoryIStreamPtr m_spData;
+		VeBlobPtr m_spData;
 		VeList<FileCallback> m_kCallbackList;
 		VeUInt32 m_u32FreeTime = 0;
 		VeUInt32 m_u32EnterCount = 0;
@@ -133,6 +133,8 @@ public:
 	inline void SetFileFreeTime(VeUInt32 u32TimeUInt) noexcept;
 
 	inline VeUInt32 GetFileFreeTime() noexcept;
+
+	inline const VeResourceGroupPtr& GetDefaultGroup() noexcept;
 
 	bool HasTask() noexcept;
 
@@ -204,6 +206,10 @@ public:
 
 	void UnregistResCreator(const VeChar8* pcType) noexcept;
 
+	void RegistExt(const VeChar8* pcExt, const VeChar8* pcResType) noexcept;
+
+	void UnregistExt(const VeChar8* pcExt) noexcept;
+
 	void SetupGroupFromJSON(const VeChar8* pcText) noexcept;
 
 	void SetupGroup(const VeJSONValue& kObj) noexcept;
@@ -214,18 +220,10 @@ public:
 
 	VeResourcePtr GetResource(const VeChar8* pcFullName, bool bCreate = true) noexcept;
 
-	VeResourcePtr GetResource(const VeChar8* pcType, const VeChar8* pcName, bool bCreate = true) noexcept;
-
 	template <class _Ty>
-	VePointer<_Ty> Get(const VeChar8* pcFullName, bool bCreate = true) noexcept
+	VePointer<_Ty> Get(const VeChar8* pcName, bool bCreate = true) noexcept
 	{
-		return VeDynamicCast(_Ty, (VeResource*)GetResource(pcFullName, bCreate));
-	}
-
-	template <class _Ty>
-	VePointer<_Ty> Get(const VeChar8* pcType, const VeChar8* pcName, bool bCreate = true) noexcept
-	{
-		return VeDynamicCast(_Ty, (VeResource*)GetResource(pcType, pcName, bCreate));
+		return VeDynamicCast(_Ty, GetResource(pcFullName, bCreate).p());
 	}
 
 	void LoadFile(const VeChar8* pcPath, LoadCallback kCallback) noexcept;
@@ -263,6 +261,7 @@ protected:
 	VeStringMap<std::pair<FileCreator,FileCreatorSync>> m_kFileCreatorMap;	
 	VeStringMap<std::pair<JSONCreator,JSONCreatorSync>> m_kJSONCreatorMap;
 	VeStringMap<ResCreator> m_kResCreatorMap;
+	VeStringMap<VeFixedString> m_kResExtMap;
 	VeStringMap<VeResourceGroupPtr> m_kGroupMap;
 	VeResourceGroupPtr m_spDefaultGroup;
 	VeRefList<VeResource*> m_kLoadingResList;

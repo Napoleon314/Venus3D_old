@@ -94,6 +94,20 @@ public:
 	VeFixedString GetStringAligned4() noexcept;
 
 	template <class _Ty>
+	_Ty Get() noexcept
+	{
+		_Ty tRes;
+		Read(&tRes, sizeof(_Ty));
+		return tRes;
+	}
+
+	template <class _Ty>
+	_Ty* To() noexcept
+	{
+		return (_Ty*)Skip(sizeof(_Ty));
+	}
+
+	template <class _Ty>
 	void ExtractRaw(_Ty& t)
 	{
 		VE_ASSERT_EQ(Read(&t, sizeof(_Ty)), sizeof(_Ty));

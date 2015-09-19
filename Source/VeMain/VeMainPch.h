@@ -36,3 +36,4 @@
 #include "VeRenderBuffer.h"
 #include "VerenderTexture.h"
 #include "VeRenderer.h"
+#include "VeTexture.h"

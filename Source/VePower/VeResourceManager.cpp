@@ -17,7 +17,11 @@
 //--------------------------------------------------------------------------
 VeResourceManager::VeResourceManager() noexcept
 {
-
+	VE_ENUM(VeResource::Error,
+	{
+		{ VeResource::ERR_FILE_NOT_FOUND, "ERR_FILE_NOT_FOUND" },
+		{ VeResource::ERR_PARSE_FAILED, "ERR_PARSE_FAILED" }
+	});
 }
 //--------------------------------------------------------------------------
 VeResourceManager::~VeResourceManager() noexcept
@@ -271,6 +275,21 @@ void VeResourceManager::UnregistResCreator(const VeChar8* pcType) noexcept
 	}
 }
 //--------------------------------------------------------------------------
+void VeResourceManager::RegistExt(const VeChar8* pcExt,
+	const VeChar8* pcResType) noexcept
+{
+	m_kResExtMap[pcExt] = pcResType;
+}
+//--------------------------------------------------------------------------
+void VeResourceManager::UnregistExt(const VeChar8* pcExt) noexcept
+{
+	auto it = m_kResExtMap.find(pcExt);
+	if (it != m_kResExtMap.end())
+	{
+		m_kResExtMap.erase(it);
+	}
+}
+//--------------------------------------------------------------------------
 void VeResourceManager::SetupGroupFromJSON(const VeChar8* pcText) noexcept
 {
 	VeJSONDoc kDoc;
@@ -292,31 +311,36 @@ void VeResourceManager::SetupGroup(const VeJSONValue& kObj) noexcept
 			{
 				VeResourceGroupPtr spGroup = GetGroup(it->name.GetString());
 				{
-					const VeJSONValue& kRead = it->value["r"];
-					if (kRead.IsArray())
+					auto itRead = it->value.FindMember("r");
+					if (itRead != it->value.MemberEnd())
 					{
-						for (VeUInt32 i(0); i < kRead.Size(); ++i)
+						if (itRead->value.IsArray())
 						{
-							const VeJSONValue& kVal = kRead[i];
-							if (kVal.IsString())
+							for (auto iter = itRead->value.Begin(); iter != itRead->value.End(); ++iter)
 							{
-								spGroup->PushReadDirBack(CreateDir(kVal.GetString()));
-							}
+								if (iter->IsString())
+								{
+									spGroup->PushReadDirBack(CreateDir(iter->GetString()));
+								}
+							}							
 						}
-					}
-					else if (kRead.IsString())
-					{
-						spGroup->PushReadDirBack(CreateDir(kRead.GetString()));
-					}
+						else if (itRead->value.IsString())
+						{
+							spGroup->PushReadDirBack(CreateDir(itRead->value.GetString()));
+						}
+					}					
 				}
 				{
-					const VeJSONValue& kWrite = it->value["w"];
-					if (kWrite.IsString())
+					auto itWrite = it->value.FindMember("w");
+					if (itWrite != it->value.MemberEnd())
 					{
-						spGroup->SetWriteDirectory(CreateDir(kWrite.GetString()));
-					}
+						if (itWrite->value.IsString())
+						{
+							spGroup->SetWriteDirectory(CreateDir(itWrite->value.GetString()));
+						}
+					}					
 				}
-				if (VeStrcmp(it->name.GetString(), "startup") == 0)
+				if (VeStrcmp(it->name.GetString(), "default") == 0)
 				{
 					m_spDefaultGroup = spGroup;
 				}
@@ -352,51 +376,29 @@ void VeResourceManager::SetDefaultGroup(
 }
 //--------------------------------------------------------------------------
 VeResourcePtr VeResourceManager::GetResource(
-	const VeChar8* pcFullName, bool bCreate) noexcept
-{
-	auto it = m_kResourceMap.find(pcFullName);
-	if (it != m_kResourceMap.end())
-	{
-		return it->second;
-	}
-	if (bCreate)
-	{
-		VeChar8 acBuffer[VE_MAX_PATH_LEN];
-		VeStrcpy(acBuffer, pcFullName);
-		VeChar8* pcContext;
-		VeChar8* pcTemp = VeStrtok(acBuffer, "@", &pcContext);
-		if (pcContext)
-		{
-			auto itCreator = m_kResCreatorMap.find(pcContext);
-			if (itCreator != m_kResCreatorMap.end())
-			{
-				VeResourcePtr spRes = itCreator->second(pcTemp, acBuffer);
-				m_kResourceMap.insert(std::make_pair(pcFullName, spRes));
-				return spRes;
-			}
-		}
-	}
-	return nullptr;
-}
-//--------------------------------------------------------------------------
-VeResourcePtr VeResourceManager::GetResource(const VeChar8* pcType,
 	const VeChar8* pcName, bool bCreate) noexcept
 {
-	VeChar8 acBuffer[VE_MAX_PATH_LEN];
-	VeSprintf(acBuffer, "%s@%s", pcName, pcType);
-	auto it = m_kResourceMap.find(acBuffer);
+	auto it = m_kResourceMap.find(pcName);
 	if (it != m_kResourceMap.end())
 	{
 		return it->second;
 	}
 	if (bCreate)
 	{
-		auto itCreator = m_kResCreatorMap.find(pcType);
-		if (itCreator != m_kResCreatorMap.end())
+		const VeChar8* pcExt = VeStrrchr(pcName, '.');
+		if (pcExt++)
 		{
-			VeResourcePtr spRes = itCreator->second(pcName, acBuffer);
-			m_kResourceMap.insert(std::make_pair(acBuffer, spRes));
-			return spRes;
+			auto itResType = m_kResExtMap.find(pcExt);
+			if (itResType != m_kResExtMap.end())
+			{
+				auto itCreator = m_kResCreatorMap.find(itResType->second);
+				if (itCreator != m_kResCreatorMap.end())
+				{
+					VeResourcePtr spRes = itCreator->second(pcName);
+					m_kResourceMap[pcName] = spRes;
+					return spRes;
+				}
+			}			
 		}
 	}
 	return nullptr;
@@ -458,7 +460,7 @@ void VeResourceManager::ParseJSON(FileCachePtr spCache,
 void VeResourceManager::ParseJSON(FileCachePtr spCache) noexcept
 {
 	VeJSONDoc kDoc;
-	kDoc.Parse<0>((const VeChar8*)(spCache->GetData()->GetBlob()->GetBuffer()));
+	kDoc.Parse<0>((const VeChar8*)(spCache->GetData()->GetBuffer()));
 	if (kDoc.HasParseError())
 	{
 		ve_sys.CORE.E.LogFormat("Parse Error in [\"%s\"].", spCache->GetFullPath());
@@ -615,7 +617,7 @@ void VeResourceManager::FileCache::Load() noexcept
 			{
 				m_spDir->ReadAsync(m_kFileName, [this](const VeMemoryIStreamPtr& spData) noexcept
 				{
-					m_spData = spData;
+					m_spData = spData->GetBlob();
 					m_u32FreeTime = ve_time.GetTimeUInt();
 					ve_res_mgr.m_kFreeFileList.attach_back(m_kNode);
 					VeCoreDebugOutput("[\"%s\"] is cached.", (const VeChar8*)m_kFullPath);
@@ -647,9 +649,8 @@ void VeResourceManager::FileCache::LoadSync() noexcept
 		VeBinaryIStreamPtr spStream = m_spDir->OpenIStream(m_kFileName);
 		VE_ASSERT(spStream);
 		VeSizeT stLen = spStream->RemainingLength();
-		VeBlobPtr spBlob = VE_NEW VeBlob(stLen);
-		spStream->Read(spBlob->GetBuffer(), stLen);
-		m_spData = VE_NEW VeMemoryIStream(spBlob);
+		m_spData = VE_NEW VeBlob(stLen);
+		spStream->Read(m_spData->GetBuffer(), stLen);
 		m_u32FreeTime = ve_time.GetTimeUInt();
 		ve_res_mgr.m_kFreeFileList.attach_back(m_kNode);
 		VeCoreDebugOutput("[\"%s\"] is cached.", (const VeChar8*)m_kFullPath);
@@ -706,7 +707,7 @@ VeResourceManager::JSONCache::~JSONCache() noexcept
 //--------------------------------------------------------------------------
 void VeResourceManager::JSONCache::Parse() noexcept
 {
-	m_kDoc.Parse<0>((const VeChar8*)(m_spFile->GetData()->GetBlob()->GetBuffer()));
+	m_kDoc.Parse<0>((const VeChar8*)(m_spFile->GetData()->GetBuffer()));
 	if (m_kDoc.HasParseError())
 	{
 		ve_sys.CORE.E.LogFormat("Parse Error in [\"%s\"].", m_spFile->GetFullPath());

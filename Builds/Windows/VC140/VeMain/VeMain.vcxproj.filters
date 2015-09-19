@@ -29,6 +29,12 @@
     <Filter Include="Math">
       <UniqueIdentifier>{fbd137b4-8dda-4740-9df3-f1dc1991b110}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Scene">
+      <UniqueIdentifier>{578e817e-f830-40c1-8afc-b1fcabfb37af}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource">
+      <UniqueIdentifier>{6c40bb05-57cc-437d-9140-839feb099796}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\Source\VeMain\VeMain.h">
@@ -118,6 +124,9 @@
     <ClInclude Include="..\..\..\..\Source\VeMain\VeRenderResource.h">
       <Filter>Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\VeMain\VeTexture.h">
+      <Filter>Resource</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\Source\VeMain\VeMain.cpp">
@@ -201,6 +210,12 @@
     <ClCompile Include="..\..\..\..\Source\VeMain\VeRenderResource.cpp">
       <Filter>Renderer</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\Source\VeMain\VeTexture.cpp">
+      <Filter>Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Source\VeMain\VeTextureParser.cpp">
+      <Filter>Resource</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\..\Source\VeMain\VeRenderer.inl">
@@ -265,6 +280,9 @@
     </None>
     <None Include="..\..\..\..\Source\VeMain\VeRenderResource.inl">
       <Filter>Renderer</Filter>
+    </None>
+    <None Include="..\..\..\..\Source\VeMain\VeTexture.inl">
+      <Filter>Resource</Filter>
     </None>
   </ItemGroup>
 </Project>

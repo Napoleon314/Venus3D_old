@@ -27,13 +27,20 @@ public:
 		INVALID
 	};
 
-	VeResource() noexcept;
+	enum Error
+	{
+		ERR_FILE_NOT_FOUND,
+		ERR_PARSE_FAILED,
+		ERR_MAX
+	};
+
+	VeResource(const VeChar8* pcName) noexcept;
 
 	virtual ~VeResource() noexcept;
 
 	inline const VeChar8* GetName() const noexcept;
 
-	inline const VeChar8* GetFullName() const noexcept;
+	inline const VeChar8* GetExt() const noexcept;
 
 	inline const VeChar8* GetGroupName() const noexcept;
 
@@ -56,6 +63,8 @@ public:
 	virtual const VeChar8* GetTypeName() const noexcept = 0;
 
 protected:
+	void LoadAsync() noexcept;
+
 	void UpdateState() noexcept;
 
 	void Wait(VeResource* pkRes) noexcept;
@@ -64,23 +73,16 @@ protected:
 
 	void OnResLoaded() noexcept;
 
-	void OnResUpdated() noexcept;
-
 	void OnResUnloaded() noexcept;
+
+	void OnResLoadFailed(Error eError) noexcept;
 
 	virtual void LoadImpl(VeResourceManager::FileCachePtr spCache) noexcept;
 
-	virtual void UpdateImpl(VeResourceManager::FileCachePtr spCache) noexcept;
-
 	virtual void UnloadImpl() noexcept;
-
-	virtual void ParseStream(const VeMemoryIStreamPtr& spStream) noexcept {}
-
-	virtual void Clear() noexcept {}
 
 	VeRefNode<VeResource*> m_kNode;
 	VeFixedString m_kName;
-	VeFixedString m_kFullName;
 	VeResourceGroupPtr m_spGroup;
 	State m_eState = UNLOADED;
 	VeUInt32 m_u32WaitNumber = 0;

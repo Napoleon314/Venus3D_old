@@ -30,6 +30,12 @@ inline VeUInt32 VeResourceManager::GetFileFreeTime() noexcept
 	return m_u32FileCacheFreeTime;
 }
 //--------------------------------------------------------------------------
+inline const VeResourceGroupPtr&
+VeResourceManager::GetDefaultGroup() noexcept
+{
+	return m_spDefaultGroup;
+}
+//--------------------------------------------------------------------------
 inline const VeChar8*
 VeResourceManager::FileCache::GetFullPath() const noexcept
 {
@@ -54,7 +60,7 @@ VeResourceManager::FileCache::GetGroup() const noexcept
 	return m_spGroup;
 }
 //--------------------------------------------------------------------------
-inline const VeMemoryIStreamPtr&
+inline const VeBlobPtr&
 VeResourceManager::FileCache::GetData() noexcept
 {
 	return m_spData;

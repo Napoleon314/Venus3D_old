@@ -236,12 +236,12 @@ VeRenderer::~VeRenderer() noexcept
 //--------------------------------------------------------------------------
 void VeRenderer::RegistResTypes() noexcept
 {
-	
+	VeTexture::Regist();
 }
 //--------------------------------------------------------------------------
 void VeRenderer::UnregistResTypes() noexcept
 {
-	
+	VeTexture::Unregist();
 }
 //--------------------------------------------------------------------------
 static void AddScriptTo(VeVector<VeJSONDoc>& kList,

@@ -1,0 +1,91 @@
+////////////////////////////////////////////////////////////////////////////
+//
+//  Venus Engine Source File.
+//  Copyright (C), Venus Interactive Entertainment.2012
+// -------------------------------------------------------------------------
+//  Module:      VeMain
+//  File name:   VeTexture.cpp
+//  Created:     2015/09/19 by Napoleon
+//  Description: 
+// -------------------------------------------------------------------------
+//  History:
+//  http://www.venusie.com
+////////////////////////////////////////////////////////////////////////////
+
+#include "VeMainPch.h"
+
+//--------------------------------------------------------------------------
+VeBlobPtr ParseTexture(VeTexture::FileInfo& kOut,
+	const VeBlobPtr& spData) noexcept;
+//--------------------------------------------------------------------------
+VeRTTIImpl(VeTexture, VeResource);
+//--------------------------------------------------------------------------
+VeTexture::VeTexture(const VeChar8* pcName) noexcept
+	: VeResource(pcName)
+{
+
+}
+//--------------------------------------------------------------------------
+VeTexture::~VeTexture() noexcept
+{
+
+}
+//--------------------------------------------------------------------------
+const VeChar8* VeTexture::GetTypeName() const noexcept
+{
+	return TypeName();
+}
+//--------------------------------------------------------------------------
+void VeTexture::LoadImpl(VeResourceManager::FileCachePtr spCache) noexcept
+{
+	auto eType = ve_parser.Parse(GetExt(), FILE_MAX);
+	FileInfo kInfo;
+	VeBlobPtr spData = ParseTexture(kInfo, spCache->GetData());
+	
+	if (spData)
+	{
+		if (m_u32WaitNumber == 0)
+		{
+			OnResLoaded();
+		}
+	}
+	else
+	{
+		OnResLoadFailed(ERR_PARSE_FAILED);
+	}	
+}
+//--------------------------------------------------------------------------
+void VeTexture::UnloadImpl() noexcept
+{
+	OnResUnloaded();
+}
+//--------------------------------------------------------------------------
+void VeTexture::Regist() noexcept
+{
+	VE_ENUM(FileType,
+	{
+		{ FILE_DDS, "dds" }
+	});
+
+	ve_res_mgr.RegistResCreator(TypeName(),
+		[](const VeChar8* pcName) noexcept
+	{
+		return VE_NEW VeTexture(pcName);
+	});
+	for (VeUInt32 i(0); i < FILE_MAX; ++i)
+	{
+		const VeChar8* pcExt = ve_parser.EnumToStr((FileType)i);
+		ve_res_mgr.RegistExt(pcExt, TypeName());
+	}
+}
+//--------------------------------------------------------------------------
+void VeTexture::Unregist() noexcept
+{
+	ve_res_mgr.UnregistResCreator(TypeName());
+	for (VeUInt32 i(0); i < FILE_MAX; ++i)
+	{
+		const VeChar8* pcExt = ve_parser.EnumToStr((FileType)i);
+		ve_res_mgr.UnregistExt(pcExt);
+	}
+}
+//--------------------------------------------------------------------------

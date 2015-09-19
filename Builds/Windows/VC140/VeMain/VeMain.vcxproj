@@ -318,6 +318,7 @@
     <ClInclude Include="..\..\..\..\Source\VeMain\VeRenderTexture.h" />
     <ClInclude Include="..\..\..\..\Source\VeMain\VeRenderWindow.h" />
     <ClInclude Include="..\..\..\..\Source\VeMain\VeSurface.h" />
+    <ClInclude Include="..\..\..\..\Source\VeMain\VeTexture.h" />
     <ClInclude Include="..\..\..\..\Source\VeMain\VeVector2.h" />
     <ClInclude Include="..\..\..\..\Source\VeMain\VeVector3.h" />
     <ClInclude Include="..\..\..\..\Source\VeMain\VeVector4.h" />
@@ -357,6 +358,7 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='DebugLib|x64'">../VeMainPch.h</PrecompiledHeaderFile>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../VeMainPch.h</PrecompiledHeaderFile>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\Source\VeMain\VeTextureParser.cpp" />
     <ClCompile Include="..\..\..\..\Source\VeMain\VeEngine.cpp" />
     <ClCompile Include="..\..\..\..\Source\VeMain\VeEvents.cpp" />
     <ClCompile Include="..\..\..\..\Source\VeMain\VeKeyboard.cpp" />
@@ -383,6 +385,7 @@
     <ClCompile Include="..\..\..\..\Source\VeMain\VeRenderTexture.cpp" />
     <ClCompile Include="..\..\..\..\Source\VeMain\VeRenderWindow.cpp" />
     <ClCompile Include="..\..\..\..\Source\VeMain\VeSurface.cpp" />
+    <ClCompile Include="..\..\..\..\Source\VeMain\VeTexture.cpp" />
     <ClCompile Include="..\..\..\..\Source\VeMain\VeVector2.cpp" />
     <ClCompile Include="..\..\..\..\Source\VeMain\VeVector3.cpp" />
     <ClCompile Include="..\..\..\..\Source\VeMain\VeVector4.cpp" />
@@ -426,6 +429,7 @@
     <None Include="..\..\..\..\Source\VeMain\VeRenderTexture.inl" />
     <None Include="..\..\..\..\Source\VeMain\VeRenderWindow.inl" />
     <None Include="..\..\..\..\Source\VeMain\VeSurface.inl" />
+    <None Include="..\..\..\..\Source\VeMain\VeTexture.inl" />
     <None Include="..\..\..\..\Source\VeMain\VeVector2.inl" />
     <None Include="..\..\..\..\Source\VeMain\VeVector3.inl" />
     <None Include="..\..\..\..\Source\VeMain\VeVector4.inl" />
