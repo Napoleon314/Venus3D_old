@@ -75,7 +75,7 @@ public:
 	enum FramePassType
 	{
 		PASS_CLEAR,
-		PASS_RENDER_QUAD,
+		PASS_QUAD,
 		PASS_MAX
 	};
 	
@@ -96,17 +96,29 @@ public:
 
 	struct FramePass : public VeRefObject
 	{
-		FramePassType m_eType;		
+		FramePass(FramePassType eType) noexcept : m_eType(eType) {}
+
+		const FramePassType m_eType;
 	};
 
 	typedef VePointer<FramePass> FramePassPtr;
 
 	struct FrameClear : public FramePass
 	{
+		FrameClear() noexcept : FramePass(PASS_CLEAR) {}
+
 		VeUInt32 m_u32Flags = 0;
 		VeVector<VeColor> m_kColorArray;
 		VeFloat32 m_f32Depth = 0;
 		VeUInt8 m_u8Stencil = 0;
+	};
+
+	struct FrameQuad : public FramePass
+	{
+		FrameQuad() noexcept : FramePass(PASS_QUAD) {}
+
+		VeFixedString m_kRootSignature;
+		VeFixedString m_kPipelineState;
 	};
 
 	struct FrameClick
@@ -312,6 +324,8 @@ protected:
 	FramePassPtr CreatePass(VeJSONValue& kValue) noexcept;
 
 	FramePassPtr CreateClear(VeJSONValue& kValue) noexcept;
+
+	FramePassPtr CreateQuad(VeJSONValue& kValue) noexcept;
 
 	const API m_eType;
 	VeStringMap<VeBlobPtr> m_akShaderMap[SHADER_TYPE_NUM];

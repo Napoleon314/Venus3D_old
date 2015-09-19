@@ -80,7 +80,7 @@ VeRenderer::VeRenderer(API eType) noexcept
 	VE_ENUM(FramePassType,
 	{
 		{ PASS_CLEAR, "clear" },
-		{ PASS_RENDER_QUAD, "quad" }
+		{ PASS_QUAD, "quad" }
 	});	
 
 	VE_ENUM(FrameTargetType,
@@ -700,8 +700,8 @@ VeRenderer::FramePassPtr VeRenderer::CreatePass(
 	{
 	case VeRenderer::PASS_CLEAR:
 		return CreateClear(kValue);
-	case VeRenderer::PASS_RENDER_QUAD:
-		break;
+	case VeRenderer::PASS_QUAD:
+		return CreateQuad(kValue);
 	default:
 		break;
 	}
@@ -736,6 +736,15 @@ VeRenderer::FramePassPtr VeRenderer::CreateClear(
 	pkClear->m_f32Depth = kValue("depth", 0.0f);
 	pkClear->m_u8Stencil = (VeUInt8)kValue("stencil", 0u);
 	return pkClear;
+}
+//--------------------------------------------------------------------------
+VeRenderer::FramePassPtr VeRenderer::CreateQuad(
+	VeJSONValue& kValue) noexcept
+{
+	FrameQuad* pkQuad = VE_NEW FrameQuad();
+	pkQuad->m_kRootSignature = kValue("root_signature", "");
+	pkQuad->m_kPipelineState = kValue("pipeline_state", "");
+	return pkQuad;
 }
 //--------------------------------------------------------------------------
 VeRenderWindowPtr VeRenderer::CreateRenderWindow(const VeChar8* pcTitle,

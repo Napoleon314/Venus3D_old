@@ -176,10 +176,11 @@ bool VeRenderWindowD3D12::IsValid() noexcept
 void VeRenderWindowD3D12::SetupCompositorList(const VeChar8** ppcList,
 	VeSizeT stNum, const VeChar8* pcHint) noexcept
 {
+	VeRendererD3D12& kRenderer = *VeMemberCast(
+		&VeRendererD3D12::m_kRenderWindowList, m_kNode.get_list());
+
 	VeVector<VeRenderer::FrameTechnique*> kTechList;
-	{
-		VeRendererD3D12& kRenderer = *VeMemberCast(
-			&VeRendererD3D12::m_kRenderWindowList, m_kNode.get_list());
+	{		
 		for (VeSizeT i(0); i < stNum; ++i)
 		{
 			auto it = kRenderer.m_kCompositorMap.find(ppcList[i]);
@@ -373,6 +374,37 @@ void VeRenderWindowD3D12::SetupCompositorList(const VeChar8** ppcList,
 					}
 				}
 				break;
+				case VeRenderer::PASS_QUAD:
+				{
+					if (spCurrent != kCache.m_spRecorder)
+					{
+						m_kRecorderList.back().m_kTaskList.push_back(kCache.m_spRecorder);
+						spCurrent = kCache.m_spRecorder;
+					}
+					VeRenderer::FrameQuad& kQuad = (VeRenderer::FrameQuad&)*kClick.m_kPassList[k];					
+					ID3D12RootSignature* pkRootSignature = nullptr;
+					ID3D12PipelineState* pkPipelineState = nullptr;
+					auto itRoot = kRenderer.m_kRootSignatureMap.find(kQuad.m_kRootSignature);
+					if(itRoot != kRenderer.m_kRootSignatureMap.end())
+					{
+						pkRootSignature = VeSmartPointerCast(VeRendererD3D12::RootSignatureD3D12,
+							itRoot->second)->m_pkRootSignature;
+					}
+					auto itPSO = kRenderer.m_kPipelineStateMap.find(kQuad.m_kPipelineState);
+					if (itPSO != kRenderer.m_kPipelineStateMap.end())
+					{
+						pkPipelineState = VeSmartPointerCast(VeRendererD3D12::PipelineStateD3D12,
+							itPSO->second)->m_pkPipelineState;
+					}
+					if (pkRootSignature && pkPipelineState)
+					{
+						RecordRenderQuad* pkQuad = VE_NEW RecordRenderQuad();
+						pkQuad->m_pkRootSignature = pkRootSignature;
+						pkQuad->m_pkPipelineState = pkPipelineState;
+						m_kRecorderList.back().m_kTaskList.push_back(pkQuad);
+					}
+				}
+				break;
 				default:
 					break;
 				}
@@ -413,6 +445,9 @@ VeUInt32 VeRenderWindowD3D12::GetRecorderNum() noexcept
 //--------------------------------------------------------------------------
 void VeRenderWindowD3D12::Record(VeUInt32 u32Index) noexcept
 {
+	VeRendererD3D12& kRenderer = *VeMemberCast(
+		&VeRendererD3D12::m_kRenderWindowList, m_kNode.get_list());
+
 	VE_ASSERT(u32Index < m_kRecorderList.size());
 	Recorder& kRecorder = m_kRecorderList[u32Index];
 	FrameCache& kFrame = m_akFrameCache[m_u32FrameIndex];
@@ -430,9 +465,30 @@ void VeRenderWindowD3D12::Record(VeUInt32 u32Index) noexcept
 		break;
 		case REC_CLEAR_RTV:
 		{
-			RecordClearRTV& clear = *((RecordClearRTV*)task);
-			pkGCL->ClearRenderTargetView(clear.m_hHandle[m_u32FrameIndex],
-				(const FLOAT*)&(clear.m_kColor), 0, nullptr);
+			RecordClearRTV& rec = *((RecordClearRTV*)task);
+			pkGCL->ClearRenderTargetView(rec.m_hHandle[m_u32FrameIndex],
+				(const FLOAT*)&(rec.m_kColor), 0, nullptr);
+		}
+		break;
+		case REC_RENDER_TARGET:
+		{
+			RecordRenderTarget& rec = *((RecordRenderTarget*)task);
+			auto& tar = rec.m_kRenderTarget[m_u32FrameIndex];
+			pkGCL->OMSetRenderTargets((VeUInt32)tar.m_kRTVList.size(),
+				&tar.m_kRTVList.front(), FALSE,
+				tar.m_hDSV.ptr ? &tar.m_hDSV : nullptr);
+			pkGCL->RSSetViewports(1, &rec.m_kViewport);
+			pkGCL->RSSetScissorRects(1, &rec.m_kScissorRect);
+		}
+		break;
+		case REC_RENDER_QUAD:
+		{
+			RecordRenderQuad& rec = *((RecordRenderQuad*)task);
+			pkGCL->SetPipelineState(rec.m_pkPipelineState);
+			pkGCL->SetGraphicsRootSignature(rec.m_pkRootSignature);
+			pkGCL->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+			pkGCL->IASetVertexBuffers(0, 1, &kRenderer.m_kQuadVBV);
+			pkGCL->DrawInstanced(4, 1, 0, 0);
 		}
 		break;
 		default:

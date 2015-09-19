@@ -32,7 +32,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 		ve_res_mgr.CreateDir("file#scripts/hlsl", false),
 		ve_res_mgr.CreateDir("file#scripts", false));
 
-	VeRenderBufferPtr spCB = ve_renderer_ptr->CreateBuffer(
+	/*VeRenderBufferPtr spCB = ve_renderer_ptr->CreateBuffer(
 		VeRenderBuffer::TYPE_DYNAMIC, VeRenderBuffer::USEAGE_CB, 1024);
 	VE_FLOAT3 triangleVertices[] =
 	{
@@ -44,7 +44,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 	VeRenderBufferPtr spVB = ve_renderer_ptr->CreateBuffer(VeRenderBuffer::TYPE_STATIC, VeRenderBuffer::USEAGE_VB, sizeof(triangleVertices));
 	ve_renderer_ptr->BeginSyncCopy();
 	spVB->UpdateSync(triangleVertices);
-	ve_renderer_ptr->EndSyncCopy();
+	ve_renderer_ptr->EndSyncCopy();*/
 
 	VeRenderWindowPtr spRenderWindow = ve_renderer_ptr->CreateRenderWindow(
 		"RenderTest", VE_WINDOWPOS_CENTERED, VE_WINDOWPOS_CENTERED, 1280, 720, 0);
@@ -138,14 +138,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 				view4 = VeMatrixMultiply(view4, proj);
 
 
-				static VeFloat32 s_Test = 0.0f;
-				s_Test -= ve_time.GetDeltaTime() * 0.3f;
+				//static VeFloat32 s_Test = 0.0f;
+				//s_Test -= ve_time.GetDeltaTime() * 0.3f;
 
-				VE_FLOAT4A* pvData = (VE_FLOAT4A*)spCB->Map();
-				VE_VECTOR v = { 0, s_Test, 0.5f, 0.5f };
-				VeStoreFloat4A(pvData, v);
-				//VeStoreFloat4x4A(pvData, view4);
-				spCB->Unmap();
+				//VE_FLOAT4A* pvData = (VE_FLOAT4A*)spCB->Map();
+				//VE_VECTOR v = { 0, s_Test, 0.5f, 0.5f };
+				//VeStoreFloat4A(pvData, v);
+				////VeStoreFloat4x4A(pvData, view4);
+				//spCB->Unmap();
 
 				//VE_FLOAT4X4A* pvData = (VE_FLOAT4X4A*)spCB->Map();
 				//VeStoreFloat4x4A(pvData, view4);
@@ -168,8 +168,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 	}
 
 	VE_ASSERT(!spRenderWindow);
-	spCB = nullptr;
-	spVB = nullptr;
+	//spCB = nullptr;
+	//spVB = nullptr;
 
 	ve_engine.Term();
 	ve_sys.Term();

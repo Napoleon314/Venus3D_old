@@ -33,6 +33,7 @@ public:
 		REC_CLEAR_DSV,
 		REC_CLEAR_UAV,
 		REC_RENDER_TARGET,
+		REC_RENDER_QUAD,
 		REC_QUAD,
 	};
 
@@ -88,6 +89,14 @@ public:
 	};
 
 	typedef VePointer<RecordRenderTarget> RecordRenderTargetPtr;
+
+	struct RecordRenderQuad : public RecordTask
+	{
+		RecordRenderQuad() noexcept : RecordTask(REC_RENDER_QUAD) {}
+
+		ID3D12RootSignature* m_pkRootSignature = nullptr;
+		ID3D12PipelineState* m_pkPipelineState = nullptr;		
+	};
 
 	struct Recorder
 	{

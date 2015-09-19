@@ -49,6 +49,12 @@ inline D3D12_RESOURCE_BARRIER BarrierTransition(
 	return result;
 }
 
+VeSmartPointer(VeRenderBufferD3D12);
+
+VeSmartPointer(VeStaticBufferD3D12);
+
+VeSmartPointer(VeDynamicBufferD3D12);
+
 class VeRendererD3D12 : public VeRenderer
 {
 	VeNoCopy(VeRendererD3D12);
@@ -305,6 +311,10 @@ protected:
 
 	void TermCopyQueue() noexcept;
 
+	void InitStartup() noexcept;
+
+	void TermStartup() noexcept;
+
 	static ShaderType GetTargetType(const VeChar8* pcTarget) noexcept;
 
 	VeSharedLibPtr m_spD3D12;
@@ -332,6 +342,9 @@ protected:
 
 	VeRefList<RootSignatureD3D12*> m_kRootSignatureList;
 	VeRefList<PipelineStateD3D12*> m_kPipelineStateList;
+
+	VeStaticBufferD3D12Ptr m_spQuadBuffer;
+	D3D12_VERTEX_BUFFER_VIEW m_kQuadVBV;
 
 	HRESULT (WINAPI* D3D12GetDebugInterface)(
 		_In_ REFIID riid, _COM_Outptr_opt_ void** ppvDebug) = nullptr;

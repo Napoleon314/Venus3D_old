@@ -305,13 +305,14 @@ bool VeRendererD3D12::Init() noexcept
 	m_kDSVHeap.Init(m_pkDevice);
 	m_kSRVHeap.Init(m_pkDevice);
 	InitCopyQueue();
+	InitStartup();
 
 	ve_sys.CORE.I.LogFormat("VeRendererD3D12 renderer is created.");
 	return true;
 }
 //--------------------------------------------------------------------------
 void VeRendererD3D12::Term() noexcept
-{
+{	
 	for (auto obj : m_kRenderWindowList)
 	{
 		obj->Term();
@@ -332,6 +333,7 @@ void VeRendererD3D12::Term() noexcept
 		VE_SAFE_RELEASE(obj->m_pkPipelineState);
 	}
 	m_kPipelineStateList.clear();
+	TermStartup();
 	TermCopyQueue();
 	m_kSRVHeap.Term();
 	m_kDSVHeap.Term();
@@ -694,13 +696,13 @@ VeRenderer::PipelineStatePtr VeRendererD3D12::CreatePipelineState(
 }
 //--------------------------------------------------------------------------
 void FillBlendState(D3D12_BLEND_DESC& kDesc,
-	VeRendererD3D12::BlendType eType) noexcept
+	VeRenderer::BlendType eType) noexcept
 {
 	kDesc.AlphaToCoverageEnable = FALSE;
 	kDesc.IndependentBlendEnable = FALSE;
 	switch (eType)
 	{
-	case VeRendererD3D12::ADD:
+	case VeRenderer::ADD:
 		kDesc.RenderTarget[0] =
 		{
 			FALSE,FALSE,
@@ -710,7 +712,7 @@ void FillBlendState(D3D12_BLEND_DESC& kDesc,
 			D3D12_COLOR_WRITE_ENABLE_ALL,
 		};
 		break;
-	case VeRendererD3D12::BLEND:
+	case VeRenderer::BLEND:
 		kDesc.RenderTarget[0] =
 		{
 			FALSE,FALSE,
@@ -734,11 +736,11 @@ void FillBlendState(D3D12_BLEND_DESC& kDesc,
 }
 //--------------------------------------------------------------------------
 void FillRasterizerState(D3D12_RASTERIZER_DESC& kDesc,
-	VeRendererD3D12::RasterType eType) noexcept
+	VeRenderer::RasterType eType) noexcept
 {
 	switch (eType)
 	{
-	case VeRendererD3D12::CULL_FRONT:
+	case VeRenderer::CULL_FRONT:
 		kDesc.FillMode = D3D12_FILL_MODE_SOLID;
 		kDesc.CullMode = D3D12_CULL_MODE_FRONT;
 		kDesc.FrontCounterClockwise = FALSE;
@@ -751,7 +753,7 @@ void FillRasterizerState(D3D12_RASTERIZER_DESC& kDesc,
 		kDesc.ForcedSampleCount = 0;
 		kDesc.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
 		break;
-	case VeRendererD3D12::CULL_NONE:
+	case VeRenderer::CULL_NONE:
 		kDesc.FillMode = D3D12_FILL_MODE_SOLID;
 		kDesc.CullMode = D3D12_CULL_MODE_NONE;
 		kDesc.FrontCounterClockwise = FALSE;
@@ -781,11 +783,11 @@ void FillRasterizerState(D3D12_RASTERIZER_DESC& kDesc,
 }
 //--------------------------------------------------------------------------
 void FillDepthStencilState(D3D12_DEPTH_STENCIL_DESC& kDesc,
-	VeRendererD3D12::DepthStencilType eType) noexcept
+	VeRenderer::DepthStencilType eType) noexcept
 {
 	switch (eType)
 	{
-	case VeRendererD3D12::DS_STANDARD:
+	case VeRenderer::DS_STANDARD:
 		kDesc.DepthEnable = TRUE;
 		kDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
 		kDesc.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
@@ -1191,6 +1193,34 @@ void VeRendererD3D12::TermCopyQueue() noexcept
 	VE_SAFE_RELEASE(m_pkCopyCommandList);
 	VE_SAFE_RELEASE(m_pkCopyAllocator);
 	VE_SAFE_RELEASE(m_pkCopyQueue);
+}
+//--------------------------------------------------------------------------
+void VeRendererD3D12::InitStartup() noexcept
+{
+	VeUInt16 av3QuadData[] =
+	{
+		0, VE_UINT16_MAX,
+		VE_UINT16_MAX, VE_UINT16_MAX,
+		0, 0,
+		VE_UINT16_MAX, 0
+	};
+
+	m_spQuadBuffer = VE_NEW VeStaticBufferD3D12(
+		VeRenderBuffer::USEAGE_VB, sizeof(av3QuadData));
+	m_spQuadBuffer->Init(*this);
+
+	BeginSyncCopy();
+	m_spQuadBuffer->UpdateSync(av3QuadData);
+	EndSyncCopy();
+
+	m_kQuadVBV.BufferLocation = m_spQuadBuffer->m_pkResource->GetGPUVirtualAddress();
+	m_kQuadVBV.SizeInBytes = m_spQuadBuffer->GetSize();
+	m_kQuadVBV.StrideInBytes = sizeof(VeUInt16) * 2;
+}
+//--------------------------------------------------------------------------
+void VeRendererD3D12::TermStartup() noexcept
+{
+	m_spQuadBuffer = nullptr;
 }
 //--------------------------------------------------------------------------
 VeRenderer::ShaderType VeRendererD3D12::GetTargetType(
