@@ -15,13 +15,12 @@
 //--------------------------------------------------------------------------
 inline VeRenderBuffer::Type VeRenderBuffer::GetType() noexcept
 {
-	VE_ASSERT(m_u16Type < TYPE_MAX);
-	return (Type)m_u16Type;
+	return m_eType;
 }
 //--------------------------------------------------------------------------
 inline VeRenderBuffer::Useage VeRenderBuffer::GetUseage() noexcept
 {
-	return (Useage)m_u16Useage;
+	return m_eUseage;
 }
 //--------------------------------------------------------------------------
 inline VeUInt32 VeRenderBuffer::GetSize() noexcept
@@ -31,6 +30,6 @@ inline VeUInt32 VeRenderBuffer::GetSize() noexcept
 //--------------------------------------------------------------------------
 inline bool VeRenderBuffer::CanUse(Useage eUse) noexcept
 {
-	return VE_MASK_HAS_ANY(GetUseage(), eUse);
+	return VE_MASK_HAS_ALL(GetUseage(), eUse);
 }
 //--------------------------------------------------------------------------

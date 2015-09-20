@@ -154,7 +154,11 @@ public:
 
 	inline Dimension GetDimension() noexcept;
 
+	virtual void UpdateSync(void* pvData, VeSizeT stSize) noexcept = 0;
+
 	static VeUInt32 BitsPerPixel(Format eFormat) noexcept;
+
+	static VeUInt32 GetUnitBits(Format eFormat) noexcept;
 
 protected:
 	VeRenderResource(Dimension eDimension) noexcept

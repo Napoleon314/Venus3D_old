@@ -119,6 +119,7 @@ public:
 
 		VeFixedString m_kRootSignature;
 		VeFixedString m_kPipelineState;
+		VeVector<std::pair<VeUInt32, VeFixedString>> m_kTable;
 	};
 
 	struct FrameClick
@@ -264,6 +265,10 @@ public:
 
 	inline API GetAPI() const noexcept;
 
+	inline void RegistResource(const VeChar8* pcName, const VeRenderResourcePtr& spRes) noexcept;
+
+	inline void UnregistResource(const VeChar8* pcName) noexcept;
+
 	void RegistResTypes() noexcept;
 
 	void UnregistResTypes() noexcept;
@@ -302,10 +307,10 @@ public:
 	virtual VeRenderBufferPtr CreateBuffer(VeRenderBuffer::Type eType,
 		VeRenderBuffer::Useage eUse, VeUInt32 u32Size) noexcept = 0;
 
-	virtual VeRenderTexturePtr CreateTexture(VeRenderTexture::Useage eUse,
-		VeRenderResource::Dimension eDim, VeRenderResource::Format eFormat,
+	virtual VeRenderTexturePtr CreateTexture(VeRenderResource::Dimension eDim,
+		VeRenderTexture::Useage eUse, VeRenderResource::Format eFormat,
 		VeUInt32 u32Width, VeUInt32 u32Height, VeUInt16 u16Depth,
-		VeUInt16 u16MipLevels, VeUInt16 u16Count, VeUInt16 u16Quality) noexcept = 0;
+		VeUInt16 u16MipLevels, VeUInt16 u16Count = 1, VeUInt16 u16Quality = 0) noexcept = 0;
 
 protected:
 	VeRenderer(API eType) noexcept;
@@ -337,6 +342,7 @@ protected:
 	VeStringMap<RootSignaturePtr> m_kRootSignatureMap;
 	VeStringMap<PipelineStatePtr> m_kPipelineStateMap;
 	VeStringMap<FrameCompositorPtr> m_kCompositorMap;
+	VeStringMap<VeRenderResourcePtr> m_kResourceMap;
 
 };
 

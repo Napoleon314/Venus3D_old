@@ -46,15 +46,13 @@ public:
 
 	virtual void Unmap() noexcept = 0;
 
-	virtual void UpdateSync(void* pvData) noexcept = 0;
-
 protected:
 	VeRenderBuffer(Type eType, Useage eUse, VeUInt32 u32Size) noexcept
-		: VeRenderResource(DIMENSION_BUFFER), m_u16Type(eType)
-		, m_u16Useage(eUse), m_u32Size(u32Size) {}
+		: VeRenderResource(DIMENSION_BUFFER), m_eType(eType)
+		, m_eUseage(eUse), m_u32Size(u32Size) {}
 
-	VeUInt16 m_u16Type;
-	VeUInt16 m_u16Useage;
+	Type m_eType;
+	Useage m_eUseage;
 	VeUInt32 m_u32Size;
 
 };

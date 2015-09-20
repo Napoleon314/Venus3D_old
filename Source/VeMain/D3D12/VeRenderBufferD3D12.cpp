@@ -58,25 +58,28 @@ VeStaticBufferD3D12::~VeStaticBufferD3D12() noexcept
 //--------------------------------------------------------------------------
 void VeStaticBufferD3D12::Init(VeRendererD3D12& kRenderer) noexcept
 {
-	D3D12_RESOURCE_STATES eState = D3D12_RESOURCE_STATE_COMMON;
-	if (VE_MASK_HAS_ANY(m_u16Useage, USEAGE_VB | USEAGE_CB))
-		eState |= D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER;
-	if (VE_MASK_HAS_ANY(m_u16Useage, USEAGE_IB))
-		eState |= D3D12_RESOURCE_STATE_INDEX_BUFFER;
-	VE_ASSERT_GE(kRenderer.m_pkDevice->CreateCommittedResource(
-		&HeapProp(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE,
-		&BufferDesc(m_u32Size), eState, nullptr,
-		IID_PPV_ARGS(&m_pkResource)), S_OK);
-	if (VE_MASK_HAS_ANY(m_u16Useage, USEAGE_CB))
+	if (!m_kNode.is_attach())
 	{
-		m_pkCBView = VeAlloc(CBufferView, 1);
-		m_pkCBView->m_u32Offset = kRenderer.m_kSRVHeap.Alloc();
-		m_pkCBView->m_kCPUHandle.ptr = kRenderer.m_kSRVHeap.GetCPUStart().ptr + m_pkCBView->m_u32Offset;
-		m_pkCBView->m_kGPUHandle.ptr = kRenderer.m_kSRVHeap.GetGPUStart().ptr + m_pkCBView->m_u32Offset;
-		D3D12_CONSTANT_BUFFER_VIEW_DESC kCBVDesc = { m_pkResource->GetGPUVirtualAddress(), m_u32Size };
-		kRenderer.m_pkDevice->CreateConstantBufferView(&kCBVDesc, m_pkCBView->m_kCPUHandle);
+		D3D12_RESOURCE_STATES eState = D3D12_RESOURCE_STATE_COMMON;
+		if (VE_MASK_HAS_ANY(m_eUseage, USEAGE_VB | USEAGE_CB))
+			eState |= D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER;
+		if (VE_MASK_HAS_ANY(m_eUseage, USEAGE_IB))
+			eState |= D3D12_RESOURCE_STATE_INDEX_BUFFER;
+		VE_ASSERT_GE(kRenderer.m_pkDevice->CreateCommittedResource(
+			&HeapProp(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE,
+			&BufferDesc(m_u32Size), eState, nullptr,
+			IID_PPV_ARGS(&m_pkResource)), S_OK);
+		if (VE_MASK_HAS_ANY(m_eUseage, USEAGE_CB))
+		{
+			m_pkCBView = VeAlloc(CBufferView, 1);
+			m_pkCBView->m_u32Offset = kRenderer.m_kSRVHeap.Alloc();
+			m_pkCBView->m_kCPUHandle.ptr = kRenderer.m_kSRVHeap.GetCPUStart().ptr + m_pkCBView->m_u32Offset;
+			m_pkCBView->m_kGPUHandle.ptr = kRenderer.m_kSRVHeap.GetGPUStart().ptr + m_pkCBView->m_u32Offset;
+			D3D12_CONSTANT_BUFFER_VIEW_DESC kCBVDesc = { m_pkResource->GetGPUVirtualAddress(), m_u32Size };
+			kRenderer.m_pkDevice->CreateConstantBufferView(&kCBVDesc, m_pkCBView->m_kCPUHandle);
+		}
+		kRenderer.m_kRenderBufferList.attach_back(m_kNode);
 	}
-	kRenderer.m_kRenderBufferList.attach_back(m_kNode);
 }
 //--------------------------------------------------------------------------
 void VeStaticBufferD3D12::Term() noexcept
@@ -95,9 +98,9 @@ void VeStaticBufferD3D12::Term() noexcept
 	}
 }
 //--------------------------------------------------------------------------
-void VeStaticBufferD3D12::UpdateSync(void* pvData) noexcept
+void VeStaticBufferD3D12::UpdateSync(void* pvData, VeSizeT stSize) noexcept
 {
-	if (m_kNode.is_attach())
+	if (m_kNode.is_attach() && m_u32Size == stSize)
 	{
 		VeRendererD3D12& kRenderer = GetRenderer();
 		ID3D12Resource* pkIntermediate = nullptr;
@@ -139,27 +142,30 @@ VeDynamicBufferD3D12::~VeDynamicBufferD3D12() noexcept
 //--------------------------------------------------------------------------
 void VeDynamicBufferD3D12::Init(VeRendererD3D12& kRenderer) noexcept
 {
-	VE_ASSERT_GE(kRenderer.m_pkDevice->CreateCommittedResource(
-		&HeapProp(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE,
-		&BufferDesc(m_u32Size * VeRendererD3D12::FRAME_COUNT),
-		D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
-		IID_PPV_ARGS(&m_pkResource)), S_OK);
-
-	VE_ASSERT_GE(m_pkResource->Map(0, nullptr, &m_pvMappedBuffer), S_OK);
-	VE_ASSERT(!(((VeSizeT)m_pvMappedBuffer) & 0xf));
-	if (VE_MASK_HAS_ANY(m_u16Useage, USEAGE_CB))
+	if (!m_kNode.is_attach())
 	{
-		m_pkCBView = VeAlloc(CBufferView, VeRendererD3D12::FRAME_COUNT);
-		for (VeUInt32 i(0); i < VeRendererD3D12::FRAME_COUNT; ++i)
+		VE_ASSERT_GE(kRenderer.m_pkDevice->CreateCommittedResource(
+			&HeapProp(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE,
+			&BufferDesc(m_u32Size * VeRendererD3D12::FRAME_COUNT),
+			D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
+			IID_PPV_ARGS(&m_pkResource)), S_OK);
+
+		VE_ASSERT_GE(m_pkResource->Map(0, nullptr, &m_pvMappedBuffer), S_OK);
+		VE_ASSERT(!(((VeSizeT)m_pvMappedBuffer) & 0xf));
+		if (VE_MASK_HAS_ANY(m_eUseage, USEAGE_CB))
 		{
-			m_pkCBView[i].m_u32Offset = kRenderer.m_kSRVHeap.Alloc();
-			m_pkCBView[i].m_kCPUHandle.ptr = kRenderer.m_kSRVHeap.GetCPUStart().ptr + m_pkCBView[i].m_u32Offset;
-			m_pkCBView[i].m_kGPUHandle.ptr = kRenderer.m_kSRVHeap.GetGPUStart().ptr + m_pkCBView[i].m_u32Offset;
-			D3D12_CONSTANT_BUFFER_VIEW_DESC kCBVDesc = { m_pkResource->GetGPUVirtualAddress() + i * m_u32Size, m_u32Size };
-			kRenderer.m_pkDevice->CreateConstantBufferView(&kCBVDesc, m_pkCBView[i].m_kCPUHandle);
+			m_pkCBView = VeAlloc(CBufferView, VeRendererD3D12::FRAME_COUNT);
+			for (VeUInt32 i(0); i < VeRendererD3D12::FRAME_COUNT; ++i)
+			{
+				m_pkCBView[i].m_u32Offset = kRenderer.m_kSRVHeap.Alloc();
+				m_pkCBView[i].m_kCPUHandle.ptr = kRenderer.m_kSRVHeap.GetCPUStart().ptr + m_pkCBView[i].m_u32Offset;
+				m_pkCBView[i].m_kGPUHandle.ptr = kRenderer.m_kSRVHeap.GetGPUStart().ptr + m_pkCBView[i].m_u32Offset;
+				D3D12_CONSTANT_BUFFER_VIEW_DESC kCBVDesc = { m_pkResource->GetGPUVirtualAddress() + i * m_u32Size, m_u32Size };
+				kRenderer.m_pkDevice->CreateConstantBufferView(&kCBVDesc, m_pkCBView[i].m_kCPUHandle);
+			}
 		}
-	}
-	kRenderer.m_kRenderBufferList.attach_back(m_kNode);
+		kRenderer.m_kRenderBufferList.attach_back(m_kNode);
+	}	
 }
 //--------------------------------------------------------------------------
 void VeDynamicBufferD3D12::Term() noexcept
@@ -195,11 +201,14 @@ void VeDynamicBufferD3D12::Unmap() noexcept
 
 }
 //--------------------------------------------------------------------------
-void VeDynamicBufferD3D12::UpdateSync(void* pvData) noexcept
+void VeDynamicBufferD3D12::UpdateSync(void* pvData, VeSizeT stSize) noexcept
 {
-	if ((++m_u32Active) >= VeRendererD3D12::FRAME_COUNT)
-		m_u32Active -= VeRendererD3D12::FRAME_COUNT;
-	VeCrazyCopy(GetActiveBuffer(), pvData, m_u32Size);
+	if (m_u32Size == stSize)
+	{
+		if ((++m_u32Active) >= VeRendererD3D12::FRAME_COUNT)
+			m_u32Active -= VeRendererD3D12::FRAME_COUNT;
+		VeCrazyCopy(GetActiveBuffer(), pvData, m_u32Size);
+	}	
 }
 //--------------------------------------------------------------------------
 void* VeDynamicBufferD3D12::GetActiveBuffer() noexcept

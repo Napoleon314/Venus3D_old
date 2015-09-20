@@ -447,12 +447,15 @@ VeBlobPtr ParseDDS(VeTexture::FileInfo& kOut,
 		return nullptr;
 	}
 
+	if (u32Depth != 1 && u32ArraySize != 1) return nullptr;
+
 	kOut.m_eDimension = eResDim;
 	kOut.m_eFormat = eFormat;
 	kOut.m_u32Width = u32Width;
 	kOut.m_u32Height = u32Height;
 	kOut.m_u16Depth = (VeUInt16)(u32Depth * u32ArraySize);
 	kOut.m_u16MipLevels = (VeUInt16)u32MipCount;
+	kOut.m_bIsCube = bIsCubeMap;
 	VeSizeT stDataSize = kIn.RemainingLength();
 	void* pvData = kIn.Skip(stDataSize);
 	return VE_NEW VeBlob(pvData, stDataSize);

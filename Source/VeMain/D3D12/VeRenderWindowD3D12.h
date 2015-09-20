@@ -95,7 +95,8 @@ public:
 		RecordRenderQuad() noexcept : RecordTask(REC_RENDER_QUAD) {}
 
 		ID3D12RootSignature* m_pkRootSignature = nullptr;
-		ID3D12PipelineState* m_pkPipelineState = nullptr;		
+		ID3D12PipelineState* m_pkPipelineState = nullptr;
+		VeVector<std::pair<VeUInt32, D3D12_GPU_DESCRIPTOR_HANDLE>> m_kTable;
 	};
 
 	struct Recorder

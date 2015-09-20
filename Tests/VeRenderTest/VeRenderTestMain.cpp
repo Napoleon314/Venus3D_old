@@ -28,9 +28,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
 	ve_res_mgr.SetupGroupFromJSON("{\"default\":{\"r\":[\"file#\"]}}");
 
-	auto spRes = ve_res_mgr.GetResource("stone_d.dds");
-	spRes->Load();
-
 	ve_renderer_ptr->PreCache(ve_res_mgr.CreateDir("file#scripts/cache"),
 		ve_res_mgr.CreateDir("file#scripts/hlsl", false),
 		ve_res_mgr.CreateDir("file#scripts", false));
@@ -50,7 +47,17 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 	ve_renderer_ptr->EndSyncCopy();*/
 
 	VeRenderWindowPtr spRenderWindow = ve_renderer_ptr->CreateRenderWindow(
-		"RenderTest", VE_WINDOWPOS_CENTERED, VE_WINDOWPOS_CENTERED, 1280, 720, 0);
+		"RenderTest", VE_WINDOWPOS_CENTERED, VE_WINDOWPOS_CENTERED, 800, 800, 0);
+
+	auto spRes = ve_res_mgr.GetResource("stone_d.dds");
+	auto spRes1 = ve_res_mgr.GetResource("rocks_d.dds");
+	auto spRes2 = ve_res_mgr.GetResource("cubeUffizi.dds");
+
+	ve_renderer_ptr->BeginSyncCopy();
+	//spRes->Load();
+	//spRes1->Load();
+	spRes2->Load();
+	ve_renderer_ptr->EndSyncCopy();
 
 	const VeChar8* apcList[] =
 	{
@@ -172,6 +179,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
 	VE_ASSERT(!spRenderWindow);
 	spRes = nullptr;
+	spRes1 = nullptr;
+	spRes2 = nullptr;
 	//spCB = nullptr;
 	//spVB = nullptr;
 

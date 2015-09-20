@@ -27,9 +27,9 @@ inline D3D12_HEAP_PROPERTIES HeapProp(D3D12_HEAP_TYPE eType) noexcept
 	return{ eType,D3D12_CPU_PAGE_PROPERTY_UNKNOWN,D3D12_MEMORY_POOL_UNKNOWN,0,0 };
 }
 
-inline D3D12_RESOURCE_DESC BufferDesc(VeUInt32 u32Size) noexcept
+inline D3D12_RESOURCE_DESC BufferDesc(VeUInt64 u64Size) noexcept
 {
-	return{ D3D12_RESOURCE_DIMENSION_BUFFER,0,u32Size,1,1,1,DXGI_FORMAT_UNKNOWN,{ 1,0 },D3D12_TEXTURE_LAYOUT_ROW_MAJOR,D3D12_RESOURCE_FLAG_NONE };
+	return{ D3D12_RESOURCE_DIMENSION_BUFFER,0,u64Size,1,1,1,DXGI_FORMAT_UNKNOWN,{ 1,0 },D3D12_TEXTURE_LAYOUT_ROW_MAJOR,D3D12_RESOURCE_FLAG_NONE };
 }
 
 inline D3D12_RESOURCE_BARRIER BarrierTransition(
@@ -301,8 +301,8 @@ public:
 	virtual VeRenderBufferPtr CreateBuffer(VeRenderBuffer::Type eType,
 		VeRenderBuffer::Useage eUse, VeUInt32 u32Size) noexcept override;
 
-	virtual VeRenderTexturePtr CreateTexture(VeRenderTexture::Useage eUse,
-		VeRenderResource::Dimension eDim, VeRenderResource::Format eFormat,
+	virtual VeRenderTexturePtr CreateTexture(VeRenderResource::Dimension eDim,
+		VeRenderTexture::Useage eUse, VeRenderResource::Format eFormat,
 		VeUInt32 u32Width, VeUInt32 u32Height, VeUInt16 u16Depth,
 		VeUInt16 u16MipLevels, VeUInt16 u16Count, VeUInt16 u16Quality) noexcept override;
 
@@ -311,6 +311,7 @@ protected:
 	friend class VeRenderBufferD3D12;
 	friend class VeStaticBufferD3D12;
 	friend class VeDynamicBufferD3D12;
+	friend class VeRenderTextureD3D12;
 
 	void InitCopyQueue() noexcept;
 
@@ -344,6 +345,7 @@ protected:
 
 	VeRefList<VeRenderWindowD3D12*> m_kRenderWindowList;
 	VeRefList<VeRenderBufferD3D12*> m_kRenderBufferList;
+	VeRefList<VeRenderTextureD3D12*> m_kRenderTextureList;
 
 	VeRefList<RootSignatureD3D12*> m_kRootSignatureList;
 	VeRefList<PipelineStateD3D12*> m_kPipelineStateList;

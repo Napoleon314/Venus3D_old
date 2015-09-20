@@ -13,6 +13,11 @@
 ////////////////////////////////////////////////////////////////////////////
 
 //--------------------------------------------------------------------------
+inline VeRenderTexture::Useage VeRenderTexture::GetUseage() noexcept
+{
+	return m_eUseage;
+}
+//--------------------------------------------------------------------------
 inline VeRenderResource::Format VeRenderTexture::GetFormat() noexcept
 {
 	return m_eFormat;
@@ -42,5 +47,10 @@ inline std::pair<VeUInt16, VeUInt16>
 VeRenderTexture::GetSampleDesc() noexcept
 {
 	return std::make_pair(m_u16Count, m_u16Quality);
+}
+//--------------------------------------------------------------------------
+inline bool VeRenderTexture::CanUse(Useage eUse) noexcept
+{
+	return VE_MASK_HAS_ALL(GetUseage(), eUse);
 }
 //--------------------------------------------------------------------------

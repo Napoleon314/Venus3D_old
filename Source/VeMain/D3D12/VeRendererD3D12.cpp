@@ -16,6 +16,7 @@
 #include "VeRendererD3D12.h"
 #include "VeRenderWindowD3D12.h"
 #include "VeRenderBufferD3D12.h"
+#include "VeRenderTextureD3D12.h"
 
 //--------------------------------------------------------------------------
 #ifdef VE_ENABLE_D3D12
@@ -323,6 +324,11 @@ void VeRendererD3D12::Term() noexcept
 		obj->Term();
 	}
 	VE_ASSERT(m_kRenderBufferList.empty());
+	for (auto obj : m_kRenderTextureList)
+	{
+		obj->Term();
+	}
+	VE_ASSERT(m_kRenderTextureList.empty());
 	for (auto obj : m_kRootSignatureList)
 	{
 		VE_SAFE_RELEASE(obj->m_pkRootSignature);
@@ -580,7 +586,7 @@ VeBlobPtr VeRendererD3D12::SerializeRootSignature(
 						kRange.NumDescriptors = kValueRange("num", 0u);
 						kRange.BaseShaderRegister = kValueRange("register", 0u);
 						kRange.RegisterSpace = kValueRange("space", 0u);
-						kRange.OffsetInDescriptorsFromTableStart = kValueRange("offset", 0u);
+						kRange.OffsetInDescriptorsFromTableStart = kValueRange("offset", D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND);
 					}
 				}
 				kParameter.ShaderVisibility = kValue("visibility", D3D12_SHADER_VISIBILITY_ALL);
@@ -1150,12 +1156,16 @@ VeRenderBufferPtr VeRendererD3D12::CreateBuffer(VeRenderBuffer::Type eType,
 }
 //--------------------------------------------------------------------------
 VeRenderTexturePtr VeRendererD3D12::CreateTexture(
-	VeRenderTexture::Useage eUse, VeRenderResource::Dimension eDim,
+	VeRenderResource::Dimension eDim, VeRenderTexture::Useage eUse,
 	VeRenderResource::Format eFormat, VeUInt32 u32Width, VeUInt32 u32Height,
 	VeUInt16 u16Depth, VeUInt16 u16MipLevels,
 	VeUInt16 u16Count, VeUInt16 u16Quality) noexcept
 {
-	return nullptr;
+	VeRenderTextureD3D12* pkTexture = VE_NEW VeRenderTextureD3D12(eDim,
+		eUse, eFormat, u32Width, u32Height, u16Depth, u16MipLevels,
+		u16Count, u16Quality);
+	pkTexture->Init(*this);
+	return pkTexture;
 }
 //--------------------------------------------------------------------------
 void VeRendererD3D12::InitCopyQueue() noexcept
@@ -1208,10 +1218,10 @@ void VeRendererD3D12::InitStartup() noexcept
 {
 	VeUInt16 av3QuadData[] =
 	{
-		0, VE_UINT16_MAX,
-		VE_UINT16_MAX, VE_UINT16_MAX,
 		0, 0,
-		VE_UINT16_MAX, 0
+		VE_UINT16_MAX, 0,
+		0, VE_UINT16_MAX,
+		VE_UINT16_MAX, VE_UINT16_MAX
 	};
 
 	m_spQuadBuffer = VE_NEW VeStaticBufferD3D12(
@@ -1219,7 +1229,7 @@ void VeRendererD3D12::InitStartup() noexcept
 	m_spQuadBuffer->Init(*this);
 
 	BeginSyncCopy();
-	m_spQuadBuffer->UpdateSync(av3QuadData);
+	m_spQuadBuffer->UpdateSync(av3QuadData, sizeof(av3QuadData));
 	EndSyncCopy();
 
 	m_kQuadVBV.BufferLocation = m_spQuadBuffer->m_pkResource->GetGPUVirtualAddress();

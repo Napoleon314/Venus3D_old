@@ -38,15 +38,20 @@ const VeChar8* VeTexture::GetTypeName() const noexcept
 //--------------------------------------------------------------------------
 void VeTexture::LoadImpl(VeResourceManager::FileCachePtr spCache) noexcept
 {
+	VE_ASSERT(ve_renderer_ptr);
 	auto eType = ve_parser.Parse(GetExt(), FILE_MAX);
 	FileInfo kInfo;
 	VeBlobPtr spData = ParseTexture(kInfo, spCache->GetData());	
 	if (spData)
 	{
-
-
-
-
+		VeUInt32 u32Use = VeRenderTexture::USEAGE_SRV;
+		if (kInfo.m_bIsCube) u32Use |= VeRenderTexture::USEAGE_CUBE;
+		m_spTexture = ve_renderer_ptr->CreateTexture(kInfo.m_eDimension,
+			(VeRenderTexture::Useage)u32Use, kInfo.m_eFormat,
+			kInfo.m_u32Width, kInfo.m_u32Height, kInfo.m_u16Depth,
+			kInfo.m_u16MipLevels);
+		m_spTexture->UpdateSync(spData->GetBuffer(), spData->GetSize());
+		ve_renderer_ptr->RegistResource(m_kName, m_spTexture);
 		if (m_u32WaitNumber == 0)
 		{
 			OnResLoaded();
@@ -60,6 +65,8 @@ void VeTexture::LoadImpl(VeResourceManager::FileCachePtr spCache) noexcept
 //--------------------------------------------------------------------------
 void VeTexture::UnloadImpl() noexcept
 {
+	if(ve_renderer_ptr) ve_renderer_ptr->UnregistResource(m_kName);
+	m_spTexture = nullptr;
 	OnResUnloaded();
 }
 //--------------------------------------------------------------------------

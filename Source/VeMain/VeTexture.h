@@ -33,6 +33,7 @@ public:
 		VeUInt32 m_u32Height;
 		VeUInt16 m_u16Depth;
 		VeUInt16 m_u16MipLevels;
+		bool m_bIsCube;
 	};
 
 	VeTexture(const VeChar8* pcName) noexcept;
@@ -52,7 +53,7 @@ public:
 	static void Unregist() noexcept;
 
 protected:
-	
+	VeRenderTexturePtr m_spTexture;
 	
 };
 

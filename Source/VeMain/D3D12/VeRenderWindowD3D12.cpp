@@ -15,6 +15,8 @@
 #include "../VeMainPch.h"
 #include "VeRendererD3D12.h"
 #include "VeRenderWindowD3D12.h"
+#include "VeRenderBufferD3D12.h"
+#include "VeRenderTextureD3D12.h"
 
 //--------------------------------------------------------------------------
 VeRTTIImpl(VeRenderWindowD3D12, VeRenderWindow);
@@ -401,6 +403,30 @@ void VeRenderWindowD3D12::SetupCompositorList(const VeChar8** ppcList,
 						RecordRenderQuad* pkQuad = VE_NEW RecordRenderQuad();
 						pkQuad->m_pkRootSignature = pkRootSignature;
 						pkQuad->m_pkPipelineState = pkPipelineState;
+						for (auto& itTab : kQuad.m_kTable)
+						{
+							auto itRes = kRenderer.m_kResourceMap.find(itTab.second);
+							if (itRes != kRenderer.m_kResourceMap.end())
+							{
+								switch (itRes->second->GetDimension())
+								{
+								case VeRenderResource::DIMENSION_TEXTURE1D:
+								case VeRenderResource::DIMENSION_TEXTURE2D:
+								case VeRenderResource::DIMENSION_TEXTURE3D:								
+								{
+									VeRenderTextureD3D12* pkTex = VeDynamicCast(VeRenderTextureD3D12, itRes->second.p());
+									if (pkTex && pkTex->m_kSRVList.size())
+									{
+										pkQuad->m_kTable.push_back(std::make_pair(itTab.first, pkTex->m_kSRVList.front().m_kGPUHandle));
+									}
+								}
+								break;
+								default:
+									break;
+								}							
+
+							}
+						}
 						m_kRecorderList.back().m_kTaskList.push_back(pkQuad);
 					}
 				}
@@ -453,6 +479,8 @@ void VeRenderWindowD3D12::Record(VeUInt32 u32Index) noexcept
 	FrameCache& kFrame = m_akFrameCache[m_u32FrameIndex];
 	ID3D12GraphicsCommandList* pkGCL = kFrame.m_kDirectCommandList[kRecorder.m_u32CommandIndex];
 	VE_ASSERT_GE(pkGCL->Reset(kFrame.m_pkDirectAllocator, nullptr), S_OK);
+	ID3D12DescriptorHeap* ppHeaps[] = { kRenderer.m_kSRVHeap.Get() };
+	pkGCL->SetDescriptorHeaps(1, ppHeaps);
 	for (auto& task : kRecorder.m_kTaskList)
 	{
 		switch (task->m_eType)
@@ -486,6 +514,10 @@ void VeRenderWindowD3D12::Record(VeUInt32 u32Index) noexcept
 			RecordRenderQuad& rec = *((RecordRenderQuad*)task);
 			pkGCL->SetPipelineState(rec.m_pkPipelineState);
 			pkGCL->SetGraphicsRootSignature(rec.m_pkRootSignature);
+			for (auto& itTab : rec.m_kTable)
+			{
+				pkGCL->SetGraphicsRootDescriptorTable(itTab.first, itTab.second);
+			}
 			pkGCL->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 			pkGCL->IASetVertexBuffers(0, 1, &kRenderer.m_kQuadVBV);
 			pkGCL->DrawInstanced(4, 1, 0, 0);

@@ -50,15 +50,15 @@ public:
 
 	virtual ~VeStaticBufferD3D12() noexcept;
 
-	virtual void Init(VeRendererD3D12& kRenderer) noexcept;
+	virtual void Init(VeRendererD3D12& kRenderer) noexcept override;
 
-	virtual void Term() noexcept;
+	virtual void Term() noexcept override;
 
-	virtual void* Map() noexcept { return nullptr; }
+	virtual void* Map() noexcept override { return nullptr; }
 
-	virtual void Unmap() noexcept {}
+	virtual void Unmap() noexcept override {}
 
-	virtual void UpdateSync(void* pvData) noexcept;
+	virtual void UpdateSync(void* pvData, VeSizeT stSize) noexcept override;
 
 	CBufferView* m_pkCBView = nullptr;
 
@@ -73,15 +73,15 @@ public:
 
 	virtual ~VeDynamicBufferD3D12() noexcept;
 
-	virtual void Init(VeRendererD3D12& kRenderer) noexcept;
+	virtual void Init(VeRendererD3D12& kRenderer) noexcept override;
 
-	virtual void Term() noexcept;
+	virtual void Term() noexcept override;
 
-	virtual void* Map() noexcept;
+	virtual void* Map() noexcept override;
 
-	virtual void Unmap() noexcept;
+	virtual void Unmap() noexcept override;
 
-	virtual void UpdateSync(void* pvData) noexcept;
+	virtual void UpdateSync(void* pvData, VeSizeT stSize) noexcept override;
 
 	void* GetActiveBuffer() noexcept;
 

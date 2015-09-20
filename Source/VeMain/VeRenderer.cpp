@@ -744,6 +744,19 @@ VeRenderer::FramePassPtr VeRenderer::CreateQuad(
 	FrameQuad* pkQuad = VE_NEW FrameQuad();
 	pkQuad->m_kRootSignature = kValue("root_signature", "");
 	pkQuad->m_kPipelineState = kValue("pipeline_state", "");
+	auto itTab = kValue.FindMember("table");
+	if (itTab != kValue.MemberEnd() && itTab->value.IsArray())
+	{
+		for (auto it = itTab->value.Begin(); it != itTab->value.End(); ++it)
+		{
+			if (it->IsObject())
+			{
+				VeUInt32 u32Slot = (*it)("slot", 0);
+				const VeChar8* pcRes = (*it)("res", "");
+				pkQuad->m_kTable.push_back(std::make_pair(u32Slot, pcRes));
+			}
+		}
+	}
 	return pkQuad;
 }
 //--------------------------------------------------------------------------
