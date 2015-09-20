@@ -40,10 +40,13 @@ void VeTexture::LoadImpl(VeResourceManager::FileCachePtr spCache) noexcept
 {
 	auto eType = ve_parser.Parse(GetExt(), FILE_MAX);
 	FileInfo kInfo;
-	VeBlobPtr spData = ParseTexture(kInfo, spCache->GetData());
-	
+	VeBlobPtr spData = ParseTexture(kInfo, spCache->GetData());	
 	if (spData)
 	{
+
+
+
+
 		if (m_u32WaitNumber == 0)
 		{
 			OnResLoaded();

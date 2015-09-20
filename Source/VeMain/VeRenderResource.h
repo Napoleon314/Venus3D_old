@@ -154,6 +154,8 @@ public:
 
 	inline Dimension GetDimension() noexcept;
 
+	static VeUInt32 BitsPerPixel(Format eFormat) noexcept;
+
 protected:
 	VeRenderResource(Dimension eDimension) noexcept
 		: m_eDimension(eDimension) {}

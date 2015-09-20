@@ -4,8 +4,8 @@
 //  Copyright (C), Venus Interactive Entertainment.2012
 // -------------------------------------------------------------------------
 //  Module:      VeMain
-//  File name:   VeRendererWindowD3D12.h
-//  Created:     2015/08/22 by Napoleon
+//  File name:   VeRenderWindowD3D12.h
+//  Created:     2015/09/20 by Napoleon
 //  Description: 
 // -------------------------------------------------------------------------
 //  History:

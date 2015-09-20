@@ -24,8 +24,7 @@ public:
 		USEAGE_SRV = 0x1,
 		USEAGE_RTV = 0x2,
 		USEAGE_DSV = 0x4,
-		USEAGE_UAV = 0x8,
-		USEAGE_MASK = 0xff
+		USEAGE_UAV = 0x8
 	};
 
 	inline Format GetFormat() noexcept;
@@ -57,5 +56,7 @@ protected:
 	VeUInt16 m_u16Quality;
 
 };
+
+VeSmartPointer(VeRenderTexture);
 
 #include "VeRenderTexture.inl"

@@ -301,6 +301,11 @@ public:
 	virtual VeRenderBufferPtr CreateBuffer(VeRenderBuffer::Type eType,
 		VeRenderBuffer::Useage eUse, VeUInt32 u32Size) noexcept override;
 
+	virtual VeRenderTexturePtr CreateTexture(VeRenderTexture::Useage eUse,
+		VeRenderResource::Dimension eDim, VeRenderResource::Format eFormat,
+		VeUInt32 u32Width, VeUInt32 u32Height, VeUInt16 u16Depth,
+		VeUInt16 u16MipLevels, VeUInt16 u16Count, VeUInt16 u16Quality) noexcept override;
+
 protected:
 	friend class VeRenderWindowD3D12;
 	friend class VeRenderBufferD3D12;

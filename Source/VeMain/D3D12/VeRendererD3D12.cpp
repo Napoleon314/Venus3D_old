@@ -14,7 +14,7 @@
 
 #include "../VeMainPch.h"
 #include "VeRendererD3D12.h"
-#include "VeRendererWindowD3D12.h"
+#include "VeRenderWindowD3D12.h"
 #include "VeRenderBufferD3D12.h"
 
 //--------------------------------------------------------------------------
@@ -1146,6 +1146,15 @@ VeRenderBufferPtr VeRendererD3D12::CreateBuffer(VeRenderBuffer::Type eType,
 		pkBuffer->Init(*this);
 		return pkBuffer;
 	}
+	return nullptr;
+}
+//--------------------------------------------------------------------------
+VeRenderTexturePtr VeRendererD3D12::CreateTexture(
+	VeRenderTexture::Useage eUse, VeRenderResource::Dimension eDim,
+	VeRenderResource::Format eFormat, VeUInt32 u32Width, VeUInt32 u32Height,
+	VeUInt16 u16Depth, VeUInt16 u16MipLevels,
+	VeUInt16 u16Count, VeUInt16 u16Quality) noexcept
+{
 	return nullptr;
 }
 //--------------------------------------------------------------------------

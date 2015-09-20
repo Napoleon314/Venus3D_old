@@ -298,7 +298,8 @@
   <ItemGroup>
     <ClInclude Include="..\..\..\..\Source\VeMain\D3D12\VeRenderBufferD3D12.h" />
     <ClInclude Include="..\..\..\..\Source\VeMain\D3D12\VeRendererD3D12.h" />
-    <ClInclude Include="..\..\..\..\Source\VeMain\D3D12\VeRendererWindowD3D12.h" />
+    <ClInclude Include="..\..\..\..\Source\VeMain\D3D12\VeRenderWindowD3D12.h" />
+    <ClInclude Include="..\..\..\..\Source\VeMain\D3D12\VeRenderTextureD3D12.h" />
     <ClInclude Include="..\..\..\..\Source\VeMain\VeEngine.h" />
     <ClInclude Include="..\..\..\..\Source\VeMain\VeEvents.h" />
     <ClInclude Include="..\..\..\..\Source\VeMain\VeKeyboard.h" />
@@ -348,7 +349,17 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='DebugLib|x64'">../VeMainPch.h</PrecompiledHeaderFile>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../VeMainPch.h</PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\Source\VeMain\D3D12\VeRendererWindowD3D12.cpp">
+    <ClCompile Include="..\..\..\..\Source\VeMain\D3D12\VeRenderWindowD3D12.cpp">
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../VeMainPch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ReleaseLib|Win32'">../VeMainPch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='DebugLib|Win32'">../VeMainPch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../VeMainPch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../VeMainPch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ReleaseLib|x64'">../VeMainPch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='DebugLib|x64'">../VeMainPch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../VeMainPch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Source\VeMain\D3D12\VeRenderTextureD3D12.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../VeMainPch.h</PrecompiledHeaderFile>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ReleaseLib|Win32'">../VeMainPch.h</PrecompiledHeaderFile>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='DebugLib|Win32'">../VeMainPch.h</PrecompiledHeaderFile>
