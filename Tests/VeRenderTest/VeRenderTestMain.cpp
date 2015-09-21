@@ -49,13 +49,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 	VeRenderWindowPtr spRenderWindow = ve_renderer_ptr->CreateRenderWindow(
 		"RenderTest", VE_WINDOWPOS_CENTERED, VE_WINDOWPOS_CENTERED, 800, 800, 0);
 
+	spRenderWindow->SetSync(true);
+
 	auto spRes = ve_res_mgr.GetResource("stone_d.dds");
 	auto spRes1 = ve_res_mgr.GetResource("rocks_d.dds");
 	auto spRes2 = ve_res_mgr.GetResource("cubeUffizi.dds");
 
 	ve_renderer_ptr->BeginSyncCopy();
-	//spRes->Load();
-	//spRes1->Load();
+	spRes->Load();
+	spRes1->Load();
 	spRes2->Load();
 	ve_renderer_ptr->EndSyncCopy();
 

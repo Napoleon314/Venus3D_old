@@ -203,6 +203,6 @@ VeSizeT VeRenderTexture::GetSubResDesc(SubResDesc* pkDesc) noexcept
 		pkDesc[i].m_u32SlicePitch = h * pkDesc[i].m_u32RowPitch;
 		stSize += pkDesc[i].m_u32SlicePitch;
 	}
-	return stSize;
+	return stSize * m_u16Depth;
 }
 //--------------------------------------------------------------------------

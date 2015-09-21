@@ -194,50 +194,63 @@ void VeRenderTextureD3D12::UpdateSync(void* pvData, VeSizeT stSize) noexcept
 	if (m_kNode.is_attach())
 	{
 		VeRendererD3D12& kRenderer = GetRenderer();
-		SubResDesc kSubResDesc[D3D12_REQ_MIP_LEVELS];
-		VeSizeT stTargetSize = GetSubResDesc(kSubResDesc);
+		D3D12_RESOURCE_DESC kDesc = m_pkResource->GetDesc();
+		VeUInt32 u32SliceNum = kDesc.MipLevels * kDesc.DepthOrArraySize;
+		VeVector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT> kFootPrints;
+		VeVector<VeUInt32> kNumRows;
+		VeVector<VeUInt64> kRowSizeInBytes;
+		kFootPrints.resize(u32SliceNum);
+		kNumRows.resize(u32SliceNum);
+		kRowSizeInBytes.resize(u32SliceNum);
+		VeUInt64 u64RequiredSize = 0;
+		kRenderer.m_pkDevice->GetCopyableFootprints(&kDesc, 0,
+			u32SliceNum, 0, &kFootPrints.front(), &kNumRows.front(),
+			&kRowSizeInBytes.front(), &u64RequiredSize);
+
+		VeSizeT stTargetSize = 0;
+		for (VeUInt32 i(0); i < u32SliceNum; ++i)
+		{
+			stTargetSize += kNumRows[i] * kRowSizeInBytes[i];
+		}
+
 		if (stTargetSize == stSize)
 		{
-			D3D12_RESOURCE_DESC kDesc = m_pkResource->GetDesc();
-			D3D12_PLACED_SUBRESOURCE_FOOTPRINT akFootPrint[D3D12_REQ_MIP_LEVELS];
-			VeUInt64 u64RequiredSize = 0;
-			kRenderer.m_pkDevice->GetCopyableFootprints(&kDesc, 0,
-				kDesc.MipLevels, 0, akFootPrint, nullptr, nullptr, &u64RequiredSize);
-
 			ID3D12Resource* pkIntermediate = nullptr;
 			VE_ASSERT_GE(kRenderer.m_pkDevice->CreateCommittedResource(
 				&HeapProp(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE,
 				&BufferDesc(u64RequiredSize), D3D12_RESOURCE_STATE_GENERIC_READ,
 				nullptr, IID_PPV_ARGS(&pkIntermediate)), S_OK);
+
 			void* pvDst;
 			VE_ASSERT_GE(pkIntermediate->Map(0, nullptr, &pvDst), S_OK);
-
+			
 			VeByte* pbySrc = (VeByte*)pvData;
 
-			for (VeUInt16 i(0); i < kDesc.MipLevels; ++i)
+			for (VeUInt32 i(0); i < u32SliceNum; ++i)
 			{
-				VeByte* pbyDst = (VeByte*)pvDst + akFootPrint[i].Offset;
-				if (kSubResDesc[i].m_u32RowPitch == akFootPrint[i].Footprint.RowPitch)
-				{					
-					VeCrazyCopy(pbyDst, pbySrc, kSubResDesc[i].m_u32SlicePitch);
-					pbySrc += kSubResDesc[i].m_u32SlicePitch;					
+				VeByte* pbyDst = (VeByte*)pvDst + kFootPrints[i].Offset;
+				if (kRowSizeInBytes[i] == kFootPrints[i].Footprint.RowPitch)
+				{
+					VeSizeT stSlicePitch = (VeSizeT)(kRowSizeInBytes[i] * kNumRows[i]);
+					VeCrazyCopy(pbyDst, pbySrc, stSlicePitch);					
+					pbySrc += stSlicePitch;
 				}
 				else
-				{			
-					for (VeUInt16 j(0); j < kSubResDesc[i].m_u32RowNum; ++j)
-					{					
-						VeCrazyCopy(pbyDst, pbySrc, kSubResDesc[i].m_u32RowPitch);
-						pbyDst += akFootPrint[i].Footprint.RowPitch;
-						pbySrc += kSubResDesc[i].m_u32RowPitch;
+				{
+					for (VeUInt32 j(0); j < kNumRows[i]; ++j)
+					{
+						VeCrazyCopy(pbyDst, pbySrc, kRowSizeInBytes[i]);
+						pbyDst += kFootPrints[i].Footprint.RowPitch;
+						pbySrc += kRowSizeInBytes[i];
 					}
 				}
 			}
-			
+
 			pkIntermediate->Unmap(0, nullptr);
 
 			kRenderer.m_pkCopyCommandList->ResourceBarrier(1, &BarrierTransition(
 				m_pkResource, D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_DEST));
-			for (VeUInt16 i = 0; i < kDesc.MipLevels; ++i)
+			for (VeUInt32 i = 0; i < u32SliceNum; ++i)
 			{
 				D3D12_TEXTURE_COPY_LOCATION kDst =
 				{
@@ -245,7 +258,7 @@ void VeRenderTextureD3D12::UpdateSync(void* pvData, VeSizeT stSize) noexcept
 				};
 				D3D12_TEXTURE_COPY_LOCATION kSrc =
 				{
-					pkIntermediate, D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT, akFootPrint[i]
+					pkIntermediate, D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT, kFootPrints[i]
 				};
 				kRenderer.m_pkCopyCommandList->CopyTextureRegion(&kDst, 0, 0, 0, &kSrc, nullptr);
 			}
