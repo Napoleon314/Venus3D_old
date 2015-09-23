@@ -203,6 +203,9 @@ public:
 
 	VeFloat64 CalculateExpression(const VeChar8* pcExpr, VeFloat64 f64Default) noexcept;
 
+	VeFloat64 CalculateExpression(const VeStringMap<VeFloat64>& kMap,
+		const VeChar8* pcExpr, VeFloat64 f64Default) noexcept;
+
 protected:
 	VeVector<std::function<void()>> m_kDestructList;
 	VeStringMap<VeInt32> m_kOpMap;

@@ -152,6 +152,30 @@ public:
 		FORMAT_FORCE_UINT = 0xffffffff
 	};
 
+	enum SRVType
+	{
+		SRV_DEFAULT,
+		SRV_MAX
+	};
+
+	enum RTVType
+	{
+		RTV_DEFAULT,
+		RTV_MAX
+	};
+
+	enum DSVType
+	{
+		DSV_DEFAULT,
+		DSV_MAX
+	};
+
+	enum UAVType
+	{
+		UAV_DEFAULT,
+		UAV_MAX
+	};
+
 	inline Dimension GetDimension() noexcept;
 
 	virtual void UpdateSync(void* pvData, VeSizeT stSize) noexcept = 0;
@@ -159,6 +183,10 @@ public:
 	static VeUInt32 BitsPerPixel(Format eFormat) noexcept;
 
 	static VeUInt32 GetUnitBits(Format eFormat) noexcept;
+
+	static Format ToTypeless(Format eFormat) noexcept;
+
+	static Format ToSRGB(Format eFormat) noexcept;
 
 protected:
 	VeRenderResource(Dimension eDimension) noexcept

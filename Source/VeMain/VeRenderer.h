@@ -125,38 +125,60 @@ public:
 	struct FrameClick
 	{
 		VeFixedString m_kTarget;
+		VeVector<VeFixedString> m_kContextList;
 		VeVector<FramePassPtr> m_kPassList;
 	};
 
 	struct FrameResource
 	{
+		struct SRV
+		{
+			VeRenderResource::SRVType m_eType = VeRenderResource::SRV_DEFAULT;
+			VeRenderResource::Format m_eFormat = VeRenderResource::FORMAT_UNKNOWN;
+			VeUInt32 m_u32Param0 = 0;
+			VeUInt32 m_u32Param1 = 0;
+		};
+
+		struct RTV
+		{
+			VeRenderResource::RTVType m_eType = VeRenderResource::RTV_DEFAULT;
+			VeRenderResource::Format m_eFormat = VeRenderResource::FORMAT_UNKNOWN;
+			VeUInt32 m_u32Param0 = 0;
+			VeUInt32 m_u32Param1 = 0;
+		};
+
+		struct DSV
+		{
+			VeRenderResource::DSVType m_eType = VeRenderResource::DSV_DEFAULT;
+			VeRenderResource::Format m_eFormat = VeRenderResource::FORMAT_UNKNOWN;
+			VeUInt32 m_u32Param0 = 0;
+			VeUInt32 m_u32Param1 = 0;
+		};
+
 		VeFixedString m_kName;
 		VeRenderResource::Dimension m_eDimension;
 		VeRenderResource::Format m_eFormat;
-		VeUInt32 m_u32Width;
-		VeUInt32 m_u32Height;
-		VeUInt16 m_u16Depth;
-		VeUInt16 m_u16MipLevels;
-		VeUInt16 m_u16Count;
-		VeUInt16 m_u16Quality;
+		VeFixedString m_kWidth;
+		VeFixedString m_kHeight;
+		VeFixedString m_kDepth;
+		VeFixedString m_kMipLevels;
+		VeFixedString m_kCount;
+		VeFixedString m_kQuality;
+		VeVector<SRV> m_kSRVList;
+		VeVector<RTV> m_kRTVList;
+		VeVector<DSV> m_kDSVList;
 	};	
 
 	struct FrameRTV
 	{
 		VeFixedString m_kResName;
-		VeUInt32 m_u32Param0;
-		VeUInt32 m_u32Param1;
-		VeUInt32 m_u32Param2;
-		VeUInt32 m_u32Param3;
+		VeUInt32 m_u32Index;
 	};
 
 	struct FrameDSV
 	{
 		VeFixedString m_kResName;
-		VeUInt32 m_u32Param0;
-		VeUInt32 m_u32Param1;
-		VeUInt32 m_u32Param2;
-		VeUInt32 m_u32Param3;
+		VeUInt32 m_u32Index;
 	};	
 
 	struct FrameTarget

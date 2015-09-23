@@ -50,6 +50,8 @@ void VeTexture::LoadImpl(VeResourceManager::FileCachePtr spCache) noexcept
 			(VeRenderTexture::Useage)u32Use, kInfo.m_eFormat,
 			kInfo.m_u32Width, kInfo.m_u32Height, kInfo.m_u16Depth,
 			kInfo.m_u16MipLevels);
+		m_spTexture->SetSRVNum(1);
+		m_spTexture->SetSRV(0, VeRenderResource::SRV_DEFAULT);
 		m_spTexture->UpdateSync(spData->GetBuffer(), spData->GetSize());
 		ve_renderer_ptr->RegistResource(m_kName, m_spTexture);
 		if (m_u32WaitNumber == 0)

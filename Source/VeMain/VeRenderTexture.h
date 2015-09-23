@@ -26,7 +26,7 @@ public:
 		USEAGE_DSV = 0x4,
 		USEAGE_UAV = 0x8,
 		USEAGE_CUBE = 0x100
-	};
+	};	
 
 	struct SubResDesc
 	{
@@ -52,6 +52,33 @@ public:
 	inline bool CanUse(Useage eUse) noexcept;
 
 	VeSizeT GetSubResDesc(SubResDesc* pkDesc) noexcept;
+
+	virtual VeUInt32 GetSRVNum() noexcept = 0;
+
+	virtual void ClearSRV() noexcept = 0;
+
+	virtual void SetSRVNum(VeUInt32 u32Num) noexcept = 0;
+
+	virtual void SetSRV(VeUInt32 u32Index, SRVType eType,
+		Format eFormat = FORMAT_UNKNOWN, VeUInt32 p0 = 0, VeUInt32 p1 = 0) noexcept = 0;
+
+	virtual VeUInt32 GetRTVNum() noexcept = 0;
+
+	virtual void ClearRTV() noexcept = 0;
+
+	virtual void SetRTVNum(VeUInt32 u32Num) noexcept = 0;
+
+	virtual void SetRTV(VeUInt32 u32Index, RTVType eType,
+		Format eFormat = FORMAT_UNKNOWN, VeUInt32 p0 = 0, VeUInt32 p1 = 0) noexcept = 0;
+	
+	virtual VeUInt32 GetDSVNum() noexcept = 0;
+
+	virtual void ClearDSV() noexcept = 0;
+
+	virtual void SetDSVNum(VeUInt32 u32Num) noexcept = 0;
+
+	virtual void SetDSV(VeUInt32 u32Index, DSVType eType,
+		Format eFormat = FORMAT_UNKNOWN, VeUInt32 p0 = 0, VeUInt32 p1 = 0) noexcept = 0;
 	
 protected:
 	VeRenderTexture(Dimension eDim, Useage eUse, Format eFormat,

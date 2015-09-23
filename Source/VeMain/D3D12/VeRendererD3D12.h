@@ -209,6 +209,7 @@ public:
 
 		void Term() noexcept
 		{
+			VE_ASSERT(m_u32FreeStart == m_kFreeIndexList.size());
 			VE_SAFE_RELEASE(m_pkHeap);
 			m_kFreeIndexList.clear();
 		}

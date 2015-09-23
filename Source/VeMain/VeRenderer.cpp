@@ -227,6 +227,26 @@ VeRenderer::VeRenderer(API eType) noexcept
 		{ VeRenderResource::FORMAT_V208, "v208" },
 		{ VeRenderResource::FORMAT_V408, "v408" }
 	});
+
+	VE_ENUM(VeRenderResource::SRVType,
+	{
+		{ VeRenderResource::SRV_DEFAULT, "default" }
+	});
+
+	VE_ENUM(VeRenderResource::RTVType,
+	{
+		{ VeRenderResource::RTV_DEFAULT, "default" }
+	});
+
+	VE_ENUM(VeRenderResource::DSVType,
+	{
+		{ VeRenderResource::DSV_DEFAULT, "default" }
+	});
+
+	VE_ENUM(VeRenderResource::UAVType,
+	{
+		{ VeRenderResource::UAV_DEFAULT, "default" }
+	});
 }
 //--------------------------------------------------------------------------
 VeRenderer::~VeRenderer() noexcept
@@ -610,6 +630,69 @@ void VeRenderer::SetTechnique(FrameTechnique& kTechnique,
 	}
 }
 //--------------------------------------------------------------------------
+static VeRenderer::FrameResource::SRV ToSrv(const VeChar8* pcStr) noexcept
+{
+	VeRenderer::FrameResource::SRV kRes;
+	VeChar8 acBuffer[VE_MAX_PATH_LEN];
+	VeStrcpy(acBuffer, pcStr);
+	VeChar8* pcContext;
+	VeChar8* pcTemp = VeStrtok(acBuffer, ",", &pcContext);
+	if (!pcTemp) return kRes;
+	kRes.m_eType = ve_parser.Parse(pcTemp, VeRenderResource::SRV_DEFAULT);		
+	pcTemp = VeStrtok<VeChar8>(nullptr, ",", &pcContext);
+	if (!pcTemp) return kRes;
+	kRes.m_eFormat = ve_parser.Parse(pcTemp, VeRenderResource::FORMAT_UNKNOWN);
+	pcTemp = VeStrtok<VeChar8>(nullptr, ",", &pcContext);
+	if (!pcTemp) return kRes;
+	kRes.m_u32Param0 = ve_parser.Parse(pcTemp, 0);
+	pcTemp = VeStrtok<VeChar8>(nullptr, ",", &pcContext);
+	if (!pcTemp) return kRes;
+	kRes.m_u32Param1 = ve_parser.Parse(pcTemp, 0);
+	return kRes;
+}
+//--------------------------------------------------------------------------
+static VeRenderer::FrameResource::RTV ToRtv(const VeChar8* pcStr) noexcept
+{
+	VeRenderer::FrameResource::RTV kRes;
+	VeChar8 acBuffer[VE_MAX_PATH_LEN];
+	VeStrcpy(acBuffer, pcStr);
+	VeChar8* pcContext;
+	VeChar8* pcTemp = VeStrtok(acBuffer, ",", &pcContext);
+	if (!pcTemp) return kRes;
+	kRes.m_eType = ve_parser.Parse(pcTemp, VeRenderResource::RTV_DEFAULT);
+	pcTemp = VeStrtok<VeChar8>(nullptr, ",", &pcContext);
+	if (!pcTemp) return kRes;
+	kRes.m_eFormat = ve_parser.Parse(pcTemp, VeRenderResource::FORMAT_UNKNOWN);
+	pcTemp = VeStrtok<VeChar8>(nullptr, ",", &pcContext);
+	if (!pcTemp) return kRes;
+	kRes.m_u32Param0 = ve_parser.Parse(pcTemp, 0);
+	pcTemp = VeStrtok<VeChar8>(nullptr, ",", &pcContext);
+	if (!pcTemp) return kRes;
+	kRes.m_u32Param1 = ve_parser.Parse(pcTemp, 0);	
+	return kRes;
+}
+//--------------------------------------------------------------------------
+VeRenderer::FrameResource::DSV ToDsv(const VeChar8* pcStr) noexcept
+{
+	VeRenderer::FrameResource::DSV kRes;
+	VeChar8 acBuffer[VE_MAX_PATH_LEN];
+	VeStrcpy(acBuffer, pcStr);
+	VeChar8* pcContext;
+	VeChar8* pcTemp = VeStrtok(acBuffer, ",", &pcContext);	
+	if (!pcTemp) return kRes;
+	kRes.m_eType = ve_parser.Parse(pcTemp, VeRenderResource::DSV_DEFAULT);
+	pcTemp = VeStrtok<VeChar8>(nullptr, ",", &pcContext);
+	if (!pcTemp) return kRes;
+	kRes.m_eFormat = ve_parser.Parse(pcTemp, VeRenderResource::FORMAT_UNKNOWN);
+	pcTemp = VeStrtok<VeChar8>(nullptr, ",", &pcContext);
+	if (!pcTemp) return kRes;
+	kRes.m_u32Param0 = ve_parser.Parse(pcTemp, 0);
+	pcTemp = VeStrtok<VeChar8>(nullptr, ",", &pcContext);
+	if (!pcTemp) return kRes;
+	kRes.m_u32Param1 = ve_parser.Parse(pcTemp, 0);
+	return kRes;
+}
+//--------------------------------------------------------------------------
 void VeRenderer::SetResource(FrameResource& kRes,
 	VeJSONValue& kValue) noexcept
 {
@@ -618,12 +701,72 @@ void VeRenderer::SetResource(FrameResource& kRes,
 		kRes.m_kName = kValue("name", "");
 		kRes.m_eDimension = kValue("dimension", VeRenderResource::DIMENSION_TEXTURE2D);
 		kRes.m_eFormat = kValue("format", VeRenderResource::FORMAT_UNKNOWN);
-		kRes.m_u32Width = kValue("w", 0u);
-		kRes.m_u32Height = kValue("h", 0u);
-		kRes.m_u16Depth = kValue("d", 1u);
-		kRes.m_u16MipLevels = kValue("m", 1u);
-		kRes.m_u16Count = kValue("c", 1u);
-		kRes.m_u16Quality = kValue("q", 0u);
+		kRes.m_kWidth = kValue("w", "0");
+		kRes.m_kHeight = kValue("h", "0");
+		kRes.m_kDepth = kValue("d", "1");
+		kRes.m_kMipLevels = kValue("m", "1");
+		kRes.m_kCount = kValue("c", "1");
+		kRes.m_kQuality = kValue("q", "0");
+		{
+			auto itSrv = kValue.FindMember("srv");
+			if (itSrv != kValue.MemberEnd())
+			{
+				if (itSrv->value.IsArray())
+				{
+					for (auto it = itSrv->value.Begin(); it != itSrv->value.End(); ++it)
+					{
+						if (it->IsString())
+						{
+							kRes.m_kSRVList.push_back(ToSrv(it->GetString()));
+						}
+					}
+				}
+				else if (itSrv->value.IsString())
+				{
+					kRes.m_kSRVList.push_back(ToSrv(itSrv->value.GetString()));
+				}
+			}
+		}
+		{
+			auto itRtv = kValue.FindMember("rtv");
+			if (itRtv != kValue.MemberEnd())
+			{
+				if (itRtv->value.IsArray())
+				{
+					for (auto it = itRtv->value.Begin(); it != itRtv->value.End(); ++it)
+					{
+						if (it->IsString())
+						{
+							kRes.m_kRTVList.push_back(ToRtv(it->GetString()));
+						}
+					}
+				}
+				else if (itRtv->value.IsString())
+				{
+					kRes.m_kRTVList.push_back(ToRtv(itRtv->value.GetString()));
+				}
+			}
+		}
+		{
+			auto itDsv = kValue.FindMember("dsv");
+			if (itDsv != kValue.MemberEnd())
+			{
+				if (itDsv->value.IsArray())
+				{
+					for (auto it = itDsv->value.Begin(); it != itDsv->value.End(); ++it)
+					{
+						if (it->IsString())
+						{
+							kRes.m_kDSVList.push_back(ToDsv(it->GetString()));
+						}
+					}
+				}
+				else if (itDsv->value.IsString())
+				{
+					kRes.m_kDSVList.push_back(ToDsv(itDsv->value.GetString()));
+				}
+			}
+		}
 	}
 }
 //--------------------------------------------------------------------------
@@ -640,13 +783,13 @@ void VeRenderer::SetTarget(FrameTarget& kTarget,
 			for (auto it = rtv->value.Begin(); it != rtv->value.End(); ++it)
 			{
 				kTarget.m_kRTVList.resize(kTarget.m_kRTVList.size() + 1);
-				SetRTV(kTarget.m_kRTVList.back(), kValue);
+				SetRTV(kTarget.m_kRTVList.back(), *it);
 			}
 		}
 		else if(rtv->value.IsObject())
 		{
 			kTarget.m_kRTVList.resize(kTarget.m_kRTVList.size() + 1);
-			SetRTV(kTarget.m_kRTVList.back(), kValue);
+			SetRTV(kTarget.m_kRTVList.back(), rtv->value);
 		}
 	}
 	auto dsv = kValue.FindMember("dsv");
@@ -659,25 +802,37 @@ void VeRenderer::SetTarget(FrameTarget& kTarget,
 void VeRenderer::SetRTV(FrameRTV& kRTV, VeJSONValue& kValue) noexcept
 {
 	kRTV.m_kResName = kValue("resource", "");
-	kRTV.m_u32Param0 = kValue("p0", 0u);
-	kRTV.m_u32Param1 = kValue("p1", 0u);
-	kRTV.m_u32Param2 = kValue("p2", 0u);
-	kRTV.m_u32Param3 = kValue("p3", 0u);
+	kRTV.m_u32Index = kValue("index", 0u);
 }
 //--------------------------------------------------------------------------
 void VeRenderer::SetDSV(FrameDSV& kDSV, VeJSONValue& kValue) noexcept
 {
 	kDSV.m_kResName = kValue("resource", "");
-	kDSV.m_u32Param0 = kValue("p0", 0u);
-	kDSV.m_u32Param1 = kValue("p1", 0u);
-	kDSV.m_u32Param2 = kValue("p2", 0u);
-	kDSV.m_u32Param3 = kValue("p3", 0u);
+	kDSV.m_u32Index = kValue("index", 0u);
 }
 //--------------------------------------------------------------------------
 void VeRenderer::SetClick(FrameClick& kClick,
 	VeJSONValue& kValue) noexcept
 {
 	kClick.m_kTarget = kValue("target", "");
+	auto context = kValue.FindMember("context");
+	if (context != kValue.MemberEnd())
+	{
+		if (context->value.IsArray())
+		{
+			for (auto it = context->value.Begin(); it != context->value.End(); ++it)
+			{
+				if (it->IsString())
+				{
+					kClick.m_kContextList.push_back(it->GetString());
+				}
+			}
+		}
+		else if (context->value.IsString())
+		{
+			kClick.m_kContextList.push_back(context->value.GetString());
+		}
+	}
 	auto pass = kValue.FindMember("pass");
 	if (pass != kValue.MemberEnd())
 	{

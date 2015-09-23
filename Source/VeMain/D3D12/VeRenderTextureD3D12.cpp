@@ -116,15 +116,131 @@ void VeRenderTextureD3D12::GetSRVDesc(
 	}
 }
 //--------------------------------------------------------------------------
-void VeRenderTextureD3D12::AddSRV(VeRendererD3D12& kRenderer,
-	const D3D12_SHADER_RESOURCE_VIEW_DESC& kDesc) noexcept
+void VeRenderTextureD3D12::GetRTVDesc(D3D12_RENDER_TARGET_VIEW_DESC& kDesc,
+	VeUInt32 u32Mip) noexcept
 {
-	m_kSRVList.resize(m_kSRVList.size() + 1);
-	SRView& kView = m_kSRVList.back();
-	kView.m_u32Offset = kRenderer.m_kSRVHeap.Alloc();
-	kView.m_kCPUHandle.ptr = kRenderer.m_kSRVHeap.GetCPUStart().ptr + kView.m_u32Offset;
-	kView.m_kGPUHandle.ptr = kRenderer.m_kSRVHeap.GetGPUStart().ptr + kView.m_u32Offset;
-	kRenderer.m_pkDevice->CreateShaderResourceView(m_pkResource, &kDesc, kView.m_kCPUHandle);
+	kDesc = {};
+	kDesc.Format = (DXGI_FORMAT)m_eFormat;
+	kDesc.ViewDimension = D3D12_RTV_DIMENSION_UNKNOWN;
+	switch (m_eDimension)
+	{
+	case VeRenderResource::DIMENSION_TEXTURE1D:
+		if (m_u16Depth == 1)
+		{
+			kDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE1D;
+			kDesc.Texture1D.MipSlice = u32Mip;
+		}
+		else if (m_u16Depth > 1)
+		{
+			kDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE1DARRAY;
+			kDesc.Texture1DArray.MipSlice = u32Mip;
+			kDesc.Texture1DArray.ArraySize = m_u16Depth;
+		}
+		break;
+	case VeRenderResource::DIMENSION_TEXTURE2D:
+		if (VE_MASK_HAS_ANY(m_eUseage, USEAGE_CUBE)
+			&& (m_u16Depth % 6 == 0))
+		{
+			kDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2DARRAY;
+			kDesc.Texture2DArray.MipSlice = u32Mip;
+			kDesc.Texture2DArray.ArraySize = m_u16Depth;
+		}
+		else if (m_u16Count == 1)
+		{
+			if (m_u16Depth == 1)
+			{
+				kDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
+				kDesc.Texture2D.MipSlice = u32Mip;
+			}
+			else if (m_u16Depth > 1)
+			{
+				kDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2DARRAY;
+				kDesc.Texture2DArray.MipSlice = u32Mip;
+				kDesc.Texture2DArray.ArraySize = m_u16Depth;
+			}
+		}
+		else if (m_u16Count > 1)
+		{
+			if (m_u16Depth == 1)
+			{
+				kDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2DMS;
+			}
+			else if (m_u16Depth > 1)
+			{
+				kDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2DMSARRAY;
+				kDesc.Texture2DMSArray.ArraySize = m_u16Depth;
+			}
+		}
+		break;
+	case VeRenderResource::DIMENSION_TEXTURE3D:
+		kDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE3D;
+		kDesc.Texture3D.MipSlice = u32Mip;
+		kDesc.Texture3D.WSize = m_u16Depth;
+		break;
+	default:
+		break;
+	}
+}
+//--------------------------------------------------------------------------
+void VeRenderTextureD3D12::GetDSVDesc(D3D12_DEPTH_STENCIL_VIEW_DESC& kDesc,
+	VeUInt32 u32Mip) noexcept
+{
+	kDesc = {};
+	kDesc.Format = (DXGI_FORMAT)m_eFormat;
+	kDesc.ViewDimension = D3D12_DSV_DIMENSION_UNKNOWN;
+	switch (m_eDimension)
+	{
+	case VeRenderResource::DIMENSION_TEXTURE1D:
+		if (m_u16Depth == 1)
+		{
+			kDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE1D;
+			kDesc.Texture1D.MipSlice = u32Mip;
+		}
+		else if (m_u16Depth > 1)
+		{
+			kDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE1DARRAY;
+			kDesc.Texture1DArray.MipSlice = u32Mip;
+			kDesc.Texture1DArray.ArraySize = m_u16Depth;
+		}
+		break;
+	case VeRenderResource::DIMENSION_TEXTURE2D:
+		if (VE_MASK_HAS_ANY(m_eUseage, USEAGE_CUBE)
+			&& (m_u16Depth % 6 == 0))
+		{
+			kDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2DARRAY;
+			kDesc.Texture2DArray.MipSlice = u32Mip;
+			kDesc.Texture2DArray.ArraySize = m_u16Depth;
+		}
+		else if (m_u16Count == 1)
+		{
+			if (m_u16Depth == 1)
+			{
+				kDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
+				kDesc.Texture2D.MipSlice = u32Mip;
+			}
+			else if (m_u16Depth > 1)
+			{
+				kDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2DARRAY;
+				kDesc.Texture2DArray.MipSlice = u32Mip;
+				kDesc.Texture2DArray.ArraySize = m_u16Depth;
+			}
+		}
+		else if (m_u16Count > 1)
+		{
+			if (m_u16Depth == 1)
+			{
+				kDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2DMS;
+			}
+			else if (m_u16Depth > 1)
+			{
+				kDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2DMSARRAY;
+				kDesc.Texture2DMSArray.ArraySize = m_u16Depth;
+			}
+		}
+		break;
+	default:
+		break;
+	}
 }
 //--------------------------------------------------------------------------
 void VeRenderTextureD3D12::Init(VeRendererD3D12& kRenderer) noexcept
@@ -137,7 +253,7 @@ void VeRenderTextureD3D12::Init(VeRendererD3D12& kRenderer) noexcept
 		kDesc.Height = m_u32Height;
 		kDesc.DepthOrArraySize = m_u16Depth;
 		kDesc.MipLevels = m_u16MipLevels;
-		kDesc.Format = (DXGI_FORMAT)m_eFormat;
+		kDesc.Format = (DXGI_FORMAT)VeRenderResource::ToTypeless(m_eFormat);
 		kDesc.SampleDesc = { m_u16Count, m_u16Quality };
 		kDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
 		if (!VE_MASK_HAS_ANY(m_eUseage, USEAGE_SRV))
@@ -162,15 +278,6 @@ void VeRenderTextureD3D12::Init(VeRendererD3D12& kRenderer) noexcept
 			&HeapProp(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE,
 			&kDesc, eState, nullptr, IID_PPV_ARGS(&m_pkResource)), S_OK);
 		kRenderer.m_kRenderTextureList.attach_back(m_kNode);
-		if (VE_MASK_HAS_ANY(m_eUseage, USEAGE_SRV))
-		{
-			D3D12_SHADER_RESOURCE_VIEW_DESC kSRVDesc = {};
-			GetSRVDesc(kSRVDesc);
-			if (kSRVDesc.ViewDimension)
-			{
-				AddSRV(kRenderer, kSRVDesc);
-			}
-		}
 	}
 }
 //--------------------------------------------------------------------------
@@ -179,11 +286,9 @@ void VeRenderTextureD3D12::Term() noexcept
 	if (m_kNode.is_attach())
 	{
 		VeRendererD3D12& kRenderer = GetRenderer();
-		for (auto it = m_kSRVList.rbegin(); it != m_kSRVList.rend(); ++it)
-		{
-			kRenderer.m_kSRVHeap.Free(it->m_u32Offset);
-		}
-		m_kSRVList.clear();
+		ClearSRV();
+		ClearRTV();
+		ClearDSV();
 		VE_SAFE_RELEASE(m_pkResource);
 		m_kNode.detach();
 	}
@@ -268,6 +373,218 @@ void VeRenderTextureD3D12::UpdateSync(void* pvData, VeSizeT stSize) noexcept
 			m_pkResource->AddRef();
 			kRenderer.m_kCopyResList.push_back(m_pkResource);
 		}
+	}
+}
+//--------------------------------------------------------------------------
+VeUInt32 VeRenderTextureD3D12::GetSRVNum() noexcept
+{
+	return (VeUInt32)m_kSRVList.size();
+}
+//--------------------------------------------------------------------------
+void VeRenderTextureD3D12::ClearSRV() noexcept
+{
+	VeRendererD3D12& kRenderer = GetRenderer();
+	for (auto it = m_kSRVList.rbegin(); it != m_kSRVList.rend(); ++it)
+	{
+		kRenderer.m_kSRVHeap.Free(it->m_u32Offset);
+	}
+	m_kSRVList.clear();
+}
+//--------------------------------------------------------------------------
+void VeRenderTextureD3D12::SetSRVNum(VeUInt32 u32Num) noexcept
+{
+	if (CanUse(VeRenderTexture::USEAGE_SRV))
+	{
+		VeRendererD3D12& kRenderer = GetRenderer();
+		if (u32Num > m_kSRVList.size())
+		{
+			VeSizeT i = m_kSRVList.size();
+			m_kSRVList.resize(u32Num);
+			for (; i < m_kSRVList.size(); ++i)
+			{
+				SRView& kView = m_kSRVList[i];
+				kView.m_u32Offset = kRenderer.m_kSRVHeap.Alloc();
+				kView.m_hCPUHandle.ptr = kRenderer.m_kSRVHeap.GetCPUStart().ptr + kView.m_u32Offset;
+				kView.m_hGPUHandle.ptr = kRenderer.m_kSRVHeap.GetGPUStart().ptr + kView.m_u32Offset;
+			}
+		}
+		else if (u32Num < m_kSRVList.size())
+		{
+			for (VeSizeT i(m_kSRVList.size() - 1); i >= u32Num; --i)
+			{
+				SRView& kView = m_kSRVList[i];
+				kRenderer.m_kSRVHeap.Free(kView.m_u32Offset);
+			}
+			m_kSRVList.resize(u32Num);
+		}
+	}
+}
+//--------------------------------------------------------------------------
+void VeRenderTextureD3D12::SetSRV(VeUInt32 u32Index, SRVType eType,
+	Format eFormat, VeUInt32 p0, VeUInt32 p1) noexcept
+{
+	if (CanUse(VeRenderTexture::USEAGE_SRV)
+		&& u32Index < m_kSRVList.size())
+	{
+		D3D12_SHADER_RESOURCE_VIEW_DESC kDesc;
+		switch (eType)
+		{
+		case VeRenderResource::SRV_DEFAULT:
+			GetSRVDesc(kDesc);
+			break;
+		default:
+			return;
+		}
+		if (eFormat) kDesc.Format = (DXGI_FORMAT)eFormat;
+		VeRendererD3D12& kRenderer = GetRenderer();
+		kRenderer.m_pkDevice->CreateShaderResourceView(
+			m_pkResource, &kDesc, m_kSRVList[u32Index].m_hCPUHandle);
+	}
+}
+//--------------------------------------------------------------------------
+VeUInt32 VeRenderTextureD3D12::GetRTVNum() noexcept
+{
+	return (VeUInt32)m_kRTVList.size();
+}
+//--------------------------------------------------------------------------
+void VeRenderTextureD3D12::ClearRTV() noexcept
+{
+	VeRendererD3D12& kRenderer = GetRenderer();
+	for (auto it = m_kRTVList.rbegin(); it != m_kRTVList.rend(); ++it)
+	{
+		kRenderer.m_kRTVHeap.Free(it->m_u32Offset);
+	}
+	m_kRTVList.clear();
+}
+//--------------------------------------------------------------------------
+void VeRenderTextureD3D12::SetRTVNum(VeUInt32 u32Num) noexcept
+{
+	if (CanUse(VeRenderTexture::USEAGE_RTV))
+	{
+		VeRendererD3D12& kRenderer = GetRenderer();
+		if (u32Num > m_kRTVList.size())
+		{
+			VeSizeT i = m_kRTVList.size();
+			m_kRTVList.resize(u32Num);
+			for (; i < m_kRTVList.size(); ++i)
+			{
+				RTView& kView = m_kRTVList[i];
+				kView.m_u32Offset = kRenderer.m_kRTVHeap.Alloc();
+				kView.m_hCPUHandle.ptr = kRenderer.m_kRTVHeap.GetCPUStart().ptr + kView.m_u32Offset;
+				kView.m_u32Width = 0;
+				kView.m_u32Height = 0;
+				kView.m_u32Depth = 0;
+				kView.m_u32SubResource = 0;
+			}
+		}
+		else if (u32Num < m_kRTVList.size())
+		{
+			for (VeSizeT i(m_kRTVList.size() - 1); i >= u32Num; --i)
+			{
+				RTView& kView = m_kRTVList[i];
+				kRenderer.m_kRTVHeap.Free(kView.m_u32Offset);
+			}
+			m_kRTVList.resize(u32Num);
+		}
+	}
+}
+//--------------------------------------------------------------------------
+void VeRenderTextureD3D12::SetRTV(VeUInt32 u32Index, RTVType eType,
+	Format eFormat, VeUInt32 p0, VeUInt32 p1) noexcept
+{
+	if (CanUse(VeRenderTexture::USEAGE_RTV)
+		&& u32Index < m_kRTVList.size())
+	{
+		D3D12_RENDER_TARGET_VIEW_DESC kDesc;
+		switch (eType)
+		{
+		case VeRenderResource::RTV_DEFAULT:
+			GetRTVDesc(kDesc, p0);
+			m_kRTVList[u32Index].m_u32Width = (m_u32Width >> p0) ? (m_u32Width >> p0) : 1;
+			m_kRTVList[u32Index].m_u32Height = (m_u32Height >> p0) ? (m_u32Height >> p0) : 1;
+			m_kRTVList[u32Index].m_u32Depth = m_u16Depth;
+			m_kRTVList[u32Index].m_u32SubResource = p1;
+			break;
+		default:
+			return;
+		}
+		if (eFormat) kDesc.Format = (DXGI_FORMAT)eFormat;
+		VeRendererD3D12& kRenderer = GetRenderer();
+		kRenderer.m_pkDevice->CreateRenderTargetView(
+			m_pkResource, &kDesc, m_kRTVList[u32Index].m_hCPUHandle);
+	}
+}
+//--------------------------------------------------------------------------
+VeUInt32 VeRenderTextureD3D12::GetDSVNum() noexcept
+{
+	return (VeUInt32)m_kDSVList.size();
+}
+//--------------------------------------------------------------------------
+void VeRenderTextureD3D12::ClearDSV() noexcept
+{
+	VeRendererD3D12& kRenderer = GetRenderer();
+	for (auto it = m_kDSVList.rbegin(); it != m_kDSVList.rend(); ++it)
+	{
+		kRenderer.m_kDSVHeap.Free(it->m_u32Offset);
+	}
+	m_kDSVList.clear();
+}
+//--------------------------------------------------------------------------
+void VeRenderTextureD3D12::SetDSVNum(VeUInt32 u32Num) noexcept
+{
+	if (CanUse(VeRenderTexture::USEAGE_DSV))
+	{
+		VeRendererD3D12& kRenderer = GetRenderer();
+		if (u32Num > m_kDSVList.size())
+		{
+			VeSizeT i = m_kDSVList.size();
+			m_kDSVList.resize(u32Num);
+			for (; i < m_kDSVList.size(); ++i)
+			{
+				DSView& kView = m_kDSVList[i];
+				kView.m_u32Offset = kRenderer.m_kDSVHeap.Alloc();
+				kView.m_hCPUHandle.ptr = kRenderer.m_kDSVHeap.GetCPUStart().ptr + kView.m_u32Offset;
+				kView.m_u32Width = 0;
+				kView.m_u32Height = 0;
+				kView.m_u32Depth = 0;
+				kView.m_u32SubResource = 0;
+			}
+		}
+		else if (u32Num < m_kDSVList.size())
+		{
+			for (VeSizeT i(m_kDSVList.size() - 1); i >= u32Num; --i)
+			{
+				DSView& kView = m_kDSVList[i];
+				kRenderer.m_kDSVHeap.Free(kView.m_u32Offset);
+			}
+			m_kDSVList.resize(u32Num);
+		}
+	}
+}
+//--------------------------------------------------------------------------
+void VeRenderTextureD3D12::SetDSV(VeUInt32 u32Index, DSVType eType,
+	Format eFormat, VeUInt32 p0, VeUInt32 p1) noexcept
+{
+	if (CanUse(VeRenderTexture::USEAGE_DSV)
+		&& u32Index < m_kDSVList.size())
+	{
+		D3D12_DEPTH_STENCIL_VIEW_DESC kDesc;
+		switch (eType)
+		{
+		case VeRenderResource::DSV_DEFAULT:
+			GetDSVDesc(kDesc, p0);
+			m_kDSVList[u32Index].m_u32Width = (m_u32Width >> p0) ? (m_u32Width >> p0) : 1;
+			m_kDSVList[u32Index].m_u32Height = (m_u32Height >> p0) ? (m_u32Height >> p0) : 1;
+			m_kDSVList[u32Index].m_u32Depth = m_u16Depth;
+			m_kDSVList[u32Index].m_u32SubResource = p1;
+			break;
+		default:
+			return;
+		}
+		if (eFormat) kDesc.Format = (DXGI_FORMAT)eFormat;
+		VeRendererD3D12& kRenderer = GetRenderer();
+		kRenderer.m_pkDevice->CreateDepthStencilView(
+			m_pkResource, &kDesc, m_kDSVList[u32Index].m_hCPUHandle);
 	}
 }
 //--------------------------------------------------------------------------

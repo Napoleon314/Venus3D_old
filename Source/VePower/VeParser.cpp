@@ -47,6 +47,12 @@ VeParser::~VeParser() noexcept
 VeFloat64 VeParser::CalculateExpression(const VeChar8* pcExpr,
 	VeFloat64 f64Default) noexcept
 {
+	return CalculateExpression(m_kValueMap, pcExpr, f64Default);
+}
+//--------------------------------------------------------------------------
+VeFloat64 VeParser::CalculateExpression(const VeStringMap<VeFloat64>& kMap,
+	const VeChar8* pcExpr, VeFloat64 f64Default) noexcept
+{
 	VeList<VeParser::Token> kRpnQueue;
 	kRpnQueue.clear();
 	VeStack<TokenStr> kOpStack;
@@ -71,11 +77,10 @@ VeFloat64 VeParser::CalculateExpression(const VeChar8* pcExpr,
 			do
 			{
 				++pcExpr;
-			}
-			while (VeIsAlnum(*pcExpr) || (*pcExpr) == '_');
+			} while (VeIsAlnum(*pcExpr) || (*pcExpr) == '_');
 			VeFixedString kStr(pcStr, (VeUInt32)(pcExpr - pcStr));
-			auto it = m_kValueMap.find(kStr);
-			if (it == m_kValueMap.end())
+			auto it = kMap.find(kStr);
+			if (it == kMap.end())
 			{
 				kRpnQueue.clear();
 				return f64Default;
@@ -94,7 +99,7 @@ VeFloat64 VeParser::CalculateExpression(const VeChar8* pcExpr,
 			{
 				kOpStack.push({ "(", 1 });
 				++pcExpr;
-			}				
+			}
 			break;
 			case ')':
 			{
@@ -106,7 +111,7 @@ VeFloat64 VeParser::CalculateExpression(const VeChar8* pcExpr,
 					kRpnQueue.push_back(kTok);
 				}
 				kOpStack.pop();
-				++pcExpr;				
+				++pcExpr;
 			}
 			break;
 			default:
@@ -133,7 +138,7 @@ VeFloat64 VeParser::CalculateExpression(const VeChar8* pcExpr,
 						return f64Default;
 					}
 				}
-				
+
 				while (!kOpStack.empty())
 				{
 					auto opCur = m_kOpMap.find(VeFixedString(kStr.m_pcStr, VeUInt32(kStr.m_stLen)));
@@ -158,7 +163,7 @@ VeFloat64 VeParser::CalculateExpression(const VeChar8* pcExpr,
 					kRpnQueue.push_back(kTok);
 				}
 				kOpStack.push(kStr);
-				bLastTokenWasOp = true;				
+				bLastTokenWasOp = true;
 			}
 			break;
 			}
@@ -170,7 +175,7 @@ VeFloat64 VeParser::CalculateExpression(const VeChar8* pcExpr,
 		Token kTok;
 		kTok.m_eType = TYPE_STRING;
 		kTok.m_kString = kOpStack.pop();
-		kRpnQueue.push_back(kTok);		
+		kRpnQueue.push_back(kTok);
 	}
 	VeStack<VeFloat64> kEvaluation;
 	while (!kRpnQueue.empty())
@@ -230,7 +235,7 @@ VeFloat64 VeParser::CalculateExpression(const VeChar8* pcExpr,
 		else
 		{
 			return f64Default;
-		}		
+		}
 	}
 	return kEvaluation.size() ? kEvaluation.top() : f64Default;
 }

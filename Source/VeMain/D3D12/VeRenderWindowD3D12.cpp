@@ -142,6 +142,7 @@ void VeRenderWindowD3D12::Term() noexcept
 		CloseHandle(m_kFenceEvent);
 		VE_SAFE_RELEASE(m_pkFence);
 
+		m_kResourceMap.clear();
 		m_kRecorderList.clear();
 		m_kCameraList.clear();
 		m_kProcessList.clear();
@@ -173,6 +174,248 @@ void VeRenderWindowD3D12::Term() noexcept
 bool VeRenderWindowD3D12::IsValid() noexcept
 {
 	return VeRenderWindow::IsValid() ? m_kNode.is_attach() : false;
+}
+//--------------------------------------------------------------------------
+bool VeRenderWindowD3D12::HasChange(BarrierPath& kPath,
+	VeUInt32 u32SubResource, D3D12_RESOURCE_STATES eState) noexcept
+{
+	if (u32SubResource == D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES)
+	{
+		if (kPath.m_eAllState != eState) return true;
+		for (auto state : kPath.m_kStates)
+		{
+			if (state != eState) return true;
+		}
+		return false;
+	}
+	else
+	{
+		if (kPath.m_kStates.size() > u32SubResource)
+		{
+			return kPath.m_kStates[u32SubResource] != eState;
+		}
+		else
+		{
+			return kPath.m_eAllState != eState;
+		}
+	}
+}
+//--------------------------------------------------------------------------
+bool VeRenderWindowD3D12::IsNeighbor(RecordBarrierMap& kBarriers,
+	BarrierPath& kPath, VeSizeT i, VeSizeT j) noexcept
+{
+	VE_ASSERT(kPath.i != i || kPath.j != j);
+	if (kPath.i == i && kPath.j + 1 == j) return true;
+	if (j == 0 && kPath.i + 1 == i
+		&& (kBarriers[kPath.i].size() - 1 == kPath.j))
+		return true;
+	return false;
+}
+//--------------------------------------------------------------------------
+D3D12_RESOURCE_STATES VeRenderWindowD3D12::GetState(BarrierPath& kPath,
+	VeUInt32 u32SubResource) noexcept
+{
+	if (kPath.m_kStates.empty())
+	{
+		return kPath.m_eAllState;
+	}
+	else if (u32SubResource == D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES)
+	{
+		for (auto state : kPath.m_kStates)
+		{
+			if (state != kPath.m_eAllState) return D3D12_RESOURCE_STATE_COMMON;
+		}
+		return kPath.m_eAllState;
+	}
+	else if (u32SubResource < kPath.m_kStates.size())
+	{
+		return kPath.m_kStates[u32SubResource];
+	}
+	else
+	{
+		return kPath.m_eAllState;
+	}
+}
+//--------------------------------------------------------------------------
+std::pair<VeRenderWindowD3D12::RecordViewportPtr,
+	VeRenderWindowD3D12::RecordScissorRectPtr>&
+VeRenderWindowD3D12::Get(RectMap& kMap,
+	std::pair<VeUInt32, VeUInt32>& kResolution) noexcept
+{
+	auto& data = kMap[kResolution];
+	if (!data.first)
+	{
+		data.first = VE_NEW RecordViewport();
+		data.first->m_kViewportList.resize(1);
+		data.first->m_kViewportList[0].TopLeftX = 0;
+		data.first->m_kViewportList[0].TopLeftY = 0;
+		data.first->m_kViewportList[0].Width = kResolution.first;
+		data.first->m_kViewportList[0].Height = kResolution.second;
+		data.first->m_kViewportList[0].MinDepth = 0;
+		data.first->m_kViewportList[0].MaxDepth = 1;
+	}
+	if (!data.second)
+	{
+		data.second = VE_NEW RecordScissorRect();
+		data.second->m_kScissorRectList.resize(1);
+		data.second->m_kScissorRectList[0].left = 0;
+		data.second->m_kScissorRectList[0].top = 0;
+		data.second->m_kScissorRectList[0].right = kResolution.first;
+		data.second->m_kScissorRectList[0].bottom = kResolution.second;
+	}
+	return data;
+}
+//--------------------------------------------------------------------------
+std::pair<VeUInt32, VeUInt32> VeRenderWindowD3D12::GetResolution(
+	TargetCache& tar) noexcept
+{
+	if(tar.m_kRTVList.size())
+	{
+		return std::make_pair(tar.m_kRTVList.front().m_u32Width,
+			tar.m_kRTVList.front().m_u32Height);
+	}
+	VE_ASSERT(tar.m_kDSV.m_pkResource);
+	return std::make_pair(tar.m_kDSV.m_u32Width, tar.m_kDSV.m_u32Height);
+}
+//--------------------------------------------------------------------------
+void VeRenderWindowD3D12::BarrierEvent(RecordBarrierMap& kBarriers,
+	BarrierPathCache& kResPathCache, VeSizeT i, VeSizeT j,
+	ID3D12Resource* pkResource, VeUInt32 u32SubResource,
+	D3D12_RESOURCE_STATES eState) noexcept
+{
+	auto& path = kResPathCache[pkResource];
+	BarrierPath kCurrent;
+	kCurrent.i = i;
+	kCurrent.j = j;
+	if (u32SubResource == D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES
+		|| path.empty() || path.back().m_kStates.empty())
+	{
+		kCurrent.m_eAllState = eState;
+	}
+	else
+	{
+		kCurrent.m_eAllState = path.back().m_eAllState;
+		kCurrent.m_kStates = path.back().m_kStates;
+		if (kCurrent.m_kStates.size() <= u32SubResource)
+		{
+			VeSizeT stStart = kCurrent.m_kStates.size();
+			kCurrent.m_kStates.resize(u32SubResource + 1);
+			for (VeSizeT k(stStart); k < kCurrent.m_kStates.size(); ++k)
+			{
+				kCurrent.m_kStates[k] = kCurrent.m_eAllState;
+			}
+		}
+		kCurrent.m_kStates[u32SubResource] = eState;
+	}
+	if (path.empty())
+	{
+		RecordBarrierPtr& spBarrier = kBarriers[i][j].first;
+		if (!spBarrier) spBarrier = VE_NEW RecordBarrier();
+		for (VeSizeT k(0); k < VeRendererD3D12::FRAME_COUNT; ++k)
+		{
+			spBarrier->m_akBarrierList[k].resize(spBarrier->m_akBarrierList[k].size() + 1);
+			D3D12_RESOURCE_BARRIER& kBar = spBarrier->m_akBarrierList[k].back();
+			kBar.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+			kBar.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+			if (pkResource)
+			{
+				kBar.Transition.pResource = pkResource;
+			}
+			else
+			{
+				kBar.Transition.pResource = m_akFrameCache[k].m_pkBufferResource;
+			}
+			kBar.Transition.Subresource = u32SubResource;
+			kBar.Transition.StateBefore = D3D12_RESOURCE_STATE_COMMON;
+			kBar.Transition.StateAfter = eState;
+		}
+	}
+	else
+	{
+		for (auto it = path.rbegin(); it != path.rend(); ++it)
+		{
+			if (HasChange(*it, u32SubResource, eState))
+			{
+				if (IsNeighbor(kBarriers, *it, i, j))
+				{
+					RecordBarrierPtr& spBarrier = kBarriers[i][j].first;
+					if (!spBarrier) spBarrier = VE_NEW RecordBarrier();
+					for (VeSizeT k(0); k < VeRendererD3D12::FRAME_COUNT; ++k)
+					{
+						spBarrier->m_akBarrierList[k].resize(spBarrier->m_akBarrierList[k].size() + 1);
+						D3D12_RESOURCE_BARRIER& kBar = spBarrier->m_akBarrierList[k].back();
+						kBar.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+						kBar.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+						if (pkResource)
+						{
+							kBar.Transition.pResource = pkResource;
+						}
+						else
+						{
+							kBar.Transition.pResource = m_akFrameCache[k].m_pkBufferResource;
+						}
+						if (kCurrent.m_kStates.empty())
+						{
+							kBar.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+							
+						}
+						else
+						{
+							kBar.Transition.Subresource = u32SubResource;
+						}
+						kBar.Transition.StateBefore = GetState(*it, u32SubResource);						
+						kBar.Transition.StateAfter = eState;
+					}
+				}
+				else
+				{
+					RecordBarrierPtr& spStart = kBarriers[it->i][it->j].second;
+					if (!spStart) spStart = VE_NEW RecordBarrier();
+					RecordBarrierPtr& spEnd = kBarriers[i][j].first;
+					if (!spEnd) spEnd = VE_NEW RecordBarrier();
+
+					for (VeSizeT k(0); k < VeRendererD3D12::FRAME_COUNT; ++k)
+					{
+						spStart->m_akBarrierList[k].resize(spStart->m_akBarrierList[k].size() + 1);
+						spEnd->m_akBarrierList[k].resize(spEnd->m_akBarrierList[k].size() + 1);
+						D3D12_RESOURCE_BARRIER& kStart = spStart->m_akBarrierList[k].back();
+						D3D12_RESOURCE_BARRIER& kEnd = spEnd->m_akBarrierList[k].back();
+						kStart.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+						kEnd.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+						kStart.Flags = D3D12_RESOURCE_BARRIER_FLAG_BEGIN_ONLY;
+						kEnd.Flags = D3D12_RESOURCE_BARRIER_FLAG_END_ONLY;
+						if (pkResource)
+						{
+							kStart.Transition.pResource = pkResource;
+							kEnd.Transition.pResource = pkResource;
+						}
+						else
+						{
+							kStart.Transition.pResource = m_akFrameCache[k].m_pkBufferResource;
+							kEnd.Transition.pResource = m_akFrameCache[k].m_pkBufferResource;
+						}
+						if (kCurrent.m_kStates.empty())
+						{
+							kStart.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+							kEnd.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+						}
+						else
+						{
+							kStart.Transition.Subresource = u32SubResource;
+							kEnd.Transition.Subresource = u32SubResource;
+						}
+						kStart.Transition.StateBefore = GetState(*it, u32SubResource);
+						kEnd.Transition.StateBefore = GetState(*it, u32SubResource);
+						kStart.Transition.StateAfter = eState;
+						kEnd.Transition.StateAfter = eState;
+					}
+
+				}
+				break;
+			}
+		}
+	}
+	path.push_back(kCurrent);
 }
 //--------------------------------------------------------------------------
 void VeRenderWindowD3D12::SetupCompositorList(const VeChar8** ppcList,
@@ -213,32 +456,76 @@ void VeRenderWindowD3D12::SetupCompositorList(const VeChar8** ppcList,
 		}
 	}
 
-	struct ResourceCache
 	{
-		D3D12_RESOURCE_STATES m_eState;
-		VeUInt32 m_u32SubRes;
-		ID3D12Resource* m_apkResource[VeRendererD3D12::FRAME_COUNT];
-	};
-	VeVector<ResourceCache> kResourceCache;
-	kResourceCache.resize(1);
+		m_kResourceMap.clear();
+		VeStringMap<VeFloat64> kValueMap;
+		kValueMap["screen_w"] = (VeFloat64)GetWidth();
+		kValueMap["screen_h"] = (VeFloat64)GetHeight();
 
-	{
-		ResourceCache& kCache = kResourceCache.back();
-		kCache.m_eState = D3D12_RESOURCE_STATE_PRESENT;
-		kCache.m_u32SubRes = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-		for (VeSizeT i(0); i < VeRendererD3D12::FRAME_COUNT; ++i)
+		for (auto pTech : kTechList)
 		{
-			kCache.m_apkResource[i] = m_akFrameCache[i].m_pkBufferResource;
-		}
-	}	
+			for (auto& res : pTech->m_kResourceList)
+			{
+				auto it = m_kResourceMap.find(res.m_kName);
+				if (it == m_kResourceMap.end())
+				{
+					VeUInt32 w = (VeUInt32)ve_parser.CalculateExpression(
+						kValueMap, res.m_kWidth, 0);
+					VeUInt32 h = (VeUInt32)ve_parser.CalculateExpression(
+						kValueMap, res.m_kHeight, 0);
+					VeUInt16 d = (VeUInt16)ve_parser.CalculateExpression(
+						kValueMap, res.m_kDepth, 0);
+					VeUInt16 m = (VeUInt16)ve_parser.CalculateExpression(
+						kValueMap, res.m_kMipLevels, 0);
+					VeUInt16 c = (VeUInt16)ve_parser.CalculateExpression(
+						kValueMap, res.m_kCount, 0);
+					VeUInt16 q = (VeUInt16)ve_parser.CalculateExpression(
+						kValueMap, res.m_kQuality, 0);
+					VeUInt32 u32Use(0);
+					if (res.m_kSRVList.size()) u32Use |= VeRenderTexture::USEAGE_SRV;
+					if (res.m_kRTVList.size()) u32Use |= VeRenderTexture::USEAGE_RTV;
+					if (res.m_kDSVList.size()) u32Use |= VeRenderTexture::USEAGE_DSV;
 
-	struct TargetCache
-	{
-		VeRenderer::FrameTarget* m_pkConfig;		
-		RecordRenderTargetPtr m_spRecorder;
-		VeVector<VeUInt32> m_kRTV;
-		VeUInt32 m_u32DSV;
-	};	
+					VeRenderTextureD3D12* pkTexture = VE_NEW VeRenderTextureD3D12(
+						res.m_eDimension, (VeRenderTexture::Useage)u32Use,
+						res.m_eFormat, w, h, d, m, c, q);
+					pkTexture->Init(kRenderer);
+					if (res.m_kSRVList.size())
+					{
+						pkTexture->SetSRVNum((VeUInt32)res.m_kSRVList.size());
+						for (VeUInt32 i(0); i < res.m_kSRVList.size(); ++i)
+						{
+							auto& srv = res.m_kSRVList[i];
+							pkTexture->SetSRV(i, srv.m_eType, srv.m_eFormat,
+								srv.m_u32Param0, srv.m_u32Param1);
+						}
+					}
+					if (res.m_kRTVList.size())
+					{
+						pkTexture->SetRTVNum((VeUInt32)res.m_kRTVList.size());
+						for (VeUInt32 i(0); i < res.m_kRTVList.size(); ++i)
+						{
+							auto& rtv = res.m_kRTVList[i];
+							pkTexture->SetRTV(i, rtv.m_eType, rtv.m_eFormat,
+								rtv.m_u32Param0, rtv.m_u32Param1);
+						}
+					}
+					if (res.m_kDSVList.size())
+					{
+						pkTexture->SetDSVNum((VeUInt32)res.m_kDSVList.size());
+						for (VeUInt32 i(0); i < res.m_kDSVList.size(); ++i)
+						{
+							auto& dsv = res.m_kDSVList[i];
+							pkTexture->SetDSV(i, dsv.m_eType, dsv.m_eFormat,
+								dsv.m_u32Param0, dsv.m_u32Param1);
+						}
+					}
+					m_kResourceMap[res.m_kName] = pkTexture;
+				}
+			}
+		}
+	}
+	
 	VeVector<VeStringMap<TargetCache>> kTargets;
 
 	kTargets.resize(kTechList.size());
@@ -249,8 +536,8 @@ void VeRenderWindowD3D12::SetupCompositorList(const VeChar8** ppcList,
 		{
 			VeRenderer::FrameTarget& kTarget = kTech.m_kTargetList[j];
 			RecordRenderTargetPtr spTarget;
-			VeVector<VeUInt32> kRTV;
-			VeUInt32 u32DSV;
+			VeVector<ViewData> kRTVList;
+			ViewData kDSV;
 			if (kTarget.m_eType == VeRenderer::TARGET_OUTPUT)
 			{
 				if (i == (kTechList.size() - 1))
@@ -258,12 +545,14 @@ void VeRenderWindowD3D12::SetupCompositorList(const VeChar8** ppcList,
 					spTarget = VE_NEW RecordRenderTarget();
 					for (VeSizeT k(0); k < VeRendererD3D12::FRAME_COUNT; ++k)
 					{
-						spTarget->m_kRenderTarget[k].m_kRTVList.push_back(m_akFrameCache[k].m_hHandle);
+						spTarget->m_akRTVList[k].push_back(m_akFrameCache[k].m_hHandle);
+						spTarget->m_ahDSV[k].ptr = 0;
 					}
-					spTarget->m_kViewport = { 0, 0, (VeFloat32)GetWidth(), (VeFloat32)GetHeight(), 0, 1 };
-					spTarget->m_kScissorRect = { 0, 0, GetWidth(), GetHeight() };
-					kRTV.push_back(0);
-					u32DSV = VE_UINT32_MAX;
+					kRTVList.resize(kRTVList.size() + 1);
+					kRTVList.back().m_u32Width = GetWidth();
+					kRTVList.back().m_u32Height = GetHeight();
+					kRTVList.back().m_u32Depth = 1;
+					kRTVList.back().m_u32SubResource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 				}
 				else
 				{
@@ -274,13 +563,104 @@ void VeRenderWindowD3D12::SetupCompositorList(const VeChar8** ppcList,
 					}
 				}
 			}
+			else
+			{
+				spTarget = VE_NEW RecordRenderTarget();
+				for (auto& rtv : kTarget.m_kRTVList)
+				{
+					auto it = m_kResourceMap.find(rtv.m_kResName);
+					if (it != m_kResourceMap.end())
+					{
+						if (rtv.m_u32Index < it->second->m_kRTVList.size())
+						{
+							auto& kView = it->second->m_kRTVList[rtv.m_u32Index];
+							for (VeSizeT k(0); k < VeRendererD3D12::FRAME_COUNT; ++k)
+							{
+								spTarget->m_akRTVList[k].push_back(kView.m_hCPUHandle);
+							}
+							kRTVList.resize(kRTVList.size() + 1);
+							kRTVList.back().m_pkResource = it->second->m_pkResource;
+							kRTVList.back().m_u32Width = kView.m_u32Width;
+							kRTVList.back().m_u32Height = kView.m_u32Height;
+							kRTVList.back().m_u32Depth = kView.m_u32Depth;
+							kRTVList.back().m_u32SubResource = kView.m_u32SubResource;
+						}
+					}
+				}
+				auto it = m_kResourceMap.find(kTarget.m_kDSV.m_kResName);
+				if (it != m_kResourceMap.end())
+				{
+					if (kTarget.m_kDSV.m_u32Index < it->second->m_kDSVList.size())
+					{
+						auto& kView = it->second->m_kDSVList[kTarget.m_kDSV.m_u32Index];
+						for (VeSizeT k(0); k < VeRendererD3D12::FRAME_COUNT; ++k)
+						{
+							spTarget->m_ahDSV[k] = kView.m_hCPUHandle;
+						}						
+						kDSV.m_pkResource = it->second->m_pkResource;
+						kDSV.m_u32Width = kView.m_u32Width;
+						kDSV.m_u32Height = kView.m_u32Height;
+						kDSV.m_u32Depth = kView.m_u32Depth;
+						kDSV.m_u32SubResource = kView.m_u32SubResource;
+					}
+				}
+			}
+
 			if (spTarget)
 			{
 				auto& tar = kTargets[i][kTarget.m_kName];
+				VE_ASSERT(!tar.m_pkConfig);
 				tar.m_pkConfig = &kTarget;
 				tar.m_spRecorder = spTarget;
-				tar.m_kRTV = std::move(kRTV);
-				tar.m_u32DSV = u32DSV;
+				tar.m_kRTVList = std::move(kRTVList);
+				tar.m_kDSV = kDSV;
+			}
+		}
+	}
+
+	RecordBarrierMap kBarriers;
+	kBarriers.resize(kTechList.size());
+	
+	BarrierPathCache kResPathCache;
+	VeMap<ID3D12Resource*, VeMap<VeUInt32, D3D12_RESOURCE_STATES>> kClickCache;
+
+	for (VeSizeT i(0); i < kTechList.size(); ++i)
+	{
+		auto& kMap = kTargets[i];
+		VeRenderer::FrameTechnique& kTech = *kTechList[i];
+		kBarriers[i].resize(kTech.m_kClickList.size());
+		for (VeSizeT j(0); j < kTech.m_kClickList.size(); ++j)
+		{			
+			VeRenderer::FrameClick& kClick = kTech.m_kClickList[j];
+			auto it = kMap.find(kClick.m_kTarget);
+			if (it == kMap.end()) continue;
+			auto& tar = it->second;
+			kClickCache.clear();
+			for (auto rtv : tar.m_kRTVList)
+			{
+				kClickCache[rtv.m_pkResource][rtv.m_u32SubResource] = D3D12_RESOURCE_STATE_RENDER_TARGET;
+			}
+			if(tar.m_kDSV.m_pkResource)
+			{
+				kClickCache[tar.m_kDSV.m_pkResource][tar.m_kDSV.m_u32SubResource] = D3D12_RESOURCE_STATE_DEPTH_WRITE;
+			}
+			for (auto& con : kClick.m_kContextList)
+			{
+				auto itRes = m_kResourceMap.find(con);
+				if (itRes != m_kResourceMap.end())
+				{					
+					auto& cache = kClickCache[itRes->second->m_pkResource];
+					cache.clear();
+					cache[D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES] = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+				}
+			}
+			for (auto& cache : kClickCache)
+			{
+				for (auto& state : cache.second)
+				{
+					BarrierEvent(kBarriers, kResPathCache, i, j,
+						cache.first, state.first, state.second);
+				}
 			}
 		}
 	}
@@ -288,9 +668,13 @@ void VeRenderWindowD3D12::SetupCompositorList(const VeChar8** ppcList,
 	VeUInt32 u32GCLIndex(0);
 	m_kRecorderList.resize(1);
 	m_kRecorderList.back().m_u32CommandIndex = 0;
-	m_kRecorderList.back().m_kTaskList.clear();	
+	m_kRecorderList.back().m_kTaskList.clear();
+
+	RectMap kRectMap;
 
 	RecordRenderTargetPtr spCurrent;
+	RecordViewportPtr spViewport;
+	RecordScissorRectPtr spScissorRect;
 	
 	for (VeSizeT i(0); i < kTechList.size(); ++i)
 	{
@@ -302,48 +686,11 @@ void VeRenderWindowD3D12::SetupCompositorList(const VeChar8** ppcList,
 			auto it = kMap.find(kClick.m_kTarget);
 			if(it == kMap.end()) continue;
 			TargetCache& kCache = it->second;
+
+			auto& bar = kBarriers[i][j];
+			if(bar.first)
 			{
-				RecordBarrierPtr spBarrier = VE_NEW RecordBarrier();
-				for (VeSizeT k(0); k < kCache.m_kRTV.size(); ++k)
-				{
-					ResourceCache& kRes = kResourceCache[kCache.m_kRTV[k]];
-					if (!VE_MASK_HAS_ALL(kRes.m_eState, D3D12_RESOURCE_STATE_RENDER_TARGET))
-					{
-						for (VeSizeT l(0); l < VeRendererD3D12::FRAME_COUNT; ++l)
-						{						
-							spBarrier->m_kBarrierList[l].resize(spBarrier->m_kBarrierList[l].size() + 1);
-							spBarrier->m_kBarrierList[l].back().Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-							spBarrier->m_kBarrierList[l].back().Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-							spBarrier->m_kBarrierList[l].back().Transition.pResource = kRes.m_apkResource[l];
-							spBarrier->m_kBarrierList[l].back().Transition.Subresource = kRes.m_u32SubRes;
-							spBarrier->m_kBarrierList[l].back().Transition.StateBefore = kRes.m_eState;
-							spBarrier->m_kBarrierList[l].back().Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
-						}
-						kRes.m_eState = D3D12_RESOURCE_STATE_RENDER_TARGET;
-					}					
-				}
-				if (kCache.m_u32DSV < kResourceCache.size())
-				{
-					ResourceCache& kRes = kResourceCache[kCache.m_u32DSV];
-					if (!VE_MASK_HAS_ALL(kRes.m_eState, D3D12_RESOURCE_STATE_DEPTH_WRITE))
-					{
-						for (VeSizeT k(0); k < VeRendererD3D12::FRAME_COUNT; ++k)
-						{
-							spBarrier->m_kBarrierList[k].resize(spBarrier->m_kBarrierList[k].size() + 1);
-							spBarrier->m_kBarrierList[k].back().Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-							spBarrier->m_kBarrierList[k].back().Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-							spBarrier->m_kBarrierList[k].back().Transition.pResource = kRes.m_apkResource[k];
-							spBarrier->m_kBarrierList[k].back().Transition.Subresource = kRes.m_u32SubRes;
-							spBarrier->m_kBarrierList[k].back().Transition.StateBefore = kRes.m_eState;
-							spBarrier->m_kBarrierList[k].back().Transition.StateAfter = D3D12_RESOURCE_STATE_DEPTH_WRITE;
-						}
-						kRes.m_eState = D3D12_RESOURCE_STATE_DEPTH_WRITE;
-					}
-				}
-				if (spBarrier->m_kBarrierList->size())
-				{
-					m_kRecorderList.back().m_kTaskList.push_back(spBarrier);
-				}
+				m_kRecorderList.back().m_kTaskList.push_back(bar.first);
 			}			
 			for (VeSizeT k(0); k < kClick.m_kPassList.size(); ++k)
 			{
@@ -355,13 +702,13 @@ void VeRenderWindowD3D12::SetupCompositorList(const VeChar8** ppcList,
 					if (VE_MASK_HAS_ANY(kClear.m_u32Flags, VeRenderer::CLEAR_COLOR)
 						&& kClear.m_kColorArray.size())
 					{
-						VeSizeT stColorNum = kCache.m_spRecorder->m_kRenderTarget->m_kRTVList.size();
+						VeSizeT stColorNum = kCache.m_spRecorder->m_akRTVList->size();
 						for (VeSizeT l(0); l < stColorNum; ++l)
 						{
 							RecordClearRTV* pkTask = VE_NEW RecordClearRTV();
 							for (VeSizeT m(0); m < VeRendererD3D12::FRAME_COUNT; ++m)
 							{
-								pkTask->m_hHandle[m] = kCache.m_spRecorder->m_kRenderTarget[m].m_kRTVList[l];
+								pkTask->m_ahHandle[m] = kCache.m_spRecorder->m_akRTVList[m][l];
 							}
 							if (l < kClear.m_kColorArray.size())
 							{
@@ -374,6 +721,30 @@ void VeRenderWindowD3D12::SetupCompositorList(const VeChar8** ppcList,
 							m_kRecorderList.back().m_kTaskList.push_back(pkTask);
 						}
 					}
+					if (VE_MASK_HAS_ANY(kClear.m_u32Flags, VeRenderer::CLEAR_DEPTH)
+						|| VE_MASK_HAS_ANY(kClear.m_u32Flags, VeRenderer::CLEAR_STENCIL))
+					{
+						if (kCache.m_spRecorder->m_ahDSV->ptr)
+						{
+							RecordClearDSV* pkTask = VE_NEW RecordClearDSV();
+							pkTask->m_eFlags = VE_TMIN(D3D12_CLEAR_FLAGS);
+							if (VE_MASK_HAS_ANY(kClear.m_u32Flags, VeRenderer::CLEAR_DEPTH))
+							{
+								pkTask->m_eFlags |= D3D12_CLEAR_FLAG_DEPTH;
+							}
+							if (VE_MASK_HAS_ANY(kClear.m_u32Flags, VeRenderer::CLEAR_STENCIL))
+							{
+								pkTask->m_eFlags |= D3D12_CLEAR_FLAG_STENCIL;
+							}
+							pkTask->m_f32Depth = kClear.m_f32Depth;
+							pkTask->m_u8Stencil = kClear.m_u8Stencil;
+							for (VeSizeT m(0); m < VeRendererD3D12::FRAME_COUNT; ++m)
+							{
+								pkTask->m_ahHandle[m] = kCache.m_spRecorder->m_ahDSV[m];
+							}
+							m_kRecorderList.back().m_kTaskList.push_back(pkTask);
+						}
+					}
 				}
 				break;
 				case VeRenderer::PASS_QUAD:
@@ -382,6 +753,17 @@ void VeRenderWindowD3D12::SetupCompositorList(const VeChar8** ppcList,
 					{
 						m_kRecorderList.back().m_kTaskList.push_back(kCache.m_spRecorder);
 						spCurrent = kCache.m_spRecorder;
+					}
+					auto& rect = Get(kRectMap, GetResolution(kCache));
+					if (spViewport != rect.first)
+					{
+						m_kRecorderList.back().m_kTaskList.push_back(rect.first);
+						spViewport = rect.first;
+					}
+					if (spScissorRect != rect.second)
+					{
+						m_kRecorderList.back().m_kTaskList.push_back(rect.second);
+						spScissorRect = rect.second;
 					}
 					VeRenderer::FrameQuad& kQuad = (VeRenderer::FrameQuad&)*kClick.m_kPassList[k];					
 					ID3D12RootSignature* pkRootSignature = nullptr;
@@ -417,14 +799,13 @@ void VeRenderWindowD3D12::SetupCompositorList(const VeChar8** ppcList,
 									VeRenderTextureD3D12* pkTex = VeDynamicCast(VeRenderTextureD3D12, itRes->second.p());
 									if (pkTex && pkTex->m_kSRVList.size())
 									{
-										pkQuad->m_kTable.push_back(std::make_pair(itTab.first, pkTex->m_kSRVList.front().m_kGPUHandle));
+										pkQuad->m_kTable.push_back(std::make_pair(itTab.first, pkTex->m_kSRVList.front().m_hGPUHandle));
 									}
 								}
 								break;
 								default:
 									break;
-								}							
-
+								}
 							}
 						}
 						m_kRecorderList.back().m_kTaskList.push_back(pkQuad);
@@ -434,26 +815,34 @@ void VeRenderWindowD3D12::SetupCompositorList(const VeChar8** ppcList,
 				default:
 					break;
 				}
+			}		
+			if (bar.second)
+			{
+				m_kRecorderList.back().m_kTaskList.push_back(bar.second);
 			}
 		}
 	}
 
-	if (kResourceCache[0].m_eState != D3D12_RESOURCE_STATE_PRESENT)
+	auto it = kResPathCache.find(nullptr);
+	if (it != kResPathCache.end())
 	{
-		RecordBarrier* pkBarrier = VE_NEW RecordBarrier();
-		for (VeSizeT i(0); i < VeRendererD3D12::FRAME_COUNT; ++i)
+		if (it->second.size())
 		{
-			pkBarrier->m_kBarrierList[i].resize(pkBarrier->m_kBarrierList[i].size() + 1);
-			pkBarrier->m_kBarrierList[i].back().Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-			pkBarrier->m_kBarrierList[i].back().Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-			pkBarrier->m_kBarrierList[i].back().Transition.pResource = kResourceCache[0].m_apkResource[i];
-			pkBarrier->m_kBarrierList[i].back().Transition.Subresource = kResourceCache[0].m_u32SubRes;
-			pkBarrier->m_kBarrierList[i].back().Transition.StateBefore = kResourceCache[0].m_eState;
-			pkBarrier->m_kBarrierList[i].back().Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
+			D3D12_RESOURCE_STATES eResPresent = GetState(it->second.back(), D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES);
+			RecordBarrier* pkBarrier = VE_NEW RecordBarrier();
+			for (VeSizeT i(0); i < VeRendererD3D12::FRAME_COUNT; ++i)
+			{
+				pkBarrier->m_akBarrierList[i].resize(pkBarrier->m_akBarrierList[i].size() + 1);
+				pkBarrier->m_akBarrierList[i].back().Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+				pkBarrier->m_akBarrierList[i].back().Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+				pkBarrier->m_akBarrierList[i].back().Transition.pResource = m_akFrameCache[i].m_pkBufferResource;
+				pkBarrier->m_akBarrierList[i].back().Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+				pkBarrier->m_akBarrierList[i].back().Transition.StateBefore = eResPresent;
+				pkBarrier->m_akBarrierList[i].back().Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
+			}
+			m_kRecorderList.back().m_kTaskList.push_back(pkBarrier);
 		}
-		kResourceCache[0].m_eState = D3D12_RESOURCE_STATE_PRESENT;
-		m_kRecorderList.back().m_kTaskList.push_back(pkBarrier);
-	}
+	}	
 
 	m_kProcessList.resize(1);
 	m_kProcessList.back().m_eType = TYPE_EXCUTE;
@@ -487,26 +876,42 @@ void VeRenderWindowD3D12::Record(VeUInt32 u32Index) noexcept
 		{
 		case REC_BARRIER:
 		{
-			auto& list = ((RecordBarrier*)task)->m_kBarrierList[m_u32FrameIndex];	
+			auto& list = ((RecordBarrier*)task)->m_akBarrierList[m_u32FrameIndex];
 			pkGCL->ResourceBarrier((VeUInt32)list.size(), &list.front());
 		}
 		break;
 		case REC_CLEAR_RTV:
 		{
 			RecordClearRTV& rec = *((RecordClearRTV*)task);
-			pkGCL->ClearRenderTargetView(rec.m_hHandle[m_u32FrameIndex],
+			pkGCL->ClearRenderTargetView(rec.m_ahHandle[m_u32FrameIndex],
 				(const FLOAT*)&(rec.m_kColor), 0, nullptr);
+		}
+		break;
+		case REC_CLEAR_DSV:
+		{
+			RecordClearDSV& rec = *((RecordClearDSV*)task);
+			pkGCL->ClearDepthStencilView(rec.m_ahHandle[m_u32FrameIndex],
+				rec.m_eFlags, rec.m_f32Depth, rec.m_u8Stencil, 0, nullptr);
 		}
 		break;
 		case REC_RENDER_TARGET:
 		{
 			RecordRenderTarget& rec = *((RecordRenderTarget*)task);
-			auto& tar = rec.m_kRenderTarget[m_u32FrameIndex];
-			pkGCL->OMSetRenderTargets((VeUInt32)tar.m_kRTVList.size(),
-				&tar.m_kRTVList.front(), FALSE,
-				tar.m_hDSV.ptr ? &tar.m_hDSV : nullptr);
-			pkGCL->RSSetViewports(1, &rec.m_kViewport);
-			pkGCL->RSSetScissorRects(1, &rec.m_kScissorRect);
+			pkGCL->OMSetRenderTargets((VeUInt32)rec.m_akRTVList[m_u32FrameIndex].size(),
+				&rec.m_akRTVList[m_u32FrameIndex].front(), FALSE,
+				rec.m_ahDSV[m_u32FrameIndex].ptr ? &rec.m_ahDSV[m_u32FrameIndex] : nullptr);
+		}
+		break;
+		case REC_VIEWPORT:
+		{
+			RecordViewport& rec = *((RecordViewport*)task);
+			pkGCL->RSSetViewports((VeUInt32)rec.m_kViewportList.size(), &rec.m_kViewportList.front());
+		}
+		break;
+		case REC_SCISSOR_RECT:
+		{
+			RecordScissorRect& rec = *((RecordScissorRect*)task);
+			pkGCL->RSSetScissorRects((VeUInt32)rec.m_kScissorRectList.size(), &rec.m_kScissorRectList.front());
 		}
 		break;
 		case REC_RENDER_QUAD:
