@@ -186,6 +186,8 @@ public:
 
 	static Format ToTypeless(Format eFormat) noexcept;
 
+	static Format ToDepthStencil(Format eFormat) noexcept;
+
 	static Format ToSRGB(Format eFormat) noexcept;
 
 protected:

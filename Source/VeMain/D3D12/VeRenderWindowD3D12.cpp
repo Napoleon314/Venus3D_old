@@ -787,26 +787,47 @@ void VeRenderWindowD3D12::SetupCompositorList(const VeChar8** ppcList,
 						pkQuad->m_pkPipelineState = pkPipelineState;
 						for (auto& itTab : kQuad.m_kTable)
 						{
-							auto itRes = kRenderer.m_kResourceMap.find(itTab.second);
-							if (itRes != kRenderer.m_kResourceMap.end())
+							bool bFinished = false;
+							for (auto context : kClick.m_kContextList)
 							{
-								switch (itRes->second->GetDimension())
+								if (context == itTab.second)
 								{
-								case VeRenderResource::DIMENSION_TEXTURE1D:
-								case VeRenderResource::DIMENSION_TEXTURE2D:
-								case VeRenderResource::DIMENSION_TEXTURE3D:								
-								{
-									VeRenderTextureD3D12* pkTex = VeDynamicCast(VeRenderTextureD3D12, itRes->second.p());
-									if (pkTex && pkTex->m_kSRVList.size())
+									auto itRTRes = m_kResourceMap.find(itTab.second);
+									if (itRTRes != m_kResourceMap.end())
 									{
-										pkQuad->m_kTable.push_back(std::make_pair(itTab.first, pkTex->m_kSRVList.front().m_hGPUHandle));
+										VeRenderTextureD3D12* pkTex = itRTRes->second;
+										if (pkTex->m_kSRVList.size())
+										{
+											pkQuad->m_kTable.push_back(std::make_pair(itTab.first, pkTex->m_kSRVList.front().m_hGPUHandle));
+											bFinished = true;
+										}										
+										break;
 									}
 								}
-								break;
-								default:
-									break;
-								}
 							}
+							if(!bFinished)
+							{
+								auto itRes = kRenderer.m_kResourceMap.find(itTab.second);
+								if (itRes != kRenderer.m_kResourceMap.end())
+								{
+									switch (itRes->second->GetDimension())
+									{
+									case VeRenderResource::DIMENSION_TEXTURE1D:
+									case VeRenderResource::DIMENSION_TEXTURE2D:
+									case VeRenderResource::DIMENSION_TEXTURE3D:
+									{
+										VeRenderTextureD3D12* pkTex = VeDynamicCast(VeRenderTextureD3D12, itRes->second.p());
+										if (pkTex && pkTex->m_kSRVList.size())
+										{
+											pkQuad->m_kTable.push_back(std::make_pair(itTab.first, pkTex->m_kSRVList.front().m_hGPUHandle));
+										}
+									}
+									break;
+									default:
+										break;
+									}
+								}
+							}							
 						}
 						m_kRecorderList.back().m_kTaskList.push_back(pkQuad);
 					}

@@ -49,7 +49,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 	VeRenderWindowPtr spRenderWindow = ve_renderer_ptr->CreateRenderWindow(
 		"RenderTest", VE_WINDOWPOS_CENTERED, VE_WINDOWPOS_CENTERED, 1280, 720, 0);
 
-	spRenderWindow->SetSync(true);
+	//spRenderWindow->SetSync(true);
 
 	auto spRes = ve_res_mgr.GetResource("stone_d.dds");
 	//auto spRes1 = ve_res_mgr.GetResource("rocks_d.dds");

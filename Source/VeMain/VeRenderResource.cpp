@@ -273,6 +273,40 @@ VeRenderResource::Format VeRenderResource::ToTypeless(
 	}
 }
 //--------------------------------------------------------------------------
+VeRenderResource::Format VeRenderResource::ToDepthStencil(
+	Format eFormat) noexcept
+{
+	switch (eFormat)
+	{
+	case FORMAT_R32G8X24_TYPELESS:
+	case FORMAT_D32_FLOAT_S8X24_UINT:
+	case FORMAT_R32_FLOAT_X8X24_TYPELESS:
+	case FORMAT_X32_TYPELESS_G8X24_UINT:
+		return FORMAT_D32_FLOAT_S8X24_UINT;
+	case FORMAT_R32_TYPELESS:
+	case FORMAT_D32_FLOAT:
+	case FORMAT_R32_FLOAT:
+	case FORMAT_R32_UINT:
+	case FORMAT_R32_SINT:
+		return FORMAT_D32_FLOAT;
+	case FORMAT_R24G8_TYPELESS:
+	case FORMAT_D24_UNORM_S8_UINT:
+	case FORMAT_R24_UNORM_X8_TYPELESS:
+	case FORMAT_X24_TYPELESS_G8_UINT:
+		return FORMAT_D24_UNORM_S8_UINT;
+	case FORMAT_R16_TYPELESS:
+	case FORMAT_R16_FLOAT:
+	case FORMAT_D16_UNORM:
+	case FORMAT_R16_UNORM:
+	case FORMAT_R16_UINT:
+	case FORMAT_R16_SNORM:
+	case FORMAT_R16_SINT:
+		return FORMAT_D16_UNORM;
+	default:
+		return eFormat;
+	}
+}
+//--------------------------------------------------------------------------
 VeRenderResource::Format VeRenderResource::ToSRGB(Format eFormat) noexcept
 {
 	switch (eFormat)

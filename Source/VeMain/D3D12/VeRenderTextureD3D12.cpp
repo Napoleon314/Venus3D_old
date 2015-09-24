@@ -274,10 +274,30 @@ void VeRenderTextureD3D12::Init(VeRendererD3D12& kRenderer) noexcept
 			eState = D3D12_RESOURCE_STATE_DEPTH_WRITE;
 		else if (VE_MASK_HAS_ANY(m_eUseage, USEAGE_UAV))
 			eState = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
-		VE_ASSERT_GE(kRenderer.m_pkDevice->CreateCommittedResource(
-			&HeapProp(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE,
-			&kDesc, eState, nullptr, IID_PPV_ARGS(&m_pkResource)), S_OK);
-		kRenderer.m_kRenderTextureList.attach_back(m_kNode);
+
+		if (VE_MASK_HAS_ANY(m_eUseage, USEAGE_RTV))
+		{
+			D3D12_CLEAR_VALUE kValue = { (DXGI_FORMAT)m_eFormat,{ 0.0f,0.0f,0.0f,0.0f } };
+			VE_ASSERT_GE(kRenderer.m_pkDevice->CreateCommittedResource(
+				&HeapProp(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE,
+				&kDesc, eState, &kValue, IID_PPV_ARGS(&m_pkResource)), S_OK);
+			kRenderer.m_kRenderTextureList.attach_back(m_kNode);
+		}
+		else if (VE_MASK_HAS_ANY(m_eUseage, USEAGE_DSV))
+		{
+			D3D12_CLEAR_VALUE kValue = { (DXGI_FORMAT)VeRenderResource::ToDepthStencil(m_eFormat),{ 1.0f, 0 } };
+			VE_ASSERT_GE(kRenderer.m_pkDevice->CreateCommittedResource(
+				&HeapProp(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE,
+				&kDesc, eState, &kValue, IID_PPV_ARGS(&m_pkResource)), S_OK);
+			kRenderer.m_kRenderTextureList.attach_back(m_kNode);
+		}
+		else
+		{
+			VE_ASSERT_GE(kRenderer.m_pkDevice->CreateCommittedResource(
+				&HeapProp(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE,
+				&kDesc, eState, nullptr, IID_PPV_ARGS(&m_pkResource)), S_OK);
+			kRenderer.m_kRenderTextureList.attach_back(m_kNode);
+		}		
 	}
 }
 //--------------------------------------------------------------------------
