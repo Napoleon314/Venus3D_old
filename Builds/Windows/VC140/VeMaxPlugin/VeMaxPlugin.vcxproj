@@ -95,23 +95,23 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\Source\VeMaxPlugin\VeMaxEntry.cpp" />
-    <ClCompile Include="..\..\..\..\Source\VeMaxPlugin\VeExportClass.cpp" />
-    <ClCompile Include="..\..\..\..\Source\VeMaxPlugin\stdafx.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugLib|x64'">Create</PrecompiledHeader>
+    <ClCompile Include="..\..\..\..\Tools\VeMaxPlugin\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseLib|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugLib|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\Source\VeMaxPlugin\VeMaxSceneLoader.cpp" />
+    <ClCompile Include="..\..\..\..\Tools\VeMaxPlugin\VeExportClass.cpp" />
+    <ClCompile Include="..\..\..\..\Tools\VeMaxPlugin\VeMaxEntry.cpp" />
+    <ClCompile Include="..\..\..\..\Tools\VeMaxPlugin\VeMaxSceneLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\Source\VeMaxPlugin\VeMaxEntry.h" />
-    <ClInclude Include="..\..\..\..\Source\VeMaxPlugin\VeExportClass.h" />
-    <ClInclude Include="..\..\..\..\Source\VeMaxPlugin\stdafx.h" />
-    <ClInclude Include="..\..\..\..\Source\VeMaxPlugin\VeMaxMix.h" />
-    <ClInclude Include="..\..\..\..\Source\VeMaxPlugin\VeMaxNormalRender.h" />
-    <ClInclude Include="..\..\..\..\Source\VeMaxPlugin\VeMaxScene.h" />
-    <ClInclude Include="..\..\..\..\Source\VeMaxPlugin\VeMaxSceneLoader.h" />
-    <ClInclude Include="..\..\..\..\Source\VeMaxPlugin\VeMaxSerializer.h" />
+    <ClInclude Include="..\..\..\..\Tools\VeMaxPlugin\stdafx.h" />
+    <ClInclude Include="..\..\..\..\Tools\VeMaxPlugin\VeExportClass.h" />
+    <ClInclude Include="..\..\..\..\Tools\VeMaxPlugin\VeMaxEntry.h" />
+    <ClInclude Include="..\..\..\..\Tools\VeMaxPlugin\VeMaxMix.h" />
+    <ClInclude Include="..\..\..\..\Tools\VeMaxPlugin\VeMaxNormalRender.h" />
+    <ClInclude Include="..\..\..\..\Tools\VeMaxPlugin\VeMaxScene.h" />
+    <ClInclude Include="..\..\..\..\Tools\VeMaxPlugin\VeMaxSceneLoader.h" />
+    <ClInclude Include="..\..\..\..\Tools\VeMaxPlugin\VeMaxSerializer.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="VeMaxPlugin.def" />

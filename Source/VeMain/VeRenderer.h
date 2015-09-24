@@ -108,7 +108,7 @@ public:
 		FrameClear() noexcept : FramePass(PASS_CLEAR) {}
 
 		VeUInt32 m_u32Flags = 0;
-		VeVector<VeColor> m_kColorArray;
+		VeVector<VE_FLOAT4> m_kColorArray;
 		VeFloat32 m_f32Depth = 0;
 		VeUInt8 m_u8Stencil = 0;
 	};

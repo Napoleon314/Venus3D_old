@@ -16,42 +16,42 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\Source\VeMaxPlugin\stdafx.cpp">
-      <Filter>Pch</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\Source\VeMaxPlugin\VeMaxEntry.cpp">
-      <Filter>Entry</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\Source\VeMaxPlugin\VeExportClass.cpp">
+    <ClCompile Include="..\..\..\..\Tools\VeMaxPlugin\VeExportClass.cpp">
       <Filter>Classes</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\Source\VeMaxPlugin\VeMaxSceneLoader.cpp">
+    <ClCompile Include="..\..\..\..\Tools\VeMaxPlugin\VeMaxEntry.cpp">
+      <Filter>Entry</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Tools\VeMaxPlugin\stdafx.cpp">
+      <Filter>Pch</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Tools\VeMaxPlugin\VeMaxSceneLoader.cpp">
       <Filter>Kernel</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\Source\VeMaxPlugin\stdafx.h">
-      <Filter>Pch</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\Source\VeMaxPlugin\VeMaxEntry.h">
-      <Filter>Entry</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\Source\VeMaxPlugin\VeExportClass.h">
+    <ClInclude Include="..\..\..\..\Tools\VeMaxPlugin\VeExportClass.h">
       <Filter>Classes</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\Source\VeMaxPlugin\VeMaxSerializer.h">
+    <ClInclude Include="..\..\..\..\Tools\VeMaxPlugin\VeMaxEntry.h">
+      <Filter>Entry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Tools\VeMaxPlugin\stdafx.h">
+      <Filter>Pch</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Tools\VeMaxPlugin\VeMaxSerializer.h">
       <Filter>Kernel</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\Source\VeMaxPlugin\VeMaxScene.h">
+    <ClInclude Include="..\..\..\..\Tools\VeMaxPlugin\VeMaxSceneLoader.h">
       <Filter>Kernel</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\Source\VeMaxPlugin\VeMaxSceneLoader.h">
+    <ClInclude Include="..\..\..\..\Tools\VeMaxPlugin\VeMaxScene.h">
       <Filter>Kernel</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\Source\VeMaxPlugin\VeMaxMix.h">
+    <ClInclude Include="..\..\..\..\Tools\VeMaxPlugin\VeMaxNormalRender.h">
       <Filter>Kernel</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\Source\VeMaxPlugin\VeMaxNormalRender.h">
+    <ClInclude Include="..\..\..\..\Tools\VeMaxPlugin\VeMaxMix.h">
       <Filter>Kernel</Filter>
     </ClInclude>
   </ItemGroup>

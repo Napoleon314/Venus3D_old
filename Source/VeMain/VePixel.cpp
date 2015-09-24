@@ -27,8 +27,7 @@ const VeRGBA VeRGBA::WHITE(255, 255, 255, 255);
 //--------------------------------------------------------------------------
 const VeRGBA VeRGBA::BLACK(0, 0, 0, 255);
 //--------------------------------------------------------------------------
-VeColor VeColor::Parse(const VeChar8* pcStr,
-	const VeColor& kDefault) noexcept
+VeColor VeColor::Parse(const VeChar8* pcStr, const VeColor& kDefault) noexcept
 {
 	VeChar8 acBuffer[VE_MAX_PATH_LEN];
 	VeStrcpy(acBuffer, pcStr);

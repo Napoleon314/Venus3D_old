@@ -63,7 +63,7 @@ public:
 		RecordClearRTV() noexcept : RecordTask(REC_CLEAR_RTV) {}
 
 		D3D12_CPU_DESCRIPTOR_HANDLE m_ahHandle[VeRendererD3D12::FRAME_COUNT];
-		VeColor m_kColor;
+		VE_FLOAT4 m_kColor;
 	};
 
 	struct RecordClearDSV : public RecordTask

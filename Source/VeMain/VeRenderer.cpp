@@ -880,12 +880,12 @@ VeRenderer::FramePassPtr VeRenderer::CreateClear(
 		{
 			for (auto it = color->value.Begin(); it != color->value.End(); ++it)
 			{
-				pkClear->m_kColorArray.push_back(VeTo(*it, VeColor::BLACK));
+				pkClear->m_kColorArray.push_back(VeTo(*it, VE_FLOAT4(0, 0, 0, 0)));
 			}			
 		}
 		else if (color->value.IsString())
 		{
-			pkClear->m_kColorArray.push_back(VeTo(color->value, VeColor::BLACK));
+			pkClear->m_kColorArray.push_back(VeTo(color->value, VE_FLOAT4(0, 0, 0, 0)));
 		}
 	}
 	pkClear->m_f32Depth = kValue("depth", 0.0f);

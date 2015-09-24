@@ -336,6 +336,39 @@ struct VE_FLOAT4
 	explicit VE_FLOAT4(const VeFloat32* pArray) noexcept : x(pArray[0]), y(pArray[1]), z(pArray[2]), w(pArray[3]) {}
 
 	VE_FLOAT4& operator= (const VE_FLOAT4& Float4) noexcept { x = Float4.x; y = Float4.y; z = Float4.z; w = Float4.w; return *this; }
+
+	static VE_FLOAT4 Parse(const VeChar8* pcStr, const VE_FLOAT4& kDefault) noexcept
+	{
+		VeChar8 acBuffer[VE_MAX_PATH_LEN];
+		VeStrcpy(acBuffer, pcStr);
+		VE_FLOAT4 kRes = kDefault;
+		VeChar8* pcContext;
+		VeChar8* pcTemp = VeStrtok(acBuffer, ",", &pcContext);
+		if (pcTemp)
+		{
+			pcTemp = VeTrim(pcTemp);
+			kRes.x = ve_parser.CalculateExpression(pcTemp, kDefault.x);
+		}
+		pcTemp = VeStrtok<VeChar8>(nullptr, ",", &pcContext);
+
+		if (pcTemp)
+		{
+			pcTemp = VeTrim(pcTemp);
+			kRes.y = ve_parser.CalculateExpression(pcTemp, kDefault.y);
+		}
+		pcTemp = VeStrtok<VeChar8>(nullptr, ",", &pcContext);
+		if (pcTemp)
+		{
+			pcTemp = VeTrim(pcTemp);
+			kRes.z = ve_parser.CalculateExpression(pcTemp, kDefault.z);
+		}
+		if (pcContext)
+		{
+			pcTemp = VeTrim(pcContext);
+			kRes.w = ve_parser.CalculateExpression(pcTemp, kDefault.w);
+		}
+		return kRes;
+	}
 };
 //--------------------------------------------------------------------------
 struct alignas(16) VE_FLOAT4A : public VE_FLOAT4

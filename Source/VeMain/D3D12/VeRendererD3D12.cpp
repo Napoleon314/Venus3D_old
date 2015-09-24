@@ -425,8 +425,8 @@ public:
 		const VeVector<VeBlobPtr>& kShaderList) noexcept
 		: m_kShaderNameMap(kShaderNameMap), m_kShaderList(kShaderList) {}
 
-	HRESULT Open(D3D_INCLUDE_TYPE IncludeType, LPCSTR pFileName,
-		LPCVOID pParentData, LPCVOID* ppData, UINT* pBytes) override
+	STDMETHOD(Open)(THIS_ D3D_INCLUDE_TYPE IncludeType, LPCSTR pFileName,
+		LPCVOID pParentData, LPCVOID *ppData, UINT *pBytes) override
 	{
 		auto it = m_kShaderNameMap.find(pFileName);
 		if (it != m_kShaderNameMap.end())
@@ -439,7 +439,7 @@ public:
 		return E_FAIL;
 	}
 
-	HRESULT Close(LPCVOID pData) override
+	STDMETHOD(Close)(THIS_ LPCVOID pData) override
 	{
 		return S_OK;
 	}
