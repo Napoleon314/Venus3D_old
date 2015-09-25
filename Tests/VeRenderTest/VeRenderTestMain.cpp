@@ -12,12 +12,9 @@
 //  http://www.venusie.com
 ////////////////////////////////////////////////////////////////////////////
 
-#include <VeMainPch.h>
-#ifdef VE_PLATFORM_WIN
-#	include<vld.h>
-#endif
+#include <VeFrameworkPch.h>
 
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
+VeInt32 VeEntry(const VeChar8* pcCmdLine) noexcept
 {
 	VE_NEW VeStringTable();
 	VE_NEW VeSystem(VeSystem::TYPE_DEFAULT, "com.VenusIE.VeRenderTest");
