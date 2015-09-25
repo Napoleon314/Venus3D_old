@@ -5,6 +5,5 @@
 *.xccheckout
 *.xcuserstate
 Binaries/*
-Builds/Windows/VC140/*
 SDK/*
 Builds/Android/Eclipse/VePowerTest
