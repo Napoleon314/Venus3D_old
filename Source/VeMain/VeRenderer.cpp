@@ -80,7 +80,8 @@ VeRenderer::VeRenderer(API eType) noexcept
 	VE_ENUM(FramePassType,
 	{
 		{ PASS_CLEAR, "clear" },
-		{ PASS_QUAD, "quad" }
+		{ PASS_QUAD, "quad" },
+		{ PASS_SCENE, "scene" }
 	});	
 
 	VE_ENUM(FrameTargetType,
@@ -853,10 +854,12 @@ VeRenderer::FramePassPtr VeRenderer::CreatePass(
 	FramePassType eType = kValue("type", PASS_MAX);
 	switch (eType)
 	{
-	case VeRenderer::PASS_CLEAR:
+	case PASS_CLEAR:
 		return CreateClear(kValue);
-	case VeRenderer::PASS_QUAD:
+	case PASS_QUAD:
 		return CreateQuad(kValue);
+	case PASS_SCENE:
+		return CreateScene(kValue);
 	default:
 		break;
 	}
@@ -913,6 +916,15 @@ VeRenderer::FramePassPtr VeRenderer::CreateQuad(
 		}
 	}
 	return pkQuad;
+}
+//--------------------------------------------------------------------------
+VeRenderer::FramePassPtr VeRenderer::CreateScene(
+	VeJSONValue& kValue) noexcept
+{
+	FrameScene* pkScene = VE_NEW FrameScene();
+	pkScene->m_u32Camera = kValue("camera", 0u);
+	pkScene->m_u32Stage = kValue("stage", 0u);
+	return pkScene;
 }
 //--------------------------------------------------------------------------
 VeRenderWindowPtr VeRenderer::CreateRenderWindow(const VeChar8* pcTitle,

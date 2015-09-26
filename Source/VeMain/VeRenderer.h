@@ -76,6 +76,7 @@ public:
 	{
 		PASS_CLEAR,
 		PASS_QUAD,
+		PASS_SCENE,
 		PASS_MAX
 	};
 	
@@ -120,6 +121,14 @@ public:
 		VeFixedString m_kRootSignature;
 		VeFixedString m_kPipelineState;
 		VeVector<std::pair<VeUInt32, VeFixedString>> m_kTable;
+	};
+
+	struct FrameScene : public FramePass
+	{
+		FrameScene() noexcept : FramePass(PASS_SCENE) {}
+
+		VeUInt32 m_u32Camera = 0;
+		VeUInt32 m_u32Stage = 0;
 	};
 
 	struct FrameClick
@@ -358,6 +367,8 @@ protected:
 	FramePassPtr CreateClear(VeJSONValue& kValue) noexcept;
 
 	FramePassPtr CreateQuad(VeJSONValue& kValue) noexcept;
+
+	FramePassPtr CreateScene(VeJSONValue& kValue) noexcept;
 
 	const API m_eType;
 	VeStringMap<VeBlobPtr> m_akShaderMap[SHADER_TYPE_NUM];

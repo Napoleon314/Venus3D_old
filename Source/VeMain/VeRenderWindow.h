@@ -84,13 +84,14 @@ public:
 	virtual bool IsValid() noexcept;
 
 	virtual void SetupCompositorList(const VeChar8** ppcList,
-		VeSizeT stNum, const VeChar8* pcHint = nullptr) noexcept = 0;
+		VeSizeT stNum, VeUInt32 u32ThreadNum = VeCPUInfo::GetCount(),
+		const VeChar8* pcHint = nullptr) noexcept = 0;
 
 	virtual VeUInt32 GetRecorderNum() noexcept = 0;
 
 	virtual void Record(VeUInt32 u32Index) noexcept = 0;
 
-	virtual void BeginCommandLists(VeUInt32 u32Thread) noexcept = 0;
+	virtual void RecordScene(VeUInt32 u32Thread) noexcept = 0;
 
 	virtual void SendDrawCallList(VeUInt32 u32Thread, VeUInt32 u32Camera,
 		VeRenderDrawCall* pkDrawCallList, VeSizeT stNum) noexcept = 0;

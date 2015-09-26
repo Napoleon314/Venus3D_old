@@ -419,7 +419,7 @@ void VeRenderWindowD3D12::BarrierEvent(RecordBarrierMap& kBarriers,
 }
 //--------------------------------------------------------------------------
 void VeRenderWindowD3D12::SetupCompositorList(const VeChar8** ppcList,
-	VeSizeT stNum, const VeChar8* pcHint) noexcept
+	VeSizeT stNum, VeUInt32 u32ThreadNum, const VeChar8* pcHint) noexcept
 {
 	VeRendererD3D12& kRenderer = *VeMemberCast(
 		&VeRendererD3D12::m_kRenderWindowList, m_kNode.get_list());
@@ -666,9 +666,18 @@ void VeRenderWindowD3D12::SetupCompositorList(const VeChar8** ppcList,
 	}
 
 	VeUInt32 u32GCLIndex(0);
+	bool bScene = false;
+
 	m_kRecorderList.resize(1);
 	m_kRecorderList.back().m_u32CommandIndex = 0;
 	m_kRecorderList.back().m_kTaskList.clear();
+
+	m_kProcessList.resize(1);
+	m_kProcessList.back().m_eType = TYPE_EXCUTE;
+	m_kProcessList.back().m_u16Start = 0;
+	m_kProcessList.back().m_u16Num = 1;
+
+	m_kCameraList.clear();
 
 	RectMap kRectMap;
 
@@ -690,6 +699,25 @@ void VeRenderWindowD3D12::SetupCompositorList(const VeChar8** ppcList,
 			auto& bar = kBarriers[i][j];
 			if(bar.first)
 			{
+				if (bScene)
+				{
+					if (m_kProcessList.back().m_eType == TYPE_EXCUTE)
+					{
+						m_kProcessList.back().m_u16Num += 1;
+					}
+					else
+					{
+						m_kProcessList.resize(m_kProcessList.size() + 1);
+						m_kProcessList.back().m_eType = TYPE_EXCUTE;
+						m_kProcessList.back().m_u16Start = u32GCLIndex + 1;
+						m_kProcessList.back().m_u16Num = 1;
+					}
+					++u32GCLIndex;
+					m_kRecorderList.resize(m_kRecorderList.size() + 1);
+					m_kRecorderList.back().m_u32CommandIndex = u32GCLIndex;
+					m_kRecorderList.back().m_kTaskList.clear();
+					bScene = false;
+				}
 				m_kRecorderList.back().m_kTaskList.push_back(bar.first);
 			}			
 			for (VeSizeT k(0); k < kClick.m_kPassList.size(); ++k)
@@ -698,6 +726,25 @@ void VeRenderWindowD3D12::SetupCompositorList(const VeChar8** ppcList,
 				{
 				case VeRenderer::PASS_CLEAR:
 				{
+					if (bScene)
+					{
+						if (m_kProcessList.back().m_eType == TYPE_EXCUTE)
+						{
+							m_kProcessList.back().m_u16Num += 1;
+						}
+						else
+						{
+							m_kProcessList.resize(m_kProcessList.size() + 1);
+							m_kProcessList.back().m_eType = TYPE_EXCUTE;
+							m_kProcessList.back().m_u16Start = u32GCLIndex + 1;
+							m_kProcessList.back().m_u16Num = 1;
+						}
+						++u32GCLIndex;
+						m_kRecorderList.resize(m_kRecorderList.size() + 1);
+						m_kRecorderList.back().m_u32CommandIndex = u32GCLIndex;
+						m_kRecorderList.back().m_kTaskList.clear();
+						bScene = false;
+					}
 					VeRenderer::FrameClear& kClear = (VeRenderer::FrameClear&)*kClick.m_kPassList[k];
 					if (VE_MASK_HAS_ANY(kClear.m_u32Flags, VeRenderer::CLEAR_COLOR)
 						&& kClear.m_kColorArray.size())
@@ -741,7 +788,7 @@ void VeRenderWindowD3D12::SetupCompositorList(const VeChar8** ppcList,
 							for (VeSizeT m(0); m < VeRendererD3D12::FRAME_COUNT; ++m)
 							{
 								pkTask->m_ahHandle[m] = kCache.m_spRecorder->m_ahDSV[m];
-							}
+							}							
 							m_kRecorderList.back().m_kTaskList.push_back(pkTask);
 						}
 					}
@@ -749,6 +796,25 @@ void VeRenderWindowD3D12::SetupCompositorList(const VeChar8** ppcList,
 				break;
 				case VeRenderer::PASS_QUAD:
 				{
+					if (bScene)
+					{
+						if (m_kProcessList.back().m_eType == TYPE_EXCUTE)
+						{
+							m_kProcessList.back().m_u16Num += 1;
+						}
+						else
+						{
+							m_kProcessList.resize(m_kProcessList.size() + 1);
+							m_kProcessList.back().m_eType = TYPE_EXCUTE;
+							m_kProcessList.back().m_u16Start = u32GCLIndex + 1;
+							m_kProcessList.back().m_u16Num = 1;
+						}
+						++u32GCLIndex;
+						m_kRecorderList.resize(m_kRecorderList.size() + 1);
+						m_kRecorderList.back().m_u32CommandIndex = u32GCLIndex;
+						m_kRecorderList.back().m_kTaskList.clear();
+						bScene = false;
+					}
 					if (spCurrent != kCache.m_spRecorder)
 					{
 						m_kRecorderList.back().m_kTaskList.push_back(kCache.m_spRecorder);
@@ -833,12 +899,62 @@ void VeRenderWindowD3D12::SetupCompositorList(const VeChar8** ppcList,
 					}
 				}
 				break;
+				case VeRenderer::PASS_SCENE:
+				{
+					VeRenderer::FrameScene& kScene = (VeRenderer::FrameScene&)*kClick.m_kPassList[k];
+					if (!bScene)
+					{
+						spCurrent = nullptr;
+						spViewport = nullptr;
+						spScissorRect = nullptr;
+						bScene = true;
+					}
+					m_kCameraList.resize(m_kCameraList.size() + 1);
+					m_kCameraList.back().m_u32CameraMask = VE_MASK(kScene.m_u32Camera);
+					m_kCameraList.back().m_kStageList.resize(kScene.m_u32Stage);
+					for (auto& stage : m_kCameraList.back().m_kStageList)
+					{
+						stage = u32GCLIndex + 1;
+						if (m_kProcessList.back().m_eType == TYPE_EXCUTE)
+						{
+							m_kProcessList.back().m_u16Num += u32ThreadNum;
+						}
+						else
+						{
+							m_kProcessList.resize(m_kProcessList.size() + 1);
+							m_kProcessList.back().m_eType = TYPE_EXCUTE;
+							m_kProcessList.back().m_u16Start = stage;
+							m_kProcessList.back().m_u16Num = u32ThreadNum;
+						}
+						u32GCLIndex += u32ThreadNum;
+					}		
+				}
+				break;
 				default:
 					break;
 				}
 			}		
 			if (bar.second)
 			{
+				if (bScene)
+				{
+					if (m_kProcessList.back().m_eType == TYPE_EXCUTE)
+					{
+						m_kProcessList.back().m_u16Num += 1;
+					}
+					else
+					{
+						m_kProcessList.resize(m_kProcessList.size() + 1);
+						m_kProcessList.back().m_eType = TYPE_EXCUTE;
+						m_kProcessList.back().m_u16Start = u32GCLIndex + 1;
+						m_kProcessList.back().m_u16Num = 1;
+					}
+					++u32GCLIndex;
+					m_kRecorderList.resize(m_kRecorderList.size() + 1);
+					m_kRecorderList.back().m_u32CommandIndex = u32GCLIndex;
+					m_kRecorderList.back().m_kTaskList.clear();
+					bScene = false;
+				}
 				m_kRecorderList.back().m_kTaskList.push_back(bar.second);
 			}
 		}
@@ -861,17 +977,31 @@ void VeRenderWindowD3D12::SetupCompositorList(const VeChar8** ppcList,
 				pkBarrier->m_akBarrierList[i].back().Transition.StateBefore = eResPresent;
 				pkBarrier->m_akBarrierList[i].back().Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
 			}
+			if (bScene)
+			{
+				if (m_kProcessList.back().m_eType == TYPE_EXCUTE)
+				{
+					m_kProcessList.back().m_u16Num += 1;
+				}
+				else
+				{
+					m_kProcessList.resize(m_kProcessList.size() + 1);
+					m_kProcessList.back().m_eType = TYPE_EXCUTE;
+					m_kProcessList.back().m_u16Start = u32GCLIndex + 1;
+					m_kProcessList.back().m_u16Num = 1;
+				}
+				++u32GCLIndex;
+				m_kRecorderList.resize(m_kRecorderList.size() + 1);
+				m_kRecorderList.back().m_u32CommandIndex = u32GCLIndex;
+				m_kRecorderList.back().m_kTaskList.clear();
+				bScene = false;
+			}
 			m_kRecorderList.back().m_kTaskList.push_back(pkBarrier);
 		}
-	}	
+	}
 
-	m_kProcessList.resize(1);
-	m_kProcessList.back().m_eType = TYPE_EXCUTE;
-	m_kProcessList.back().m_u16Start = 0;
-	m_kProcessList.back().m_u16Num = 1;
-	++u32GCLIndex;
-
-	ResizeDirectList(u32GCLIndex);
+	m_u32ThreadNum = u32ThreadNum;
+	ResizeDirectList(u32GCLIndex + 1);
 }
 //--------------------------------------------------------------------------
 VeUInt32 VeRenderWindowD3D12::GetRecorderNum() noexcept
@@ -957,9 +1087,19 @@ void VeRenderWindowD3D12::Record(VeUInt32 u32Index) noexcept
 	VE_ASSERT_GE(pkGCL->Close(), S_OK);
 }
 //--------------------------------------------------------------------------
-void VeRenderWindowD3D12::BeginCommandLists(VeUInt32 u32Thread) noexcept
+void VeRenderWindowD3D12::RecordScene(VeUInt32 u32Thread) noexcept
 {
+	for (auto& cam : m_kCameraList)
+	{
+		for (auto idx : cam.m_kStageList)
+		{
+			FrameCache& kFrame = m_akFrameCache[m_u32FrameIndex];
+			ID3D12GraphicsCommandList* pkGCL = kFrame.m_kDirectCommandList[idx + u32Thread];
+			VE_ASSERT_GE(pkGCL->Reset(kFrame.m_pkDirectAllocator, nullptr), S_OK);
 
+			VE_ASSERT_GE(pkGCL->Close(), S_OK);
+		}
+	}
 }
 //--------------------------------------------------------------------------
 void VeRenderWindowD3D12::SendDrawCallList(VeUInt32 u32Thread,

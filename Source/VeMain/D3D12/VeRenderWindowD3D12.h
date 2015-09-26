@@ -121,13 +121,9 @@ public:
 
 	struct Camera
 	{
-		struct Stage
-		{
-			VeUInt32 m_u32GCLStart;
-			VeUInt32 m_u32Mask;
-			VeVector<D3D12_GPU_DESCRIPTOR_HANDLE> m_kContext;
-		};
-		VeVector<Stage> m_kStageList;
+		VeUInt32 m_u32CameraMask = 0;
+		VeVector<VeUInt32> m_kStageList;
+		VeVector<D3D12_GPU_DESCRIPTOR_HANDLE> m_kContext;
 	};
 
 	struct Bundle
@@ -160,14 +156,14 @@ public:
 
 	virtual bool IsValid() noexcept override;
 
-	virtual void SetupCompositorList(const VeChar8** ppcList,
-		VeSizeT stNum, const VeChar8* pcHint) noexcept override;
+	virtual void SetupCompositorList(const VeChar8** ppcList, VeSizeT stNum,
+		VeUInt32 u32ThreadNum, const VeChar8* pcHint) noexcept override;
 
 	virtual VeUInt32 GetRecorderNum() noexcept override;
 
 	virtual void Record(VeUInt32 u32Index) noexcept override;
 
-	virtual void BeginCommandLists(VeUInt32 u32Thread) noexcept;
+	virtual void RecordScene(VeUInt32 u32Thread) noexcept;
 
 	virtual void SendDrawCallList(VeUInt32 u32Thread, VeUInt32 u32Camera,
 		VeRenderDrawCall* pkDrawCallList, VeSizeT stNum) noexcept override;
@@ -249,6 +245,7 @@ protected:
 		VeVector<Recorder> m_kRecorderList;
 		VeVector<Camera> m_kCameraList;
 		VeVector<QueueProcess> m_kProcessList;
+		VeUInt32 m_u32ThreadNum = 0;
 	};
 
 	D3D12_VIEWPORT m_kViewport;

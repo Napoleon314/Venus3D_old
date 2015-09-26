@@ -39,6 +39,8 @@ public:
 
 	virtual void OnUpdate() noexcept {}
 
+	virtual void OnRender() noexcept {}
+
 protected:
 	VeApplication(const VeChar8* pcConfig) noexcept;
 

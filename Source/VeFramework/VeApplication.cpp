@@ -120,10 +120,7 @@ void VeApplication::Update() noexcept
 void VeApplication::Render() noexcept
 {
 	m_spMainWindow->Begin();
-	for (VeUInt32 i(0); i < m_spMainWindow->GetRecorderNum(); ++i)
-	{
-		m_spMainWindow->Record(i);
-	}
+	OnRender();	
 	m_spMainWindow->End();
 }
 //--------------------------------------------------------------------------

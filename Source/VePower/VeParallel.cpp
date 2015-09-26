@@ -17,7 +17,7 @@
 //--------------------------------------------------------------------------
 VeParallel::VeParallel() noexcept
 {
-	m_stThreadNum = std::thread::hardware_concurrency();
+	m_stThreadNum = VeCPUInfo::GetCount();
 	m_pkLoopEventArray = VeAlloc(VeThread::Event, m_stThreadNum);
 	for (VeSizeT i(0); i < m_stThreadNum; ++i)
 	{

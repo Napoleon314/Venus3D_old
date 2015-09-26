@@ -91,3 +91,16 @@ void VeRenderTest::OnUpdate() noexcept
 	}
 }
 //--------------------------------------------------------------------------
+void VeRenderTest::OnRender() noexcept
+{
+	for (VeUInt32 i(0); i < ((VeUInt32)VeCPUInfo::GetCount()); ++i)
+	{
+		m_spMainWindow->RecordScene(i);
+	}
+
+	for (VeUInt32 i(0); i < m_spMainWindow->GetRecorderNum(); ++i)
+	{
+		m_spMainWindow->Record(i);
+	}
+}
+//--------------------------------------------------------------------------

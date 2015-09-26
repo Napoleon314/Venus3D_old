@@ -21,13 +21,15 @@ class VeRenderTest : public VeApplication
 public:
 	VeRenderTest() noexcept;
 
-	virtual ~VeRenderTest() noexcept override;
+	virtual ~VeRenderTest() noexcept;
 
 	virtual void OnInit() noexcept override;
 
 	virtual void OnTerm() noexcept override;
 
 	virtual void OnUpdate() noexcept override;
+
+	virtual void OnRender() noexcept override;
 
 protected:
 	VeResourcePtr m_spTexture;
