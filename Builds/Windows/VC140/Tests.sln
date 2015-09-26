@@ -23,6 +23,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VeMain", "VeMain\VeMain.vcx
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VeFramework", "VeFramework\VeFramework.vcxproj", "{788CCCAF-7916-491F-BCEB-F53013D11268}"
+	ProjectSection(ProjectDependencies) = postProject
+		{19C0B3E0-E67A-46C3-BAF5-7A83461D3199} = {19C0B3E0-E67A-46C3-BAF5-7A83461D3199}
+		{4301B1F7-8681-43CB-ABF7-E97BB05EF3F0} = {4301B1F7-8681-43CB-ABF7-E97BB05EF3F0}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -35,6 +35,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\..\Source\VeFramework\VeApplication.cpp" />
     <ClCompile Include="..\..\..\..\Source\VeFramework\VeEntry.cpp" />
     <ClCompile Include="..\..\..\..\Source\VeFramework\VeFrameworkPch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -48,7 +49,11 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\..\Source\VeFramework\VeApplication.h" />
     <ClInclude Include="..\..\..\..\Source\VeFramework\VeFrameworkPch.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\..\Source\VeFramework\VeApplication.inl" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{788CCCAF-7916-491F-BCEB-F53013D11268}</ProjectGuid>

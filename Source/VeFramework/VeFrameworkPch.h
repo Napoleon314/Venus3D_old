@@ -15,6 +15,8 @@
 #pragma once
 
 #include <VeMainPch.h>
+#include "VeApplication.h"
+
 #ifdef VE_PLATFORM_WIN
 #	include<vld.h>
 #endif

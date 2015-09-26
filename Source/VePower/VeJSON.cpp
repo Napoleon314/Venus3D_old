@@ -15,10 +15,16 @@
 #include "VePowerPch.h"
 
 //--------------------------------------------------------------------------
-VeJSONDoc operator "" _C(const VeChar8* pcStr, VeSizeT stNum) noexcept
+VeJSONDoc VeOpenJSON(const VeChar8* pcPath) noexcept
 {
 	VeJSONDoc kDoc;
-	kDoc.Parse<0>(pcStr);
+	VeBinaryIStreamPtr spConfig = ve_res_mgr.CreateIStream(pcPath);
+	VeSizeT stLen = spConfig->RemainingLength();
+	VeChar8* pcData = VeAlloc(VeChar8, stLen + 1);
+	spConfig->Read(pcData, stLen);
+	pcData[stLen] = 0;
+	kDoc.Parse<0>(pcData);
+	VeFree(pcData);
 	return kDoc;
 }
 //--------------------------------------------------------------------------

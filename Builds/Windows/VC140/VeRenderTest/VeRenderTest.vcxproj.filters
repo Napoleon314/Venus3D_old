@@ -14,5 +14,13 @@
     <ClCompile Include="..\..\..\..\Tests\VeRenderTest\VeRenderTestMain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\Tests\VeRenderTest\VeRenderTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\..\Tests\VeRenderTest\VeRenderTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

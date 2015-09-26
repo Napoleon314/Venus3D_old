@@ -1,22 +1,20 @@
 ////////////////////////////////////////////////////////////////////////////
 //
-//  Venus Engine Source File.
+//  Venus Engine Inline File.
 //  Copyright (C), Venus Interactive Entertainment.2012
 // -------------------------------------------------------------------------
-//  Module:      VeRenderTest
-//  File name:   VeRenderTestMain.cpp
-//  Created:     2015/08/04 by Napoleon
+//  Module:      VeFramework
+//  File name:   VeApplication.inl
+//  Created:     2015/09/25 by Napoleon
 //  Description: 
 // -------------------------------------------------------------------------
 //  History:
 //  http://www.venusie.com
 ////////////////////////////////////////////////////////////////////////////
 
-#include "VeRenderTest.h"
-
-VeInt32 VeEntry(const VeChar8* pcCmdLine) noexcept
+//--------------------------------------------------------------------------
+inline const VeRenderWindowPtr& VeApplication::GetWindow() noexcept
 {
-	VeRenderTest app;
-	app.Go();
-	return 0;
+	return m_spMainWindow;
 }
+//--------------------------------------------------------------------------

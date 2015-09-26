@@ -292,7 +292,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\..\Tests\VeRenderTest\VeRenderTest.cpp" />
     <ClCompile Include="..\..\..\..\Tests\VeRenderTest\VeRenderTestMain.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\..\Tests\VeRenderTest\VeRenderTest.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -20,10 +20,21 @@
     <ClCompile Include="..\..\..\..\Source\VeFramework\VeFrameworkPch.cpp">
       <Filter>Pch</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\Source\VeFramework\VeApplication.cpp">
+      <Filter>Application</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\Source\VeFramework\VeFrameworkPch.h">
       <Filter>Pch</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\VeFramework\VeApplication.h">
+      <Filter>Application</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\..\Source\VeFramework\VeApplication.inl">
+      <Filter>Application</Filter>
+    </None>
   </ItemGroup>
 </Project>

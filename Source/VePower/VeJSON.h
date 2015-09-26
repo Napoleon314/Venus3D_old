@@ -252,4 +252,4 @@ namespace rapidjson
 #define VeToStrPairs(val) rapidjson::ToStrPairs(val)
 #define VeGetStrPairs(val,n) rapidjson::GetStrPairs(val,n)
 
-VE_POWER_API VeJSONDoc operator "" _C(const VeChar8* pcStr, VeSizeT stNum) noexcept;
+VE_POWER_API VeJSONDoc VeOpenJSON(const VeChar8* pcPath) noexcept;
