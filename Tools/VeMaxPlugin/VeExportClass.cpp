@@ -97,7 +97,13 @@ int VeExport::DoExport(const TCHAR *name, ExpInterface *ei, Interface *i,
 		{
 			*pcTemp = 0;
 			kPath = acBuffer;
-			kName = pcTemp + 1;
+			const VeChar8* pcName = ++pcTemp;
+			while (*pcTemp)
+			{
+				*pcTemp = VeToLower(*pcTemp);
+				++pcTemp;
+			}
+			kName = pcName;
 		}
 	}
 	
