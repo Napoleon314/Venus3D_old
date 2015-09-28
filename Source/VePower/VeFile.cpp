@@ -436,13 +436,9 @@ VeBinaryIStreamPtr VeFilePath::OpenIStream(
 VeBinaryOStreamPtr VeFilePath::OpenOStream(
 	const VeChar8* pcFile) const noexcept
 {
-	if (HasFile(pcFile))
-	{
-		VeChar8 acBuffer[VE_MAX_PATH_LEN];
-		PATH_CAT(acBuffer, m_kPath, pcFile);
-		return VE_NEW VeFileOStream(acBuffer);
-	}
-	return nullptr;
+	VeChar8 acBuffer[VE_MAX_PATH_LEN];
+	PATH_CAT(acBuffer, m_kPath, pcFile);
+	return VE_NEW VeFileOStream(acBuffer);
 }
 //--------------------------------------------------------------------------
 void VeFilePath::ReadAsync(const VeChar8* pcFile,

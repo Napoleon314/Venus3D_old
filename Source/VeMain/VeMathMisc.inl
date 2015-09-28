@@ -1165,7 +1165,7 @@ inline VE_VECTOR VE_MATH_CALLCONV VeColorRGBToSRGB(VE_FVECTOR rgb) noexcept
 	static const VE_VECTORF32 InvGamma = { 1.0f / 2.4f, 1.0f / 2.4f, 1.0f / 2.4f, 1.f };
 	VE_VECTOR V = VeVectorSaturate(rgb);
 	VE_VECTOR V0 = VeVectorMultiply(V, Linear);
-	VE_VECTOR V1 = Scale * VeVectorPow(V, InvGamma) - Bias;
+	VE_VECTOR V1 = VeVectorSubtract(VeVectorMultiply(Scale, VeVectorPow(V, InvGamma)), Bias);
 	VE_VECTOR select = VeVectorLess(V, Cutoff);
 	V = VeVectorSelect(V1, V0, select);
 	return VeVectorSelect(rgb, V, g_MathSelect1110);
@@ -1180,7 +1180,7 @@ inline VE_VECTOR VE_MATH_CALLCONV VeColorSRGBToRGB(VE_FVECTOR srgb) noexcept
 	static const VE_VECTORF32 Gamma = { 2.4f, 2.4f, 2.4f, 1.f };
 	VE_VECTOR V = VeVectorSaturate(srgb);
 	VE_VECTOR V0 = VeVectorMultiply(V, ILinear);
-	VE_VECTOR V1 = VeVectorPow((V + Bias) * Scale, Gamma);
+	VE_VECTOR V1 = VeVectorPow(VeVectorMultiply(VeVectorAdd(V, Bias), Scale), Gamma);
 	VE_VECTOR select = VeVectorGreater(V, Cutoff);
 	V = VeVectorSelect(V0, V1, select);
 	return VeVectorSelect(srgb, V, g_MathSelect1110);

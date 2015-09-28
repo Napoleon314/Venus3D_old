@@ -28,6 +28,12 @@
     <ClCompile Include="..\..\..\..\Tools\VeMaxPlugin\VeMaxSceneLoader.cpp">
       <Filter>Kernel</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\Tools\VeMaxPlugin\VeMaxOptimizer.cpp">
+      <Filter>Kernel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Tools\VeMaxPlugin\VeMaxWriter.cpp">
+      <Filter>Kernel</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\Tools\VeMaxPlugin\VeExportClass.h">
@@ -52,6 +58,12 @@
       <Filter>Kernel</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\Tools\VeMaxPlugin\VeMaxMix.h">
+      <Filter>Kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Tools\VeMaxPlugin\VeMaxOptimizer.h">
+      <Filter>Kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Tools\VeMaxPlugin\VeMaxWriter.h">
       <Filter>Kernel</Filter>
     </ClInclude>
   </ItemGroup>

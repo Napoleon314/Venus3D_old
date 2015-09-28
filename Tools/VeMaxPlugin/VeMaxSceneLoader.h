@@ -21,7 +21,7 @@ public:
 
 	~VeMaxSceneLoader() noexcept;
 
-	bool Load(bool bSelected) noexcept;
+	bool Load(const VeDirectoryPtr& spDir, bool bSelected) noexcept;
 
 	void Clear() noexcept;
 
@@ -82,6 +82,8 @@ private:
 	matrix FromGMatrix(const GMatrix& gm) noexcept;
 
 private:
+	friend class VeExport;
+
 	VeMaxSceneNodeMap m_kSceneNodeMap;
 	VeMaxSceneNodeNameSet m_kSceneNodeNameSet;
 	VeMaxSceneNodeInstanceMap m_kSceneNodeInstanceMap;

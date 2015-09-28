@@ -66,8 +66,8 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(ADSK_3DSMAX_SDK_2016)\lib\x64\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>VeMain.lib;VePower.lib;comctl32.lib;core.lib;geom.lib;gfx.lib;mesh.lib;maxutil.lib;maxscrpt.lib;paramblk2.lib;msxml2.lib;igame.lib;assetmanagement.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ADSK_3DSMAX_SDK_2016)\lib\x64\Release;$(VENUS3D_PATH)\Externals\DirectXMesh\x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>VeMain.lib;VePower.lib;DirectXMesh.lib;comctl32.lib;core.lib;geom.lib;gfx.lib;mesh.lib;maxutil.lib;maxscrpt.lib;paramblk2.lib;msxml2.lib;igame.lib;assetmanagement.lib;bmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ModuleDefinitionFile>VeMaxPlugin.def</ModuleDefinitionFile>
     </Link>
   </ItemDefinitionGroup>
@@ -89,8 +89,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>$(ADSK_3DSMAX_SDK_2016)\lib\x64\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>VeMain.lib;VePower.lib;comctl32.lib;core.lib;geom.lib;gfx.lib;mesh.lib;maxutil.lib;maxscrpt.lib;paramblk2.lib;msxml2.lib;igame.lib;assetmanagement.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ADSK_3DSMAX_SDK_2016)\lib\x64\Release;$(VENUS3D_PATH)\Externals\DirectXMesh\x64\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>VeMain.lib;VePower.lib;DirectXMesh.lib;comctl32.lib;core.lib;geom.lib;gfx.lib;mesh.lib;maxutil.lib;maxscrpt.lib;paramblk2.lib;msxml2.lib;igame.lib;assetmanagement.lib;bmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ModuleDefinitionFile>VeMaxPlugin.def</ModuleDefinitionFile>
     </Link>
   </ItemDefinitionGroup>
@@ -101,7 +101,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\..\Tools\VeMaxPlugin\VeExportClass.cpp" />
     <ClCompile Include="..\..\..\..\Tools\VeMaxPlugin\VeMaxEntry.cpp" />
+    <ClCompile Include="..\..\..\..\Tools\VeMaxPlugin\VeMaxOptimizer.cpp" />
     <ClCompile Include="..\..\..\..\Tools\VeMaxPlugin\VeMaxSceneLoader.cpp" />
+    <ClCompile Include="..\..\..\..\Tools\VeMaxPlugin\VeMaxWriter.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\Tools\VeMaxPlugin\stdafx.h" />
@@ -109,9 +111,11 @@
     <ClInclude Include="..\..\..\..\Tools\VeMaxPlugin\VeMaxEntry.h" />
     <ClInclude Include="..\..\..\..\Tools\VeMaxPlugin\VeMaxMix.h" />
     <ClInclude Include="..\..\..\..\Tools\VeMaxPlugin\VeMaxNormalRender.h" />
+    <ClInclude Include="..\..\..\..\Tools\VeMaxPlugin\VeMaxOptimizer.h" />
     <ClInclude Include="..\..\..\..\Tools\VeMaxPlugin\VeMaxScene.h" />
     <ClInclude Include="..\..\..\..\Tools\VeMaxPlugin\VeMaxSceneLoader.h" />
     <ClInclude Include="..\..\..\..\Tools\VeMaxPlugin\VeMaxSerializer.h" />
+    <ClInclude Include="..\..\..\..\Tools\VeMaxPlugin\VeMaxWriter.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="VeMaxPlugin.def" />

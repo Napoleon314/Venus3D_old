@@ -25,7 +25,8 @@ VeMaxSceneLoader::~VeMaxSceneLoader() noexcept
 
 }
 //--------------------------------------------------------------------------
-bool VeMaxSceneLoader::Load(bool bSelected) noexcept
+bool VeMaxSceneLoader::Load(const VeDirectoryPtr& spDir,
+	bool bSelected) noexcept
 {
 	bool bRes = false;
 	Clear();
@@ -137,15 +138,10 @@ bool VeMaxSceneLoader::Load(bool bSelected) noexcept
 			if (sceneNode->m_pkNodeReference == sceneNode)
 			{
 				ProcessGeometry(gameNode, m_kSceneNodeMap);
-
-				// 顶点缝合、VertexCache、材质排序
-				//Optimizer::getSingleton().optimizeMesh(mAnalyzer->mMesh);
-
-				// 顶点数据压缩
-				//Optimizer::getSingleton().vertexCompression(mAnalyzer->mMesh, sceneNode);
-
-				// 写入磁盘
-				//mSerializer->exportMesh(mAnalyzer->mMesh, sceneNode->animationDescs);
+				VeMaxWeldVertices(m_kMesh);				
+				//VeMaxOptimizeMesh(m_kMesh);
+				//VeMaxWriteToDir(spDir, m_kMesh);
+				break;
 			}
 			else
 			{
@@ -529,7 +525,9 @@ void VeMaxSceneLoader::ProcessMaterial(IGameMaterial* gameMaterial,
 							textureSlot->m_eAlphaOpEx.source2 = VeMaxMaterial::Src_Texture;
 
 							if (origSubMaterial->m_kUVCoordinateMap.count(textureSlot->m_i32MapChannel))
+							{
 								VeDebugOutput("Diffuse map and lightmap, using the same channel : (%d).", textureSlot->m_i32MapChannel);
+							}								
 
 							int bakedMapChannel = textureSlot->m_i32MapChannel;
 							origSubMaterial->m_kUVCoordinateMap.insert(
@@ -597,8 +595,8 @@ void VeMaxSceneLoader::ProcessGeometry(IGameNode* gameNode,
 	VE_ASSERT(sceneNodeMap.count(gameNode));
 	const VeMaxSceneNode* sceneNode = &sceneNodeMap.find(gameNode)->second;
 	GMatrix nodeInvWorldTM;
-	GMatrix localTM = gameNode->GetLocalTM();
-	bool flipNormal = localTM.Parity() == -1;
+	//GMatrix localTM = gameNode->GetLocalTM();
+	bool flipNormal = false; //localTM.Parity() == -1;
 
 	IGameObject* gameObject = gameNode->GetIGameObject();
 	IGameMesh* gameMesh = static_cast<IGameMesh*>(gameObject);
@@ -829,7 +827,9 @@ void VeMaxSceneLoader::ProcessGeometry(IGameNode* gameNode,
 		geometry->m_spMaterial = material;
 	}
 	if (m_kMesh.m_spSharedGeometry)
+	{
 		m_kMesh.m_spSharedGeometry->m_kVertexBuffer.reserve(sharedVertexCount);
+	}		
 
 	int faceProgress = 0;
 	Interface* coreInterface = GetCOREInterface();
@@ -1480,7 +1480,7 @@ std::shared_ptr<VeMaxMaterial> VeMaxSceneLoader::DumpMaterialProperty(
 						MSTR mstrTexturePath = bitmapSlot.m_pkBitmapTex->GetMapName();
 						if (GetMapPath(mstrTexturePath))
 						{
-							/*std::unique_ptr<VeMaxMaterial::TextureSlot> textureSlot(new VeMaxMaterial::TextureSlot);
+							std::unique_ptr<VeMaxMaterial::TextureSlot> textureSlot(new VeMaxMaterial::TextureSlot);
 							textureSlot->m_f32FrameTime = 1.0f;
 							VeVector<VeFixedString> frames;
 							BitmapInfo bi;
@@ -1489,7 +1489,7 @@ std::shared_ptr<VeMaxMaterial> VeMaxSceneLoader::DumpMaterialProperty(
 							const MCHAR* ext = nullptr;
 							if (idx != -1)
 								ext = mstrTexturePath.data() + idx + 1;
-							if (bi.NumberFrames() > 0 &&
+							/*if (bi.NumberFrames() > 0 &&
 								ext && _tcscmp(ext, _T("ifl")) == 0)
 							{
 								textureSlot->m_f32FrameTime = 30 / bitmapSlot.m_pkBitmapTex->GetPlaybackRate();							
@@ -1505,12 +1505,13 @@ std::shared_ptr<VeMaxMaterial> VeMaxSceneLoader::DumpMaterialProperty(
 								}
 							}
 							else
-								textureSlot->m_kFrames.push_back(ToStr(mstrTexturePath));
+								textureSlot->m_kFrames.push_back(ToStr(mstrTexturePath));*/
+							textureSlot->m_kFrames.push_back(ToStr(mstrTexturePath));
 
-							textureSlot->texunit = VeMaxMaterial::TU_Unknow;
-							textureSlot->mapChannel = bitmapSlot.bitmapTex->GetMapChannel();
-							textureSlot->colourOpEx = bitmapSlot.colourOpEx;
-							textureSlot->alphaOpEx = bitmapSlot.alphaOpEx;
+							textureSlot->m_eTexUnit = VeMaxMaterial::TU_Unknow;
+							textureSlot->m_i32MapChannel = bitmapSlot.m_pkBitmapTex->GetMapChannel();
+							textureSlot->m_eColourOpEx = bitmapSlot.m_kColourOpEx;
+							textureSlot->m_eAlphaOpEx = bitmapSlot.m_kAlphaOpEx;
 
 							// 记录uv变换矩阵
 							{
@@ -1521,50 +1522,50 @@ std::shared_ptr<VeMaxMaterial> VeMaxSceneLoader::DumpMaterialProperty(
 								// UV镜像
 								int textureTiling = texmap->GetTextureTiling();
 								if (textureTiling & U_MIRROR)
-									uvCoordinate->u_mode = VeMaxMaterial::mirror;
+									uvCoordinate->m_eUMode = VeMaxMaterial::TM_mirror;
 								else
 									if (textureTiling & U_WRAP)
-										uvCoordinate->u_mode = VeMaxMaterial::wrap;
+										uvCoordinate->m_eUMode = VeMaxMaterial::TM_wrap;
 									else
-										uvCoordinate->u_mode = VeMaxMaterial::clamp;
+										uvCoordinate->m_eUMode = VeMaxMaterial::TM_clamp;
 
 								if (textureTiling & V_MIRROR)
-									uvCoordinate->v_mode = VeMaxMaterial::mirror;
+									uvCoordinate->m_eVMode = VeMaxMaterial::TM_mirror;
 								else
 									if (textureTiling & V_WRAP)
-										uvCoordinate->v_mode = VeMaxMaterial::wrap;
+										uvCoordinate->m_eVMode = VeMaxMaterial::TM_wrap;
 									else
-										uvCoordinate->v_mode = VeMaxMaterial::clamp;
+										uvCoordinate->m_eVMode = VeMaxMaterial::TM_clamp;
 
 								// 经验证IGameUVGen::GetUVTransform()有bug, 估计是做了swap(y, z); z = -z;的操作
 								// 但实际上uvgen并不是像max坐标系那样z朝上和y朝里, 所以是不需要做上述变换的
 								// 所以直接用sdk中的Texmap::GetUVTransform反而是正确的
 								Matrix3 uvtrans(TRUE);
 								texmap->GetUVTransform(uvtrans);
-								uvCoordinate->transform = fromGMatrix(GMatrix(uvtrans));
-								material->uvCoordinateMap.insert(std::make_pair(textureSlot->mapChannel, std::move(uvCoordinate)));
+								uvCoordinate->m_m4Transform = FromGMatrix(GMatrix(uvtrans));
+								material->m_kUVCoordinateMap.insert(std::make_pair(textureSlot->m_i32MapChannel, std::move(uvCoordinate)));
 							}
 
-							int alphaSource = bitmapSlot.bitmapTex->GetAlphaSource();
+							int alphaSource = bitmapSlot.m_pkBitmapTex->GetAlphaSource();
 							switch (mapSlot)
 							{
 							case ID_DI: // Diffuse Map
-								textureSlot->name = bitmapSlot.name;
-								textureSlot->texunit = VeMaxMaterial::TU_DiffuseMap;
-								material->diffuseColourEnable = false;
+								textureSlot->m_Name = bitmapSlot.m_kName;
+								textureSlot->m_eTexUnit = VeMaxMaterial::TU_DiffuseMap;
+								material->m_bDiffuseColourEnable = false;
 								break;
 
 							case ID_SP: // Specular Level Map/Specular Map, 因为specular = specular map color * specular level, 所以一视同仁
 							case ID_SS:
-								textureSlot->name = "specularMap";
-								textureSlot->texunit = VeMaxMaterial::TU_SpecularMap;
-								material->specularColourEnable = false;
+								textureSlot->m_Name = "specularMap";
+								textureSlot->m_eTexUnit = VeMaxMaterial::TU_SpecularMap;
+								material->m_bSpecularColourEnable = false;
 								break;
 
 							case ID_SI: // Self Illumination Map
-								textureSlot->name = "emissiveMap";
-								textureSlot->texunit = VeMaxMaterial::TU_EmissiveMap;
-								material->emissiveColourEnable = false;
+								textureSlot->m_Name = "emissiveMap";
+								textureSlot->m_eTexUnit = VeMaxMaterial::TU_EmissiveMap;
+								material->m_bEmissiveColourEnable = false;
 								break;
 
 							case ID_OP: // Opacity Map
@@ -1572,36 +1573,36 @@ std::shared_ptr<VeMaxMaterial> VeMaxSceneLoader::DumpMaterialProperty(
 								if (alphaSource == ALPHA_FILE)
 								{
 									// 移动平台上没有alphaTest, 而且使用alpha blend效率也远高于discard
-									if (config.mobilePlatform)
-										material->alphaBlend = true;
-									else
+									//if (config.mobilePlatform)
+									//	material->alphaBlend = true;
+									//else
 									{
 										// 根据"预乘Alpha"决定是AlphaBlend还是AlphaTest
-										if (bitmapSlot.bitmapTex->GetPremultAlpha(TRUE))
+										if (bitmapSlot.m_pkBitmapTex->GetPremultAlpha(TRUE))
 										{
-											material->alphaTest = true;
+											material->m_bAlphaTest = true;
 										}
 										else
 										{
-											material->alphaBlend = true;
+											material->m_bAlphaBlend = true;
 										}
 									}
 								}
 								else if (alphaSource == ALPHA_RGB)
 								{
 									// 没有alpha通道, 认为是以RGB方式Add
-									material->addBlend = true;
+									material->m_bAddBlend = true;
 								}
 								continue;
 
 							case ID_BU:	// Bump/Normal Map
-								textureSlot->name = "normalMap";
-								textureSlot->texunit = VeMaxMaterial::TU_NormalMap;
+								textureSlot->m_Name = "normalMap";
+								textureSlot->m_eTexUnit = VeMaxMaterial::TU_NormalMap;
 								break;
 
 							case ID_RL:	// Reflection Map
-								textureSlot->name = "reflectionMap";
-								textureSlot->texunit = VeMaxMaterial::TU_ReflectionMap;
+								textureSlot->m_Name = "reflectionMap";
+								textureSlot->m_eTexUnit = VeMaxMaterial::TU_ReflectionMap;
 								break;
 
 							default:
@@ -1610,11 +1611,11 @@ std::shared_ptr<VeMaxMaterial> VeMaxSceneLoader::DumpMaterialProperty(
 
 							bool dumpTextureSlot = true;
 							// 固定管线只导出diffuseMap
-							if (config.renderingType == RT_FixedFunction)
-								dumpTextureSlot = mapSlot == ID_DI;
+							//if (config.renderingType == RT_FixedFunction)
+							//	dumpTextureSlot = mapSlot == ID_DI;
 
 							if (dumpTextureSlot)
-								material->textureSlots.push_back(std::move(textureSlot));*/
+								material->m_kTextureSlots.push_back(std::move(textureSlot));
 						}
 					}
 				}

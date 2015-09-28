@@ -43,3 +43,5 @@
 #include "VeMaxSerializer.h"
 #include "VeExportClass.h"
 #include "VeMaxSceneLoader.h"
+#include "VeMaxOptimizer.h"
+#include "VeMaxWriter.h"

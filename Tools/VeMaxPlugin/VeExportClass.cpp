@@ -80,16 +80,38 @@ BOOL VeExport::SupportsOptions(int ext, DWORD options)
 	return TRUE;
 }
 //--------------------------------------------------------------------------
-
-//--------------------------------------------------------------------------
 int VeExport::DoExport(const TCHAR *name, ExpInterface *ei, Interface *i,
 	BOOL suppressPrompts, DWORD options)
 {
-	VeFixedString kPath = ToStr(name);
-	VE_BOOL bRes = VE_FALSE;
-	if (scence_loader.Load(VE_MASK_HAS_ANY(options, SCENE_EXPORT_SELECTED)))
+	VeFixedString kName = ToStr(name);
+	VeFixedString kPath = "";
 	{
-		bRes = VE_TRUE;
+		VeChar8 acBuffer[VE_MAX_PATH_LEN];
+		VeStrcpy(acBuffer, kName);
+		for (VeUInt32 i(0); i < kName.GetLength(); ++i)
+		{
+			if (acBuffer[i] == '\\') acBuffer[i] = '/';
+		}
+		VeChar8* pcTemp = (VeChar8*)VeStrrchr(acBuffer, '/');
+		if (pcTemp)
+		{
+			*pcTemp = 0;
+			kPath = acBuffer;
+			kName = pcTemp + 1;
+		}
+	}
+	
+	VE_BOOL bRes = VE_FALSE;
+	VeDirectoryPtr spDir = ve_res_mgr.CreateDir(kPath);
+	if (spDir && scence_loader.Load(spDir,
+		VE_MASK_HAS_ANY(options, SCENE_EXPORT_SELECTED)))
+	{
+		VeBinaryOStreamPtr spOut = spDir->OpenOStream(kName);
+		if (spOut)
+		{
+			VeMaxWriteToStream(*spOut, scence_loader.m_kMesh);
+			bRes = VE_TRUE;
+		}
 	}
 	return bRes;
 }

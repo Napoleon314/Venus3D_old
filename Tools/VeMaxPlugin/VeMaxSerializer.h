@@ -183,17 +183,17 @@ enum VeMaxVertexElementSemantic
 struct VeMaxVertex
 {
 	VeVector3 m_v3Position;
-	VeInt16 m_ai16Short4Position[4];
+	//VeInt16 m_ai16Short4Position[4];
 	VeRGBA m_kDiffuse;
 	VeVector3 m_v3Normal;
-	VeByte m_abyNormal[4];
+	//VeByte m_abyNormal[4];
 	VeVector<VeVector2> m_kTexcoords;
-	VeVector<std::pair<VeInt16, VeInt16>>	m_kShort2Texcoords;
-	VeInt16 m_ai16Texcoord[4];
+	//VeVector<std::pair<VeInt16, VeInt16>>	m_kShort2Texcoords;
+	//VeInt16 m_ai16Texcoord[4];
 	VeVector4 m_v4Tangent;
-	VeByte m_abyTangent[4];
+	//VeByte m_abyTangent[4];
 	VeVector3 m_v3Binormal;
-	VeByte m_abyBinormal[4];
+	//VeByte m_abyBinormal[4];
 	VeVector4 m_v4BlendWeight;
 	VeByte m_abyBlendWeight[4];
 	VeUInt32 m_u32BlendIndex;
