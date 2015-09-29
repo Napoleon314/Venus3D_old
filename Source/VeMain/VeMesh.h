@@ -4,8 +4,8 @@
 //  Copyright (C), Venus Interactive Entertainment.2012
 // -------------------------------------------------------------------------
 //  Module:      VeMain
-//  File name:   VeTexture.h
-//  Created:     2015/09/19 by Napoleon
+//  File name:   VeMesh.h
+//  Created:     2015/09/29 by Napoleon
 //  Description: 
 // -------------------------------------------------------------------------
 //  History:
@@ -14,31 +14,45 @@
 
 #pragma once
 
-class VE_MAIN_API VeTexture : public VeResource
+class VE_MAIN_API VeMesh : public VeResource
 {
-	VeNoCopy(VeTexture);
-	VeRTTIDecl(VeTexture, VeResource);
+	VeNoCopy(VeMesh);
+	VeRTTIDecl(VeMesh, VeResource);
 public:
 	enum FileType
 	{
-		FILE_DDS,
+		FILE_VMESH,
 		FILE_MAX
 	};
 
-	struct FileInfo
+	enum VertexFlag
 	{
-		VeRenderTexture::Dimension m_eDimension;
-		VeRenderTexture::Format m_eFormat;
-		VeUInt32 m_u32Width;
-		VeUInt32 m_u32Height;
-		VeUInt16 m_u16Depth;
-		VeUInt16 m_u16MipLevels;
-		bool m_bIsCube;
+		FLAG_POSITION = 0x1,
+		FLAG_NORMAL = 0x2,
+		FLAG_TANGENT = 0x4,
+		FLAG_TEXTURE = 0x8
 	};
 
-	VeTexture(const VeChar8* pcName) noexcept;
+	struct VertexData
+	{
+		VeUInt16 m_u16Flags = 0;
+		VeUInt16 m_u16Stride = 0;
+		VeUInt32 m_u32VertexNum = 0;
+		VeRenderBufferPtr m_spVBuffer;
+	};
 
-	virtual ~VeTexture() noexcept;
+	struct SubMesh
+	{
+		VeFixedString m_kName;
+		VeUInt16 m_u16GeoIndex = 0;
+		VeUInt16 m_u16UnitSize = 0;
+		VeUInt32 m_u32IndexSize = 0;
+		VeRenderBufferPtr m_spIBuffer;
+	};
+
+	VeMesh(const VeChar8* pcName) noexcept;
+
+	virtual ~VeMesh() noexcept;
 
 	virtual const VeChar8* GetTypeName() const noexcept override;
 
@@ -51,10 +65,10 @@ public:
 	static void Regist() noexcept;
 
 	static void Unregist() noexcept;
-
 protected:
-	VeRenderTexturePtr m_spTexture;
-	
+	VeVector<VertexData> m_kVertexDataList;
+	VeVector<SubMesh> m_kSubMeshList;
+
 };
 
-#include "VeTexture.inl"
+#include "VeMesh.inl"

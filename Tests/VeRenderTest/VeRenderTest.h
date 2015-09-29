@@ -33,5 +33,6 @@ public:
 
 protected:
 	VeResourcePtr m_spTexture;
+	VeResourcePtr m_spMesh;
 
 };

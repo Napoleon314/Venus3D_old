@@ -111,10 +111,8 @@ void VeApplication::ProcessEvents() noexcept
 void VeApplication::Update() noexcept
 {
 	ve_sys.Update();
-	ve_engine.Update();
-	ve_renderer_ptr->BeginSyncCopy();	
+	ve_engine.Update();	
 	OnUpdate();
-	ve_renderer_ptr->EndSyncCopy();
 }
 //--------------------------------------------------------------------------
 void VeApplication::Render() noexcept
@@ -131,7 +129,9 @@ void VeApplication::Loop() noexcept
 		ProcessEvents();
 		if (m_spMainWindow)
 		{
+			ve_renderer_ptr->BeginSyncCopy();
 			Update();
+			ve_renderer_ptr->EndSyncCopy();
 			Render();
 		}
 	}

@@ -258,10 +258,12 @@ VeRenderer::~VeRenderer() noexcept
 void VeRenderer::RegistResTypes() noexcept
 {
 	VeTexture::Regist();
+	VeMesh::Regist();
 }
 //--------------------------------------------------------------------------
 void VeRenderer::UnregistResTypes() noexcept
 {
+	VeMesh::Unregist();
 	VeTexture::Unregist();
 }
 //--------------------------------------------------------------------------

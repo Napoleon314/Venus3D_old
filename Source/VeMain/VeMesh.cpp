@@ -4,8 +4,8 @@
 //  Copyright (C), Venus Interactive Entertainment.2012
 // -------------------------------------------------------------------------
 //  Module:      VeMain
-//  File name:   VeTexture.cpp
-//  Created:     2015/09/19 by Napoleon
+//  File name:   VeMesh.cpp
+//  Created:     2015/09/29 by Napoleon
 //  Description: 
 // -------------------------------------------------------------------------
 //  History:
@@ -15,44 +15,57 @@
 #include "VeMainPch.h"
 
 //--------------------------------------------------------------------------
-VeBlobPtr ParseTexture(VeTexture::FileInfo& kOut,
-	const VeBlobPtr& spData) noexcept;
+VeRTTIImpl(VeMesh, VeResource);
 //--------------------------------------------------------------------------
-VeRTTIImpl(VeTexture, VeResource);
-//--------------------------------------------------------------------------
-VeTexture::VeTexture(const VeChar8* pcName) noexcept
+VeMesh::VeMesh(const VeChar8* pcName) noexcept
 	: VeResource(pcName)
 {
 
 }
 //--------------------------------------------------------------------------
-VeTexture::~VeTexture() noexcept
+VeMesh::~VeMesh() noexcept
 {
 
 }
 //--------------------------------------------------------------------------
-const VeChar8* VeTexture::GetTypeName() const noexcept
+const VeChar8* VeMesh::GetTypeName() const noexcept
 {
 	return TypeName();
 }
 //--------------------------------------------------------------------------
-void VeTexture::LoadImpl(VeResourceManager::FileCachePtr spCache) noexcept
+void VeMesh::LoadImpl(VeResourceManager::FileCachePtr spCache) noexcept
 {
 	VE_ASSERT(ve_renderer_ptr);
-	FileInfo kInfo;
-	VeBlobPtr spData = ParseTexture(kInfo, spCache->GetData());	
-	if (spData)
+	VeMemoryIStream kIn(spCache->GetData());
+	if (kIn.Get<VeUInt32>() == VE_FOURCC('M', 'E', 'S', 'H'))
 	{
-		VeUInt32 u32Use = VeRenderTexture::USEAGE_SRV;
-		if (kInfo.m_bIsCube) u32Use |= VeRenderTexture::USEAGE_CUBE;
-		m_spTexture = ve_renderer_ptr->CreateTexture(kInfo.m_eDimension,
-			(VeRenderTexture::Useage)u32Use, kInfo.m_eFormat,
-			kInfo.m_u32Width, kInfo.m_u32Height, kInfo.m_u16Depth,
-			kInfo.m_u16MipLevels);
-		m_spTexture->SetSRVNum(1);
-		m_spTexture->SetSRV(0, VeRenderResource::SRV_DEFAULT);
-		m_spTexture->UpdateSync(spData->GetBuffer(), spData->GetSize());
-		ve_renderer_ptr->RegistResource(m_kName, m_spTexture);
+		VeUInt32 u32Num = kIn.Get<VeUInt32>();
+		m_kVertexDataList.resize(u32Num);
+		for (VeUInt32 i(0); i < u32Num; ++i)
+		{
+			VertexData& kData = m_kVertexDataList[i];
+			kIn >> kData.m_u16Flags;
+			kIn >> kData.m_u16Stride;
+			kIn >> kData.m_u32VertexNum;
+			VeUInt32 u32Size = kData.m_u16Stride * kData.m_u32VertexNum;
+			kData.m_spVBuffer = ve_renderer_ptr->CreateBuffer(
+				VeRenderBuffer::TYPE_STATIC, VeRenderBuffer::USEAGE_VB, u32Size);
+			kData.m_spVBuffer->UpdateSync(kIn.Skip(u32Size), u32Size);
+		}
+		u32Num = kIn.Get<VeUInt32>();
+		m_kSubMeshList.resize(u32Num);
+		for (VeUInt32 i(0); i < u32Num; ++i)
+		{
+			SubMesh& kData = m_kSubMeshList[i];
+			kIn.GetStringAligned4(kData.m_kName);
+			kIn >> kData.m_u16GeoIndex;
+			kIn >> kData.m_u16UnitSize;
+			kIn >> kData.m_u32IndexSize;
+			VeUInt32 u32Size = kData.m_u16UnitSize * kData.m_u32IndexSize;
+			kData.m_spIBuffer = ve_renderer_ptr->CreateBuffer(
+				VeRenderBuffer::TYPE_STATIC, VeRenderBuffer::USEAGE_IB, u32Size);
+			kData.m_spIBuffer->UpdateSync(kIn.Skip(u32Size), u32Size);
+		}
 		if (m_u32WaitNumber == 0)
 		{
 			OnResLoaded();
@@ -64,24 +77,24 @@ void VeTexture::LoadImpl(VeResourceManager::FileCachePtr spCache) noexcept
 	}	
 }
 //--------------------------------------------------------------------------
-void VeTexture::UnloadImpl() noexcept
+void VeMesh::UnloadImpl() noexcept
 {
-	if(ve_renderer_ptr) ve_renderer_ptr->UnregistResource(m_kName);
-	m_spTexture = nullptr;
+	m_kVertexDataList.clear();
+	m_kSubMeshList.clear();
 	OnResUnloaded();
 }
 //--------------------------------------------------------------------------
-void VeTexture::Regist() noexcept
+void VeMesh::Regist() noexcept
 {
 	VE_ENUM(FileType,
 	{
-		{ FILE_DDS, "dds" }
+		{ FILE_VMESH, "vmesh" }
 	});
 
 	ve_res_mgr.RegistResCreator(TypeName(),
 		[](const VeChar8* pcName) noexcept
 	{
-		return VE_NEW VeTexture(pcName);
+		return VE_NEW VeMesh(pcName);
 	});
 	for (VeUInt32 i(0); i < FILE_MAX; ++i)
 	{
@@ -90,7 +103,7 @@ void VeTexture::Regist() noexcept
 	}
 }
 //--------------------------------------------------------------------------
-void VeTexture::Unregist() noexcept
+void VeMesh::Unregist() noexcept
 {
 	ve_res_mgr.UnregistResCreator(TypeName());
 	for (VeUInt32 i(0); i < FILE_MAX; ++i)

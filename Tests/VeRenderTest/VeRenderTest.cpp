@@ -31,6 +31,9 @@ void VeRenderTest::OnInit() noexcept
 	m_spTexture = ve_res_mgr.GetResource("stone_d.dds");
 	m_spTexture->Load();
 
+	m_spMesh = ve_res_mgr.GetResource("plane.vmesh");
+	m_spMesh->Load();
+
 	const VeChar8* apcList[] =
 	{
 		"final_output"

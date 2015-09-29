@@ -37,3 +37,4 @@
 #include "VerenderTexture.h"
 #include "VeRenderer.h"
 #include "VeTexture.h"
+#include "VeMesh.h"

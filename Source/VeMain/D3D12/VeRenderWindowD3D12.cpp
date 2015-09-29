@@ -1195,17 +1195,15 @@ void VeRenderWindowD3D12::Begin() noexcept
 }
 //--------------------------------------------------------------------------
 void VeRenderWindowD3D12::End() noexcept
-{	
+{
 	FrameCache& kFrame = m_akFrameCache[m_u32FrameIndex];
-	ID3D12CommandList*const* pkGCL = (ID3D12CommandList*const*)&kFrame.m_kDirectCommandList.front();
-
 	for (auto& process : m_kProcessList)
 	{
 		switch (process.m_eType)
 		{
 		case TYPE_EXCUTE:
 			m_pkCommandQueue->ExecuteCommandLists(process.m_u16Num,
-				pkGCL + process.m_u16Start);
+				(ID3D12CommandList*const*)&kFrame.m_kDirectCommandList[process.m_u16Start]);
 			break;
 		default:
 			break;

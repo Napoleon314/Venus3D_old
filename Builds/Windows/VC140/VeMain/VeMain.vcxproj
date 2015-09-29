@@ -309,6 +309,7 @@
     <ClInclude Include="..\..\..\..\Source\VeMain\VeMathMisc.inl" />
     <ClInclude Include="..\..\..\..\Source\VeMain\VeMathSIMD.inl" />
     <ClInclude Include="..\..\..\..\Source\VeMain\VeMatrix.h" />
+    <ClInclude Include="..\..\..\..\Source\VeMain\VeMesh.h" />
     <ClInclude Include="..\..\..\..\Source\VeMain\VeMouse.h" />
     <ClInclude Include="..\..\..\..\Source\VeMain\VePixel.h" />
     <ClInclude Include="..\..\..\..\Source\VeMain\VeQuaternion.h" />
@@ -369,6 +370,7 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='DebugLib|x64'">../VeMainPch.h</PrecompiledHeaderFile>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../VeMainPch.h</PrecompiledHeaderFile>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\Source\VeMain\VeMesh.cpp" />
     <ClCompile Include="..\..\..\..\Source\VeMain\VeTextureParser.cpp" />
     <ClCompile Include="..\..\..\..\Source\VeMain\VeEngine.cpp" />
     <ClCompile Include="..\..\..\..\Source\VeMain\VeEvents.cpp" />
@@ -430,6 +432,7 @@
     <None Include="..\..\..\..\Source\VeMain\VeMathMatrix.inl" />
     <None Include="..\..\..\..\Source\VeMain\VeMathVector.inl" />
     <None Include="..\..\..\..\Source\VeMain\VeMatrix.inl" />
+    <None Include="..\..\..\..\Source\VeMain\VeMesh.inl" />
     <None Include="..\..\..\..\Source\VeMain\VeMouse.inl" />
     <None Include="..\..\..\..\Source\VeMain\VePixel.inl" />
     <None Include="..\..\..\..\Source\VeMain\VeQuaternion.inl" />
