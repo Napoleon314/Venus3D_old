@@ -1,4 +1,5 @@
+_*
+*.py*
+Binary/*
 Build/*
 Dependent/*
-_*
-*.py
