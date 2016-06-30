@@ -3,8 +3,8 @@
 //  The MIT License (MIT)
 //  Copyright (c) 2016 Venus3D
 // -------------------------------------------------------------------------
-//  Module:      PowerTest
-//  File name:   Main.cpp
+//  Module:      Venus3D
+//  File name:   VeCPUInfo.h
 //  Created:     2016/07/01 by Albert
 //  Description:
 // -------------------------------------------------------------------------
@@ -28,10 +28,6 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-#include <Venus3D.h>
+#pragma once
 
-int main()
-{
-	printf("CPU: %d\n", (int)VeGetCPUCount());
-	return 0;
-}
+VENUS_API size_t VeGetCPUCount() noexcept;

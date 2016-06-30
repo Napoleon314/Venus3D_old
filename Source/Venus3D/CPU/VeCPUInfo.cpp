@@ -3,8 +3,8 @@
 //  The MIT License (MIT)
 //  Copyright (c) 2016 Venus3D
 // -------------------------------------------------------------------------
-//  Module:      PowerTest
-//  File name:   Main.cpp
+//  Module:      Venus3D
+//  File name:   VeCPUInfo.cpp
 //  Created:     2016/07/01 by Albert
 //  Description:
 // -------------------------------------------------------------------------
@@ -28,10 +28,9 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-#include <Venus3D.h>
+#include "stdafx.h"
 
-int main()
+size_t VeGetCPUCount() noexcept
 {
-	printf("CPU: %d\n", (int)VeGetCPUCount());
-	return 0;
+	return std::thread::hardware_concurrency();
 }
