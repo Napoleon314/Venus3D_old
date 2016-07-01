@@ -4,8 +4,8 @@
 //  Copyright (c) 2016 Venus3D
 // -------------------------------------------------------------------------
 //  Module:      Venus3D
-//  File name:   VeCPUInfo.h
-//  Created:     2016/07/01 by Albert
+//  File name:   VeSIMDMath.h
+//  Created:     2016/07/02 by Albert
 //  Description:
 // -------------------------------------------------------------------------
 //  Permission is hereby granted, free of charge, to any person obtaining a
@@ -30,52 +30,36 @@
 
 #pragma once
 
-enum VeCPUFeature
-{
-	VE_CPU_HAS_RDTSC		= 0x00000001,
-	VE_CPU_HAS_ALTIVEC		= 0x00000002,
-	VE_CPU_HAS_MMX			= 0x00000004,
-	VE_CPU_HAS_3DNOW		= 0x00000008,
-	VE_CPU_HAS_SSE			= 0x00000010,
-	VE_CPU_HAS_SSE2			= 0x00000020,
-	VE_CPU_HAS_SSE3			= 0x00000040,
-	VE_CPU_HAS_SSE41		= 0x00000100,
-	VE_CPU_HAS_SSE42		= 0x00000200,
-	VE_CPU_HAS_AVX			= 0x00000400,
-	VE_CPU_HAS_AVX2			= 0x00000800,
-	VE_CPU_HAS_F16C			= 0x00001000
-};
+constexpr float VE_PI = 3.141592654f;
+constexpr float VE_2PI = 6.283185307f;
+constexpr float VE_1DIVPI = 0.318309886f;
+constexpr float VE_1DIV2PI = 0.159154943f;
+constexpr float VE_PIDIV2 = 1.570796327f;
+constexpr float VE_PIDIV4 = 0.785398163f;
 
-VENUS_API unsigned int VeGetCPUCount() noexcept;
+constexpr uint32_t VE_SELECT_0 = 0x00000000;
+constexpr uint32_t VE_SELECT_1 = 0xFFFFFFFF;
 
-VENUS_API unsigned int VeGetCPUCacheLineSize() noexcept;
+constexpr uint32_t VE_PERMUTE_0X = 0;
+constexpr uint32_t VE_PERMUTE_0Y = 1;
+constexpr uint32_t VE_PERMUTE_0Z = 2;
+constexpr uint32_t VE_PERMUTE_0W = 3;
+constexpr uint32_t VE_PERMUTE_1X = 4;
+constexpr uint32_t VE_PERMUTE_1Y = 5;
+constexpr uint32_t VE_PERMUTE_1Z = 6;
+constexpr uint32_t VE_PERMUTE_1W = 7;
 
-VENUS_API unsigned int VeGetCPUFeatures() noexcept;
+constexpr uint32_t VE_SWIZZLE_X = 0;
+constexpr uint32_t VE_SWIZZLE_Y = 1;
+constexpr uint32_t VE_SWIZZLE_Z = 2;
+constexpr uint32_t VE_SWIZZLE_W = 3;
 
-VENUS_API unsigned int VeGetSystemRAM() noexcept;
+constexpr uint32_t VE_CRMASK_CR6 = 0x000000F0;
+constexpr uint32_t VE_CRMASK_CR6TRUE = 0x00000080;
+constexpr uint32_t VE_CRMASK_CR6FALSE = 0x00000020;
+constexpr uint32_t VE_CRMASK_CR6BOUNDS = VE_CRMASK_CR6FALSE;
 
-inline bool VeHasRDTSC() noexcept;
+inline constexpr float VeConvertToRadians(float fDegrees) { return fDegrees * (VE_PI / 180.0f); }
+inline constexpr float VeConvertToDegrees(float fRadians) { return fRadians * (180.0f / VE_PI); }
 
-inline bool VeHasAltiVec() noexcept;
 
-inline bool VeHasMMX() noexcept;
-
-inline bool VeHas3DNow() noexcept;
-
-inline bool VeHasSSE() noexcept;
-
-inline bool VeHasSSE2() noexcept;
-
-inline bool VeHasSSE3() noexcept;
-
-inline bool VeHasSSE41() noexcept;
-
-inline bool VeHasSSE42() noexcept;
-
-inline bool VeHasAVX() noexcept;
-
-inline bool VeHasAVX2() noexcept;
-
-inline bool VeHasF16C() noexcept;
-
-#include "VeCPUInfo.inl"

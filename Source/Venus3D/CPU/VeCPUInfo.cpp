@@ -358,6 +358,20 @@ static int HaveAVX2() noexcept
 	return 0;
 }
 //--------------------------------------------------------------------------
+static int HaveF16C() noexcept
+{
+	if (HaveCPUID() && OSSavesYMM()) {
+		int a, b, c, d;
+
+		cpuid(0, a, b, c, d);
+		if (a >= 1) {
+			cpuid(1, a, b, c, d);
+			return VE_MASK_HAS_ALL(c, 0x38080000);
+		}
+	}
+	return 0;
+}
+//--------------------------------------------------------------------------
 static const char * GetCPUType(void)
 {
 	static char acCPUType[13];
@@ -481,6 +495,9 @@ unsigned int VeGetCPUFeatures() noexcept
 		}
 		if (HaveAVX2()) {
 			s_uiCPUFeatures |= VE_CPU_HAS_AVX2;
+		}
+		if (HaveF16C()) {
+			s_uiCPUFeatures |= VE_CPU_HAS_F16C;
 		}
 	}
 	return s_uiCPUFeatures;

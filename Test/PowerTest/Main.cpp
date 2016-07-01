@@ -29,9 +29,10 @@
 ////////////////////////////////////////////////////////////////////////////
 
 #include <Venus3D.h>
+#include <Math/DirectXMath.h>
 
 int main()
 {
-	printf("CPU: %d\n", VeGetCPUCount());
+	printf("CPU: %d\n", VeHasF16C());
 	return 0;
 }

@@ -231,11 +231,13 @@
 #	include <direct.h>
 #	include <io.h>
 #	define VE_CALLBACK __stdcall
+#	define VE_VECTORCALL __vectorcall
 #else
 #	include <dirent.h>
 #	include <unistd.h>
 #	include <sys/stat.h>
 #	define VE_CALLBACK
+#	define VE_VECTORCALL
 #endif
 #ifdef BUILD_PLATFORM_LINUX
 #	include <pthread.h>
@@ -266,6 +268,42 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
+
+#include <math.h>
+#include <float.h>
+#include <malloc.h>
+
+#define BUILD_INTRINSICS_LEVEL 2		//supposed to move in predefines.
+
+#if defined(BUILD_ARCH_X86) || defined(BUILD_ARCH_X64)
+#	if BUILD_INTRINSICS_LEVEL > 0
+#		define VE_SSE4_INTRINSICS
+#		if BUILD_INTRINSICS_LEVEL > 1
+#			define VE_AVX2_INTRINSICS
+#		endif
+#	else
+#		define VE_NO_INTRINSICS
+#	endif
+#	include <intrin.h>
+#	ifdef VE_SSE4_INTRINSICS
+#		include <xmmintrin.h>
+#		include <emmintrin.h>
+#		include <pmmintrin.h>
+#		include <smmintrin.h>
+#	endif
+#	ifdef VE_AVX2_INTRINSICS
+#		include <immintrin.h>
+#	endif
+#elif defined(BUILD_ARCH_ARM)
+#	if BUILD_INTRINSICS_LEVEL > 0
+#		define VE_NEON_INTRINSICS
+#	else
+#		define VE_NO_INTRINSICS
+#	endif
+#else
+#	define VE_NO_INTRINSICS
+#endif
 
 #include <functional>
 #include <tuple>
@@ -321,3 +359,4 @@
 	cls& operator= (const cls&) = delete
 
 #include "CPU/VeCPUInfo.h"
+#include "CPU/VeSIMDMath.h"
