@@ -32,6 +32,6 @@
 
 int main()
 {
-	printf("CPU: %d\n", (int)VeGetCPUCount());
+	printf("CPU: %d\n", VeGetCPUCount());
 	return 0;
 }

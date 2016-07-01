@@ -30,4 +30,80 @@
 
 #pragma once
 
-VENUS_API size_t VeGetCPUCount() noexcept;
+enum VeCPUFeature
+{
+	VE_CPU_HAS_RDTSC		= 0x00000001,
+	VE_CPU_HAS_ALTIVEC		= 0x00000002,
+	VE_CPU_HAS_MMX			= 0x00000004,
+	VE_CPU_HAS_3DNOW		= 0x00000008,
+	VE_CPU_HAS_SSE			= 0x00000010,
+	VE_CPU_HAS_SSE2			= 0x00000020,
+	VE_CPU_HAS_SSE3			= 0x00000040,
+	VE_CPU_HAS_SSE41		= 0x00000100,
+	VE_CPU_HAS_SSE42		= 0x00000200,
+	VE_CPU_HAS_AVX			= 0x00000400,
+	VE_CPU_HAS_AVX2			= 0x00000800
+};
+
+VENUS_API unsigned int VeGetCPUCount() noexcept;
+
+VENUS_API unsigned int VeGetCPUCacheLineSize() noexcept;
+
+VENUS_API unsigned int VeGetCPUFeatures() noexcept;
+
+VENUS_API unsigned int VeGetSystemRAM() noexcept;
+
+inline bool VeHasRDTSC() noexcept
+{
+	return VE_MASK_HAS_ANY(VeGetCPUFeatures(), VE_CPU_HAS_RDTSC);
+}
+
+inline bool VeHasAltiVec() noexcept
+{
+	return VE_MASK_HAS_ANY(VeGetCPUFeatures(), VE_CPU_HAS_ALTIVEC);
+}
+
+inline bool VeHasMMX() noexcept
+{
+	return VE_MASK_HAS_ANY(VeGetCPUFeatures(), VE_CPU_HAS_MMX);
+}
+
+inline bool VeHas3DNow() noexcept
+{
+	return VE_MASK_HAS_ANY(VeGetCPUFeatures(), VE_CPU_HAS_3DNOW);
+}
+
+inline bool VeHasSSE() noexcept
+{
+	return VE_MASK_HAS_ANY(VeGetCPUFeatures(), VE_CPU_HAS_SSE);
+}
+
+inline bool VeHasSSE2() noexcept
+{
+	return VE_MASK_HAS_ANY(VeGetCPUFeatures(), VE_CPU_HAS_SSE2);
+}
+
+inline bool VeHasSSE3() noexcept
+{
+	return VE_MASK_HAS_ANY(VeGetCPUFeatures(), VE_CPU_HAS_SSE3);
+}
+
+inline bool VeHasSSE41() noexcept
+{
+	return VE_MASK_HAS_ANY(VeGetCPUFeatures(), VE_CPU_HAS_SSE41);
+}
+
+inline bool VeHasSSE42() noexcept
+{
+	return VE_MASK_HAS_ANY(VeGetCPUFeatures(), VE_CPU_HAS_SSE42);
+}
+
+inline bool VeHasAVX() noexcept
+{
+	return VE_MASK_HAS_ANY(VeGetCPUFeatures(), VE_CPU_HAS_AVX);
+}
+
+inline bool VeHasAVX2() noexcept
+{
+	return VE_MASK_HAS_ANY(VeGetCPUFeatures(), VE_CPU_HAS_AVX2);
+}

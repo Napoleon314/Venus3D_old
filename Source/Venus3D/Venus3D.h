@@ -201,9 +201,123 @@
 #	define VENUS_API
 #endif
 
+#if defined(BUILD_PLATFORM_WIN) || defined(BUILD_PLATFORM_LINUX) || defined(BUILD_PLATFORM_DARWIN)
+#	define BUILD_PLATFORM_PC
+#elif defined(BUILD_PLATFORM_IOS) || defined(BUILD_PLATFORM_ANDROID)
+#	define BUILD_PLATFORM_MOBILE
+#endif
+#if defined(BUILD_PLATFORM_DARWIN) || defined(BUILD_PLATFORM_IOS)
+#	define BUILD_PLATFORM_APPLE
+#endif
+
+#ifdef BUILD_PLATFORM_WIN
+#	define VE_ENABLE_DIRECTX
+#endif
+
+#ifdef BUILD_PLATFORM_APPLE
+#	define VE_ENABLE_METAL
+#else
+#	define VE_ENABLE_VULKAN
+#endif
+
+#define VE_SUCCEEDED(hr) ((hr)==0)
+#define VE_FAILED(hr) ((hr)!=0)
+
+#ifdef BUILD_PLATFORM_WIN
+#	include <SDKDDKVer.h>
+#	define WIN32_LEAN_AND_MEAN
+#	include <windows.h>
+#	include <process.h>
+#	include <direct.h>
+#	include <io.h>
+#	define VE_CALLBACK __stdcall
+#else
+#	include <dirent.h>
+#	include <unistd.h>
+#	include <sys/stat.h>
+#	define VE_CALLBACK
+#endif
+#ifdef BUILD_PLATFORM_LINUX
+#	include <pthread.h>
+#	include <errno.h>
+#	include <signal.h>
+#	include <sys/time.h>
+#	include <ctype.h>
+#include <stdarg.h>
+#endif
+#ifdef BUILD_PLATFORM_ANDROID
+#	include <pthread.h>
+#	include <errno.h>
+#	include <signal.h>
+#	include <sys/time.h>
+#	include <ctype.h>
+#	include <android/log.h>
+#	include <android/asset_manager.h>
+#endif
+#ifdef BUILD_PLATFORM_APPLE
+#	include <libkern/OSAtomic.h>
+#	include <pthread.h>
+#	include <errno.h>
+#	include <sys/time.h>
+#   include <CoreFoundation/CoreFoundation.h>
+#endif
+
+#include <stddef.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
+#include <functional>
+#include <tuple>
+#include <array>
+#include <stack>
+#include <vector>
+#include <list>
+#include <set>
+#include <map>
+#include <unordered_set>
+#include <unordered_map>
+#include <atomic>
 #include <thread>
+#include <mutex>
 
+#define VE_MAX(a,b) (((a)>(b))?(a):(b))
+#define VE_MIN(a,b) (((a)<(b))?(a):(b))
+#define VE_CLAMP(a,l,h) ((a < l) ? l : ((a > h) ? h : a))
+
+#define VE_INT8_MIN (-128)
+#define VE_INT8_MAX (127)
+#define VE_UINT8_MAX (0xffu)
+#define VE_CHAR_MIN VE_INT8_MIN
+#define VE_CHAR_MAX VE_INT8_MAX
+#define VE_INT16_MIN (-32768)
+#define VE_INT16_MAX (32767)
+#define VE_UINT16_MAX (0xffffu)
+#define VE_INT32_MIN (-2147483648)
+#define VE_INT32_MAX (2147483647)
+#define VE_UINT32_MAX (0xffffffffu)
+#define VE_INT64_MAX (9223372036854775807i64)
+#define VE_INT64_MIN (-9223372036854775808i64)
+#define VE_UINT64_MAX (0xffffffffffffffffui64)
+
+#define VE_MASK(location) (VeUInt32(0x01<<(location)))
+#define VE_MASK_HAS_ANY(flag,mask) (((flag)&(mask))!=0)
+#define VE_MASK_HAS_ALL(flag,mask) (((flag)&(mask))==(mask))
+#define VE_MASK_ADD(flag,mask) ((flag)|=(mask))
+#define VE_MASK_DEL(flag,mask) ((flag)&=(~(mask)))
+#define VE_MASK_REMOVE(flag,mask) ((flag)&(~(mask)))
+#define VE_MASK_CHANGE(location,flag)									\
+	if(VE_MASK_HAS_ANY(flag,VE_MASK(location)))							\
+		VE_MASK_DEL(flag,VE_MASK(location));							\
+	else																\
+		VE_MASK_ADD(flag,VE_MASK(location));
+
+#define VE_MAKE_FOURCC(ch0, ch1, ch2, ch3)								\
+	((VeDWord)(VeByte)(ch0) | ((VeDWord)(VeByte)(ch1) << 8) |			\
+	((VeDWord)(VeByte)(ch2) << 16) | ((VeDWord)(VeByte)(ch3) << 24 ))
+
+#define VeNoCopy(cls) \
+	cls(const cls&) = delete;\
+	cls& operator= (const cls&) = delete
 
 #include "CPU/VeCPUInfo.h"
