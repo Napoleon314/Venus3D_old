@@ -42,6 +42,13 @@
 #	define VE_RELEASE
 #endif
 
+#define VE_STRINGIZE(X) VE_DO_STRINGIZE(X)
+#define VE_DO_STRINGIZE(X) #X
+
+#define VE_JOIN(X, Y) VE_DO_JOIN(X, Y)
+#define VE_DO_JOIN(X, Y) VE_DO_JOIN2(X, Y)
+#define VE_DO_JOIN2(X, Y) X##Y
+
 #if defined(__clang__)
 
 #if __cplusplus < 201103L
@@ -51,7 +58,7 @@
 #define VE_COMPILER_CLANG
 #define VE_COMPILER_NAME "clang"
 
-#define CLANG_VERSION __clang_major__##__clang_minor__
+#define CLANG_VERSION VE_JOIN(__clang_major__, __clang_minor__)
 
 #define VE_CXX11_CORE_CONSTEXPR_SUPPORT
 #define VE_CXX11_CORE_NOEXCEPT_SUPPORT
