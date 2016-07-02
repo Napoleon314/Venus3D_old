@@ -1,0 +1,346 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		654B55151D28370E00F03505 /* VeCPUInfo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 654B54FA1D28370E00F03505 /* VeCPUInfo.cpp */; };
+		654B55161D28370E00F03505 /* stdafx.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 654B55121D28370E00F03505 /* stdafx.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		654B54E11D28354200F03505 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "include/$(PRODUCT_NAME)";
+			dstSubfolderSpec = 16;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		654B54E31D28354200F03505 /* libVenus3D.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libVenus3D.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		654B54FA1D28370E00F03505 /* VeCPUInfo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VeCPUInfo.cpp; sourceTree = "<group>"; };
+		654B54FB1D28370E00F03505 /* VeCPUInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VeCPUInfo.h; sourceTree = "<group>"; };
+		654B54FC1D28370E00F03505 /* VeCPUInfo.inl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = VeCPUInfo.inl; sourceTree = "<group>"; };
+		654B54FD1D28370E00F03505 /* VeSIMDMath.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VeSIMDMath.h; sourceTree = "<group>"; };
+		654B54FE1D28370E00F03505 /* VeSIMDMathConvert.inl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = VeSIMDMathConvert.inl; sourceTree = "<group>"; };
+		654B55001D28370E00F03505 /* DirectXCollision.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DirectXCollision.h; sourceTree = "<group>"; };
+		654B55011D28370E00F03505 /* DirectXCollision.inl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = DirectXCollision.inl; sourceTree = "<group>"; };
+		654B55021D28370E00F03505 /* DirectXColors.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DirectXColors.h; sourceTree = "<group>"; };
+		654B55031D28370E00F03505 /* DirectXMath.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DirectXMath.h; sourceTree = "<group>"; };
+		654B55041D28370E00F03505 /* DirectXMathAVX.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DirectXMathAVX.h; sourceTree = "<group>"; };
+		654B55051D28370E00F03505 /* DirectXMathAVX2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DirectXMathAVX2.h; sourceTree = "<group>"; };
+		654B55061D28370E00F03505 /* DirectXMathBE.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DirectXMathBE.h; sourceTree = "<group>"; };
+		654B55071D28370E00F03505 /* DirectXMathConvert.inl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = DirectXMathConvert.inl; sourceTree = "<group>"; };
+		654B55081D28370E00F03505 /* DirectXMathF16C.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DirectXMathF16C.h; sourceTree = "<group>"; };
+		654B55091D28370E00F03505 /* DirectXMathFMA3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DirectXMathFMA3.h; sourceTree = "<group>"; };
+		654B550A1D28370E00F03505 /* DirectXMathFMA4.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DirectXMathFMA4.h; sourceTree = "<group>"; };
+		654B550B1D28370E00F03505 /* DirectXMathMatrix.inl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = DirectXMathMatrix.inl; sourceTree = "<group>"; };
+		654B550C1D28370E00F03505 /* DirectXMathMisc.inl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = DirectXMathMisc.inl; sourceTree = "<group>"; };
+		654B550D1D28370E00F03505 /* DirectXMathSSE3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DirectXMathSSE3.h; sourceTree = "<group>"; };
+		654B550E1D28370E00F03505 /* DirectXMathSSE4.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DirectXMathSSE4.h; sourceTree = "<group>"; };
+		654B550F1D28370E00F03505 /* DirectXMathVector.inl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = DirectXMathVector.inl; sourceTree = "<group>"; };
+		654B55101D28370E00F03505 /* DirectXPackedVector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DirectXPackedVector.h; sourceTree = "<group>"; };
+		654B55111D28370E00F03505 /* DirectXPackedVector.inl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = DirectXPackedVector.inl; sourceTree = "<group>"; };
+		654B55121D28370E00F03505 /* stdafx.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = stdafx.cpp; sourceTree = "<group>"; };
+		654B55131D28370E00F03505 /* stdafx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stdafx.h; sourceTree = "<group>"; };
+		654B55141D28370E00F03505 /* Venus3D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Venus3D.h; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		654B54E01D28354200F03505 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		654B54DA1D28354200F03505 = {
+			isa = PBXGroup;
+			children = (
+				654B54F81D28370E00F03505 /* Venus3D */,
+				654B54E41D28354200F03505 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		654B54E41D28354200F03505 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				654B54E31D28354200F03505 /* libVenus3D.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		654B54F81D28370E00F03505 /* Venus3D */ = {
+			isa = PBXGroup;
+			children = (
+				654B54F91D28370E00F03505 /* CPU */,
+				654B54FF1D28370E00F03505 /* Math */,
+				654B55121D28370E00F03505 /* stdafx.cpp */,
+				654B55131D28370E00F03505 /* stdafx.h */,
+				654B55141D28370E00F03505 /* Venus3D.h */,
+			);
+			name = Venus3D;
+			path = ../../Source/Venus3D;
+			sourceTree = "<group>";
+		};
+		654B54F91D28370E00F03505 /* CPU */ = {
+			isa = PBXGroup;
+			children = (
+				654B54FA1D28370E00F03505 /* VeCPUInfo.cpp */,
+				654B54FB1D28370E00F03505 /* VeCPUInfo.h */,
+				654B54FC1D28370E00F03505 /* VeCPUInfo.inl */,
+				654B54FD1D28370E00F03505 /* VeSIMDMath.h */,
+				654B54FE1D28370E00F03505 /* VeSIMDMathConvert.inl */,
+			);
+			path = CPU;
+			sourceTree = "<group>";
+		};
+		654B54FF1D28370E00F03505 /* Math */ = {
+			isa = PBXGroup;
+			children = (
+				654B55001D28370E00F03505 /* DirectXCollision.h */,
+				654B55011D28370E00F03505 /* DirectXCollision.inl */,
+				654B55021D28370E00F03505 /* DirectXColors.h */,
+				654B55031D28370E00F03505 /* DirectXMath.h */,
+				654B55041D28370E00F03505 /* DirectXMathAVX.h */,
+				654B55051D28370E00F03505 /* DirectXMathAVX2.h */,
+				654B55061D28370E00F03505 /* DirectXMathBE.h */,
+				654B55071D28370E00F03505 /* DirectXMathConvert.inl */,
+				654B55081D28370E00F03505 /* DirectXMathF16C.h */,
+				654B55091D28370E00F03505 /* DirectXMathFMA3.h */,
+				654B550A1D28370E00F03505 /* DirectXMathFMA4.h */,
+				654B550B1D28370E00F03505 /* DirectXMathMatrix.inl */,
+				654B550C1D28370E00F03505 /* DirectXMathMisc.inl */,
+				654B550D1D28370E00F03505 /* DirectXMathSSE3.h */,
+				654B550E1D28370E00F03505 /* DirectXMathSSE4.h */,
+				654B550F1D28370E00F03505 /* DirectXMathVector.inl */,
+				654B55101D28370E00F03505 /* DirectXPackedVector.h */,
+				654B55111D28370E00F03505 /* DirectXPackedVector.inl */,
+			);
+			path = Math;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		654B54E21D28354200F03505 /* Venus3D */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 654B54EC1D28354200F03505 /* Build configuration list for PBXNativeTarget "Venus3D" */;
+			buildPhases = (
+				654B54DF1D28354200F03505 /* Sources */,
+				654B54E01D28354200F03505 /* Frameworks */,
+				654B54E11D28354200F03505 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Venus3D;
+			productName = Venus3D;
+			productReference = 654B54E31D28354200F03505 /* libVenus3D.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		654B54DB1D28354200F03505 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0730;
+				ORGANIZATIONNAME = "Albert D Yang";
+				TargetAttributes = {
+					654B54E21D28354200F03505 = {
+						CreatedOnToolsVersion = 7.3.1;
+					};
+				};
+			};
+			buildConfigurationList = 654B54DE1D28354200F03505 /* Build configuration list for PBXProject "Venus3D" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 654B54DA1D28354200F03505;
+			productRefGroup = 654B54E41D28354200F03505 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				654B54E21D28354200F03505 /* Venus3D */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		654B54DF1D28354200F03505 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				654B55151D28370E00F03505 /* VeCPUInfo.cpp in Sources */,
+				654B55161D28370E00F03505 /* stdafx.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		654B54EA1D28354200F03505 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+			};
+			name = Debug;
+		};
+		654B54EB1D28354200F03505 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		654B54ED1D28354200F03505 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					BUILD_STATIC_LIB,
+					UNICODE,
+					_UNICODE,
+					BUILD_ARCH_ARM,
+					BUILD_PLATFORM_IOS,
+					"DEBUG=1",
+				);
+				OTHER_CPLUSPLUSFLAGS = (
+					"-fno-rtti",
+					"$(OTHER_CFLAGS)",
+				);
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = Debug;
+		};
+		654B54EE1D28354200F03505 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					BUILD_STATIC_LIB,
+					UNICODE,
+					_UNICODE,
+					BUILD_ARCH_ARM,
+					BUILD_PLATFORM_IOS,
+				);
+				OTHER_CPLUSPLUSFLAGS = (
+					"-fno-rtti",
+					"$(OTHER_CFLAGS)",
+				);
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		654B54DE1D28354200F03505 /* Build configuration list for PBXProject "Venus3D" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				654B54EA1D28354200F03505 /* Debug */,
+				654B54EB1D28354200F03505 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		654B54EC1D28354200F03505 /* Build configuration list for PBXNativeTarget "Venus3D" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				654B54ED1D28354200F03505 /* Debug */,
+				654B54EE1D28354200F03505 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 654B54DB1D28354200F03505 /* Project object */;
+}
