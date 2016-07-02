@@ -279,7 +279,6 @@
 
 #include <math.h>
 #include <float.h>
-#include <malloc.h>
 
 #define BUILD_INTRINSICS_LEVEL 2		//supposed to move in predefines.
 
