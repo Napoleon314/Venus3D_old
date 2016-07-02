@@ -291,7 +291,9 @@
 #	else
 #		define VE_NO_INTRINSICS
 #	endif
-#	include <intrin.h>
+#	ifdef VE_COMPILER_MSVC
+#		include <intrin.h>
+#	endif
 #	ifdef VE_SSE_INTRINSICS
 #		include <xmmintrin.h>
 #		include <emmintrin.h>
