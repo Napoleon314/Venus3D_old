@@ -278,7 +278,7 @@
 
 #if defined(BUILD_ARCH_X86) || defined(BUILD_ARCH_X64)
 #	if BUILD_INTRINSICS_LEVEL > 0
-#		define VE_SSE4_INTRINSICS
+#		define VE_SSE_INTRINSICS
 #		if BUILD_INTRINSICS_LEVEL > 1
 #			define VE_AVX2_INTRINSICS
 #		endif
@@ -286,7 +286,7 @@
 #		define VE_NO_INTRINSICS
 #	endif
 #	include <intrin.h>
-#	ifdef VE_SSE4_INTRINSICS
+#	ifdef VE_SSE_INTRINSICS
 #		include <xmmintrin.h>
 #		include <emmintrin.h>
 #		include <pmmintrin.h>
