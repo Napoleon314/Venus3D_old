@@ -306,6 +306,7 @@
 #elif defined(BUILD_ARCH_ARM)
 #	if BUILD_INTRINSICS_LEVEL > 0
 #		define VE_NEON_INTRINSICS
+#       include <arm_neon.h>
 #	else
 #		define VE_NO_INTRINSICS
 #	endif

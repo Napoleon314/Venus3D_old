@@ -44,7 +44,7 @@ inline VMVECTOR VE_VECTORCALL VeConvertVectorIntToFloat(
 		Result.vector4_f32[ElementIndex] = ((float)iTemp) * fScale;
 	} while (++ElementIndex < 4);
 	return Result;
-#elif defined(_XM_ARM_NEON_INTRINSICS_)
+#elif defined(VE_NEON_INTRINSICS)
 	float fScale = 1.0f / (float)(1U << DivExponent);
 	float32x4_t vResult = vcvtq_f32_s32(VInt);
 	return vmulq_n_f32(vResult, fScale);
