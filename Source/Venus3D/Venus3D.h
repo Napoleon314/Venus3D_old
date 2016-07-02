@@ -182,9 +182,9 @@
 #undef VE_TS_LIBRARY_FILESYSTEM_V2_SUPPORT
 #define VE_TS_LIBRARY_FILESYSTEM_V3_SUPPORT
 
-#ifdef BUILD_SHARED_LIB
-#	pragma warning(disable: 4251) // STL classes are not dllexport.
-#	pragma warning(disable: 4275) // Derived from non dllexport classes.
+#ifdef VE_COMPILER_MSVC
+//#	pragma warning(disable: 4251) // STL classes are not dllexport.
+//#	pragma warning(disable: 4275) // Derived from non dllexport classes.
 #endif
 
 #ifndef _CRT_SECURE_NO_DEPRECATE
@@ -368,4 +368,4 @@
 	cls& operator= (const cls&) = delete
 
 #include "CPU/VeCPUInfo.h"
-#include "CPU/VeSIMDMath.h"
+//#include "CPU/VeSIMDMath.h"
