@@ -31,7 +31,7 @@
 #include <Venus3D.h>
 //#include <Math/DirectXMath.h>
 
-int main(int argc, char * argv[])
+int main(/*int argc, char * argv[]*/)
 {
 	printf("CPU: %d\n", VeGetCPUCount());
 	return 0;
