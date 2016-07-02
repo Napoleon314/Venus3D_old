@@ -405,8 +405,6 @@ static const char * GetCPUType(void)
 	return acCPUType;
 }
 //--------------------------------------------------------------------------
-static unsigned int s_uiCPUCount = 0;
-//--------------------------------------------------------------------------
 unsigned int VeGetCPUCount() noexcept
 {
 	return std::thread::hardware_concurrency();
