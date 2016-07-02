@@ -261,7 +261,7 @@ static int HaveMMX() noexcept
 static int Have3DNow() noexcept
 {
 	if (HaveCPUID()) {
-		int a, b, c, d;
+		unsigned int a, b, c, d;
 
 		cpuid(0x80000000, a, b, c, d);
 		if (a >= 0x80000001) {

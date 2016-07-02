@@ -173,7 +173,7 @@ struct alignas(16) VMVECTORU32
 
 //--------------------------------------------------------------------------
 // Vector operators
-VMVECTOR    VE_VECTORCALL     operator+ (FVMVECTOR V) noexcept;
+/*VMVECTOR    VE_VECTORCALL     operator+ (FVMVECTOR V) noexcept;
 VMVECTOR    VE_VECTORCALL     operator- (FVMVECTOR V) noexcept;
 
 VMVECTOR&   VE_VECTORCALL     operator+= (VMVECTOR& V1, FVMVECTOR V2) noexcept;
@@ -190,7 +190,7 @@ VMVECTOR    VE_VECTORCALL     operator* (FVMVECTOR V1, FVMVECTOR V2) noexcept;
 VMVECTOR    VE_VECTORCALL     operator/ (FVMVECTOR V1, FVMVECTOR V2) noexcept;
 VMVECTOR    VE_VECTORCALL     operator* (FVMVECTOR V, float S) noexcept;
 VMVECTOR    VE_VECTORCALL     operator* (float S, FVMVECTOR V) noexcept;
-VMVECTOR    VE_VECTORCALL     operator/ (FVMVECTOR V, float S) noexcept;
+VMVECTOR    VE_VECTORCALL     operator/ (FVMVECTOR V, float S) noexcept;*/
 
 //--------------------------------------------------------------------------
 // Matrix type: Sixteen 32 bit floating point components aligned on a
