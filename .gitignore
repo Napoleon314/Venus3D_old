@@ -1,5 +1,5 @@
 _*
 *.py*
 Binary/*
-Build/*
+Build/vc*/*
 Dependent/*
