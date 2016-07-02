@@ -409,31 +409,7 @@ static unsigned int s_uiCPUCount = 0;
 //--------------------------------------------------------------------------
 unsigned int VeGetCPUCount() noexcept
 {
-	if (!s_uiCPUCount) {
-#if defined(HAVE_SYSCONF) && defined(_SC_NPROCESSORS_ONLN)
-		if (s_uiCPUCount <= 0) {
-			s_uiCPUCount = (int)sysconf(_SC_NPROCESSORS_ONLN);
-		}
-#endif
-#ifdef HAVE_SYSCTLBYNAME
-		if (s_uiCPUCount <= 0) {
-			size_t size = sizeof(s_uiCPUCount);
-			sysctlbyname("hw.ncpu", &s_uiCPUCount, &size, NULL, 0);
-		}
-#endif
-#ifdef WIN32
-		if (s_uiCPUCount <= 0) {
-			SYSTEM_INFO info;
-			GetSystemInfo(&info);
-			s_uiCPUCount = info.dwNumberOfProcessors;
-		}
-#endif
-		/* There has to be at least 1, right? :) */
-		if (s_uiCPUCount <= 0) {
-			s_uiCPUCount = 1;
-		}
-	}
-	return s_uiCPUCount;
+	return std::thread::hardware_concurrency();
 }
 //--------------------------------------------------------------------------
 constexpr unsigned int s_uiDefaultCacheLineSize = 128;

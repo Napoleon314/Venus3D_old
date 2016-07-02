@@ -33,6 +33,6 @@
 
 int main()
 {
-	printf("CPU: %d\n", VeHasF16C());
+	printf("CPU: %d\n", VeGetCPUCount());
 	return 0;
 }
