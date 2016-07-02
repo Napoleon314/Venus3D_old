@@ -280,6 +280,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
+				GCC_C_LANGUAGE_STANDARD = c11;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					BUILD_STATIC_LIB,
 					UNICODE,
@@ -287,6 +288,7 @@
 					BUILD_ARCH_ARM,
 					BUILD_PLATFORM_IOS,
 					"DEBUG=1",
+					"$(inherited)",
 				);
 				OTHER_CPLUSPLUSFLAGS = (
 					"-fno-rtti",
@@ -302,12 +304,14 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
+				GCC_C_LANGUAGE_STANDARD = c11;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					BUILD_STATIC_LIB,
 					UNICODE,
 					_UNICODE,
 					BUILD_ARCH_ARM,
 					BUILD_PLATFORM_IOS,
+					"$(inherited)",
 				);
 				OTHER_CPLUSPLUSFLAGS = (
 					"-fno-rtti",
