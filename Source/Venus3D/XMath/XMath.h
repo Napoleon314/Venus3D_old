@@ -656,6 +656,102 @@ struct XMFLOAT3X3
 	XMFLOAT3X3& operator= (const XMFLOAT3X3& Float3x3);
 };
 
+//------------------------------------------------------------------------------
+// 4x3 Matrix: 32 bit floating point components
+struct XMFLOAT4X3
+{
+	union
+	{
+		struct
+		{
+			float _11, _21, _31, _41;
+			float _12, _22, _32, _42;
+			float _13, _23, _33, _43;
+		};
+		float m[3][4];
+	};
+
+	XMFLOAT4X3() XM_CTOR_DEFAULT
+		XM_CONSTEXPR XMFLOAT4X3(float m00, float m10, float m20, float m30,
+			float m01, float m11, float m21, float m31,
+			float m02, float m12, float m22, float m32)
+		: _11(m00), _21(m10), _31(m20), _41(m30),
+		_12(m01), _22(m11), _32(m21), _42(m31),
+		_13(m02), _23(m12), _33(m22), _43(m32) {}
+	explicit XMFLOAT4X3(const float *pArray);
+
+	float       operator() (size_t Row, size_t Column) const { return m[Column][Row]; }
+	float&      operator() (size_t Row, size_t Column) { return m[Column][Row]; }
+
+	XMFLOAT4X3& operator= (const XMFLOAT4X3& Float4x3);
+
+};
+
+// 4x3 Matrix: 32 bit floating point components aligned on a 16 byte boundary
+struct alignas(16) XMFLOAT4X3A : public XMFLOAT4X3
+{
+	XMFLOAT4X3A() XM_CTOR_DEFAULT
+		XM_CONSTEXPR XMFLOAT4X3A(float m00, float m10, float m20, float m30,
+			float m01, float m11, float m21, float m31,
+			float m02, float m12, float m22, float m32) :
+		XMFLOAT4X3(m00, m10, m20, m30, m01, m11, m21, m31, m02, m12, m22, m32) {}
+	explicit XMFLOAT4X3A(const float *pArray) : XMFLOAT4X3(pArray) {}
+
+	float       operator() (size_t Row, size_t Column) const { return m[Column][Row]; }
+	float&      operator() (size_t Row, size_t Column) { return m[Column][Row]; }
+
+	XMFLOAT4X3A& operator= (const XMFLOAT4X3A& Float4x3);
+};
+
+//------------------------------------------------------------------------------
+// 4x4 Matrix: 32 bit floating point components
+struct XMFLOAT4X4
+{
+	union
+	{
+		struct
+		{
+			float _11, _21, _31, _41;
+			float _12, _22, _32, _42;
+			float _13, _23, _33, _43;
+			float _14, _24, _34, _44;
+		};
+		float m[4][4];
+	};
+
+	XMFLOAT4X4() XM_CTOR_DEFAULT
+		XM_CONSTEXPR XMFLOAT4X4(float m00, float m10, float m20, float m30,
+			float m01, float m11, float m21, float m31,
+			float m02, float m12, float m22, float m32,
+			float m03, float m13, float m23, float m33)
+		: _11(m00), _21(m10), _31(m20), _41(m30),
+		_12(m01), _22(m11), _32(m21), _42(m31),
+		_13(m02), _23(m12), _33(m22), _43(m32),
+		_14(m03), _24(m13), _34(m23), _44(m33) {}
+	explicit XMFLOAT4X4(const float *pArray);
+
+	float       operator() (size_t Row, size_t Column) const { return m[Column][Row]; }
+	float&      operator() (size_t Row, size_t Column) { return m[Column][Row]; }
+
+	XMFLOAT4X4& operator= (const XMFLOAT4X4& Float4x4);
+};
+
+// 4x4 Matrix: 32 bit floating point components aligned on a 16 byte boundary
+struct alignas(16) XMFLOAT4X4A : public XMFLOAT4X4
+{
+	XMFLOAT4X4A() XM_CTOR_DEFAULT
+		XM_CONSTEXPR XMFLOAT4X4A(float m00, float m10, float m20, float m30,
+			float m01, float m11, float m21, float m31,
+			float m02, float m12, float m22, float m32,
+			float m03, float m13, float m23, float m33)
+		: XMFLOAT4X4(m00, m10, m20, m30, m01, m11, m21, m31, m02, m12, m22, m32, m03, m13, m23, m33) {}
+	explicit XMFLOAT4X4A(const float *pArray) : XMFLOAT4X4(pArray) {}
+
+	float       operator() (size_t Row, size_t Column) const { return m[Column][Row]; }
+	float&      operator() (size_t Row, size_t Column) { return m[Column][Row]; }
+
+	XMFLOAT4X4A& operator= (const XMFLOAT4X4A& Float4x4);
+};
 
 ////////////////////////////////////////////////////////////////////////////////
 
