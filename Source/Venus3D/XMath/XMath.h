@@ -84,14 +84,14 @@
 // C4514/4820: Off by default noise
 #include <math.h>
 #include <float.h>
-//#include <malloc.h>
+#ifndef __APPLE__
+#	include <malloc.h>
+#endif
 
 #ifndef _XM_NO_INTRINSICS_
-//#pragma warning(push)
-//#pragma warning(disable : 4987)
-// C4987: Off by default noise
-//#include <intrin.h>
-//#pragma warning(pop)
+#ifdef _MSC_VER
+#	include <intrin.h>
+#endif
 
 #ifdef _XM_SSE_INTRINSICS_
 #include <xmmintrin.h>
@@ -118,7 +118,6 @@
 #endif
 #endif // !_XM_NO_INTRINSICS_
 
-//#include <sal.h>
 #include <assert.h>
 
 #ifndef _XM_NO_ROUNDF_
