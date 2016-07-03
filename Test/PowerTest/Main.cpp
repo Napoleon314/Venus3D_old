@@ -29,7 +29,6 @@
 ////////////////////////////////////////////////////////////////////////////
 
 #include <Venus3D.h>
-//#include <Math/DirectXMath.h>
 
 int main(/*int argc, char * argv[]*/)
 {
@@ -51,6 +50,11 @@ int main(/*int argc, char * argv[]*/)
 #ifdef __ARM_NEON__
     printf("NEON\n");
 #endif
+
+//#ifdef __SSE4__
+//	printf("SSE4_2\n");
+//#endif
+
 
 	return 0;
 }

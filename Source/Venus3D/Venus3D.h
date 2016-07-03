@@ -316,6 +316,26 @@
 	cls(const cls&) = delete;\
 	cls& operator= (const cls&) = delete
 
-#include "CPU/VeCPUInfo.h"
+#if defined(BUILD_ARCH_ARM)
+#	if defined(__ARM_NEON) && BUILD_INTRINSICS_LEVEL > 0
+#		define _XM_ARM_NEON_INTRINSICS_
+#	else
+#		define _XM_NO_INTRINSICS_
+#	endif
+#else
+#	if BUILD_INTRINSICS_LEVEL > 0
+#		define _XM_SSE_INTRINSICS_
+#	endif
+#	if BUILD_INTRINSICS_LEVEL > 1
+#		define _XM_SSE3_INTRINSICS_
+#		define _XM_SSE4_INTRINSICS_
+#		define _XM_AVX_INTRINSICS_
+#	endif
+#	if BUILD_INTRINSICS_LEVEL > 2
+#		define _XM_F16C_INTRINSICS_
+#	endif
+#endif
 #define _XM_NO_INTRINSICS_
 #include "XMath/XMath.h"
+
+#include "CPU/VeCPUInfo.h"
