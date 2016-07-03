@@ -21,7 +21,7 @@
 #error DirectX Math Visual C++ 2013 or later.
 #endif
 
-#if (defined(_MSC_VER) || defined(__clang__)) && !defined(__ARM_ARCH) && !defined(_M_ARM) && !defined(_M_ARM64) && (!_MANAGED) && (!_M_CEE) && (!defined(_M_IX86_FP) || (_M_IX86_FP > 1)) && !defined(_XM_NO_INTRINSICS_) && !defined(_XM_VECTORCALL_)
+#if !defined(__ARM_ARCH) && !defined(_M_ARM) && !defined(_M_ARM64) && (!_MANAGED) && (!_M_CEE) && (!defined(_M_IX86_FP) || (_M_IX86_FP > 1)) && !defined(_XM_NO_INTRINSICS_) && !defined(_XM_VECTORCALL_)
 #define _XM_VECTORCALL_ 1
 #endif
 
