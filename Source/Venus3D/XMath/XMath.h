@@ -1565,8 +1565,8 @@ inline XMVECTOR     XM_CALLCONV     XMVectorPermute(FXMVECTOR V1, FXMVECTOR V2)
 }
 
 // Special-case permute templates
-template<> inline XMVECTOR      XM_CALLCONV     XMVectorPermute<0, 1, 2, 3>(FXMVECTOR V1, FXMVECTOR V2) { (V2); return V1; }
-template<> inline XMVECTOR      XM_CALLCONV     XMVectorPermute<4, 5, 6, 7>(FXMVECTOR V1, FXMVECTOR V2) { (V1); return V2; }
+template<> inline XMVECTOR      XM_CALLCONV     XMVectorPermute<0, 1, 2, 3>(FXMVECTOR V1, FXMVECTOR) { return V1; }
+template<> inline XMVECTOR      XM_CALLCONV     XMVectorPermute<4, 5, 6, 7>(FXMVECTOR, FXMVECTOR V2) { return V2; }
 
 #if defined(_XM_SSE_INTRINSICS_) && !defined(_XM_NO_INTRINSICS_)
 template<> inline XMVECTOR      XM_CALLCONV     XMVectorPermute<0, 1, 4, 5>(FXMVECTOR V1, FXMVECTOR V2) { return _mm_movelh_ps(V1, V2); }
