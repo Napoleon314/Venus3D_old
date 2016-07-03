@@ -292,10 +292,6 @@
 #include <thread>
 #include <mutex>
 
-#define VE_MAX(a,b) (((a)>(b))?(a):(b))
-#define VE_MIN(a,b) (((a)<(b))?(a):(b))
-#define VE_CLAMP(a,l,h) ((a < l) ? l : ((a > h) ? h : a))
-
 #define VE_MASK(location) (VeUInt32(0x01<<(location)))
 #define VE_MASK_HAS_ANY(flag,mask) (((flag)&(mask))!=0)
 #define VE_MASK_HAS_ALL(flag,mask) (((flag)&(mask))==(mask))
