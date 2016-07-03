@@ -146,6 +146,8 @@
 #	define _Out_
 #	define _Out_writes_(n)
 #	define _Out_writes_bytes_(n)
+#	define _Out_opt_
+#	define _Success_
 #endif
 
 #include <assert.h>
