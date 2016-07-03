@@ -1041,3 +1041,540 @@ inline XMMATRIX XM_CALLCONV XMLoadFloat4x4A
 #endif
 }
 
+/****************************************************************************
+*
+* Vector and matrix store operations
+*
+****************************************************************************/
+_Use_decl_annotations_
+inline void XM_CALLCONV XMStoreInt
+(
+	uint32_t*    pDestination,
+	FXMVECTOR V
+)
+{
+	assert(pDestination);
+#if defined(_XM_NO_INTRINSICS_)
+	*pDestination = XMVectorGetIntX(V);
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	vst1q_lane_u32(pDestination, *reinterpret_cast<const uint32x4_t*>(&V), 0);
+#elif defined(_XM_SSE_INTRINSICS_)
+	_mm_store_ss(reinterpret_cast<float*>(pDestination), V);
+#endif
+}
+
+//------------------------------------------------------------------------------
+_Use_decl_annotations_
+inline void XM_CALLCONV XMStoreFloat
+(
+	float*    pDestination,
+	FXMVECTOR V
+)
+{
+	assert(pDestination);
+#if defined(_XM_NO_INTRINSICS_)
+	*pDestination = XMVectorGetX(V);
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	vst1q_lane_f32(pDestination, V, 0);
+#elif defined(_XM_SSE_INTRINSICS_)
+	_mm_store_ss(pDestination, V);
+#endif
+}
+
+//------------------------------------------------------------------------------
+_Use_decl_annotations_
+inline void XM_CALLCONV XMStoreInt2
+(
+	uint32_t*    pDestination,
+	FXMVECTOR V
+)
+{
+	assert(pDestination);
+#if defined(_XM_NO_INTRINSICS_)
+	pDestination[0] = V.vector4_u32[0];
+	pDestination[1] = V.vector4_u32[1];
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	uint32x2_t VL = vget_low_u32(V);
+	vst1_u32(pDestination, VL);
+#elif defined(_XM_SSE_INTRINSICS_)
+	XMVECTOR T = XM_PERMUTE_PS(V, _MM_SHUFFLE(1, 1, 1, 1));
+	_mm_store_ss(reinterpret_cast<float*>(&pDestination[0]), V);
+	_mm_store_ss(reinterpret_cast<float*>(&pDestination[1]), T);
+#endif
+}
+
+//------------------------------------------------------------------------------
+_Use_decl_annotations_
+inline void XM_CALLCONV XMStoreInt2A
+(
+	uint32_t*    pDestination,
+	FXMVECTOR V
+)
+{
+	assert(pDestination);
+	assert(((uintptr_t)pDestination & 0xF) == 0);
+#if defined(_XM_NO_INTRINSICS_)
+	pDestination[0] = V.vector4_u32[0];
+	pDestination[1] = V.vector4_u32[1];
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	uint32x2_t VL = vget_low_u32(V);
+	vst1_u32_ex(pDestination, VL, 64);
+#elif defined(_XM_SSE_INTRINSICS_)
+	_mm_storel_epi64(reinterpret_cast<__m128i*>(pDestination), _mm_castps_si128(V));
+#endif
+}
+
+//------------------------------------------------------------------------------
+_Use_decl_annotations_
+inline void XM_CALLCONV XMStoreFloat2
+(
+	XMFLOAT2* pDestination,
+	FXMVECTOR  V
+)
+{
+	assert(pDestination);
+#if defined(_XM_NO_INTRINSICS_)
+	pDestination->x = V.vector4_f32[0];
+	pDestination->y = V.vector4_f32[1];
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	float32x2_t VL = vget_low_f32(V);
+	vst1_f32(reinterpret_cast<float*>(pDestination), VL);
+#elif defined(_XM_SSE_INTRINSICS_)
+	XMVECTOR T = XM_PERMUTE_PS(V, _MM_SHUFFLE(1, 1, 1, 1));
+	_mm_store_ss(&pDestination->x, V);
+	_mm_store_ss(&pDestination->y, T);
+#endif
+}
+
+//------------------------------------------------------------------------------
+_Use_decl_annotations_
+inline void XM_CALLCONV XMStoreFloat2A
+(
+	XMFLOAT2A*   pDestination,
+	FXMVECTOR     V
+)
+{
+	assert(pDestination);
+	assert(((uintptr_t)pDestination & 0xF) == 0);
+#if defined(_XM_NO_INTRINSICS_)
+	pDestination->x = V.vector4_f32[0];
+	pDestination->y = V.vector4_f32[1];
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	float32x2_t VL = vget_low_f32(V);
+	vst1_f32_ex(reinterpret_cast<float*>(pDestination), VL, 64);
+#elif defined(_XM_SSE_INTRINSICS_)
+	_mm_storel_epi64(reinterpret_cast<__m128i*>(pDestination), _mm_castps_si128(V));
+#endif
+}
+
+//------------------------------------------------------------------------------
+_Use_decl_annotations_
+inline void XM_CALLCONV XMStoreSInt2
+(
+	XMINT2* pDestination,
+	FXMVECTOR V
+)
+{
+	assert(pDestination);
+#if defined(_XM_NO_INTRINSICS_)
+	pDestination->x = (int32_t)V.vector4_f32[0];
+	pDestination->y = (int32_t)V.vector4_f32[1];
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	int32x2_t v = vget_low_s32(V);
+	v = vcvt_s32_f32(v);
+	vst1_s32(reinterpret_cast<int32_t*>(pDestination), v);
+#elif defined(_XM_SSE_INTRINSICS_)
+	// In case of positive overflow, detect it
+	XMVECTOR vOverflow = _mm_cmpgt_ps(V, g_XMMaxInt);
+	// Float to int conversion
+	__m128i vResulti = _mm_cvttps_epi32(V);
+	// If there was positive overflow, set to 0x7FFFFFFF
+	XMVECTOR vResult = _mm_and_ps(vOverflow, g_XMAbsMask);
+	vOverflow = _mm_andnot_ps(vOverflow, _mm_castsi128_ps(vResulti));
+	vOverflow = _mm_or_ps(vOverflow, vResult);
+	// Write two ints
+	XMVECTOR T = XM_PERMUTE_PS(vOverflow, _MM_SHUFFLE(1, 1, 1, 1));
+	_mm_store_ss(reinterpret_cast<float*>(&pDestination->x), vOverflow);
+	_mm_store_ss(reinterpret_cast<float*>(&pDestination->y), T);
+#endif
+}
+
+//------------------------------------------------------------------------------
+_Use_decl_annotations_
+inline void XM_CALLCONV XMStoreUInt2
+(
+	XMUINT2* pDestination,
+	FXMVECTOR V
+)
+{
+	assert(pDestination);
+#if defined(_XM_NO_INTRINSICS_)
+	pDestination->x = (uint32_t)V.vector4_f32[0];
+	pDestination->y = (uint32_t)V.vector4_f32[1];
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	float32x2_t v = vget_low_f32(V);
+	uint32x2_t iv = vcvt_u32_f32(v);
+	vst1_u32(reinterpret_cast<uint32_t*>(pDestination), iv);
+#elif defined(_XM_SSE_INTRINSICS_)
+	// Clamp to >=0
+	XMVECTOR vResult = _mm_max_ps(V, g_XMZero);
+	// Any numbers that are too big, set to 0xFFFFFFFFU
+	XMVECTOR vOverflow = _mm_cmpgt_ps(vResult, g_XMMaxUInt);
+	XMVECTOR vValue = g_XMUnsignedFix;
+	// Too large for a signed integer?
+	XMVECTOR vMask = _mm_cmpge_ps(vResult, vValue);
+	// Zero for number's lower than 0x80000000, 32768.0f*65536.0f otherwise
+	vValue = _mm_and_ps(vValue, vMask);
+	// Perform fixup only on numbers too large (Keeps low bit precision)
+	vResult = _mm_sub_ps(vResult, vValue);
+	__m128i vResulti = _mm_cvttps_epi32(vResult);
+	// Convert from signed to unsigned pnly if greater than 0x80000000
+	vMask = _mm_and_ps(vMask, g_XMNegativeZero);
+	vResult = _mm_xor_ps(_mm_castsi128_ps(vResulti), vMask);
+	// On those that are too large, set to 0xFFFFFFFF
+	vResult = _mm_or_ps(vResult, vOverflow);
+	// Write two uints
+	XMVECTOR T = XM_PERMUTE_PS(vResult, _MM_SHUFFLE(1, 1, 1, 1));
+	_mm_store_ss(reinterpret_cast<float*>(&pDestination->x), vResult);
+	_mm_store_ss(reinterpret_cast<float*>(&pDestination->y), T);
+#endif
+}
+
+//------------------------------------------------------------------------------
+_Use_decl_annotations_
+inline void XM_CALLCONV XMStoreInt3
+(
+	uint32_t*    pDestination,
+	FXMVECTOR V
+)
+{
+	assert(pDestination);
+#if defined(_XM_NO_INTRINSICS_)
+	pDestination[0] = V.vector4_u32[0];
+	pDestination[1] = V.vector4_u32[1];
+	pDestination[2] = V.vector4_u32[2];
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	uint32x2_t VL = vget_low_u32(V);
+	vst1_u32(pDestination, VL);
+	vst1q_lane_u32(pDestination + 2, *reinterpret_cast<const uint32x4_t*>(&V), 2);
+#elif defined(_XM_SSE_INTRINSICS_)
+	XMVECTOR T1 = XM_PERMUTE_PS(V, _MM_SHUFFLE(1, 1, 1, 1));
+	XMVECTOR T2 = XM_PERMUTE_PS(V, _MM_SHUFFLE(2, 2, 2, 2));
+	_mm_store_ss(reinterpret_cast<float*>(pDestination), V);
+	_mm_store_ss(reinterpret_cast<float*>(&pDestination[1]), T1);
+	_mm_store_ss(reinterpret_cast<float*>(&pDestination[2]), T2);
+#endif
+}
+
+//------------------------------------------------------------------------------
+_Use_decl_annotations_
+inline void XM_CALLCONV XMStoreInt3A
+(
+	uint32_t*    pDestination,
+	FXMVECTOR V
+)
+{
+	assert(pDestination);
+	assert(((uintptr_t)pDestination & 0xF) == 0);
+#if defined(_XM_NO_INTRINSICS_)
+	pDestination[0] = V.vector4_u32[0];
+	pDestination[1] = V.vector4_u32[1];
+	pDestination[2] = V.vector4_u32[2];
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	uint32x2_t VL = vget_low_u32(V);
+	vst1_u32_ex(pDestination, VL, 64);
+	vst1q_lane_u32(pDestination + 2, *reinterpret_cast<const uint32x4_t*>(&V), 2);
+#elif defined(_XM_SSE_INTRINSICS_)
+	XMVECTOR T = XM_PERMUTE_PS(V, _MM_SHUFFLE(2, 2, 2, 2));
+	_mm_storel_epi64(reinterpret_cast<__m128i*>(pDestination), _mm_castps_si128(V));
+	_mm_store_ss(reinterpret_cast<float*>(&pDestination[2]), T);
+#endif
+}
+
+//------------------------------------------------------------------------------
+_Use_decl_annotations_
+inline void XM_CALLCONV XMStoreFloat3
+(
+	XMFLOAT3* pDestination,
+	FXMVECTOR V
+)
+{
+	assert(pDestination);
+#if defined(_XM_NO_INTRINSICS_)
+	pDestination->x = V.vector4_f32[0];
+	pDestination->y = V.vector4_f32[1];
+	pDestination->z = V.vector4_f32[2];
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	float32x2_t VL = vget_low_f32(V);
+	vst1_f32(reinterpret_cast<float*>(pDestination), VL);
+	vst1q_lane_f32(reinterpret_cast<float*>(pDestination) + 2, V, 2);
+#elif defined(_XM_SSE_INTRINSICS_)
+	XMVECTOR T1 = XM_PERMUTE_PS(V, _MM_SHUFFLE(1, 1, 1, 1));
+	XMVECTOR T2 = XM_PERMUTE_PS(V, _MM_SHUFFLE(2, 2, 2, 2));
+	_mm_store_ss(&pDestination->x, V);
+	_mm_store_ss(&pDestination->y, T1);
+	_mm_store_ss(&pDestination->z, T2);
+#endif
+}
+
+//------------------------------------------------------------------------------
+_Use_decl_annotations_
+inline void XM_CALLCONV XMStoreFloat3A
+(
+	XMFLOAT3A*   pDestination,
+	FXMVECTOR     V
+)
+{
+	assert(pDestination);
+	assert(((uintptr_t)pDestination & 0xF) == 0);
+#if defined(_XM_NO_INTRINSICS_)
+	pDestination->x = V.vector4_f32[0];
+	pDestination->y = V.vector4_f32[1];
+	pDestination->z = V.vector4_f32[2];
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	float32x2_t VL = vget_low_f32(V);
+	vst1_f32_ex(reinterpret_cast<float*>(pDestination), VL, 64);
+	vst1q_lane_f32(reinterpret_cast<float*>(pDestination) + 2, V, 2);
+#elif defined(_XM_SSE_INTRINSICS_)
+	XMVECTOR T = XM_PERMUTE_PS(V, _MM_SHUFFLE(2, 2, 2, 2));
+	_mm_storel_epi64(reinterpret_cast<__m128i*>(pDestination), _mm_castps_si128(V));
+	_mm_store_ss(&pDestination->z, T);
+#endif
+}
+
+//------------------------------------------------------------------------------
+_Use_decl_annotations_
+inline void XM_CALLCONV XMStoreSInt3
+(
+	XMINT3* pDestination,
+	FXMVECTOR V
+)
+{
+	assert(pDestination);
+#if defined(_XM_NO_INTRINSICS_)
+	pDestination->x = (int32_t)V.vector4_f32[0];
+	pDestination->y = (int32_t)V.vector4_f32[1];
+	pDestination->z = (int32_t)V.vector4_f32[2];
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	int32x4_t v = vcvtq_s32_f32(V);
+	int32x2_t vL = vget_low_s32(v);
+	vst1_s32(reinterpret_cast<int32_t*>(pDestination), vL);
+	vst1q_lane_s32(reinterpret_cast<int32_t*>(pDestination) + 2, v, 2);
+#elif defined(_XM_SSE_INTRINSICS_)
+	// In case of positive overflow, detect it
+	XMVECTOR vOverflow = _mm_cmpgt_ps(V, g_XMMaxInt);
+	// Float to int conversion
+	__m128i vResulti = _mm_cvttps_epi32(V);
+	// If there was positive overflow, set to 0x7FFFFFFF
+	XMVECTOR vResult = _mm_and_ps(vOverflow, g_XMAbsMask);
+	vOverflow = _mm_andnot_ps(vOverflow, _mm_castsi128_ps(vResulti));
+	vOverflow = _mm_or_ps(vOverflow, vResult);
+	// Write 3 uints
+	XMVECTOR T1 = XM_PERMUTE_PS(vOverflow, _MM_SHUFFLE(1, 1, 1, 1));
+	XMVECTOR T2 = XM_PERMUTE_PS(vOverflow, _MM_SHUFFLE(2, 2, 2, 2));
+	_mm_store_ss(reinterpret_cast<float*>(&pDestination->x), vOverflow);
+	_mm_store_ss(reinterpret_cast<float*>(&pDestination->y), T1);
+	_mm_store_ss(reinterpret_cast<float*>(&pDestination->z), T2);
+#endif
+}
+
+//------------------------------------------------------------------------------
+_Use_decl_annotations_
+inline void XM_CALLCONV XMStoreUInt3
+(
+	XMUINT3* pDestination,
+	FXMVECTOR V
+)
+{
+	assert(pDestination);
+#if defined(_XM_NO_INTRINSICS_)
+	pDestination->x = (uint32_t)V.vector4_f32[0];
+	pDestination->y = (uint32_t)V.vector4_f32[1];
+	pDestination->z = (uint32_t)V.vector4_f32[2];
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	uint32x4_t v = vcvtq_u32_f32(V);
+	uint32x2_t vL = vget_low_u32(v);
+	vst1_u32(reinterpret_cast<uint32_t*>(pDestination), vL);
+	vst1q_lane_u32(reinterpret_cast<uint32_t*>(pDestination) + 2, v, 2);
+#elif defined(_XM_SSE_INTRINSICS_)
+	// Clamp to >=0
+	XMVECTOR vResult = _mm_max_ps(V, g_XMZero);
+	// Any numbers that are too big, set to 0xFFFFFFFFU
+	XMVECTOR vOverflow = _mm_cmpgt_ps(vResult, g_XMMaxUInt);
+	XMVECTOR vValue = g_XMUnsignedFix;
+	// Too large for a signed integer?
+	XMVECTOR vMask = _mm_cmpge_ps(vResult, vValue);
+	// Zero for number's lower than 0x80000000, 32768.0f*65536.0f otherwise
+	vValue = _mm_and_ps(vValue, vMask);
+	// Perform fixup only on numbers too large (Keeps low bit precision)
+	vResult = _mm_sub_ps(vResult, vValue);
+	__m128i vResulti = _mm_cvttps_epi32(vResult);
+	// Convert from signed to unsigned pnly if greater than 0x80000000
+	vMask = _mm_and_ps(vMask, g_XMNegativeZero);
+	vResult = _mm_xor_ps(_mm_castsi128_ps(vResulti), vMask);
+	// On those that are too large, set to 0xFFFFFFFF
+	vResult = _mm_or_ps(vResult, vOverflow);
+	// Write 3 uints
+	XMVECTOR T1 = XM_PERMUTE_PS(vResult, _MM_SHUFFLE(1, 1, 1, 1));
+	XMVECTOR T2 = XM_PERMUTE_PS(vResult, _MM_SHUFFLE(2, 2, 2, 2));
+	_mm_store_ss(reinterpret_cast<float*>(&pDestination->x), vResult);
+	_mm_store_ss(reinterpret_cast<float*>(&pDestination->y), T1);
+	_mm_store_ss(reinterpret_cast<float*>(&pDestination->z), T2);
+#endif
+}
+
+//------------------------------------------------------------------------------
+_Use_decl_annotations_
+inline void XM_CALLCONV XMStoreInt4
+(
+	uint32_t*    pDestination,
+	FXMVECTOR V
+)
+{
+	assert(pDestination);
+#if defined(_XM_NO_INTRINSICS_)
+	pDestination[0] = V.vector4_u32[0];
+	pDestination[1] = V.vector4_u32[1];
+	pDestination[2] = V.vector4_u32[2];
+	pDestination[3] = V.vector4_u32[3];
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	vst1q_u32(pDestination, V);
+#elif defined(_XM_SSE_INTRINSICS_)
+	_mm_storeu_si128(reinterpret_cast<__m128i*>(pDestination), _mm_castps_si128(V));
+#endif
+}
+
+//------------------------------------------------------------------------------
+_Use_decl_annotations_
+inline void XM_CALLCONV XMStoreInt4A
+(
+	uint32_t*    pDestination,
+	FXMVECTOR V
+)
+{
+	assert(pDestination);
+	assert(((uintptr_t)pDestination & 0xF) == 0);
+#if defined(_XM_NO_INTRINSICS_)
+	pDestination[0] = V.vector4_u32[0];
+	pDestination[1] = V.vector4_u32[1];
+	pDestination[2] = V.vector4_u32[2];
+	pDestination[3] = V.vector4_u32[3];
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	vst1q_u32_ex(pDestination, V, 128);
+#elif defined(_XM_SSE_INTRINSICS_)
+	_mm_store_si128(reinterpret_cast<__m128i*>(pDestination), _mm_castps_si128(V));
+#endif
+}
+
+//------------------------------------------------------------------------------
+_Use_decl_annotations_
+inline void XM_CALLCONV XMStoreFloat4
+(
+	XMFLOAT4* pDestination,
+	FXMVECTOR  V
+)
+{
+	assert(pDestination);
+#if defined(_XM_NO_INTRINSICS_)
+	pDestination->x = V.vector4_f32[0];
+	pDestination->y = V.vector4_f32[1];
+	pDestination->z = V.vector4_f32[2];
+	pDestination->w = V.vector4_f32[3];
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	vst1q_f32(reinterpret_cast<float*>(pDestination), V);
+#elif defined(_XM_SSE_INTRINSICS_)
+	_mm_storeu_ps(&pDestination->x, V);
+#endif
+}
+
+//------------------------------------------------------------------------------
+_Use_decl_annotations_
+inline void XM_CALLCONV XMStoreFloat4A
+(
+	XMFLOAT4A*   pDestination,
+	FXMVECTOR     V
+)
+{
+	assert(pDestination);
+	assert(((uintptr_t)pDestination & 0xF) == 0);
+#if defined(_XM_NO_INTRINSICS_)
+	pDestination->x = V.vector4_f32[0];
+	pDestination->y = V.vector4_f32[1];
+	pDestination->z = V.vector4_f32[2];
+	pDestination->w = V.vector4_f32[3];
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	vst1q_f32_ex(reinterpret_cast<float*>(pDestination), V, 128);
+#elif defined(_XM_SSE_INTRINSICS_)
+	_mm_store_ps(&pDestination->x, V);
+#endif
+}
+
+//------------------------------------------------------------------------------
+_Use_decl_annotations_
+inline void XM_CALLCONV XMStoreSInt4
+(
+	XMINT4* pDestination,
+	FXMVECTOR V
+)
+{
+	assert(pDestination);
+#if defined(_XM_NO_INTRINSICS_)
+	pDestination->x = (int32_t)V.vector4_f32[0];
+	pDestination->y = (int32_t)V.vector4_f32[1];
+	pDestination->z = (int32_t)V.vector4_f32[2];
+	pDestination->w = (int32_t)V.vector4_f32[3];
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	int32x4_t v = vcvtq_s32_f32(V);
+	vst1q_s32(reinterpret_cast<int32_t*>(pDestination), v);
+#elif defined(_XM_SSE_INTRINSICS_)
+	// In case of positive overflow, detect it
+	XMVECTOR vOverflow = _mm_cmpgt_ps(V, g_XMMaxInt);
+	// Float to int conversion
+	__m128i vResulti = _mm_cvttps_epi32(V);
+	// If there was positive overflow, set to 0x7FFFFFFF
+	XMVECTOR vResult = _mm_and_ps(vOverflow, g_XMAbsMask);
+	vOverflow = _mm_andnot_ps(vOverflow, _mm_castsi128_ps(vResulti));
+	vOverflow = _mm_or_ps(vOverflow, vResult);
+	_mm_storeu_si128(reinterpret_cast<__m128i*>(pDestination), _mm_castps_si128(vOverflow));
+#endif
+}
+
+//------------------------------------------------------------------------------
+_Use_decl_annotations_
+inline void XM_CALLCONV XMStoreUInt4
+(
+	XMUINT4* pDestination,
+	FXMVECTOR V
+)
+{
+	assert(pDestination);
+#if defined(_XM_NO_INTRINSICS_)
+	pDestination->x = (uint32_t)V.vector4_f32[0];
+	pDestination->y = (uint32_t)V.vector4_f32[1];
+	pDestination->z = (uint32_t)V.vector4_f32[2];
+	pDestination->w = (uint32_t)V.vector4_f32[3];
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	uint32x4_t v = vcvtq_u32_f32(V);
+	vst1q_u32(reinterpret_cast<uint32_t*>(pDestination), v);
+#elif defined(_XM_SSE_INTRINSICS_)
+	// Clamp to >=0
+	XMVECTOR vResult = _mm_max_ps(V, g_XMZero);
+	// Any numbers that are too big, set to 0xFFFFFFFFU
+	XMVECTOR vOverflow = _mm_cmpgt_ps(vResult, g_XMMaxUInt);
+	XMVECTOR vValue = g_XMUnsignedFix;
+	// Too large for a signed integer?
+	XMVECTOR vMask = _mm_cmpge_ps(vResult, vValue);
+	// Zero for number's lower than 0x80000000, 32768.0f*65536.0f otherwise
+	vValue = _mm_and_ps(vValue, vMask);
+	// Perform fixup only on numbers too large (Keeps low bit precision)
+	vResult = _mm_sub_ps(vResult, vValue);
+	__m128i vResulti = _mm_cvttps_epi32(vResult);
+	// Convert from signed to unsigned pnly if greater than 0x80000000
+	vMask = _mm_and_ps(vMask, g_XMNegativeZero);
+	vResult = _mm_xor_ps(_mm_castsi128_ps(vResulti), vMask);
+	// On those that are too large, set to 0xFFFFFFFF
+	vResult = _mm_or_ps(vResult, vOverflow);
+	_mm_storeu_si128(reinterpret_cast<__m128i*>(pDestination), _mm_castps_si128(vResult));
+#endif
+}
+
