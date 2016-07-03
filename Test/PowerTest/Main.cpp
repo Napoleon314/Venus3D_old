@@ -58,10 +58,8 @@ int main(/*int argc, char * argv[]*/)
     printf("NEON MATH\n");
 #endif
 
-	XMFLOAT3X3 m3x3(1, 2, 3, 4, 5, 6, 7, 8, 9);
-
-
-	XMMATRIX m4x4 = XMLoadFloat3x3(&m3x3);
+	//XMFLOAT3X3 m3x3(1, 2, 3, 4, 5, 6, 7, 8, 9);
+	//XMMATRIX m4x4 = XMLoadFloat3x3(&m3x3);
 
 	return 0;
 }
