@@ -38,6 +38,7 @@ if __name__ == "__main__":
 	additional_options += " -DCFG_INCLUDE_PATH:STRING=\"%s\"" % build_cfg.include_path
 	additional_options += " -DCFG_SOURCE_PATH:STRING=\"%s\"" % build_cfg.source_path
 	additional_options += " -DCFG_TEST_PATH:STRING=\"%s\"" % build_cfg.test_path
+	additional_options += " -DCFG_INTRINSICS_LEVEL:STRING=\"%d\"" % build_cfg.intrinsics_level
 
 	print("Building %s..." % (build_cfg.project_name))
 	for info in bi.compilers:

@@ -46,3 +46,5 @@ config				= ("Debug", "Release", "MinSizeRel", "RelWithDebInfo")
 
 # Target platform for cross compiling. Could be "android" plus version number, "win_store", "win_phone" plus version number, "ios", or "auto".
 target				= "auto"
+
+intrinsics_level	= 1

@@ -35,5 +35,19 @@ int main(/*int argc, char * argv[]*/)
 {
 	printf("CPU: %d\n", VeGetCPUCount());
 	printf("MEM: %d\n", VeGetSystemRAM());
+
+#ifdef __SSE2__
+	printf("SSE2\n");
+#endif //
+
+#ifdef __AVX__
+	printf("AVX\n");
+#endif //
+
+#ifdef __AVX2__
+	printf("AVX2\n");
+#endif // 
+
+
 	return 0;
 }

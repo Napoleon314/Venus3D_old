@@ -77,7 +77,7 @@
 #elif defined(_M_ARM) || defined(_M_ARM64)
 #define _XM_ARM_NEON_INTRINSICS_
 #elif !defined(_XM_NO_INTRINSICS_)
-#error DirectX Math does not support this target
+#error X Math does not support this target
 #endif
 #endif // !_XM_ARM_NEON_INTRINSICS_ && !_XM_SSE_INTRINSICS_ && !_XM_NO_INTRINSICS_
 
