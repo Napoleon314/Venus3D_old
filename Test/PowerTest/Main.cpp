@@ -51,6 +51,10 @@ int main(/*int argc, char * argv[]*/)
 #ifdef __ARM_NEON__
     printf("NEON\n");
 #endif
+    
+#ifdef _XM_ARM_NEON_INTRINSICS_
+    printf("NEON MATH\n");
+#endif
 
 	return 0;
 }
