@@ -148,6 +148,7 @@
 #	define _Out_writes_bytes_(n)
 #	define _Out_opt_
 #	define _Success_(expr)
+#	define _Use_decl_annotations_
 #endif
 
 #include <assert.h>
