@@ -1,6 +1,5 @@
 package com.VenusIE.PowerTest;
 
-import com.VenusIE.Venus3D.VeActivity;
 import android.os.Bundle;
 
 public class MainActivity extends android.app.NativeActivity

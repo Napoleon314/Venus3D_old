@@ -335,7 +335,6 @@
 #		define _XM_F16C_INTRINSICS_
 #	endif
 #endif
-#define _XM_NO_INTRINSICS_
 #include "XMath/XMath.h"
 
 #include "CPU/VeCPUInfo.h"
