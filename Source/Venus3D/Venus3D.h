@@ -351,4 +351,4 @@
 	cls& operator= (const cls&) = delete
 
 #include "CPU/VeCPUInfo.h"
-//#include "CPU/VeSIMDMath.h"
+#include "XMath/XMath.h"
