@@ -1748,7 +1748,11 @@ inline XMVECTOR     XM_CALLCONV     XMVectorInsert(FXMVECTOR VD, FXMVECTOR VS)
 // separate math routine it would be reloaded.
 
 #ifndef XMGLOBALCONST
-#define XMGLOBALCONST extern const __declspec(selectany)
+#	ifdef _MSC_VER
+#		define XMGLOBALCONST extern const __declspec(selectany)
+#	else
+#		define XMGLOBALCONST const
+#	endif
 #endif
 
 XMGLOBALCONST XMVECTORF32 g_XMSinCoefficients0 = { -0.16666667f, +0.0083333310f, -0.00019840874f, +2.7525562e-06f };
