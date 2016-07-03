@@ -329,3 +329,100 @@ struct alignas(16) XMVECTORU32
 	inline operator __m128d() const { return _mm_castps_pd(v); }
 #endif
 };
+
+//------------------------------------------------------------------------------
+// Vector operators
+XMVECTOR    XM_CALLCONV     operator+ (FXMVECTOR V);
+XMVECTOR    XM_CALLCONV     operator- (FXMVECTOR V);
+
+XMVECTOR&   XM_CALLCONV     operator+= (XMVECTOR& V1, FXMVECTOR V2);
+XMVECTOR&   XM_CALLCONV     operator-= (XMVECTOR& V1, FXMVECTOR V2);
+XMVECTOR&   XM_CALLCONV     operator*= (XMVECTOR& V1, FXMVECTOR V2);
+XMVECTOR&   XM_CALLCONV     operator/= (XMVECTOR& V1, FXMVECTOR V2);
+
+XMVECTOR&   operator*= (XMVECTOR& V, float S);
+XMVECTOR&   operator/= (XMVECTOR& V, float S);
+
+XMVECTOR    XM_CALLCONV     operator+ (FXMVECTOR V1, FXMVECTOR V2);
+XMVECTOR    XM_CALLCONV     operator- (FXMVECTOR V1, FXMVECTOR V2);
+XMVECTOR    XM_CALLCONV     operator* (FXMVECTOR V1, FXMVECTOR V2);
+XMVECTOR    XM_CALLCONV     operator/ (FXMVECTOR V1, FXMVECTOR V2);
+XMVECTOR    XM_CALLCONV     operator* (FXMVECTOR V, float S);
+XMVECTOR    XM_CALLCONV     operator* (float S, FXMVECTOR V);
+XMVECTOR    XM_CALLCONV     operator/ (FXMVECTOR V, float S);
+
+//------------------------------------------------------------------------------
+// Matrix type: Sixteen 32 bit floating point components aligned on a
+// 16 byte boundary and mapped to four hardware vector registers
+
+struct XMMATRIX;
+
+// Fix-up for (1st) XMMATRIX parameter to pass in-register for ARM64 and vector call; by reference otherwise
+#if ( defined(_M_ARM64) || _XM_VECTORCALL_ ) && !defined(_XM_NO_INTRINSICS_)
+typedef const XMMATRIX FXMMATRIX;
+#else
+typedef const XMMATRIX& FXMMATRIX;
+#endif
+
+// Fix-up for (2nd+) XMMATRIX parameters to pass by reference
+typedef const XMMATRIX& CXMMATRIX;
+
+#ifdef _XM_NO_INTRINSICS_
+struct XMMATRIX
+#else
+struct alignas(16) XMMATRIX
+#endif
+{
+#ifdef _XM_NO_INTRINSICS_
+	union
+	{
+		XMVECTOR c[4];
+		struct
+		{
+			float _11, _21, _31, _41;
+			float _12, _22, _32, _42;
+			float _13, _23, _33, _43;
+			float _14, _24, _34, _44;
+		};
+		float m[4][4];
+	};
+#else
+	XMVECTOR c[4];
+#endif
+
+	XMMATRIX() XM_CTOR_DEFAULT
+#if defined(_MSC_VER) && _MSC_VER >= 1900
+		constexpr XMMATRIX(FXMVECTOR C0, FXMVECTOR C1, FXMVECTOR C2, CXMVECTOR C3) : c{ C0,C1,C2,C3 } {}
+#else
+		XMMATRIX(FXMVECTOR C0, FXMVECTOR C1, FXMVECTOR C2, CXMVECTOR C3) { c[0] = C0; c[1] = C1; c[2] = C2; c[3] = C3; }
+#endif
+	XMMATRIX(float m00, float m10, float m20, float m30,
+		float m01, float m11, float m21, float m31,
+		float m02, float m12, float m22, float m32,
+		float m03, float m13, float m23, float m33);
+	explicit XMMATRIX(const float *pArray);
+
+#ifdef _XM_NO_INTRINSICS_
+	float       operator() (size_t Row, size_t Column) const { return m[Column][Row]; }
+	float&      operator() (size_t Row, size_t Column) { return m[Column][Row]; }
+#endif
+
+	XMMATRIX&   operator= (const XMMATRIX& M) { c[0] = M.c[0]; c[1] = M.c[1]; c[2] = M.c[2]; c[3] = M.c[3]; return *this; }
+
+	XMMATRIX    operator+ () const { return *this; }
+	XMMATRIX    operator- () const;
+
+	XMMATRIX&   XM_CALLCONV     operator+= (FXMMATRIX M);
+	XMMATRIX&   XM_CALLCONV     operator-= (FXMMATRIX M);
+	XMMATRIX&   XM_CALLCONV     operator*= (FXMMATRIX M);
+	XMMATRIX&   operator*= (float S);
+	XMMATRIX&   operator/= (float S);
+
+	XMMATRIX    XM_CALLCONV     operator+ (FXMMATRIX M) const;
+	XMMATRIX    XM_CALLCONV     operator- (FXMMATRIX M) const;
+	XMMATRIX    XM_CALLCONV     operator* (FXMMATRIX M) const;
+	XMMATRIX    operator* (float S) const;
+	XMMATRIX    operator/ (float S) const;
+
+	friend XMMATRIX     XM_CALLCONV     operator* (float S, FXMMATRIX M);
+};
