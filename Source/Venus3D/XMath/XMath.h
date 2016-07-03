@@ -138,6 +138,10 @@
 #define vld1_f32_ex(s,a) vld1_f32(s)
 #define vld1q_u32_ex(s,a) vld1q_u32(s)
 #define vld1q_f32_ex(s,a) vld1q_f32(s)
+#define vst1_u32_ex(d,v,a) vst1_u32(d,v)
+#define vst1_f32_ex(d,v,a) vst1_f32(d,v)
+#define vst1q_u32_ex(d,v,a) vst1q_u32(d,v)
+#define vst1q_f32_ex(d,v,a) vst1q_f32(d,v)
 #endif
 #endif
 #endif
