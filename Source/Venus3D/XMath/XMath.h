@@ -15,8 +15,6 @@
 #error DirectX Math requires C++
 #endif
 
-#define DIRECTX_MATH_VERSION 309
-
 #if defined(_MSC_VER) && (_MSC_VER < 1800)
 #error DirectX Math Visual C++ 2013 or later.
 #endif
@@ -159,6 +157,7 @@
 #	define _Out_opt_
 #	define _Success_(expr)
 #	define _Use_decl_annotations_
+#	define _Analysis_assume_(expr)
 #endif
 
 #include <assert.h>
