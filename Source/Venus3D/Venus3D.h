@@ -278,40 +278,6 @@
 #include <math.h>
 #include <float.h>
 
-/*#define BUILD_INTRINSICS_LEVEL 2		//supposed to move in predefines.
-
-#if defined(BUILD_ARCH_X86) || defined(BUILD_ARCH_X64)
-#	if BUILD_INTRINSICS_LEVEL > 0
-#		define VE_SSE_INTRINSICS
-#		if BUILD_INTRINSICS_LEVEL > 1
-#			define VE_AVX2_INTRINSICS
-#		endif
-#	else
-#		define VE_NO_INTRINSICS
-#	endif
-#	ifdef VE_COMPILER_MSVC
-#		include <intrin.h>
-#	endif
-#	ifdef VE_SSE_INTRINSICS
-#		include <xmmintrin.h>
-#		include <emmintrin.h>
-#		include <pmmintrin.h>
-#		include <smmintrin.h>
-#	endif
-#	ifdef VE_AVX2_INTRINSICS
-#		include <immintrin.h>
-#	endif
-#elif defined(BUILD_ARCH_ARM)
-#	if BUILD_INTRINSICS_LEVEL > 0
-#		define VE_NEON_INTRINSICS
-#       include <arm_neon.h>
-#	else
-#		define VE_NO_INTRINSICS
-#	endif
-#else
-#	define VE_NO_INTRINSICS
-#endif*/
-
 #include <functional>
 #include <tuple>
 #include <array>
@@ -351,4 +317,5 @@
 	cls& operator= (const cls&) = delete
 
 #include "CPU/VeCPUInfo.h"
+#define _XM_NO_INTRINSICS_
 #include "XMath/XMath.h"
