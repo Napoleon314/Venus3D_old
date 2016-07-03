@@ -137,6 +137,13 @@
 #endif
 #endif // !_XM_NO_INTRINSICS_
 
+#ifdef _MSC_VER
+#	include <sal.h>
+#else
+#	define _In_
+#	define _In_reads_(n)
+#endif
+
 #include <assert.h>
 
 #ifndef _XM_NO_ROUNDF_
@@ -437,7 +444,7 @@ struct alignas(16) XMMATRIX
 		float m01, float m11, float m21, float m31,
 		float m02, float m12, float m22, float m32,
 		float m03, float m13, float m23, float m33);
-	explicit XMMATRIX(const float *pArray);
+	explicit XMMATRIX(_In_reads_(16) const float *pArray);
 
 #ifdef _XM_NO_INTRINSICS_
 	float       operator() (size_t Row, size_t Column) const { return m[Column][Row]; }
@@ -473,7 +480,7 @@ struct XMFLOAT2
 
 	XMFLOAT2() XM_CTOR_DEFAULT
 		XM_CONSTEXPR XMFLOAT2(float _x, float _y) : x(_x), y(_y) {}
-	explicit XMFLOAT2(const float *pArray) : x(pArray[0]), y(pArray[1]) {}
+	explicit XMFLOAT2(_In_reads_(2) const float *pArray) : x(pArray[0]), y(pArray[1]) {}
 
 	XMFLOAT2& operator= (const XMFLOAT2& Float2) { x = Float2.x; y = Float2.y; return *this; }
 };
@@ -483,7 +490,7 @@ struct alignas(16) XMFLOAT2A : public XMFLOAT2
 {
 	XMFLOAT2A() XM_CTOR_DEFAULT
 		XM_CONSTEXPR XMFLOAT2A(float _x, float _y) : XMFLOAT2(_x, _y) {}
-	explicit XMFLOAT2A(const float *pArray) : XMFLOAT2(pArray) {}
+	explicit XMFLOAT2A(_In_reads_(2) const float *pArray) : XMFLOAT2(pArray) {}
 
 	XMFLOAT2A& operator= (const XMFLOAT2A& Float2) { x = Float2.x; y = Float2.y; return *this; }
 };
@@ -497,7 +504,7 @@ struct XMINT2
 
 	XMINT2() XM_CTOR_DEFAULT
 		XM_CONSTEXPR XMINT2(int32_t _x, int32_t _y) : x(_x), y(_y) {}
-	explicit XMINT2(const int32_t *pArray) : x(pArray[0]), y(pArray[1]) {}
+	explicit XMINT2(_In_reads_(2) const int32_t *pArray) : x(pArray[0]), y(pArray[1]) {}
 
 	XMINT2& operator= (const XMINT2& Int2) { x = Int2.x; y = Int2.y; return *this; }
 };
@@ -510,7 +517,7 @@ struct XMUINT2
 
 	XMUINT2() XM_CTOR_DEFAULT
 		XM_CONSTEXPR XMUINT2(uint32_t _x, uint32_t _y) : x(_x), y(_y) {}
-	explicit XMUINT2(const uint32_t *pArray) : x(pArray[0]), y(pArray[1]) {}
+	explicit XMUINT2(_In_reads_(2) const uint32_t *pArray) : x(pArray[0]), y(pArray[1]) {}
 
 	XMUINT2& operator= (const XMUINT2& UInt2) { x = UInt2.x; y = UInt2.y; return *this; }
 };
@@ -525,7 +532,7 @@ struct XMFLOAT3
 
 	XMFLOAT3() XM_CTOR_DEFAULT
 		XM_CONSTEXPR XMFLOAT3(float _x, float _y, float _z) : x(_x), y(_y), z(_z) {}
-	explicit XMFLOAT3(const float *pArray) : x(pArray[0]), y(pArray[1]), z(pArray[2]) {}
+	explicit XMFLOAT3(_In_reads_(3) const float *pArray) : x(pArray[0]), y(pArray[1]), z(pArray[2]) {}
 
 	XMFLOAT3& operator= (const XMFLOAT3& Float3) { x = Float3.x; y = Float3.y; z = Float3.z; return *this; }
 };
@@ -535,7 +542,7 @@ struct alignas(16) XMFLOAT3A : public XMFLOAT3
 {
 	XMFLOAT3A() XM_CTOR_DEFAULT
 		XM_CONSTEXPR XMFLOAT3A(float _x, float _y, float _z) : XMFLOAT3(_x, _y, _z) {}
-	explicit XMFLOAT3A(const float *pArray) : XMFLOAT3(pArray) {}
+	explicit XMFLOAT3A(_In_reads_(3) const float *pArray) : XMFLOAT3(pArray) {}
 
 	XMFLOAT3A& operator= (const XMFLOAT3A& Float3) { x = Float3.x; y = Float3.y; z = Float3.z; return *this; }
 };
@@ -550,7 +557,7 @@ struct XMINT3
 
 	XMINT3() XM_CTOR_DEFAULT
 		XM_CONSTEXPR XMINT3(int32_t _x, int32_t _y, int32_t _z) : x(_x), y(_y), z(_z) {}
-	explicit XMINT3(const int32_t *pArray) : x(pArray[0]), y(pArray[1]), z(pArray[2]) {}
+	explicit XMINT3(_In_reads_(3) const int32_t *pArray) : x(pArray[0]), y(pArray[1]), z(pArray[2]) {}
 
 	XMINT3& operator= (const XMINT3& i3) { x = i3.x; y = i3.y; z = i3.z; return *this; }
 };
@@ -564,7 +571,7 @@ struct XMUINT3
 
 	XMUINT3() XM_CTOR_DEFAULT
 		XM_CONSTEXPR XMUINT3(uint32_t _x, uint32_t _y, uint32_t _z) : x(_x), y(_y), z(_z) {}
-	explicit XMUINT3(const uint32_t *pArray) : x(pArray[0]), y(pArray[1]), z(pArray[2]) {}
+	explicit XMUINT3(_In_reads_(3) const uint32_t *pArray) : x(pArray[0]), y(pArray[1]), z(pArray[2]) {}
 
 	XMUINT3& operator= (const XMUINT3& u3) { x = u3.x; y = u3.y; z = u3.z; return *this; }
 };
@@ -580,7 +587,7 @@ struct XMFLOAT4
 
 	XMFLOAT4() XM_CTOR_DEFAULT
 		XM_CONSTEXPR XMFLOAT4(float _x, float _y, float _z, float _w) : x(_x), y(_y), z(_z), w(_w) {}
-	explicit XMFLOAT4(const float *pArray) : x(pArray[0]), y(pArray[1]), z(pArray[2]), w(pArray[3]) {}
+	explicit XMFLOAT4(_In_reads_(4) const float *pArray) : x(pArray[0]), y(pArray[1]), z(pArray[2]), w(pArray[3]) {}
 
 	XMFLOAT4& operator= (const XMFLOAT4& Float4) { x = Float4.x; y = Float4.y; z = Float4.z; w = Float4.w; return *this; }
 };
@@ -590,7 +597,7 @@ struct alignas(16) XMFLOAT4A : public XMFLOAT4
 {
 	XMFLOAT4A() XM_CTOR_DEFAULT
 		XM_CONSTEXPR XMFLOAT4A(float _x, float _y, float _z, float _w) : XMFLOAT4(_x, _y, _z, _w) {}
-	explicit XMFLOAT4A(const float *pArray) : XMFLOAT4(pArray) {}
+	explicit XMFLOAT4A(_In_reads_(4) const float *pArray) : XMFLOAT4(pArray) {}
 
 	XMFLOAT4A& operator= (const XMFLOAT4A& Float4) { x = Float4.x; y = Float4.y; z = Float4.z; w = Float4.w; return *this; }
 };
@@ -606,7 +613,7 @@ struct XMINT4
 
 	XMINT4() XM_CTOR_DEFAULT
 		XM_CONSTEXPR XMINT4(int32_t _x, int32_t _y, int32_t _z, int32_t _w) : x(_x), y(_y), z(_z), w(_w) {}
-	explicit XMINT4(const int32_t *pArray) : x(pArray[0]), y(pArray[1]), z(pArray[2]), w(pArray[3]) {}
+	explicit XMINT4(_In_reads_(4) const int32_t *pArray) : x(pArray[0]), y(pArray[1]), z(pArray[2]), w(pArray[3]) {}
 
 	XMINT4& operator= (const XMINT4& Int4) { x = Int4.x; y = Int4.y; z = Int4.z; w = Int4.w; return *this; }
 };
@@ -621,7 +628,7 @@ struct XMUINT4
 
 	XMUINT4() XM_CTOR_DEFAULT
 		XM_CONSTEXPR XMUINT4(uint32_t _x, uint32_t _y, uint32_t _z, uint32_t _w) : x(_x), y(_y), z(_z), w(_w) {}
-	explicit XMUINT4(const uint32_t *pArray) : x(pArray[0]), y(pArray[1]), z(pArray[2]), w(pArray[3]) {}
+	explicit XMUINT4(_In_reads_(4) const uint32_t *pArray) : x(pArray[0]), y(pArray[1]), z(pArray[2]), w(pArray[3]) {}
 
 	XMUINT4& operator= (const XMUINT4& UInt4) { x = UInt4.x; y = UInt4.y; z = UInt4.z; w = UInt4.w; return *this; }
 };
@@ -648,7 +655,7 @@ struct XMFLOAT3X3
 		: _11(m00), _21(m10), _31(m20),
 		_12(m01), _22(m11), _32(m21),
 		_13(m02), _23(m12), _33(m22) {}
-	explicit XMFLOAT3X3(const float *pArray);
+	explicit XMFLOAT3X3(_In_reads_(9) const float *pArray);
 
 	float       operator() (size_t Row, size_t Column) const { return m[Column][Row]; }
 	float&      operator() (size_t Row, size_t Column) { return m[Column][Row]; }
@@ -678,7 +685,7 @@ struct XMFLOAT4X3
 		: _11(m00), _21(m10), _31(m20), _41(m30),
 		_12(m01), _22(m11), _32(m21), _42(m31),
 		_13(m02), _23(m12), _33(m22), _43(m32) {}
-	explicit XMFLOAT4X3(const float *pArray);
+	explicit XMFLOAT4X3(_In_reads_(12) const float *pArray);
 
 	float       operator() (size_t Row, size_t Column) const { return m[Column][Row]; }
 	float&      operator() (size_t Row, size_t Column) { return m[Column][Row]; }
@@ -695,7 +702,7 @@ struct alignas(16) XMFLOAT4X3A : public XMFLOAT4X3
 			float m01, float m11, float m21, float m31,
 			float m02, float m12, float m22, float m32) :
 		XMFLOAT4X3(m00, m10, m20, m30, m01, m11, m21, m31, m02, m12, m22, m32) {}
-	explicit XMFLOAT4X3A(const float *pArray) : XMFLOAT4X3(pArray) {}
+	explicit XMFLOAT4X3A(_In_reads_(12) const float *pArray) : XMFLOAT4X3(pArray) {}
 
 	float       operator() (size_t Row, size_t Column) const { return m[Column][Row]; }
 	float&      operator() (size_t Row, size_t Column) { return m[Column][Row]; }
@@ -728,7 +735,7 @@ struct XMFLOAT4X4
 		_12(m01), _22(m11), _32(m21), _42(m31),
 		_13(m02), _23(m12), _33(m22), _43(m32),
 		_14(m03), _24(m13), _34(m23), _44(m33) {}
-	explicit XMFLOAT4X4(const float *pArray);
+	explicit XMFLOAT4X4(_In_reads_(16) const float *pArray);
 
 	float       operator() (size_t Row, size_t Column) const { return m[Column][Row]; }
 	float&      operator() (size_t Row, size_t Column) { return m[Column][Row]; }
@@ -745,7 +752,7 @@ struct alignas(16) XMFLOAT4X4A : public XMFLOAT4X4
 			float m02, float m12, float m22, float m32,
 			float m03, float m13, float m23, float m33)
 		: XMFLOAT4X4(m00, m10, m20, m30, m01, m11, m21, m31, m02, m12, m22, m32, m03, m13, m23, m33) {}
-	explicit XMFLOAT4X4A(const float *pArray) : XMFLOAT4X4(pArray) {}
+	explicit XMFLOAT4X4A(_In_reads_(16) const float *pArray) : XMFLOAT4X4(pArray) {}
 
 	float       operator() (size_t Row, size_t Column) const { return m[Column][Row]; }
 	float&      operator() (size_t Row, size_t Column) { return m[Column][Row]; }
@@ -765,4 +772,49 @@ struct alignas(16) XMFLOAT4X4A : public XMFLOAT4X4
 * Data conversion operations
 *
 ****************************************************************************/
+
+XMVECTOR    XM_CALLCONV     XMConvertVectorIntToFloat(FXMVECTOR VInt, uint32_t DivExponent);
+XMVECTOR    XM_CALLCONV     XMConvertVectorFloatToInt(FXMVECTOR VFloat, uint32_t MulExponent);
+XMVECTOR    XM_CALLCONV     XMConvertVectorUIntToFloat(FXMVECTOR VUInt, uint32_t DivExponent);
+XMVECTOR    XM_CALLCONV     XMConvertVectorFloatToUInt(FXMVECTOR VFloat, uint32_t MulExponent);
+
+XMVECTOR    XM_CALLCONV     XMVectorSetBinaryConstant(uint32_t C0, uint32_t C1, uint32_t C2, uint32_t C3);
+XMVECTOR    XM_CALLCONV     XMVectorSplatConstant(int32_t IntConstant, uint32_t DivExponent);
+XMVECTOR    XM_CALLCONV     XMVectorSplatConstantInt(int32_t IntConstant);
+
+/****************************************************************************
+*
+* Load operations
+*
+****************************************************************************/
+
+XMVECTOR    XM_CALLCONV     XMLoadInt(_In_ const uint32_t* pSource);
+XMVECTOR    XM_CALLCONV     XMLoadFloat(_In_ const float* pSource);
+
+XMVECTOR    XM_CALLCONV     XMLoadInt2(_In_reads_(2) const uint32_t* pSource);
+XMVECTOR    XM_CALLCONV     XMLoadInt2A(_In_reads_(2) const uint32_t* PSource);
+XMVECTOR    XM_CALLCONV     XMLoadFloat2(_In_ const XMFLOAT2* pSource);
+XMVECTOR    XM_CALLCONV     XMLoadFloat2A(_In_ const XMFLOAT2A* pSource);
+XMVECTOR    XM_CALLCONV     XMLoadSInt2(_In_ const XMINT2* pSource);
+XMVECTOR    XM_CALLCONV     XMLoadUInt2(_In_ const XMUINT2* pSource);
+
+XMVECTOR    XM_CALLCONV     XMLoadInt3(_In_reads_(3) const uint32_t* pSource);
+XMVECTOR    XM_CALLCONV     XMLoadInt3A(_In_reads_(3) const uint32_t* pSource);
+XMVECTOR    XM_CALLCONV     XMLoadFloat3(_In_ const XMFLOAT3* pSource);
+XMVECTOR    XM_CALLCONV     XMLoadFloat3A(_In_ const XMFLOAT3A* pSource);
+XMVECTOR    XM_CALLCONV     XMLoadSInt3(_In_ const XMINT3* pSource);
+XMVECTOR    XM_CALLCONV     XMLoadUInt3(_In_ const XMUINT3* pSource);
+
+XMVECTOR    XM_CALLCONV     XMLoadInt4(_In_reads_(4) const uint32_t* pSource);
+XMVECTOR    XM_CALLCONV     XMLoadInt4A(_In_reads_(4) const uint32_t* pSource);
+XMVECTOR    XM_CALLCONV     XMLoadFloat4(_In_ const XMFLOAT4* pSource);
+XMVECTOR    XM_CALLCONV     XMLoadFloat4A(_In_ const XMFLOAT4A* pSource);
+XMVECTOR    XM_CALLCONV     XMLoadSInt4(_In_ const XMINT4* pSource);
+XMVECTOR    XM_CALLCONV     XMLoadUInt4(_In_ const XMUINT4* pSource);
+
+XMMATRIX    XM_CALLCONV     XMLoadFloat3x3(_In_ const XMFLOAT3X3* pSource);
+XMMATRIX    XM_CALLCONV     XMLoadFloat4x3(_In_ const XMFLOAT4X3* pSource);
+XMMATRIX    XM_CALLCONV     XMLoadFloat4x3A(_In_ const XMFLOAT4X3A* pSource);
+XMMATRIX    XM_CALLCONV     XMLoadFloat4x4(_In_ const XMFLOAT4X4* pSource);
+XMMATRIX    XM_CALLCONV     XMLoadFloat4x4A(_In_ const XMFLOAT4X4A* pSource);
 
