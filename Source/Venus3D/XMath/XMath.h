@@ -330,7 +330,7 @@ struct alignas(16) XMVECTORF32
 		XMVECTOR v;
 	};
 
-#ifndef _MSC_VER
+#if !defined(_MSC_VER) && defined(_XM_SSE_INTRINSICS_)
 	XMVECTORF32(std::initializer_list<float> l)
 	{
 		int co(0);
@@ -358,7 +358,7 @@ struct alignas(16) XMVECTORI32
 		XMVECTOR v;
 	};
 
-#ifndef _MSC_VER
+#if !defined(_MSC_VER) && defined(_XM_SSE_INTRINSICS_)
 	XMVECTORI32(std::initializer_list<int32_t> l)
 	{
 		int co(0);
@@ -385,7 +385,7 @@ struct alignas(16) XMVECTORU8
 		XMVECTOR v;
 	};
 
-#ifndef _MSC_VER
+#if !defined(_MSC_VER) && defined(_XM_SSE_INTRINSICS_)
 	XMVECTORU8(std::initializer_list<uint8_t> l)
 	{
 		int co(0);
@@ -412,7 +412,7 @@ struct alignas(16) XMVECTORU32
 		XMVECTOR v;
 	};
 
-#ifndef _MSC_VER
+#if !defined(_MSC_VER) && defined(_XM_SSE_INTRINSICS_)
 	XMVECTORU32(std::initializer_list<uint32_t> l)
 	{
 		int co(0);
