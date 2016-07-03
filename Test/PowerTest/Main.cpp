@@ -52,10 +52,5 @@ int main(/*int argc, char * argv[]*/)
     printf("NEON\n");
 #endif
 
-//#ifdef __SSE4__
-//	printf("SSE4_2\n");
-//#endif
-
-
 	return 0;
 }
