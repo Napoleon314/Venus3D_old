@@ -1896,5 +1896,118 @@ XMGLOBALCONST XMVECTORF32 g_ShortMin = { -32767.0f, -32767.0f, -32767.0f, -32767
 XMGLOBALCONST XMVECTORF32 g_ShortMax = { 32767.0f, 32767.0f, 32767.0f, 32767.0f };
 XMGLOBALCONST XMVECTORF32 g_UShortMax = { 65535.0f, 65535.0f, 65535.0f, 65535.0f };
 
+/****************************************************************************
+*
+* Implementation
+*
+****************************************************************************/
+
+#ifdef _MSC_VER
+#	pragma warning(push)
+#	pragma warning(disable:4068 4214 4204 4365 4616 4640 6001 6101)
+//	C4068/4616: ignore unknown pragmas
+//	C4214/4204: nonstandard extension used
+//	C4365/4640: Off by default noise
+//	C6001/6101: False positives
+
+#	pragma prefast(push)
+#	pragma prefast(disable : 25000, "FXMVECTOR is 16 bytes")
+#endif
+
+//------------------------------------------------------------------------------
+
+inline XMVECTOR XM_CALLCONV XMVectorSetBinaryConstant(uint32_t C0, uint32_t C1, uint32_t C2, uint32_t C3)
+{
+#if defined(_XM_NO_INTRINSICS_)
+	XMVECTORU32 vResult;
+	vResult.u[0] = (0 - (C0 & 1)) & 0x3F800000;
+	vResult.u[1] = (0 - (C1 & 1)) & 0x3F800000;
+	vResult.u[2] = (0 - (C2 & 1)) & 0x3F800000;
+	vResult.u[3] = (0 - (C3 & 1)) & 0x3F800000;
+	return vResult.v;
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	XMVECTORU32 vResult;
+	vResult.u[0] = (0 - (C0 & 1)) & 0x3F800000;
+	vResult.u[1] = (0 - (C1 & 1)) & 0x3F800000;
+	vResult.u[2] = (0 - (C2 & 1)) & 0x3F800000;
+	vResult.u[3] = (0 - (C3 & 1)) & 0x3F800000;
+	return vResult.v;
+#else // XM_SSE_INTRINSICS_
+	static const XMVECTORU32 g_vMask1 = { 1,1,1,1 };
+	// Move the parms to a vector
+	__m128i vTemp = _mm_set_epi32(C3, C2, C1, C0);
+	// Mask off the low bits
+	vTemp = _mm_and_si128(vTemp, g_vMask1);
+	// 0xFFFFFFFF on true bits
+	vTemp = _mm_cmpeq_epi32(vTemp, g_vMask1);
+	// 0xFFFFFFFF -> 1.0f, 0x00000000 -> 0.0f
+	vTemp = _mm_and_si128(vTemp, g_XMOne);
+	return _mm_castsi128_ps(vTemp);
+#endif
+}
+
+//------------------------------------------------------------------------------
+
+inline XMVECTOR XM_CALLCONV XMVectorSplatConstant(int32_t IntConstant, uint32_t DivExponent)
+{
+	assert(IntConstant >= -16 && IntConstant <= 15);
+	assert(DivExponent < 32);
+#if defined(_XM_NO_INTRINSICS_)
+
+	using DirectX::XMConvertVectorIntToFloat;
+
+	XMVECTORI32 V = { IntConstant, IntConstant, IntConstant, IntConstant };
+	return XMConvertVectorIntToFloat(V.v, DivExponent);
+
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	// Splat the int
+	int32x4_t vScale = vdupq_n_s32(IntConstant);
+	// Convert to a float
+	XMVECTOR vResult = vcvtq_f32_s32(vScale);
+	// Convert DivExponent into 1.0f/(1<<DivExponent)
+	uint32_t uScale = 0x3F800000U - (DivExponent << 23);
+	// Splat the scalar value (It's really a float)
+	vScale = vdupq_n_s32(uScale);
+	// Multiply by the reciprocal (Perform a right shift by DivExponent)
+	vResult = vmulq_f32(vResult, reinterpret_cast<const float32x4_t *>(&vScale)[0]);
+	return vResult;
+#else // XM_SSE_INTRINSICS_
+	// Splat the int
+	__m128i vScale = _mm_set1_epi32(IntConstant);
+	// Convert to a float
+	XMVECTOR vResult = _mm_cvtepi32_ps(vScale);
+	// Convert DivExponent into 1.0f/(1<<DivExponent)
+	uint32_t uScale = 0x3F800000U - (DivExponent << 23);
+	// Splat the scalar value (It's really a float)
+	vScale = _mm_set1_epi32(uScale);
+	// Multiply by the reciprocal (Perform a right shift by DivExponent)
+	vResult = _mm_mul_ps(vResult, _mm_castsi128_ps(vScale));
+	return vResult;
+#endif
+}
+
+//------------------------------------------------------------------------------
+
+inline XMVECTOR XM_CALLCONV XMVectorSplatConstantInt(int32_t IntConstant)
+{
+	assert(IntConstant >= -16 && IntConstant <= 15);
+#if defined(_XM_NO_INTRINSICS_)
+
+	XMVECTORI32 V = { IntConstant, IntConstant, IntConstant, IntConstant };
+	return V.v;
+
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	int32x4_t V = vdupq_n_s32(IntConstant);
+	return reinterpret_cast<float32x4_t *>(&V)[0];
+#else // XM_SSE_INTRINSICS_
+	__m128i V = _mm_set1_epi32(IntConstant);
+	return _mm_castsi128_ps(V);
+#endif
+}
+
+#ifdef _MSC_VER
+#	pragma prefast(pop)
+#	pragma warning(pop)
+#endif
 
 }; // namespace XMath
