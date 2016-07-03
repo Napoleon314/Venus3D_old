@@ -93,11 +93,18 @@
 #endif
 #endif // !_XM_ARM_NEON_INTRINSICS_ && !_XM_SSE_INTRINSICS_ && !_XM_NO_INTRINSICS_
 
+#ifdef _MSC_VER
+#	pragma warning(push)
+#	pragma warning(disable:4514 4820)
+#endif
 // C4514/4820: Off by default noise
 #include <math.h>
 #include <float.h>
 #ifndef __APPLE__
 #	include <malloc.h>
+#endif
+#ifdef _MSC_VER
+#	pragma warning(pop)
 #endif
 
 #ifndef _XM_NO_INTRINSICS_
@@ -141,8 +148,15 @@
 #endif
 #endif
 
+#ifdef _MSC_VER
+#	pragma warning(push)
+#	pragma warning(disable : 4005 4668)
+#endif
 // C4005/4668: Old header issue
 #include <stdint.h>
+#ifdef _MSC_VER
+#	pragma warning(pop)
+#endif
 
 /****************************************************************************
 *
@@ -231,6 +245,17 @@ inline bool XMComparisonAnyOutOfBounds(uint32_t CR) { return (((CR)& XM_CRMASK_C
 * Data types
 *
 ****************************************************************************/
+
+#ifdef _MSC_VER
+#	pragma warning(push)
+#	pragma warning(disable:4068 4201 4365 4324 4820)
+//	C4068: ignore unknown pragmas
+//	C4201: nonstandard extension used : nameless struct/union
+//	C4365: Off by default noise
+//	C4324/4820: padding warnings
+#	pragma prefast(push)
+#	pragma prefast(disable : 25000, "FXMVECTOR is 16 bytes")
+#endif
 
 //------------------------------------------------------------------------------
 #if defined(_XM_NO_INTRINSICS_)
@@ -438,3 +463,42 @@ struct alignas(16) XMMATRIX
 
 	friend XMMATRIX     XM_CALLCONV     operator* (float S, FXMMATRIX M);
 };
+
+//------------------------------------------------------------------------------
+// 2D Vector; 32 bit floating point components
+struct XMFLOAT2
+{
+	float x;
+	float y;
+
+	XMFLOAT2() XM_CTOR_DEFAULT
+		XM_CONSTEXPR XMFLOAT2(float _x, float _y) : x(_x), y(_y) {}
+	explicit XMFLOAT2(const float *pArray) : x(pArray[0]), y(pArray[1]) {}
+
+	XMFLOAT2& operator= (const XMFLOAT2& Float2) { x = Float2.x; y = Float2.y; return *this; }
+};
+
+// 2D Vector; 32 bit floating point components aligned on a 16 byte boundary
+struct alignas(16) XMFLOAT2A : public XMFLOAT2
+{
+	XMFLOAT2A() XM_CTOR_DEFAULT
+		XM_CONSTEXPR XMFLOAT2A(float _x, float _y) : XMFLOAT2(_x, _y) {}
+	explicit XMFLOAT2A(const float *pArray) : XMFLOAT2(pArray) {}
+
+	XMFLOAT2A& operator= (const XMFLOAT2A& Float2) { x = Float2.x; y = Float2.y; return *this; }
+};
+
+
+////////////////////////////////////////////////////////////////////////////////
+
+#ifdef _MSC_VER
+#	pragma prefast(pop)
+#	pragma warning(pop)
+#endif
+
+/****************************************************************************
+*
+* Data conversion operations
+*
+****************************************************************************/
+
