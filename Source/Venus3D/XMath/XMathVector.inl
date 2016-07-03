@@ -404,25 +404,19 @@ inline float XM_CALLCONV XMVectorGetByIndex(FXMVECTOR V, size_t i)
 {
 	assert(i < 4);
 	_Analysis_assume_(i < 4);
-#if defined(_XM_NO_INTRINSICS_)
-	return V.vector4_f32[i];
-#elif defined(_XM_ARM_NEON_INTRINSICS_)
 	switch (i)
 	{
 	case 0:
-		return vgetq_lane_f32(V, 0);
+		return XMVectorGetX(V);
 	case 1:
-		return vgetq_lane_f32(V, 1);
+		return XMVectorGetY(V);
 	case 2:
-		return vgetq_lane_f32(V, 2);
+		return XMVectorGetZ(V);
 	case 3:
-		return vgetq_lane_f32(V, 3);
+		return XMVectorGetW(V);
 	default:
 		return NAN;
 	}
-#elif defined(_XM_SSE_INTRINSICS_)
-	return V.m128_f32[i];
-#endif
 }
 
 //------------------------------------------------------------------------------
