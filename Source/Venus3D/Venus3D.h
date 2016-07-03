@@ -335,6 +335,9 @@
 #		define _XM_F16C_INTRINSICS_
 #	endif
 #endif
+#if defined(BUILD_PLATFORM_IOS)
+#	define _XM_NO_CALL_CONVENTION_
+#endif
 #include "XMath/XMath.h"
 
 #include "CPU/VeCPUInfo.h"

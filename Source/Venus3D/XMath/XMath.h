@@ -25,17 +25,21 @@
 #define _XM_VECTORCALL_ 1
 #endif
 
-#ifdef _MSC_VER
-#	if _XM_VECTORCALL_
-#		define XM_CALLCONV __vectorcall
-#	else
-#		define XM_CALLCONV __fastcall
-#	endif
+#ifdef _XM_NO_CALL_CONVENTION_
+#	define XM_CALLCONV
 #else
-#	if _XM_VECTORCALL_
-#		define XM_CALLCONV __attribute__((vectorcall))
+#	ifdef _MSC_VER
+#		if _XM_VECTORCALL_
+#			define XM_CALLCONV __vectorcall
+#		else
+#			define XM_CALLCONV __fastcall
+#		endif
 #	else
-#		define XM_CALLCONV __attribute__((fastcall))
+#		if _XM_VECTORCALL_
+#			define XM_CALLCONV __attribute__((vectorcall))
+#		else
+#			define XM_CALLCONV __attribute__((fastcall))
+#		endif
 #	endif
 #endif
 
