@@ -142,6 +142,8 @@
 #else
 #	define _In_
 #	define _In_reads_(n)
+#	define _Out_
+#	define _Out_writes_(n)
 #endif
 
 #include <assert.h>
