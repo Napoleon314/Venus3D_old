@@ -396,3 +396,85 @@ inline XMVECTOR XM_CALLCONV XMVectorSplatSignMask()
 	return _mm_castsi128_ps(V);
 #endif
 }
+
+//------------------------------------------------------------------------------
+// Return a floating point value via an index. This is not a recommended
+// function to use due to performance loss.
+inline float XM_CALLCONV XMVectorGetByIndex(FXMVECTOR V, size_t i)
+{
+	assert(i < 4);
+	_Analysis_assume_(i < 4);
+#if defined(_XM_NO_INTRINSICS_)
+	return V.vector4_f32[i];
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	switch (i)
+	{
+	case 0:
+		return vgetq_lane_f32(V, 0);
+	case 1:
+		return vgetq_lane_f32(V, 1);
+	case 2:
+		return vgetq_lane_f32(V, 2);
+	case 3:
+		return vgetq_lane_f32(V, 3);
+	default:
+		return NAN;
+	}
+#elif defined(_XM_SSE_INTRINSICS_)
+	return V.m128_f32[i];
+#endif
+}
+
+//------------------------------------------------------------------------------
+// Return the X component in an FPU register. 
+inline float XM_CALLCONV XMVectorGetX(FXMVECTOR V)
+{
+#if defined(_XM_NO_INTRINSICS_)
+	return V.vector4_f32[0];
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	return vgetq_lane_f32(V, 0);
+#elif defined(_XM_SSE_INTRINSICS_)
+	return _mm_cvtss_f32(V);
+#endif
+}
+
+// Return the Y component in an FPU register. 
+inline float XM_CALLCONV XMVectorGetY(FXMVECTOR V)
+{
+#if defined(_XM_NO_INTRINSICS_)
+	return V.vector4_f32[1];
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	return vgetq_lane_f32(V, 1);
+#elif defined(_XM_SSE_INTRINSICS_)
+	XMVECTOR vTemp = XM_PERMUTE_PS(V, _MM_SHUFFLE(1, 1, 1, 1));
+	return _mm_cvtss_f32(vTemp);
+#endif
+}
+
+// Return the Z component in an FPU register. 
+inline float XM_CALLCONV XMVectorGetZ(FXMVECTOR V)
+{
+#if defined(_XM_NO_INTRINSICS_)
+	return V.vector4_f32[2];
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	return vgetq_lane_f32(V, 2);
+#elif defined(_XM_SSE_INTRINSICS_)
+	XMVECTOR vTemp = XM_PERMUTE_PS(V, _MM_SHUFFLE(2, 2, 2, 2));
+	return _mm_cvtss_f32(vTemp);
+#endif
+}
+
+// Return the W component in an FPU register. 
+inline float XM_CALLCONV XMVectorGetW(FXMVECTOR V)
+{
+#if defined(_XM_NO_INTRINSICS_)
+	return V.vector4_f32[3];
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	return vgetq_lane_f32(V, 3);
+#elif defined(_XM_SSE_INTRINSICS_)
+	XMVECTOR vTemp = XM_PERMUTE_PS(V, _MM_SHUFFLE(3, 3, 3, 3));
+	return _mm_cvtss_f32(vTemp);
+#endif
+}
+
+
