@@ -1417,4 +1417,171 @@ inline XMVECTOR XM_CALLCONV XMVectorPermute
 #endif
 }
 
+//------------------------------------------------------------------------------
+// Define a control vector to be used in XMVectorSelect 
+// operations.  The four integers specified in XMVectorSelectControl
+// serve as indices to select between components in two vectors.
+// The first index controls selection for the first component of 
+// the vectors involved in a select operation, the second index 
+// controls selection for the second component etc.  A value of
+// zero for an index causes the corresponding component from the first 
+// vector to be selected whereas a one causes the component from the
+// second vector to be selected instead.
 
+inline XMVECTOR XM_CALLCONV XMVectorSelectControl
+(
+	uint32_t VectorIndex0,
+	uint32_t VectorIndex1,
+	uint32_t VectorIndex2,
+	uint32_t VectorIndex3
+)
+{
+#if defined(_XM_SSE_INTRINSICS_) && !defined(_XM_NO_INTRINSICS_)
+	// x=Index0,y=Index1,z=Index2,w=Index3
+	__m128i vTemp = _mm_set_epi32(VectorIndex3, VectorIndex2, VectorIndex1, VectorIndex0);
+	// Any non-zero entries become 0xFFFFFFFF else 0
+	vTemp = _mm_cmpgt_epi32(vTemp, g_XMZero);
+	return _mm_castsi128_ps(vTemp);
+#elif defined(_XM_ARM_NEON_INTRINSICS_) && !defined(_XM_NO_INTRINSICS_)
+	int32x2_t V0 = vcreate_s32(((uint64_t)VectorIndex0) | ((uint64_t)VectorIndex1 << 32));
+	int32x2_t V1 = vcreate_s32(((uint64_t)VectorIndex2) | ((uint64_t)VectorIndex3 << 32));
+	int32x4_t vTemp = vcombine_s32(V0, V1);
+	// Any non-zero entries become 0xFFFFFFFF else 0
+	return vcgtq_s32(vTemp, g_XMZero);
+#else
+	XMVECTOR    ControlVector;
+	const uint32_t  ControlElement[] =
+	{
+		XM_SELECT_0,
+		XM_SELECT_1
+	};
+
+	assert(VectorIndex0 < 2);
+	assert(VectorIndex1 < 2);
+	assert(VectorIndex2 < 2);
+	assert(VectorIndex3 < 2);
+	_Analysis_assume_(VectorIndex0 < 2);
+	_Analysis_assume_(VectorIndex1 < 2);
+	_Analysis_assume_(VectorIndex2 < 2);
+	_Analysis_assume_(VectorIndex3 < 2);
+
+	ControlVector.vector4_u32[0] = ControlElement[VectorIndex0];
+	ControlVector.vector4_u32[1] = ControlElement[VectorIndex1];
+	ControlVector.vector4_u32[2] = ControlElement[VectorIndex2];
+	ControlVector.vector4_u32[3] = ControlElement[VectorIndex3];
+
+	return ControlVector;
+
+#endif
+}
+
+//------------------------------------------------------------------------------
+
+inline XMVECTOR XM_CALLCONV XMVectorSelect
+(
+	FXMVECTOR V1,
+	FXMVECTOR V2,
+	FXMVECTOR Control
+)
+{
+#if defined(_XM_NO_INTRINSICS_)
+
+	XMVECTOR Result;
+	Result.vector4_u32[0] = (V1.vector4_u32[0] & ~Control.vector4_u32[0]) | (V2.vector4_u32[0] & Control.vector4_u32[0]);
+	Result.vector4_u32[1] = (V1.vector4_u32[1] & ~Control.vector4_u32[1]) | (V2.vector4_u32[1] & Control.vector4_u32[1]);
+	Result.vector4_u32[2] = (V1.vector4_u32[2] & ~Control.vector4_u32[2]) | (V2.vector4_u32[2] & Control.vector4_u32[2]);
+	Result.vector4_u32[3] = (V1.vector4_u32[3] & ~Control.vector4_u32[3]) | (V2.vector4_u32[3] & Control.vector4_u32[3]);
+	return Result;
+
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	return vbslq_f32(Control, V2, V1);
+#elif defined(_XM_SSE_INTRINSICS_)
+	XMVECTOR vTemp1 = _mm_andnot_ps(Control, V1);
+	XMVECTOR vTemp2 = _mm_and_ps(V2, Control);
+	return _mm_or_ps(vTemp1, vTemp2);
+#endif
+}
+
+//------------------------------------------------------------------------------
+
+inline XMVECTOR XM_CALLCONV XMVectorMergeXY
+(
+	FXMVECTOR V1,
+	FXMVECTOR V2
+)
+{
+#if defined(_XM_NO_INTRINSICS_)
+
+	XMVECTOR Result;
+	Result.vector4_u32[0] = V1.vector4_u32[0];
+	Result.vector4_u32[1] = V2.vector4_u32[0];
+	Result.vector4_u32[2] = V1.vector4_u32[1];
+	Result.vector4_u32[3] = V2.vector4_u32[1];
+	return Result;
+
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	return vzipq_f32(V1, V2).val[0];
+#elif defined(_XM_SSE_INTRINSICS_)
+	return _mm_unpacklo_ps(V1, V2);
+#endif
+}
+
+//------------------------------------------------------------------------------
+
+inline XMVECTOR XM_CALLCONV XMVectorMergeZW
+(
+	FXMVECTOR V1,
+	FXMVECTOR V2
+)
+{
+#if defined(_XM_NO_INTRINSICS_)
+
+	XMVECTOR Result;
+	Result.vector4_u32[0] = V1.vector4_u32[2];
+	Result.vector4_u32[1] = V2.vector4_u32[2];
+	Result.vector4_u32[2] = V1.vector4_u32[3];
+	Result.vector4_u32[3] = V2.vector4_u32[3];
+	return Result;
+
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	return vzipq_f32(V1, V2).val[1];
+#elif defined(_XM_SSE_INTRINSICS_)
+	return _mm_unpackhi_ps(V1, V2);
+#endif
+}
+
+//------------------------------------------------------------------------------
+
+inline XMVECTOR XM_CALLCONV XMVectorShiftLeft(FXMVECTOR V1, FXMVECTOR V2, uint32_t Elements)
+{
+	assert(Elements < 4);
+	_Analysis_assume_(Elements < 4);
+	return XMVectorPermute(V1, V2, Elements, ((Elements)+1), ((Elements)+2), ((Elements)+3));
+}
+
+//------------------------------------------------------------------------------
+
+inline XMVECTOR XM_CALLCONV XMVectorRotateLeft(FXMVECTOR V, uint32_t Elements)
+{
+	assert(Elements < 4);
+	_Analysis_assume_(Elements < 4);
+	return XMVectorSwizzle(V, Elements & 3, (Elements + 1) & 3, (Elements + 2) & 3, (Elements + 3) & 3);
+}
+
+//------------------------------------------------------------------------------
+
+inline XMVECTOR XM_CALLCONV XMVectorRotateRight(FXMVECTOR V, uint32_t Elements)
+{
+	assert(Elements < 4);
+	_Analysis_assume_(Elements < 4);
+	return XMVectorSwizzle(V, (4 - (Elements)) & 3, (5 - (Elements)) & 3, (6 - (Elements)) & 3, (7 - (Elements)) & 3);
+}
+
+//------------------------------------------------------------------------------
+
+inline XMVECTOR XM_CALLCONV XMVectorInsert(FXMVECTOR VD, FXMVECTOR VS, uint32_t VSLeftRotateElements,
+	uint32_t Select0, uint32_t Select1, uint32_t Select2, uint32_t Select3)
+{
+	XMVECTOR Control = XMVectorSelectControl(Select0 & 1, Select1 & 1, Select2 & 1, Select3 & 1);
+	return XMVectorSelect(VD, XMVectorRotateLeft(VS, VSLeftRotateElements), Control);
+}
