@@ -46,8 +46,11 @@ int main(/*int argc, char * argv[]*/)
 
 #ifdef __AVX2__
 	printf("AVX2\n");
-#endif // 
-
+#endif //
+    
+#ifdef __ARM_NEON__
+    printf("NEON\n");
+#endif
 
 	return 0;
 }
