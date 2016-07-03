@@ -1961,7 +1961,7 @@ inline XMVECTOR XM_CALLCONV XMVectorSplatConstant(int32_t IntConstant, uint32_t 
 	assert(DivExponent < 32);
 #if defined(_XM_NO_INTRINSICS_)
 
-	using DirectX::XMConvertVectorIntToFloat;
+	using XMath::XMConvertVectorIntToFloat;
 
 	XMVECTORI32 V = { IntConstant, IntConstant, IntConstant, IntConstant };
 	return XMConvertVectorIntToFloat(V.v, DivExponent);

@@ -784,5 +784,260 @@ inline XMVECTOR XM_CALLCONV XMLoadUInt4
 #endif
 }
 
+//------------------------------------------------------------------------------
+_Use_decl_annotations_
+inline XMMATRIX XM_CALLCONV XMLoadFloat3x3
+(
+	const XMFLOAT3X3* pSource
+)
+{
+	assert(pSource);
+#if defined(_XM_NO_INTRINSICS_)
 
+	XMMATRIX M;
+	M.c[0].vector4_f32[0] = pSource->m[0][0];
+	M.c[0].vector4_f32[1] = pSource->m[0][1];
+	M.c[0].vector4_f32[2] = pSource->m[0][2];
+	M.c[0].vector4_f32[3] = 0.0f;
+
+	M.c[1].vector4_f32[0] = pSource->m[1][0];
+	M.c[1].vector4_f32[1] = pSource->m[1][1];
+	M.c[1].vector4_f32[2] = pSource->m[1][2];
+	M.c[1].vector4_f32[3] = 0.0f;
+
+	M.c[2].vector4_f32[0] = pSource->m[2][0];
+	M.c[2].vector4_f32[1] = pSource->m[2][1];
+	M.c[2].vector4_f32[2] = pSource->m[2][2];
+	M.c[2].vector4_f32[3] = 0.0f;
+	M.c[3].vector4_f32[0] = 0.0f;
+	M.c[3].vector4_f32[1] = 0.0f;
+	M.c[3].vector4_f32[2] = 0.0f;
+	M.c[3].vector4_f32[3] = 1.0f;
+	return M;
+
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	float32x4_t v0 = vld1q_f32(&pSource->m[0][0]);
+	float32x4_t v1 = vld1q_f32(&pSource->m[1][1]);
+	float32x2_t v2 = vcreate_f32((uint64_t)*(const uint32_t*)&pSource->m[2][2]);
+	float32x4_t T = vextq_f32(v0, v1, 3);
+
+	XMMATRIX M;
+	M.c[0] = vandq_u32(v0, g_XMMask3);
+	M.c[1] = vandq_u32(T, g_XMMask3);
+	M.c[2] = vcombine_f32(vget_high_f32(v1), v2);
+	M.c[3] = g_XMIdentityR3;
+	return M;
+#elif defined(_XM_SSE_INTRINSICS_)
+	__m128 Z = _mm_setzero_ps();
+
+	__m128 V1 = _mm_loadu_ps(&pSource->m[0][0]);
+	__m128 V2 = _mm_loadu_ps(&pSource->m[1][1]);
+	__m128 V3 = _mm_load_ss(&pSource->m[2][2]);
+
+	__m128 T1 = _mm_unpackhi_ps(V1, Z);
+	__m128 T2 = _mm_unpacklo_ps(V2, Z);
+	__m128 T3 = _mm_shuffle_ps(V3, T2, _MM_SHUFFLE(0, 1, 0, 0));
+	__m128 T4 = _mm_movehl_ps(T2, T3);
+	__m128 T5 = _mm_movehl_ps(Z, T1);
+
+	XMMATRIX M;
+	M.c[0] = _mm_movelh_ps(V1, T1);
+	M.c[1] = _mm_add_ps(T4, T5);
+	M.c[2] = _mm_shuffle_ps(V2, V3, _MM_SHUFFLE(1, 0, 3, 2));
+	M.c[3] = g_XMIdentityR3;
+	return M;
+#endif
+}
+
+//------------------------------------------------------------------------------
+_Use_decl_annotations_
+inline XMMATRIX XM_CALLCONV XMLoadFloat4x3
+(
+	const XMFLOAT4X3* pSource
+)
+{
+	assert(pSource);
+#if defined(_XM_NO_INTRINSICS_)
+
+	XMMATRIX M;
+	M.c[0].vector4_f32[0] = pSource->m[0][0];
+	M.c[0].vector4_f32[1] = pSource->m[0][1];
+	M.c[0].vector4_f32[2] = pSource->m[0][2];
+	M.c[0].vector4_f32[3] = pSource->m[0][3];
+
+	M.c[1].vector4_f32[0] = pSource->m[1][0];
+	M.c[1].vector4_f32[1] = pSource->m[1][1];
+	M.c[1].vector4_f32[2] = pSource->m[1][2];
+	M.c[1].vector4_f32[3] = pSource->m[1][3];
+
+	M.c[2].vector4_f32[0] = pSource->m[2][0];
+	M.c[2].vector4_f32[1] = pSource->m[2][1];
+	M.c[2].vector4_f32[2] = pSource->m[2][2];
+	M.c[2].vector4_f32[3] = pSource->m[2][3];
+
+	M.c[3] = g_XMIdentityR3;
+	return M;
+
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	XMMATRIX M;
+	M.c[0] = vld1q_f32(reinterpret_cast<const float*>(&pSource->_11));
+	M.c[1] = vld1q_f32(reinterpret_cast<const float*>(&pSource->_21));
+	M.c[2] = vld1q_f32(reinterpret_cast<const float*>(&pSource->_31));
+	M.c[3] = g_XMIdentityR3;
+	return M;
+#elif defined(_XM_SSE_INTRINSICS_)
+	XMMATRIX M;
+	M.c[0] = _mm_loadu_ps(&pSource->_11);
+	M.c[1] = _mm_loadu_ps(&pSource->_12);
+	M.c[2] = _mm_loadu_ps(&pSource->_13);
+	M.c[3] = g_XMIdentityR3;
+	return M;
+#endif
+}
+
+//------------------------------------------------------------------------------
+_Use_decl_annotations_
+inline XMMATRIX XM_CALLCONV XMLoadFloat4x3A
+(
+	const XMFLOAT4X3A* pSource
+)
+{
+	assert(pSource);
+	assert(((uintptr_t)pSource & 0xF) == 0);
+#if defined(_XM_NO_INTRINSICS_)
+
+	XMMATRIX M;
+	M.c[0].vector4_f32[0] = pSource->m[0][0];
+	M.c[0].vector4_f32[1] = pSource->m[0][1];
+	M.c[0].vector4_f32[2] = pSource->m[0][2];
+	M.c[0].vector4_f32[3] = pSource->m[0][3];
+
+	M.c[1].vector4_f32[0] = pSource->m[1][0];
+	M.c[1].vector4_f32[1] = pSource->m[1][1];
+	M.c[1].vector4_f32[2] = pSource->m[1][2];
+	M.c[1].vector4_f32[3] = pSource->m[1][3];
+
+	M.c[2].vector4_f32[0] = pSource->m[2][0];
+	M.c[2].vector4_f32[1] = pSource->m[2][1];
+	M.c[2].vector4_f32[2] = pSource->m[2][2];
+	M.c[2].vector4_f32[3] = pSource->m[2][3];
+
+	M.c[3] = g_XMIdentityR3;
+	return M;
+
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	XMMATRIX M;
+	M.c[0] = vld1q_f32_ex(reinterpret_cast<const float*>(&pSource->_11), 128);
+	M.c[1] = vld1q_f32_ex(reinterpret_cast<const float*>(&pSource->_21), 128);
+	M.c[2] = vld1q_f32_ex(reinterpret_cast<const float*>(&pSource->_31), 128);
+	M.c[3] = g_XMIdentityR3;
+	return M;
+#elif defined(_XM_SSE_INTRINSICS_)
+	XMMATRIX M;
+	M.c[0] = _mm_load_ps(&pSource->_11);
+	M.c[1] = _mm_load_ps(&pSource->_21);
+	M.c[2] = _mm_load_ps(&pSource->_31);
+	M.c[3] = g_XMIdentityR3;
+	return M;
+#endif
+}
+
+//------------------------------------------------------------------------------
+_Use_decl_annotations_
+inline XMMATRIX XM_CALLCONV XMLoadFloat4x4
+(
+	const XMFLOAT4X4* pSource
+)
+{
+	assert(pSource);
+#if defined(_XM_NO_INTRINSICS_)
+
+	XMMATRIX M;
+	M.c[0].vector4_f32[0] = pSource->m[0][0];
+	M.c[0].vector4_f32[1] = pSource->m[0][1];
+	M.c[0].vector4_f32[2] = pSource->m[0][2];
+	M.c[0].vector4_f32[3] = pSource->m[0][3];
+
+	M.c[1].vector4_f32[0] = pSource->m[1][0];
+	M.c[1].vector4_f32[1] = pSource->m[1][1];
+	M.c[1].vector4_f32[2] = pSource->m[1][2];
+	M.c[1].vector4_f32[3] = pSource->m[1][3];
+
+	M.c[2].vector4_f32[0] = pSource->m[2][0];
+	M.c[2].vector4_f32[1] = pSource->m[2][1];
+	M.c[2].vector4_f32[2] = pSource->m[2][2];
+	M.c[2].vector4_f32[3] = pSource->m[2][3];
+
+	M.c[3].vector4_f32[0] = pSource->m[3][0];
+	M.c[3].vector4_f32[1] = pSource->m[3][1];
+	M.c[3].vector4_f32[2] = pSource->m[3][2];
+	M.c[3].vector4_f32[3] = pSource->m[3][3];
+	return M;
+
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	XMMATRIX M;
+	M.c[0] = vld1q_f32(reinterpret_cast<const float*>(&pSource->_11));
+	M.c[1] = vld1q_f32(reinterpret_cast<const float*>(&pSource->_21));
+	M.c[2] = vld1q_f32(reinterpret_cast<const float*>(&pSource->_31));
+	M.c[3] = vld1q_f32(reinterpret_cast<const float*>(&pSource->_41));
+	return M;
+#elif defined(_XM_SSE_INTRINSICS_)
+	XMMATRIX M;
+	M.c[0] = _mm_loadu_ps(&pSource->_11);
+	M.c[1] = _mm_loadu_ps(&pSource->_21);
+	M.c[2] = _mm_loadu_ps(&pSource->_31);
+	M.c[3] = _mm_loadu_ps(&pSource->_41);
+	return M;
+#endif
+}
+
+//------------------------------------------------------------------------------
+_Use_decl_annotations_
+inline XMMATRIX XM_CALLCONV XMLoadFloat4x4A
+(
+	const XMFLOAT4X4A* pSource
+)
+{
+	assert(pSource);
+	assert(((uintptr_t)pSource & 0xF) == 0);
+#if defined(_XM_NO_INTRINSICS_)
+
+	XMMATRIX M;
+	M.c[0].vector4_f32[0] = pSource->m[0][0];
+	M.c[0].vector4_f32[1] = pSource->m[0][1];
+	M.c[0].vector4_f32[2] = pSource->m[0][2];
+	M.c[0].vector4_f32[3] = pSource->m[0][3];
+
+	M.c[1].vector4_f32[0] = pSource->m[1][0];
+	M.c[1].vector4_f32[1] = pSource->m[1][1];
+	M.c[1].vector4_f32[2] = pSource->m[1][2];
+	M.c[1].vector4_f32[3] = pSource->m[1][3];
+
+	M.c[2].vector4_f32[0] = pSource->m[2][0];
+	M.c[2].vector4_f32[1] = pSource->m[2][1];
+	M.c[2].vector4_f32[2] = pSource->m[2][2];
+	M.c[2].vector4_f32[3] = pSource->m[2][3];
+
+	M.c[3].vector4_f32[0] = pSource->m[3][0];
+	M.c[3].vector4_f32[1] = pSource->m[3][1];
+	M.c[3].vector4_f32[2] = pSource->m[3][2];
+	M.c[3].vector4_f32[3] = pSource->m[3][3];
+	return M;
+
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	XMMATRIX M;
+	M.c[0] = vld1q_f32_ex(reinterpret_cast<const float*>(&pSource->_11), 128);
+	M.c[1] = vld1q_f32_ex(reinterpret_cast<const float*>(&pSource->_21), 128);
+	M.c[2] = vld1q_f32_ex(reinterpret_cast<const float*>(&pSource->_31), 128);
+	M.c[3] = vld1q_f32_ex(reinterpret_cast<const float*>(&pSource->_41), 128);
+	return M;
+#elif defined(_XM_SSE_INTRINSICS_)
+	XMMATRIX M;
+	M.c[0] = _mm_load_ps(&pSource->_11);
+	M.c[1] = _mm_load_ps(&pSource->_21);
+	M.c[2] = _mm_load_ps(&pSource->_31);
+	M.c[3] = _mm_load_ps(&pSource->_41);
+	return M;
+#endif
+}
 

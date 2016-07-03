@@ -337,6 +337,7 @@
 #if defined(BUILD_PLATFORM_IOS) || defined(BUILD_PLATFORM_ANDROID)
 #	define _XM_ARM_NEON_NO_ALIGN_
 #endif
+//#define _XM_NO_INTRINSICS_
 #include "XMath/XMath.h"
 
 #include "CPU/VeCPUInfo.h"

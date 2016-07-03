@@ -30,6 +30,8 @@
 
 #include <Venus3D.h>
 
+using namespace XMath;
+
 int main(/*int argc, char * argv[]*/)
 {
 	printf("CPU: %d\n", VeGetCPUCount());
@@ -55,6 +57,11 @@ int main(/*int argc, char * argv[]*/)
 #ifdef _XM_ARM_NEON_INTRINSICS_
     printf("NEON MATH\n");
 #endif
+
+	XMFLOAT3X3 m3x3(1, 2, 3, 4, 5, 6, 7, 8, 9);
+
+
+	XMMATRIX m4x4 = XMLoadFloat3x3(&m3x3);
 
 	return 0;
 }
