@@ -488,6 +488,174 @@ struct alignas(16) XMFLOAT2A : public XMFLOAT2
 	XMFLOAT2A& operator= (const XMFLOAT2A& Float2) { x = Float2.x; y = Float2.y; return *this; }
 };
 
+//------------------------------------------------------------------------------
+// 2D Vector; 32 bit signed integer components
+struct XMINT2
+{
+	int32_t x;
+	int32_t y;
+
+	XMINT2() XM_CTOR_DEFAULT
+		XM_CONSTEXPR XMINT2(int32_t _x, int32_t _y) : x(_x), y(_y) {}
+	explicit XMINT2(const int32_t *pArray) : x(pArray[0]), y(pArray[1]) {}
+
+	XMINT2& operator= (const XMINT2& Int2) { x = Int2.x; y = Int2.y; return *this; }
+};
+
+// 2D Vector; 32 bit unsigned integer components
+struct XMUINT2
+{
+	uint32_t x;
+	uint32_t y;
+
+	XMUINT2() XM_CTOR_DEFAULT
+		XM_CONSTEXPR XMUINT2(uint32_t _x, uint32_t _y) : x(_x), y(_y) {}
+	explicit XMUINT2(const uint32_t *pArray) : x(pArray[0]), y(pArray[1]) {}
+
+	XMUINT2& operator= (const XMUINT2& UInt2) { x = UInt2.x; y = UInt2.y; return *this; }
+};
+
+//------------------------------------------------------------------------------
+// 3D Vector; 32 bit floating point components
+struct XMFLOAT3
+{
+	float x;
+	float y;
+	float z;
+
+	XMFLOAT3() XM_CTOR_DEFAULT
+		XM_CONSTEXPR XMFLOAT3(float _x, float _y, float _z) : x(_x), y(_y), z(_z) {}
+	explicit XMFLOAT3(const float *pArray) : x(pArray[0]), y(pArray[1]), z(pArray[2]) {}
+
+	XMFLOAT3& operator= (const XMFLOAT3& Float3) { x = Float3.x; y = Float3.y; z = Float3.z; return *this; }
+};
+
+// 3D Vector; 32 bit floating point components aligned on a 16 byte boundary
+struct alignas(16) XMFLOAT3A : public XMFLOAT3
+{
+	XMFLOAT3A() XM_CTOR_DEFAULT
+		XM_CONSTEXPR XMFLOAT3A(float _x, float _y, float _z) : XMFLOAT3(_x, _y, _z) {}
+	explicit XMFLOAT3A(const float *pArray) : XMFLOAT3(pArray) {}
+
+	XMFLOAT3A& operator= (const XMFLOAT3A& Float3) { x = Float3.x; y = Float3.y; z = Float3.z; return *this; }
+};
+
+//------------------------------------------------------------------------------
+// 3D Vector; 32 bit signed integer components
+struct XMINT3
+{
+	int32_t x;
+	int32_t y;
+	int32_t z;
+
+	XMINT3() XM_CTOR_DEFAULT
+		XM_CONSTEXPR XMINT3(int32_t _x, int32_t _y, int32_t _z) : x(_x), y(_y), z(_z) {}
+	explicit XMINT3(const int32_t *pArray) : x(pArray[0]), y(pArray[1]), z(pArray[2]) {}
+
+	XMINT3& operator= (const XMINT3& i3) { x = i3.x; y = i3.y; z = i3.z; return *this; }
+};
+
+// 3D Vector; 32 bit unsigned integer components
+struct XMUINT3
+{
+	uint32_t x;
+	uint32_t y;
+	uint32_t z;
+
+	XMUINT3() XM_CTOR_DEFAULT
+		XM_CONSTEXPR XMUINT3(uint32_t _x, uint32_t _y, uint32_t _z) : x(_x), y(_y), z(_z) {}
+	explicit XMUINT3(const uint32_t *pArray) : x(pArray[0]), y(pArray[1]), z(pArray[2]) {}
+
+	XMUINT3& operator= (const XMUINT3& u3) { x = u3.x; y = u3.y; z = u3.z; return *this; }
+};
+
+//------------------------------------------------------------------------------
+// 4D Vector; 32 bit floating point components
+struct XMFLOAT4
+{
+	float x;
+	float y;
+	float z;
+	float w;
+
+	XMFLOAT4() XM_CTOR_DEFAULT
+		XM_CONSTEXPR XMFLOAT4(float _x, float _y, float _z, float _w) : x(_x), y(_y), z(_z), w(_w) {}
+	explicit XMFLOAT4(const float *pArray) : x(pArray[0]), y(pArray[1]), z(pArray[2]), w(pArray[3]) {}
+
+	XMFLOAT4& operator= (const XMFLOAT4& Float4) { x = Float4.x; y = Float4.y; z = Float4.z; w = Float4.w; return *this; }
+};
+
+// 4D Vector; 32 bit floating point components aligned on a 16 byte boundary
+struct alignas(16) XMFLOAT4A : public XMFLOAT4
+{
+	XMFLOAT4A() XM_CTOR_DEFAULT
+		XM_CONSTEXPR XMFLOAT4A(float _x, float _y, float _z, float _w) : XMFLOAT4(_x, _y, _z, _w) {}
+	explicit XMFLOAT4A(const float *pArray) : XMFLOAT4(pArray) {}
+
+	XMFLOAT4A& operator= (const XMFLOAT4A& Float4) { x = Float4.x; y = Float4.y; z = Float4.z; w = Float4.w; return *this; }
+};
+
+//------------------------------------------------------------------------------
+// 4D Vector; 32 bit signed integer components
+struct XMINT4
+{
+	int32_t x;
+	int32_t y;
+	int32_t z;
+	int32_t w;
+
+	XMINT4() XM_CTOR_DEFAULT
+		XM_CONSTEXPR XMINT4(int32_t _x, int32_t _y, int32_t _z, int32_t _w) : x(_x), y(_y), z(_z), w(_w) {}
+	explicit XMINT4(const int32_t *pArray) : x(pArray[0]), y(pArray[1]), z(pArray[2]), w(pArray[3]) {}
+
+	XMINT4& operator= (const XMINT4& Int4) { x = Int4.x; y = Int4.y; z = Int4.z; w = Int4.w; return *this; }
+};
+
+// 4D Vector; 32 bit unsigned integer components
+struct XMUINT4
+{
+	uint32_t x;
+	uint32_t y;
+	uint32_t z;
+	uint32_t w;
+
+	XMUINT4() XM_CTOR_DEFAULT
+		XM_CONSTEXPR XMUINT4(uint32_t _x, uint32_t _y, uint32_t _z, uint32_t _w) : x(_x), y(_y), z(_z), w(_w) {}
+	explicit XMUINT4(const uint32_t *pArray) : x(pArray[0]), y(pArray[1]), z(pArray[2]), w(pArray[3]) {}
+
+	XMUINT4& operator= (const XMUINT4& UInt4) { x = UInt4.x; y = UInt4.y; z = UInt4.z; w = UInt4.w; return *this; }
+};
+
+//------------------------------------------------------------------------------
+// 3x3 Matrix: 32 bit floating point components
+struct XMFLOAT3X3
+{
+	union
+	{
+		struct
+		{
+			float _11, _21, _31;
+			float _12, _22, _32;
+			float _13, _23, _33;
+		};
+		float m[3][3];
+	};
+
+	XMFLOAT3X3() XM_CTOR_DEFAULT
+		XM_CONSTEXPR XMFLOAT3X3(float m00, float m10, float m20,
+			float m01, float m11, float m21,
+			float m02, float m12, float m22)
+		: _11(m00), _21(m10), _31(m20),
+		_12(m01), _22(m11), _32(m21),
+		_13(m02), _23(m12), _33(m22) {}
+	explicit XMFLOAT3X3(const float *pArray);
+
+	float       operator() (size_t Row, size_t Column) const { return m[Column][Row]; }
+	float&      operator() (size_t Row, size_t Column) { return m[Column][Row]; }
+
+	XMFLOAT3X3& operator= (const XMFLOAT3X3& Float3x3);
+};
+
 
 ////////////////////////////////////////////////////////////////////////////////
 
