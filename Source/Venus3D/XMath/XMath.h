@@ -86,7 +86,7 @@
 #if !defined(_XM_ARM_NEON_INTRINSICS_) && !defined(_XM_SSE_INTRINSICS_) && !defined(_XM_NO_INTRINSICS_)
 #if defined(_M_IX86) || defined(_M_X64)
 #define _XM_SSE_INTRINSICS_
-#elif defined(_M_ARM) || defined(_M_ARM64)
+#elif defined(_M_ARM) || defined(_M_ARM64) || defined(__ARM_ARCH)
 #define _XM_ARM_NEON_INTRINSICS_
 #elif !defined(_XM_NO_INTRINSICS_)
 #error X Math does not support this target
@@ -133,6 +133,12 @@
 #include <arm64_neon.h>
 #else
 #include <arm_neon.h>
+#ifdef _XM_ARM_NEON_NO_ALIGN_
+#define vld1_u32_ex(s,a) vld1_u32(s)
+#define vld1_f32_ex(s,a) vld1_f32(s)
+#define vld1q_u32_ex(s,a) vld1q_u32(s)
+#define vld1q_f32_ex(s,a) vld1q_f32(s)
+#endif
 #endif
 #endif
 #endif // !_XM_NO_INTRINSICS_

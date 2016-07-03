@@ -334,6 +334,9 @@
 #if defined(VE_COMPILER_GCC) || defined(BUILD_PLATFORM_IOS)
 #	define _XM_NO_CALL_CONVENTION_
 #endif
+#if defined(BUILD_PLATFORM_IOS) || defined(BUILD_PLATFORM_ANDROID)
+#	define _XM_ARM_NEON_NO_ALIGN_
+#endif
 #include "XMath/XMath.h"
 
 #include "CPU/VeCPUInfo.h"
