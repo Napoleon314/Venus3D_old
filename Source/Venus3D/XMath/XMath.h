@@ -330,6 +330,18 @@ struct alignas(16) XMVECTORF32
 		XMVECTOR v;
 	};
 
+#ifndef _MSC_VER
+	XMVECTORI32(std::initializer_list<float> l)
+	{
+		int co(0);
+		for (auto val : l)
+		{
+			f[co] = val;
+			if ((++co) > 3) break;
+		}
+	}
+#endif
+
 	inline operator XMVECTOR() const { return v; }
 	inline operator const float*() const { return f; }
 #if !defined(_XM_NO_INTRINSICS_) && defined(_XM_SSE_INTRINSICS_)
@@ -346,6 +358,18 @@ struct alignas(16) XMVECTORI32
 		XMVECTOR v;
 	};
 
+#ifndef _MSC_VER
+	XMVECTORI32(std::initializer_list<int32_t> l)
+	{
+		int co(0);
+		for (auto val : l)
+		{
+			i[co] = val;
+			if ((++co) > 3) break;
+		}
+	}
+#endif
+
 	inline operator XMVECTOR() const { return v; }
 #if !defined(_XM_NO_INTRINSICS_) && defined(_XM_SSE_INTRINSICS_)
 	inline operator __m128i() const { return _mm_castps_si128(v); }
@@ -361,6 +385,18 @@ struct alignas(16) XMVECTORU8
 		XMVECTOR v;
 	};
 
+#ifndef _MSC_VER
+	XMVECTORU32(std::initializer_list<uint8_t> l)
+	{
+		int co(0);
+		for (auto val : l)
+		{
+			u[co] = val;
+			if ((++co) > 3) break;
+		}
+	}
+#endif
+
 	inline operator XMVECTOR() const { return v; }
 #if !defined(_XM_NO_INTRINSICS_) && defined(_XM_SSE_INTRINSICS_)
 	inline operator __m128i() const { return _mm_castps_si128(v); }
@@ -375,6 +411,18 @@ struct alignas(16) XMVECTORU32
 		uint32_t u[4];
 		XMVECTOR v;
 	};
+
+#ifndef _MSC_VER
+	XMVECTORU32(std::initializer_list<uint32_t> l)
+	{
+		int co(0);
+		for (auto val : l)
+		{
+			u[co] = val;
+			if((++co) > 3) break;
+		}
+	}
+#endif
 
 	inline operator XMVECTOR() const { return v; }
 #if !defined(_XM_NO_INTRINSICS_) && defined(_XM_SSE_INTRINSICS_)
