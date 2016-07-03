@@ -34,6 +34,7 @@ int main(/*int argc, char * argv[]*/)
 {
 	printf("CPU: %d\n", VeGetCPUCount());
 	printf("MEM: %d\n", VeGetSystemRAM());
+    printf("FEA: %X\n", VeGetCPUFeatures());
 
 #ifdef __SSE2__
 	printf("SSE2\n");
