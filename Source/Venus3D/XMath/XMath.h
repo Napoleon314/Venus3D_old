@@ -189,6 +189,7 @@
 
 #if defined(_XM_SSE_INTRINSICS_) && !defined(_XM_NO_INTRINSICS_)
 
+#ifndef XM_STREAM_PS
 #if defined(_XM_NO_MOVNT_)
 #define XM_STREAM_PS( p, a ) _mm_store_ps( p, a )
 #define XM_SFENCE()
@@ -196,11 +197,14 @@
 #define XM_STREAM_PS( p, a ) _mm_stream_ps( p, a )
 #define XM_SFENCE() _mm_sfence()
 #endif
+#endif
 
+#ifndef XM_PERMUTE_PS
 #if defined(_XM_AVX_INTRINSICS_)
 #define XM_PERMUTE_PS( v, c ) _mm_permute_ps( v, c )
 #else
 #define XM_PERMUTE_PS( v, c ) _mm_shuffle_ps( v, v, c )
+#endif
 #endif
 
 #endif // _XM_SSE_INTRINSICS_ && !_XM_NO_INTRINSICS_
