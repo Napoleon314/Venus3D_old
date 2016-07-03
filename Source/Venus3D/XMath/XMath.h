@@ -331,7 +331,7 @@ struct alignas(16) XMVECTORF32
 	};
 
 #ifndef _MSC_VER
-	XMVECTORI32(std::initializer_list<float> l)
+	XMVECTORF32(std::initializer_list<float> l)
 	{
 		int co(0);
 		for (auto val : l)
@@ -386,7 +386,7 @@ struct alignas(16) XMVECTORU8
 	};
 
 #ifndef _MSC_VER
-	XMVECTORU32(std::initializer_list<uint8_t> l)
+	XMVECTORU8(std::initializer_list<uint8_t> l)
 	{
 		int co(0);
 		for (auto val : l)
@@ -1515,13 +1515,13 @@ namespace Internal
 	// Fast path for permutes that only read from the first vector.
 	template<uint32_t Shuffle> struct PermuteHelper<Shuffle, false, false, false, false>
 	{
-		static XMVECTOR     XM_CALLCONV     Permute(FXMVECTOR v1, FXMVECTOR v2) { (v2); return XM_PERMUTE_PS(v1, Shuffle); }
+		static XMVECTOR     XM_CALLCONV     Permute(FXMVECTOR v1, FXMVECTOR) { return XM_PERMUTE_PS(v1, Shuffle); }
 	};
 
 	// Fast path for permutes that only read from the second vector.
 	template<uint32_t Shuffle> struct PermuteHelper<Shuffle, true, true, true, true>
 	{
-		static XMVECTOR     XM_CALLCONV     Permute(FXMVECTOR v1, FXMVECTOR v2) { (v1); return XM_PERMUTE_PS(v2, Shuffle); }
+		static XMVECTOR     XM_CALLCONV     Permute(FXMVECTOR, FXMVECTOR v2) { return XM_PERMUTE_PS(v2, Shuffle); }
 	};
 
 	// Fast path for permutes that read XY from the first vector, ZW from the second.
