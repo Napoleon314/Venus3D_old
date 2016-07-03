@@ -46,13 +46,13 @@ enum VeCPUFeature
 	VE_CPU_HAS_F16C			= 0x00001000
 };
 
-VENUS_API unsigned int VeGetCPUCount() noexcept;
+VENUS_API uint32_t VeGetCPUCount() noexcept;
 
-VENUS_API unsigned int VeGetCPUCacheLineSize() noexcept;
+VENUS_API uint32_t VeGetCPUCacheLineSize() noexcept;
 
-VENUS_API unsigned int VeGetCPUFeatures() noexcept;
+VENUS_API uint32_t VeGetCPUFeatures() noexcept;
 
-VENUS_API unsigned int VeGetSystemRAM() noexcept;
+VENUS_API uint32_t VeGetSystemRAM() noexcept;
 
 inline bool VeHasRDTSC() noexcept;
 

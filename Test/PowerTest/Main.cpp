@@ -34,5 +34,6 @@
 int main(/*int argc, char * argv[]*/)
 {
 	printf("CPU: %d\n", VeGetCPUCount());
+	printf("MEM: %d\n", VeGetSystemRAM());
 	return 0;
 }

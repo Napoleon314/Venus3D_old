@@ -238,13 +238,11 @@
 #	include <direct.h>
 #	include <io.h>
 #	define VE_CALLBACK __stdcall
-#	define VE_VECTORCALL __vectorcall
 #else
 #	include <dirent.h>
 #	include <unistd.h>
 #	include <sys/stat.h>
 #	define VE_CALLBACK
-#	define VE_VECTORCALL
 #endif
 #ifdef BUILD_PLATFORM_LINUX
 #	include <pthread.h>
@@ -280,7 +278,7 @@
 #include <math.h>
 #include <float.h>
 
-#define BUILD_INTRINSICS_LEVEL 2		//supposed to move in predefines.
+/*#define BUILD_INTRINSICS_LEVEL 2		//supposed to move in predefines.
 
 #if defined(BUILD_ARCH_X86) || defined(BUILD_ARCH_X64)
 #	if BUILD_INTRINSICS_LEVEL > 0
@@ -312,7 +310,7 @@
 #	endif
 #else
 #	define VE_NO_INTRINSICS
-#endif
+#endif*/
 
 #include <functional>
 #include <tuple>
@@ -331,21 +329,6 @@
 #define VE_MAX(a,b) (((a)>(b))?(a):(b))
 #define VE_MIN(a,b) (((a)<(b))?(a):(b))
 #define VE_CLAMP(a,l,h) ((a < l) ? l : ((a > h) ? h : a))
-
-#define VE_INT8_MIN (-128)
-#define VE_INT8_MAX (127)
-#define VE_UINT8_MAX (0xffu)
-#define VE_CHAR_MIN VE_INT8_MIN
-#define VE_CHAR_MAX VE_INT8_MAX
-#define VE_INT16_MIN (-32768)
-#define VE_INT16_MAX (32767)
-#define VE_UINT16_MAX (0xffffu)
-#define VE_INT32_MIN (-2147483648)
-#define VE_INT32_MAX (2147483647)
-#define VE_UINT32_MAX (0xffffffffu)
-#define VE_INT64_MAX (9223372036854775807i64)
-#define VE_INT64_MIN (-9223372036854775808i64)
-#define VE_UINT64_MAX (0xffffffffffffffffui64)
 
 #define VE_MASK(location) (VeUInt32(0x01<<(location)))
 #define VE_MASK_HAS_ANY(flag,mask) (((flag)&(mask))!=0)

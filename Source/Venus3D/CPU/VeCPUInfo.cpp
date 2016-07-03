@@ -35,7 +35,6 @@ static bool HaveCPUID() noexcept
 {
 	int iHasCPUID = 0;
 	/* *INDENT-OFF* */
-#ifndef SDL_CPUINFO_DISABLED
 #if defined(__GNUC__) && defined(i386)
 	__asm__(
 		"        pushfl                      # Get original EFLAGS             \n"
@@ -121,7 +120,6 @@ static bool HaveCPUID() noexcept
 		"       movl    $1,-8(%rbp)    \n"
 		"1:                            \n"
 		);
-#endif
 #endif
 	/* *INDENT-ON* */
 	return iHasCPUID ? true : false;
@@ -225,7 +223,6 @@ static int HaveRDTSC() noexcept
 static int HaveAltiVec() noexcept
 {
 	volatile int iAltiVec = 0;
-#ifndef SDL_CPUINFO_DISABLED
 #if (defined(__MACOSX__) && (defined(__ppc__) || defined(__ppc64__))) || (defined(__OpenBSD__) && defined(__powerpc__))
 #ifdef __OpenBSD__
 	int selectors[2] = { CTL_MACHDEP, CPU_ALTIVEC };
@@ -245,7 +242,6 @@ static int HaveAltiVec() noexcept
 		iAltiVec = 1;
 	}
 	signal(SIGILL, handler);
-#endif
 #endif
 	return iAltiVec;
 }
@@ -405,14 +401,14 @@ static const char * GetCPUType(void)
 	return acCPUType;
 }
 //--------------------------------------------------------------------------
-unsigned int VeGetCPUCount() noexcept
+uint32_t VeGetCPUCount() noexcept
 {
 	return std::thread::hardware_concurrency();
 }
 //--------------------------------------------------------------------------
 constexpr unsigned int s_uiDefaultCacheLineSize = 128;
 //--------------------------------------------------------------------------
-unsigned int VeGetCPUCacheLineSize() noexcept
+uint32_t VeGetCPUCacheLineSize() noexcept
 {
 	const char * strCPUType = GetCPUType();
 	int a, b, c, d;
@@ -431,9 +427,9 @@ unsigned int VeGetCPUCacheLineSize() noexcept
 	}
 }
 //--------------------------------------------------------------------------
-static unsigned int s_uiCPUFeatures = 0xFFFFFFFF;
+static uint32_t s_uiCPUFeatures = 0xFFFFFFFF;
 //--------------------------------------------------------------------------
-unsigned int VeGetCPUFeatures() noexcept
+uint32_t VeGetCPUFeatures() noexcept
 {
 	if (s_uiCPUFeatures == 0xFFFFFFFF) {
 		s_uiCPUFeatures = 0;
@@ -477,9 +473,9 @@ unsigned int VeGetCPUFeatures() noexcept
 	return s_uiCPUFeatures;
 }
 //--------------------------------------------------------------------------
-static unsigned int s_uiSystemRAM = 0;
+static uint32_t s_uiSystemRAM = 0;
 //--------------------------------------------------------------------------
-unsigned int VeGetSystemRAM() noexcept
+uint32_t VeGetSystemRAM() noexcept
 {
 	if (!s_uiSystemRAM) {
 #if defined(HAVE_SYSCONF) && defined(_SC_PHYS_PAGES) && defined(_SC_PAGESIZE)
@@ -507,7 +503,7 @@ unsigned int VeGetSystemRAM() noexcept
 			}
 		}
 #endif
-#ifdef WIN32
+#ifdef BUILD_PLATFORM_WIN
 		if (s_uiSystemRAM <= 0) {
 			MEMORYSTATUSEX stat;
 			stat.dwLength = sizeof(stat);
