@@ -2005,6 +2005,11 @@ inline XMVECTOR XM_CALLCONV XMVectorSplatConstantInt(int32_t IntConstant)
 #endif
 }
 
+#include "XMathConvert.inl"
+#include "XMathVector.inl"
+#include "XMathMatrix.inl"
+#include "XMathMisc.inl"
+
 #ifdef _MSC_VER
 #	pragma prefast(pop)
 #	pragma warning(pop)
