@@ -195,7 +195,7 @@
 
 #endif // _XM_SSE_INTRINSICS_ && !_XM_NO_INTRINSICS_
 
-namespace DirectX
+namespace XMath
 {
 
 /****************************************************************************
@@ -1564,4 +1564,173 @@ inline XMVECTOR     XM_CALLCONV     XMVectorPermute(FXMVECTOR V1, FXMVECTOR V2)
 #endif
 }
 
-}; // namespace DirectX
+// Special-case permute templates
+template<> inline XMVECTOR      XM_CALLCONV     XMVectorPermute<0, 1, 2, 3>(FXMVECTOR V1, FXMVECTOR V2) { (V2); return V1; }
+template<> inline XMVECTOR      XM_CALLCONV     XMVectorPermute<4, 5, 6, 7>(FXMVECTOR V1, FXMVECTOR V2) { (V1); return V2; }
+
+#if defined(_XM_SSE_INTRINSICS_) && !defined(_XM_NO_INTRINSICS_)
+template<> inline XMVECTOR      XM_CALLCONV     XMVectorPermute<0, 1, 4, 5>(FXMVECTOR V1, FXMVECTOR V2) { return _mm_movelh_ps(V1, V2); }
+template<> inline XMVECTOR      XM_CALLCONV     XMVectorPermute<6, 7, 2, 3>(FXMVECTOR V1, FXMVECTOR V2) { return _mm_movehl_ps(V1, V2); }
+template<> inline XMVECTOR      XM_CALLCONV     XMVectorPermute<0, 4, 1, 5>(FXMVECTOR V1, FXMVECTOR V2) { return _mm_unpacklo_ps(V1, V2); }
+template<> inline XMVECTOR      XM_CALLCONV     XMVectorPermute<2, 6, 3, 7>(FXMVECTOR V1, FXMVECTOR V2) { return _mm_unpackhi_ps(V1, V2); }
+template<> inline XMVECTOR      XM_CALLCONV     XMVectorPermute<2, 3, 6, 7>(FXMVECTOR V1, FXMVECTOR V2) { return _mm_castpd_ps(_mm_unpackhi_pd(_mm_castps_pd(V1), _mm_castps_pd(V2))); }
+#endif
+
+#if defined(_XM_SSE4_INTRINSICS_) && !defined(_XM_NO_INTRINSICS_)
+template<> inline XMVECTOR      XM_CALLCONV     XMVectorPermute<4, 1, 2, 3>(FXMVECTOR V1, FXMVECTOR V2) { return _mm_blend_ps(V1, V2, 0x1); }
+template<> inline XMVECTOR      XM_CALLCONV     XMVectorPermute<0, 5, 2, 3>(FXMVECTOR V1, FXMVECTOR V2) { return _mm_blend_ps(V1, V2, 0x2); }
+template<> inline XMVECTOR      XM_CALLCONV     XMVectorPermute<4, 5, 2, 3>(FXMVECTOR V1, FXMVECTOR V2) { return _mm_blend_ps(V1, V2, 0x3); }
+template<> inline XMVECTOR      XM_CALLCONV     XMVectorPermute<0, 1, 6, 3>(FXMVECTOR V1, FXMVECTOR V2) { return _mm_blend_ps(V1, V2, 0x4); }
+template<> inline XMVECTOR      XM_CALLCONV     XMVectorPermute<4, 1, 6, 3>(FXMVECTOR V1, FXMVECTOR V2) { return _mm_blend_ps(V1, V2, 0x5); }
+template<> inline XMVECTOR      XM_CALLCONV     XMVectorPermute<0, 5, 6, 3>(FXMVECTOR V1, FXMVECTOR V2) { return _mm_blend_ps(V1, V2, 0x6); }
+template<> inline XMVECTOR      XM_CALLCONV     XMVectorPermute<4, 5, 6, 3>(FXMVECTOR V1, FXMVECTOR V2) { return _mm_blend_ps(V1, V2, 0x7); }
+template<> inline XMVECTOR      XM_CALLCONV     XMVectorPermute<0, 1, 2, 7>(FXMVECTOR V1, FXMVECTOR V2) { return _mm_blend_ps(V1, V2, 0x8); }
+template<> inline XMVECTOR      XM_CALLCONV     XMVectorPermute<4, 1, 2, 7>(FXMVECTOR V1, FXMVECTOR V2) { return _mm_blend_ps(V1, V2, 0x9); }
+template<> inline XMVECTOR      XM_CALLCONV     XMVectorPermute<0, 5, 2, 7>(FXMVECTOR V1, FXMVECTOR V2) { return _mm_blend_ps(V1, V2, 0xA); }
+template<> inline XMVECTOR      XM_CALLCONV     XMVectorPermute<4, 5, 2, 7>(FXMVECTOR V1, FXMVECTOR V2) { return _mm_blend_ps(V1, V2, 0xB); }
+template<> inline XMVECTOR      XM_CALLCONV     XMVectorPermute<0, 1, 6, 7>(FXMVECTOR V1, FXMVECTOR V2) { return _mm_blend_ps(V1, V2, 0xC); }
+template<> inline XMVECTOR      XM_CALLCONV     XMVectorPermute<4, 1, 6, 7>(FXMVECTOR V1, FXMVECTOR V2) { return _mm_blend_ps(V1, V2, 0xD); }
+template<> inline XMVECTOR      XM_CALLCONV     XMVectorPermute<0, 5, 6, 7>(FXMVECTOR V1, FXMVECTOR V2) { return _mm_blend_ps(V1, V2, 0xE); }
+#endif
+
+#if defined(_XM_ARM_NEON_INTRINSICS_) && !defined(_XM_NO_INTRINSICS_)
+
+// If the indices are all in the range 0-3 or 4-7, then use XMVectorSwizzle instead
+// The mirror cases are not spelled out here as the programmer can always swap the arguments
+// (i.e. prefer permutes where the X element comes from the V1 vector instead of the V2 vector)
+
+template<> inline XMVECTOR      XM_CALLCONV     XMVectorPermute<0, 1, 4, 5>(FXMVECTOR V1, FXMVECTOR V2) { return vcombine_f32(vget_low_f32(V1), vget_low_f32(V2)); }
+template<> inline XMVECTOR      XM_CALLCONV     XMVectorPermute<1, 0, 4, 5>(FXMVECTOR V1, FXMVECTOR V2) { return vcombine_f32(vrev64_f32(vget_low_f32(V1)), vget_low_f32(V2)); }
+template<> inline XMVECTOR      XM_CALLCONV     XMVectorPermute<0, 1, 5, 4>(FXMVECTOR V1, FXMVECTOR V2) { return vcombine_f32(vget_low_f32(V1), vrev64_f32(vget_low_f32(V2))); }
+template<> inline XMVECTOR      XM_CALLCONV     XMVectorPermute<1, 0, 5, 4>(FXMVECTOR V1, FXMVECTOR V2) { return vcombine_f32(vrev64_f32(vget_low_f32(V1)), vrev64_f32(vget_low_f32(V2))); }
+
+template<> inline XMVECTOR      XM_CALLCONV     XMVectorPermute<2, 3, 6, 7>(FXMVECTOR V1, FXMVECTOR V2) { return vcombine_f32(vget_high_f32(V1), vget_high_f32(V2)); }
+template<> inline XMVECTOR      XM_CALLCONV     XMVectorPermute<3, 2, 6, 7>(FXMVECTOR V1, FXMVECTOR V2) { return vcombine_f32(vrev64_f32(vget_high_f32(V1)), vget_high_f32(V2)); }
+template<> inline XMVECTOR      XM_CALLCONV     XMVectorPermute<2, 3, 7, 6>(FXMVECTOR V1, FXMVECTOR V2) { return vcombine_f32(vget_high_f32(V1), vrev64_f32(vget_high_f32(V2))); }
+template<> inline XMVECTOR      XM_CALLCONV     XMVectorPermute<3, 2, 7, 6>(FXMVECTOR V1, FXMVECTOR V2) { return vcombine_f32(vrev64_f32(vget_high_f32(V1)), vrev64_f32(vget_high_f32(V2))); }
+
+template<> inline XMVECTOR      XM_CALLCONV     XMVectorPermute<0, 1, 6, 7>(FXMVECTOR V1, FXMVECTOR V2) { return vcombine_f32(vget_low_f32(V1), vget_high_f32(V2)); }
+template<> inline XMVECTOR      XM_CALLCONV     XMVectorPermute<1, 0, 6, 7>(FXMVECTOR V1, FXMVECTOR V2) { return vcombine_f32(vrev64_f32(vget_low_f32(V1)), vget_high_f32(V2)); }
+template<> inline XMVECTOR      XM_CALLCONV     XMVectorPermute<0, 1, 7, 6>(FXMVECTOR V1, FXMVECTOR V2) { return vcombine_f32(vget_low_f32(V1), vrev64_f32(vget_high_f32(V2))); }
+template<> inline XMVECTOR      XM_CALLCONV     XMVectorPermute<1, 0, 7, 6>(FXMVECTOR V1, FXMVECTOR V2) { return vcombine_f32(vrev64_f32(vget_low_f32(V1)), vrev64_f32(vget_high_f32(V2))); }
+
+template<> inline XMVECTOR      XM_CALLCONV     XMVectorPermute<3, 2, 4, 5>(FXMVECTOR V1, FXMVECTOR V2) { return vcombine_f32(vrev64_f32(vget_high_f32(V1)), vget_low_f32(V2)); }
+template<> inline XMVECTOR      XM_CALLCONV     XMVectorPermute<2, 3, 5, 4>(FXMVECTOR V1, FXMVECTOR V2) { return vcombine_f32(vget_high_f32(V1), vrev64_f32(vget_low_f32(V2))); }
+template<> inline XMVECTOR      XM_CALLCONV     XMVectorPermute<3, 2, 5, 4>(FXMVECTOR V1, FXMVECTOR V2) { return vcombine_f32(vrev64_f32(vget_high_f32(V1)), vrev64_f32(vget_low_f32(V2))); }
+
+template<> inline XMVECTOR      XM_CALLCONV     XMVectorPermute<0, 4, 2, 6>(FXMVECTOR V1, FXMVECTOR V2) { return vtrnq_f32(V1, V2).val[0]; }
+template<> inline XMVECTOR      XM_CALLCONV     XMVectorPermute<1, 5, 3, 7>(FXMVECTOR V1, FXMVECTOR V2) { return vtrnq_f32(V1, V2).val[1]; }
+
+template<> inline XMVECTOR      XM_CALLCONV     XMVectorPermute<0, 4, 1, 5>(FXMVECTOR V1, FXMVECTOR V2) { return vzipq_f32(V1, V2).val[0]; }
+template<> inline XMVECTOR      XM_CALLCONV     XMVectorPermute<2, 6, 3, 7>(FXMVECTOR V1, FXMVECTOR V2) { return vzipq_f32(V1, V2).val[1]; }
+
+template<> inline XMVECTOR      XM_CALLCONV     XMVectorPermute<0, 2, 4, 6>(FXMVECTOR V1, FXMVECTOR V2) { return vuzpq_f32(V1, V2).val[0]; }
+template<> inline XMVECTOR      XM_CALLCONV     XMVectorPermute<1, 3, 5, 7>(FXMVECTOR V1, FXMVECTOR V2) { return vuzpq_f32(V1, V2).val[1]; }
+
+template<> inline XMVECTOR      XM_CALLCONV     XMVectorPermute<1, 2, 3, 4>(FXMVECTOR V1, FXMVECTOR V2) { return vextq_f32(V1, V2, 1); }
+template<> inline XMVECTOR      XM_CALLCONV     XMVectorPermute<2, 3, 4, 5>(FXMVECTOR V1, FXMVECTOR V2) { return vextq_f32(V1, V2, 2); }
+template<> inline XMVECTOR      XM_CALLCONV     XMVectorPermute<3, 4, 5, 6>(FXMVECTOR V1, FXMVECTOR V2) { return vextq_f32(V1, V2, 3); }
+
+#endif // _XM_ARM_NEON_INTRINSICS_ && !_XM_NO_INTRINSICS_
+
+//------------------------------------------------------------------------------
+
+// General swizzle template
+template<uint32_t SwizzleX, uint32_t SwizzleY, uint32_t SwizzleZ, uint32_t SwizzleW>
+inline XMVECTOR     XM_CALLCONV     XMVectorSwizzle(FXMVECTOR V)
+{
+	static_assert(SwizzleX <= 3, "SwizzleX template parameter out of range");
+	static_assert(SwizzleY <= 3, "SwizzleY template parameter out of range");
+	static_assert(SwizzleZ <= 3, "SwizzleZ template parameter out of range");
+	static_assert(SwizzleW <= 3, "SwizzleW template parameter out of range");
+
+#if defined(_XM_SSE_INTRINSICS_) && !defined(_XM_NO_INTRINSICS_)
+	return XM_PERMUTE_PS(V, _MM_SHUFFLE(SwizzleW, SwizzleZ, SwizzleY, SwizzleX));
+#else
+
+	return XMVectorSwizzle(V, SwizzleX, SwizzleY, SwizzleZ, SwizzleW);
+
+#endif
+}
+
+// Specialized swizzles
+template<> inline XMVECTOR      XM_CALLCONV     XMVectorSwizzle<0, 1, 2, 3>(FXMVECTOR V) { return V; }
+
+#if defined(_XM_SSE_INTRINSICS_) && !defined(_XM_NO_INTRINSICS_)
+template<> inline XMVECTOR      XM_CALLCONV     XMVectorSwizzle<0, 1, 0, 1>(FXMVECTOR V) { return _mm_movelh_ps(V, V); }
+template<> inline XMVECTOR      XM_CALLCONV     XMVectorSwizzle<2, 3, 2, 3>(FXMVECTOR V) { return _mm_movehl_ps(V, V); }
+template<> inline XMVECTOR      XM_CALLCONV     XMVectorSwizzle<0, 0, 1, 1>(FXMVECTOR V) { return _mm_unpacklo_ps(V, V); }
+template<> inline XMVECTOR      XM_CALLCONV     XMVectorSwizzle<2, 2, 3, 3>(FXMVECTOR V) { return _mm_unpackhi_ps(V, V); }
+#endif
+
+#if defined(_XM_SSE3_INTRINSICS_) && !defined(_XM_NO_INTRINSICS_)
+template<> inline XMVECTOR      XM_CALLCONV     XMVectorSwizzle<0, 0, 2, 2>(FXMVECTOR V) { return _mm_moveldup_ps(V); }
+template<> inline XMVECTOR      XM_CALLCONV     XMVectorSwizzle<1, 1, 3, 3>(FXMVECTOR V) { return _mm_movehdup_ps(V); }
+#endif
+
+#if defined(_XM_ARM_NEON_INTRINSICS_) && !defined(_XM_NO_INTRINSICS_)
+
+template<> inline XMVECTOR      XM_CALLCONV     XMVectorSwizzle<0, 0, 0, 0>(FXMVECTOR V) { return vdupq_lane_f32(vget_low_f32(V), 0); }
+template<> inline XMVECTOR      XM_CALLCONV     XMVectorSwizzle<1, 1, 1, 1>(FXMVECTOR V) { return vdupq_lane_f32(vget_low_f32(V), 1); }
+template<> inline XMVECTOR      XM_CALLCONV     XMVectorSwizzle<2, 2, 2, 2>(FXMVECTOR V) { return vdupq_lane_f32(vget_high_f32(V), 0); }
+template<> inline XMVECTOR      XM_CALLCONV     XMVectorSwizzle<3, 3, 3, 3>(FXMVECTOR V) { return vdupq_lane_f32(vget_high_f32(V), 1); }
+
+template<> inline XMVECTOR      XM_CALLCONV     XMVectorSwizzle<1, 0, 3, 2>(FXMVECTOR V) { return vrev64q_f32(V); }
+
+template<> inline XMVECTOR      XM_CALLCONV     XMVectorSwizzle<0, 1, 0, 1>(FXMVECTOR V) { float32x2_t vt = vget_low_f32(V); return vcombine_f32(vt, vt); }
+template<> inline XMVECTOR      XM_CALLCONV     XMVectorSwizzle<2, 3, 2, 3>(FXMVECTOR V) { float32x2_t vt = vget_high_f32(V); return vcombine_f32(vt, vt); }
+template<> inline XMVECTOR      XM_CALLCONV     XMVectorSwizzle<1, 0, 1, 0>(FXMVECTOR V) { float32x2_t vt = vrev64_f32(vget_low_f32(V)); return vcombine_f32(vt, vt); }
+template<> inline XMVECTOR      XM_CALLCONV     XMVectorSwizzle<3, 2, 3, 2>(FXMVECTOR V) { float32x2_t vt = vrev64_f32(vget_high_f32(V)); return vcombine_f32(vt, vt); }
+
+template<> inline XMVECTOR      XM_CALLCONV     XMVectorSwizzle<0, 1, 3, 2>(FXMVECTOR V) { return vcombine_f32(vget_low_f32(V), vrev64_f32(vget_high_f32(V))); }
+template<> inline XMVECTOR      XM_CALLCONV     XMVectorSwizzle<1, 0, 2, 3>(FXMVECTOR V) { return vcombine_f32(vrev64_f32(vget_low_f32(V)), vget_high_f32(V)); }
+template<> inline XMVECTOR      XM_CALLCONV     XMVectorSwizzle<2, 3, 1, 0>(FXMVECTOR V) { return vcombine_f32(vget_high_f32(V), vrev64_f32(vget_low_f32(V))); }
+template<> inline XMVECTOR      XM_CALLCONV     XMVectorSwizzle<3, 2, 0, 1>(FXMVECTOR V) { return vcombine_f32(vrev64_f32(vget_high_f32(V)), vget_low_f32(V)); }
+template<> inline XMVECTOR      XM_CALLCONV     XMVectorSwizzle<3, 2, 1, 0>(FXMVECTOR V) { return vcombine_f32(vrev64_f32(vget_high_f32(V)), vrev64_f32(vget_low_f32(V))); }
+
+template<> inline XMVECTOR      XM_CALLCONV     XMVectorSwizzle<0, 0, 2, 2>(FXMVECTOR V) { return vtrnq_f32(V, V).val[0]; }
+template<> inline XMVECTOR      XM_CALLCONV     XMVectorSwizzle<1, 1, 3, 3>(FXMVECTOR V) { return vtrnq_f32(V, V).val[1]; }
+
+template<> inline XMVECTOR      XM_CALLCONV     XMVectorSwizzle<0, 0, 1, 1>(FXMVECTOR V) { return vzipq_f32(V, V).val[0]; }
+template<> inline XMVECTOR      XM_CALLCONV     XMVectorSwizzle<2, 2, 3, 3>(FXMVECTOR V) { return vzipq_f32(V, V).val[1]; }
+
+template<> inline XMVECTOR      XM_CALLCONV     XMVectorSwizzle<0, 2, 0, 2>(FXMVECTOR V) { return vuzpq_f32(V, V).val[0]; }
+template<> inline XMVECTOR      XM_CALLCONV     XMVectorSwizzle<1, 3, 1, 3>(FXMVECTOR V) { return vuzpq_f32(V, V).val[1]; }
+
+template<> inline XMVECTOR      XM_CALLCONV     XMVectorSwizzle<1, 2, 3, 0>(FXMVECTOR V) { return vextq_f32(V, V, 1); }
+template<> inline XMVECTOR      XM_CALLCONV     XMVectorSwizzle<2, 3, 0, 1>(FXMVECTOR V) { return vextq_f32(V, V, 2); }
+template<> inline XMVECTOR      XM_CALLCONV     XMVectorSwizzle<3, 0, 1, 2>(FXMVECTOR V) { return vextq_f32(V, V, 3); }
+
+#endif // _XM_ARM_NEON_INTRINSICS_ && !_XM_NO_INTRINSICS_
+
+//------------------------------------------------------------------------------
+
+template<uint32_t Elements>
+inline XMVECTOR     XM_CALLCONV     XMVectorShiftLeft(FXMVECTOR V1, FXMVECTOR V2)
+{
+	static_assert(Elements < 4, "Elements template parameter out of range");
+	return XMVectorPermute<Elements, (Elements + 1), (Elements + 2), (Elements + 3)>(V1, V2);
+}
+
+template<uint32_t Elements>
+inline XMVECTOR     XM_CALLCONV     XMVectorRotateLeft(FXMVECTOR V)
+{
+	static_assert(Elements < 4, "Elements template parameter out of range");
+	return XMVectorSwizzle<Elements & 3, (Elements + 1) & 3, (Elements + 2) & 3, (Elements + 3) & 3>(V);
+}
+
+template<uint32_t Elements>
+inline XMVECTOR     XM_CALLCONV     XMVectorRotateRight(FXMVECTOR V)
+{
+	static_assert(Elements < 4, "Elements template parameter out of range");
+	return XMVectorSwizzle<(4 - Elements) & 3, (5 - Elements) & 3, (6 - Elements) & 3, (7 - Elements) & 3>(V);
+}
+
+template<uint32_t VSLeftRotateElements, uint32_t Select0, uint32_t Select1, uint32_t Select2, uint32_t Select3>
+inline XMVECTOR     XM_CALLCONV     XMVectorInsert(FXMVECTOR VD, FXMVECTOR VS)
+{
+	XMVECTOR Control = XMVectorSelectControl(Select0 & 1, Select1 & 1, Select2 & 1, Select3 & 1);
+	return XMVectorSelect(VD, XMVectorRotateLeft<VSLeftRotateElements>(VS), Control);
+}
+
+}; // namespace XMath
