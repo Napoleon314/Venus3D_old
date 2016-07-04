@@ -54,7 +54,11 @@
 #endif
 
 #ifndef XM_DEPRECATED
-#define XM_DEPRECATED __declspec(deprecated("This is deprecated and will be removed in a future version."))
+#	ifdef _MSC_VER
+#		define XM_DEPRECATED __declspec(deprecated("This is deprecated and will be removed in a future version."))
+#	else
+#		define XM_DEPRECATED
+#	endif
 #endif
 
 #if !defined(_XM_F16C_INTRINSICS_) && defined(__AVX2__) && !defined(_XM_NO_INTRINSICS_)
