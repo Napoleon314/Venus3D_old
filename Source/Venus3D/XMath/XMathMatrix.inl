@@ -1946,8 +1946,10 @@ inline XMMATRIX XM_CALLCONV XMMatrixLookToRH
 
 //------------------------------------------------------------------------------
 
-#pragma prefast(push)
-#pragma prefast(disable:28931, "PREfast noise: Esp:1266")
+#ifdef _MSC_VER
+#	pragma prefast(push)
+#	pragma prefast(disable:28931, "PREfast noise: Esp:1266")
+#endif
 
 inline XMMATRIX XM_CALLCONV XMMatrixPerspectiveLH
 (
