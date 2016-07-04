@@ -7603,7 +7603,9 @@ inline XMFLOAT4* XM_CALLCONV XMVector2TransformStream
 		XMVECTOR Result = XMVectorMultiplyAdd(Y, row1, row3);
 		Result = XMVectorMultiplyAdd(X, row0, Result);
 
-#pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+#ifdef _MSC_VER
+#	pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+#endif
 		XMStoreFloat4((XMFLOAT4*)pOutputVector, Result);
 
 		pInputVector += InputStride;
@@ -7900,7 +7902,9 @@ inline XMFLOAT2* XM_CALLCONV XMVector2TransformCoordStream
 
 		Result = XMVectorDivide(Result, W);
 
-#pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+#ifdef _MSC_VER
+#	pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+#endif
 		XMStoreFloat2((XMFLOAT2*)pOutputVector, Result);
 
 		pInputVector += InputStride;
@@ -8278,7 +8282,9 @@ inline XMFLOAT2* XM_CALLCONV XMVector2TransformNormalStream
 		XMVECTOR Result = XMVectorMultiply(Y, row1);
 		Result = XMVectorMultiplyAdd(X, row0, Result);
 
-#pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+#ifdef _MSC_VER
+#	pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+#endif
 		XMStoreFloat2((XMFLOAT2*)pOutputVector, Result);
 
 		pInputVector += InputStride;
@@ -9949,7 +9955,9 @@ inline XMFLOAT4* XM_CALLCONV XMVector3TransformStream
 		Result = XMVectorMultiplyAdd(Y, row1, Result);
 		Result = XMVectorMultiplyAdd(X, row0, Result);
 
-#pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+#ifdef _MSC_VER
+#	pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+#endif
 		XMStoreFloat4((XMFLOAT4*)pOutputVector, Result);
 
 		pInputVector += InputStride;
@@ -10213,7 +10221,9 @@ inline XMFLOAT4* XM_CALLCONV XMVector3TransformStream
 		// Aligned output
 		for (; i < VectorCount; ++i)
 		{
-#pragma prefast( suppress : 26019, "PREfast noise: Esp:1307" )
+#ifdef _MSC_VER
+#	pragma prefast( suppress : 26019, "PREfast noise: Esp:1307" )
+#endif
 			XMVECTOR V = XMLoadFloat3(reinterpret_cast<const XMFLOAT3*>(pInputVector));
 			pInputVector += InputStride;
 
@@ -10237,7 +10247,9 @@ inline XMFLOAT4* XM_CALLCONV XMVector3TransformStream
 		// Unaligned output
 		for (; i < VectorCount; ++i)
 		{
-#pragma prefast( suppress : 26019, "PREfast noise: Esp:1307" )
+#ifdef _MSC_VER
+#	pragma prefast( suppress : 26019, "PREfast noise: Esp:1307" )
+#endif
 			XMVECTOR V = XMLoadFloat3(reinterpret_cast<const XMFLOAT3*>(pInputVector));
 			pInputVector += InputStride;
 
@@ -10330,7 +10342,9 @@ inline XMFLOAT3* XM_CALLCONV XMVector3TransformCoordStream
 
 		Result = XMVectorDivide(Result, W);
 
-#pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+#ifdef _MSC_VER
+#	pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+#endif
 		XMStoreFloat3((XMFLOAT3*)pOutputVector, Result);
 
 		pInputVector += InputStride;
@@ -10664,7 +10678,9 @@ inline XMFLOAT3* XM_CALLCONV XMVector3TransformCoordStream
 					XMVECTOR W = XM_PERMUTE_PS(vTemp, _MM_SHUFFLE(3, 3, 3, 3));
 
 					vTemp = _mm_div_ps(vTemp, W);
-#pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+#ifdef _MSC_VER
+#	pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+#endif
 					XMStoreFloat3(reinterpret_cast<XMFLOAT3*>(pOutputVector), vTemp);
 					pOutputVector += OutputStride;
 
@@ -10683,7 +10699,9 @@ inline XMFLOAT3* XM_CALLCONV XMVector3TransformCoordStream
 					W = XM_PERMUTE_PS(vTemp, _MM_SHUFFLE(3, 3, 3, 3));
 
 					vTemp = _mm_div_ps(vTemp, W);
-#pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+#ifdef _MSC_VER
+#	pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+#endif
 					XMStoreFloat3(reinterpret_cast<XMFLOAT3*>(pOutputVector), vTemp);
 					pOutputVector += OutputStride;
 
@@ -10702,7 +10720,9 @@ inline XMFLOAT3* XM_CALLCONV XMVector3TransformCoordStream
 					W = XM_PERMUTE_PS(vTemp, _MM_SHUFFLE(3, 3, 3, 3));
 
 					vTemp = _mm_div_ps(vTemp, W);
-#pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+#ifdef _MSC_VER
+#	pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+#endif
 					XMStoreFloat3(reinterpret_cast<XMFLOAT3*>(pOutputVector), vTemp);
 					pOutputVector += OutputStride;
 
@@ -10721,7 +10741,9 @@ inline XMFLOAT3* XM_CALLCONV XMVector3TransformCoordStream
 					W = XM_PERMUTE_PS(vTemp, _MM_SHUFFLE(3, 3, 3, 3));
 
 					vTemp = _mm_div_ps(vTemp, W);
-#pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+#ifdef _MSC_VER
+#	pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+#endif
 					XMStoreFloat3(reinterpret_cast<XMFLOAT3*>(pOutputVector), vTemp);
 					pOutputVector += OutputStride;
 
@@ -10733,7 +10755,9 @@ inline XMFLOAT3* XM_CALLCONV XMVector3TransformCoordStream
 
 	for (; i < VectorCount; i++)
 	{
-#pragma prefast( suppress : 26019, "PREfast noise: Esp:1307" )
+#ifdef _MSC_VER
+#	pragma prefast( suppress : 26019, "PREfast noise: Esp:1307" )
+#endif
 		XMVECTOR V = XMLoadFloat3(reinterpret_cast<const XMFLOAT3*>(pInputVector));
 		pInputVector += InputStride;
 
@@ -10752,7 +10776,9 @@ inline XMFLOAT3* XM_CALLCONV XMVector3TransformCoordStream
 
 		vTemp = _mm_div_ps(vTemp, W);
 
-#pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+#ifdef _MSC_VER
+#	pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+#endif
 		XMStoreFloat3(reinterpret_cast<XMFLOAT3*>(pOutputVector), vTemp);
 		pOutputVector += OutputStride;
 	}
@@ -10843,7 +10869,9 @@ inline XMFLOAT3* XM_CALLCONV XMVector3TransformNormalStream
 		Result = XMVectorMultiplyAdd(Y, row1, Result);
 		Result = XMVectorMultiplyAdd(X, row0, Result);
 
-#pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+#ifdef _MSC_VER
+#	pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+#endif
 		XMStoreFloat3((XMFLOAT3*)pOutputVector, Result);
 
 		pInputVector += InputStride;
@@ -11107,7 +11135,9 @@ inline XMFLOAT3* XM_CALLCONV XMVector3TransformNormalStream
 					vTemp = _mm_add_ps(vTemp, vTemp2);
 					vTemp = _mm_add_ps(vTemp, vTemp3);
 
-#pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+#ifdef _MSC_VER
+#	pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+#endif
 					XMStoreFloat3(reinterpret_cast<XMFLOAT3*>(pOutputVector), vTemp);
 					pOutputVector += OutputStride;
 
@@ -11122,7 +11152,9 @@ inline XMFLOAT3* XM_CALLCONV XMVector3TransformNormalStream
 					vTemp = _mm_add_ps(vTemp, vTemp2);
 					vTemp = _mm_add_ps(vTemp, vTemp3);
 
-#pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+#ifdef _MSC_VER
+#	pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+#endif
 					XMStoreFloat3(reinterpret_cast<XMFLOAT3*>(pOutputVector), vTemp);
 					pOutputVector += OutputStride;
 
@@ -11137,7 +11169,9 @@ inline XMFLOAT3* XM_CALLCONV XMVector3TransformNormalStream
 					vTemp = _mm_add_ps(vTemp, vTemp2);
 					vTemp = _mm_add_ps(vTemp, vTemp3);
 
-#pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+#ifdef _MSC_VER
+#	pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+#endif
 					XMStoreFloat3(reinterpret_cast<XMFLOAT3*>(pOutputVector), vTemp);
 					pOutputVector += OutputStride;
 
@@ -11152,7 +11186,9 @@ inline XMFLOAT3* XM_CALLCONV XMVector3TransformNormalStream
 					vTemp = _mm_add_ps(vTemp, vTemp2);
 					vTemp = _mm_add_ps(vTemp, vTemp3);
 
-#pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+#ifdef _MSC_VER
+#	pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+#endif
 					XMStoreFloat3(reinterpret_cast<XMFLOAT3*>(pOutputVector), vTemp);
 					pOutputVector += OutputStride;
 
@@ -11164,7 +11200,9 @@ inline XMFLOAT3* XM_CALLCONV XMVector3TransformNormalStream
 
 	for (; i < VectorCount; i++)
 	{
-#pragma prefast( suppress : 26019, "PREfast noise: Esp:1307" )
+#ifdef _MSC_VER
+#	pragma prefast( suppress : 26019, "PREfast noise: Esp:1307" )
+#endif
 		XMVECTOR V = XMLoadFloat3(reinterpret_cast<const XMFLOAT3*>(pInputVector));
 		pInputVector += InputStride;
 
@@ -11178,7 +11216,9 @@ inline XMFLOAT3* XM_CALLCONV XMVector3TransformNormalStream
 		vTemp = _mm_add_ps(vTemp, vTemp2);
 		vTemp = _mm_add_ps(vTemp, vTemp3);
 
-#pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+#ifdef _MSC_VER
+#	pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+#endif
 		XMStoreFloat3(reinterpret_cast<XMFLOAT3*>(pOutputVector), vTemp);
 		pOutputVector += OutputStride;
 	}
@@ -11272,7 +11312,9 @@ inline XMFLOAT3* XM_CALLCONV XMVector3ProjectStream
 		XMVECTOR Result = XMVector3TransformCoord(V, Transform);
 		Result = XMVectorMultiplyAdd(Result, Scale, Offset);
 
-#pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+#ifdef _MSC_VER
+#	pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+#endif
 		XMStoreFloat3((XMFLOAT3*)pOutputVector, Result);
 
 		pInputVector += InputStride;
@@ -11649,7 +11691,9 @@ inline XMFLOAT3* XM_CALLCONV XMVector3ProjectStream
 					vTemp = _mm_mul_ps(vTemp, Scale);
 					vTemp = _mm_add_ps(vTemp, Offset);
 
-#pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+#ifdef _MSC_VER
+#	pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+#endif
 					XMStoreFloat3(reinterpret_cast<XMFLOAT3*>(pOutputVector), vTemp);
 					pOutputVector += OutputStride;
 
@@ -11671,7 +11715,9 @@ inline XMFLOAT3* XM_CALLCONV XMVector3ProjectStream
 					vTemp = _mm_mul_ps(vTemp, Scale);
 					vTemp = _mm_add_ps(vTemp, Offset);
 
-#pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+#ifdef _MSC_VER
+#	pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+#endif
 					XMStoreFloat3(reinterpret_cast<XMFLOAT3*>(pOutputVector), vTemp);
 					pOutputVector += OutputStride;
 
@@ -11693,7 +11739,9 @@ inline XMFLOAT3* XM_CALLCONV XMVector3ProjectStream
 					vTemp = _mm_mul_ps(vTemp, Scale);
 					vTemp = _mm_add_ps(vTemp, Offset);
 
-#pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+#ifdef _MSC_VER
+#	pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+#endif
 					XMStoreFloat3(reinterpret_cast<XMFLOAT3*>(pOutputVector), vTemp);
 					pOutputVector += OutputStride;
 
@@ -11715,7 +11763,9 @@ inline XMFLOAT3* XM_CALLCONV XMVector3ProjectStream
 					vTemp = _mm_mul_ps(vTemp, Scale);
 					vTemp = _mm_add_ps(vTemp, Offset);
 
-#pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+#ifdef _MSC_VER
+#	pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+#endif
 					XMStoreFloat3(reinterpret_cast<XMFLOAT3*>(pOutputVector), vTemp);
 					pOutputVector += OutputStride;
 
@@ -11727,7 +11777,9 @@ inline XMFLOAT3* XM_CALLCONV XMVector3ProjectStream
 
 	for (; i < VectorCount; i++)
 	{
-#pragma prefast( suppress : 26019, "PREfast noise: Esp:1307" )
+#ifdef _MSC_VER
+#	pragma prefast( suppress : 26019, "PREfast noise: Esp:1307" )
+#endif
 		XMVECTOR V = XMLoadFloat3(reinterpret_cast<const XMFLOAT3*>(pInputVector));
 		pInputVector += InputStride;
 
@@ -11748,7 +11800,9 @@ inline XMFLOAT3* XM_CALLCONV XMVector3ProjectStream
 		vTemp = _mm_mul_ps(vTemp, Scale);
 		vTemp = _mm_add_ps(vTemp, Offset);
 
-#pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+#ifdef _MSC_VER
+#	pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+#endif
 		XMStoreFloat3(reinterpret_cast<XMFLOAT3*>(pOutputVector), vTemp);
 		pOutputVector += OutputStride;
 	}
@@ -11846,7 +11900,9 @@ inline XMFLOAT3* XM_CALLCONV XMVector3UnprojectStream
 
 		Result = XMVector3TransformCoord(Result, Transform);
 
-#pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+#ifdef _MSC_VER
+#	pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+#endif
 		XMStoreFloat3((XMFLOAT3*)pOutputVector, Result);
 
 		pInputVector += InputStride;
@@ -12238,7 +12294,9 @@ inline XMFLOAT3* XM_CALLCONV XMVector3UnprojectStream
 					XMVECTOR W = XM_PERMUTE_PS(vTemp, _MM_SHUFFLE(3, 3, 3, 3));
 					vTemp = _mm_div_ps(vTemp, W);
 
-#pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+#ifdef _MSC_VER
+#	pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+#endif
 					XMStoreFloat3(reinterpret_cast<XMFLOAT3*>(pOutputVector), vTemp);
 					pOutputVector += OutputStride;
 
@@ -12260,7 +12318,9 @@ inline XMFLOAT3* XM_CALLCONV XMVector3UnprojectStream
 					W = XM_PERMUTE_PS(vTemp, _MM_SHUFFLE(3, 3, 3, 3));
 					vTemp = _mm_div_ps(vTemp, W);
 
-#pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+#ifdef _MSC_VER
+#	pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+#endif
 					XMStoreFloat3(reinterpret_cast<XMFLOAT3*>(pOutputVector), vTemp);
 					pOutputVector += OutputStride;
 
@@ -12282,7 +12342,9 @@ inline XMFLOAT3* XM_CALLCONV XMVector3UnprojectStream
 					W = XM_PERMUTE_PS(vTemp, _MM_SHUFFLE(3, 3, 3, 3));
 					vTemp = _mm_div_ps(vTemp, W);
 
-#pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+#ifdef _MSC_VER
+#	pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+#endif
 					XMStoreFloat3(reinterpret_cast<XMFLOAT3*>(pOutputVector), vTemp);
 					pOutputVector += OutputStride;
 
@@ -12304,7 +12366,9 @@ inline XMFLOAT3* XM_CALLCONV XMVector3UnprojectStream
 					W = XM_PERMUTE_PS(vTemp, _MM_SHUFFLE(3, 3, 3, 3));
 					vTemp = _mm_div_ps(vTemp, W);
 
-#pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+#ifdef _MSC_VER
+#	pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+#endif
 					XMStoreFloat3(reinterpret_cast<XMFLOAT3*>(pOutputVector), vTemp);
 					pOutputVector += OutputStride;
 
@@ -12316,7 +12380,9 @@ inline XMFLOAT3* XM_CALLCONV XMVector3UnprojectStream
 
 	for (; i < VectorCount; i++)
 	{
-#pragma prefast( suppress : 26019, "PREfast noise: Esp:1307" )
+#ifdef _MSC_VER
+#	pragma prefast( suppress : 26019, "PREfast noise: Esp:1307" )
+#endif
 		XMVECTOR V = XMLoadFloat3(reinterpret_cast<const XMFLOAT3*>(pInputVector));
 		pInputVector += InputStride;
 
@@ -12337,7 +12403,9 @@ inline XMFLOAT3* XM_CALLCONV XMVector3UnprojectStream
 		XMVECTOR W = XM_PERMUTE_PS(vTemp, _MM_SHUFFLE(3, 3, 3, 3));
 		vTemp = _mm_div_ps(vTemp, W);
 
-#pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+#ifdef _MSC_VER
+#	pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+#endif
 		XMStoreFloat3(reinterpret_cast<XMFLOAT3*>(pOutputVector), vTemp);
 		pOutputVector += OutputStride;
 	}
@@ -12347,4 +12415,3 @@ inline XMFLOAT3* XM_CALLCONV XMVector3UnprojectStream
 	return pOutputStream;
 #endif
 }
-
