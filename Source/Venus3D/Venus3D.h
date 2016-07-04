@@ -329,6 +329,7 @@
 #	endif
 #	if BUILD_INTRINSICS_LEVEL > 2
 #		define _XM_F16C_INTRINSICS_
+#		define _XM_AVX2_INTRINSICS_
 #	endif
 #endif
 #if defined(VE_COMPILER_GCC) || defined(BUILD_PLATFORM_IOS)
@@ -339,3 +340,4 @@
 #endif
 //#define _XM_NO_INTRINSICS_
 #include "XMath/XMath.h"
+#include "XMath/XColors.h"

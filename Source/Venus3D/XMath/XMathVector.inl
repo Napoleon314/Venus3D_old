@@ -238,6 +238,8 @@ inline XMVECTOR XM_CALLCONV XMVectorSplatX
 	return vResult;
 #elif defined(_XM_ARM_NEON_INTRINSICS_)
 	return vdupq_lane_f32(vget_low_f32(V), 0);
+#elif defined(_XM_AVX2_INTRINSICS_)
+	return _mm_broadcastss_ps(V);
 #elif defined(_XM_SSE_INTRINSICS_)
 	return XM_PERMUTE_PS(V, _MM_SHUFFLE(0, 0, 0, 0));
 #endif
@@ -3033,6 +3035,8 @@ inline XMVECTOR XM_CALLCONV XMVectorMultiplyAdd
 	return Result;
 #elif defined(_XM_ARM_NEON_INTRINSICS_)
 	return vmlaq_f32(V3, V1, V2);
+#elif defined(_XM_AVX2_INTRINSICS_)
+	return _mm_fmadd_ps(V1, V2, V3);
 #elif defined(_XM_SSE_INTRINSICS_)
 	XMVECTOR vResult = _mm_mul_ps(V1, V2);
 	return _mm_add_ps(vResult, V3);
@@ -3085,6 +3089,8 @@ inline XMVECTOR XM_CALLCONV XMVectorNegativeMultiplySubtract
 	return Result;
 #elif defined(_XM_ARM_NEON_INTRINSICS_)
 	return vmlsq_f32(V3, V1, V2);
+#elif defined(_XM_AVX2_INTRINSICS_)
+	return _mm_fnmadd_ps(V1, V2, V3);
 #elif defined(_XM_SSE_INTRINSICS_)
 	XMVECTOR R = _mm_mul_ps(V1, V2);
 	return _mm_sub_ps(V3, R);
@@ -7552,6 +7558,12 @@ inline XMVECTOR XM_CALLCONV XMVector2Transform
 	float32x2_t VL = vget_low_f32(V);
 	float32x4_t Result = vmlaq_lane_f32(M.c[3], M.c[1], VL, 1); // Y
 	return vmlaq_lane_f32(Result, M.c[0], VL, 0); // X
+#elif defined(_XM_AVX2_INTRINSICS_)
+	XMVECTOR vResult = _mm_permute_ps(V, _MM_SHUFFLE(1, 1, 1, 1)); // Y
+	vResult = _mm_fmadd_ps(vResult, M.c[1], M.c[3]);
+	XMVECTOR vTemp = _mm_broadcastss_ps(V); // X
+	vResult = _mm_fmadd_ps(vTemp, M.c[0], vResult);
+	return vResult;
 #elif defined(_XM_SSE_INTRINSICS_)
 	XMVECTOR vResult = XM_PERMUTE_PS(V, _MM_SHUFFLE(0, 0, 0, 0));
 	vResult = _mm_mul_ps(vResult, M.c[0]);
@@ -7848,6 +7860,15 @@ inline XMVECTOR XM_CALLCONV XMVector2TransformCoord
 	FXMMATRIX M
 )
 {
+#if defined(_XM_AVX2_INTRINSICS_)
+	XMVECTOR vResult = _mm_permute_ps(V, _MM_SHUFFLE(1, 1, 1, 1)); // Y
+	vResult = _mm_fmadd_ps(vResult, M.c[1], M.c[3]);
+	XMVECTOR vTemp = _mm_broadcastss_ps(V); // X
+	vResult = _mm_fmadd_ps(vTemp, M.c[0], vResult);
+	XMVECTOR W = _mm_permute_ps(vResult, _MM_SHUFFLE(3, 3, 3, 3));
+	vResult = _mm_div_ps(vResult, W);
+	return vResult;
+#else
 	XMVECTOR Y = XMVectorSplatY(V);
 	XMVECTOR X = XMVectorSplatX(V);
 
@@ -7856,6 +7877,7 @@ inline XMVECTOR XM_CALLCONV XMVector2TransformCoord
 
 	XMVECTOR W = XMVectorSplatW(Result);
 	return XMVectorDivide(Result, W);
+#endif
 }
 
 //------------------------------------------------------------------------------
@@ -8233,6 +8255,12 @@ inline XMVECTOR XM_CALLCONV XMVector2TransformNormal
 	float32x2_t VL = vget_low_f32(V);
 	float32x4_t Result = vmulq_lane_f32(M.c[1], VL, 1); // Y
 	return vmlaq_lane_f32(Result, M.c[0], VL, 0); // X
+#elif defined(_XM_AVX2_INTRINSICS_)
+	XMVECTOR vResult = _mm_permute_ps(V, _MM_SHUFFLE(1, 1, 1, 1)); // Y
+	vResult = _mm_mul_ps(vResult, M.c[1]);
+	XMVECTOR vTemp = _mm_broadcastss_ps(V); // X
+	vResult = _mm_fmadd_ps(vTemp, M.c[0], vResult);
+	return vResult;
 #elif defined(_XM_SSE_INTRINSICS_)
 	XMVECTOR vResult = XM_PERMUTE_PS(V, _MM_SHUFFLE(0, 0, 0, 0));
 	vResult = _mm_mul_ps(vResult, M.c[0]);
@@ -9898,6 +9926,14 @@ inline XMVECTOR XM_CALLCONV XMVector3Transform
 	XMVECTOR vResult = vmlaq_lane_f32(M.c[3], M.c[0], VL, 0); // X
 	vResult = vmlaq_lane_f32(vResult, M.c[1], VL, 1); // Y
 	return vmlaq_lane_f32(vResult, M.c[2], vget_high_f32(V), 0); // Z
+#elif defined(_XM_AVX2_INTRINSICS_)
+	XMVECTOR vResult = _mm_permute_ps(V, _MM_SHUFFLE(2, 2, 2, 2)); // Z
+	vResult = _mm_fmadd_ps(vResult, M.c[2], M.c[3]);
+	XMVECTOR vTemp = _mm_permute_ps(V, _MM_SHUFFLE(1, 1, 1, 1)); // Y
+	vResult = _mm_fmadd_ps(vTemp, M.c[1], vResult);
+	vTemp = _mm_broadcastss_ps(V); // X
+	vResult = _mm_fmadd_ps(vTemp, M.c[0], vResult);
+	return vResult;
 #elif defined(_XM_SSE_INTRINSICS_)
 	XMVECTOR vResult = XM_PERMUTE_PS(V, _MM_SHUFFLE(0, 0, 0, 0));
 	vResult = _mm_mul_ps(vResult, M.c[0]);
@@ -10283,6 +10319,17 @@ inline XMVECTOR XM_CALLCONV XMVector3TransformCoord
 	FXMMATRIX M
 )
 {
+#if defined(_XM_AVX2_INTRINSICS_)
+	XMVECTOR vResult = _mm_permute_ps(V, _MM_SHUFFLE(2, 2, 2, 2)); // Z
+	vResult = _mm_fmadd_ps(vResult, M.c[2], M.c[3]);
+	XMVECTOR vTemp = _mm_permute_ps(V, _MM_SHUFFLE(1, 1, 1, 1)); // Y
+	vResult = _mm_fmadd_ps(vTemp, M.c[1], vResult);
+	vTemp = _mm_broadcastss_ps(V); // X
+	vResult = _mm_fmadd_ps(vTemp, M.c[0], vResult);
+	XMVECTOR W = _mm_permute_ps(vResult, _MM_SHUFFLE(3, 3, 3, 3));
+	vResult = _mm_div_ps(vResult, W);
+	return vResult;
+#else
 	XMVECTOR Z = XMVectorSplatZ(V);
 	XMVECTOR Y = XMVectorSplatY(V);
 	XMVECTOR X = XMVectorSplatX(V);
@@ -10293,6 +10340,7 @@ inline XMVECTOR XM_CALLCONV XMVector3TransformCoord
 
 	XMVECTOR W = XMVectorSplatW(Result);
 	return XMVectorDivide(Result, W);
+#endif
 }
 
 //------------------------------------------------------------------------------
@@ -10814,6 +10862,14 @@ inline XMVECTOR XM_CALLCONV XMVector3TransformNormal
 	XMVECTOR vResult = vmulq_lane_f32(M.c[0], VL, 0); // X
 	vResult = vmlaq_lane_f32(vResult, M.c[1], VL, 1); // Y
 	return vmlaq_lane_f32(vResult, M.c[2], vget_high_f32(V), 0); // Z
+#elif defined(_XM_AVX2_INTRINSICS_)
+	XMVECTOR vResult = _mm_permute_ps(V, _MM_SHUFFLE(2, 2, 2, 2)); // Z
+	vResult = _mm_mul_ps(vResult, M.c[2]);
+	XMVECTOR vTemp = _mm_permute_ps(V, _MM_SHUFFLE(1, 1, 1, 1)); // Y
+	vResult = _mm_fmadd_ps(vTemp, M.c[1], vResult);
+	vTemp = _mm_broadcastss_ps(V); // X
+	vResult = _mm_fmadd_ps(vTemp, M.c[0], vResult);
+	return vResult;
 #elif defined(_XM_SSE_INTRINSICS_)
 	XMVECTOR vResult = XM_PERMUTE_PS(V, _MM_SHUFFLE(0, 0, 0, 0));
 	vResult = _mm_mul_ps(vResult, M.c[0]);
@@ -13851,6 +13907,16 @@ inline XMVECTOR XM_CALLCONV XMVector4Transform
 	float32x2_t VH = vget_high_f32(V);
 	vResult = vmlaq_lane_f32(vResult, M.c[2], VH, 0); // Z
 	return vmlaq_lane_f32(vResult, M.c[3], VH, 1); // W
+#elif defined(_XM_AVX2_INTRINSICS_)
+	XMVECTOR vResult = _mm_permute_ps(V, _MM_SHUFFLE(3, 3, 3, 3)); // W
+	vResult = _mm_mul_ps(vResult, M.c[3]);
+	XMVECTOR vTemp = _mm_permute_ps(V, _MM_SHUFFLE(2, 2, 2, 2)); // Z
+	vResult = _mm_fmadd_ps(vTemp, M.c[2], vResult);
+	vTemp = _mm_permute_ps(V, _MM_SHUFFLE(1, 1, 1, 1)); // Y
+	vResult = _mm_fmadd_ps(vTemp, M.c[1], vResult);
+	vTemp = _mm_broadcastss_ps(V); // X
+	vResult = _mm_fmadd_ps(vTemp, M.c[0], vResult);
+	return vResult;
 #elif defined(_XM_SSE_INTRINSICS_)
 	// Splat x,y,z and w
 	XMVECTOR vTempX = XM_PERMUTE_PS(V, _MM_SHUFFLE(0, 0, 0, 0));

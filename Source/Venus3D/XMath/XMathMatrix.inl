@@ -290,6 +290,53 @@ inline XMMATRIX XM_CALLCONV XMMatrixMultiply
 	vW = vmlaq_lane_f32(vY, M2.c[3], VH, 1);
 	mResult.c[3] = vaddq_f32(vZ, vW);
 	return mResult;
+#elif defined(_XM_AVX2_INTRINSICS_)
+	XMMATRIX mResult;
+	// Use vW to hold the original row
+	XMVECTOR vW = M1.c[0];
+	// Splat the component X,Y,Z then W
+	XMVECTOR vX = _mm_broadcastss_ps(vW);
+	XMVECTOR vY = _mm_permute_ps(vW, _MM_SHUFFLE(1, 1, 1, 1));
+	XMVECTOR vZ = _mm_permute_ps(vW, _MM_SHUFFLE(2, 2, 2, 2));
+	vW = _mm_permute_ps(vW, _MM_SHUFFLE(3, 3, 3, 3));
+	// Perform the operation on the first row
+	vX = _mm_mul_ps(vX, M2.c[0]);
+	vX = _mm_fmadd_ps(vY, M2.c[1], vX);
+	vX = _mm_fmadd_ps(vZ, M2.c[2], vX);
+	vX = _mm_fmadd_ps(vW, M2.c[3], vX);
+	mResult.c[0] = vX;
+	// Repeat for the other 3 rows
+	vW = M1.c[1];
+	vX = _mm_broadcastss_ps(vW);
+	vY = _mm_permute_ps(vW, _MM_SHUFFLE(1, 1, 1, 1));
+	vZ = _mm_permute_ps(vW, _MM_SHUFFLE(2, 2, 2, 2));
+	vW = _mm_permute_ps(vW, _MM_SHUFFLE(3, 3, 3, 3));
+	vX = _mm_mul_ps(vX, M2.c[0]);
+	vX = _mm_fmadd_ps(vY, M2.c[1], vX);
+	vX = _mm_fmadd_ps(vZ, M2.c[2], vX);
+	vX = _mm_fmadd_ps(vW, M2.c[3], vX);
+	mResult.c[1] = vX;
+	vW = M1.c[2];
+	vX = _mm_broadcastss_ps(vW);
+	vY = _mm_permute_ps(vW, _MM_SHUFFLE(1, 1, 1, 1));
+	vZ = _mm_permute_ps(vW, _MM_SHUFFLE(2, 2, 2, 2));
+	vW = _mm_permute_ps(vW, _MM_SHUFFLE(3, 3, 3, 3));
+	vX = _mm_mul_ps(vX, M2.c[0]);
+	vX = _mm_fmadd_ps(vY, M2.c[1], vX);
+	vX = _mm_fmadd_ps(vZ, M2.c[2], vX);
+	vX = _mm_fmadd_ps(vW, M2.c[3], vX);
+	mResult.c[2] = vX;
+	vW = M1.c[3];
+	vX = _mm_broadcastss_ps(vW);
+	vY = _mm_permute_ps(vW, _MM_SHUFFLE(1, 1, 1, 1));
+	vZ = _mm_permute_ps(vW, _MM_SHUFFLE(2, 2, 2, 2));
+	vW = _mm_permute_ps(vW, _MM_SHUFFLE(3, 3, 3, 3));
+	vX = _mm_mul_ps(vX, M2.c[0]);
+	vX = _mm_fmadd_ps(vY, M2.c[1], vX);
+	vX = _mm_fmadd_ps(vZ, M2.c[2], vX);
+	vX = _mm_fmadd_ps(vW, M2.c[3], vX);
+	mResult.c[3] = vX;
+	return mResult;
 #elif defined(_XM_SSE_INTRINSICS_)
 	XMMATRIX mResult;
 	// Use vW to hold the original row
@@ -443,6 +490,71 @@ inline XMMATRIX XM_CALLCONV XMMatrixMultiplyTranspose
 	mResult.c[1] = T0.val[1];
 	mResult.c[2] = T1.val[0];
 	mResult.c[3] = T1.val[1];
+	return mResult;
+#elif defined(_XM_AVX2_INTRINSICS_)
+	// Use vW to hold the original row
+	XMVECTOR vW = M1.c[0];
+	// Splat the component X,Y,Z then W
+	XMVECTOR vX = _mm_broadcastss_ps(vW);
+	XMVECTOR vY = _mm_permute_ps(vW, _MM_SHUFFLE(1, 1, 1, 1));
+	XMVECTOR vZ = _mm_permute_ps(vW, _MM_SHUFFLE(2, 2, 2, 2));
+	vW = _mm_permute_ps(vW, _MM_SHUFFLE(3, 3, 3, 3));
+	// Perform the operation on the first row
+	vX = _mm_mul_ps(vX, M2.c[0]);
+	vX = _mm_fmadd_ps(vY, M2.c[1], vX);
+	vX = _mm_fmadd_ps(vZ, M2.c[2], vX);
+	vX = _mm_fmadd_ps(vW, M2.c[3], vX);
+	__m128 r0 = vX;
+	// Repeat for the other 3 rows
+	vW = M1.c[1];
+	vX = _mm_broadcastss_ps(vW);
+	vY = _mm_permute_ps(vW, _MM_SHUFFLE(1, 1, 1, 1));
+	vZ = _mm_permute_ps(vW, _MM_SHUFFLE(2, 2, 2, 2));
+	vW = _mm_permute_ps(vW, _MM_SHUFFLE(3, 3, 3, 3));
+	vX = _mm_mul_ps(vX, M2.c[0]);
+	vX = _mm_fmadd_ps(vY, M2.c[1], vX);
+	vX = _mm_fmadd_ps(vZ, M2.c[2], vX);
+	vX = _mm_fmadd_ps(vW, M2.c[3], vX);
+	__m128 r1 = vX;
+	vW = M1.c[2];
+	vX = _mm_broadcastss_ps(vW);
+	vY = _mm_permute_ps(vW, _MM_SHUFFLE(1, 1, 1, 1));
+	vZ = _mm_permute_ps(vW, _MM_SHUFFLE(2, 2, 2, 2));
+	vW = _mm_permute_ps(vW, _MM_SHUFFLE(3, 3, 3, 3));
+	vX = _mm_mul_ps(vX, M2.c[0]);
+	vX = _mm_fmadd_ps(vY, M2.c[1], vX);
+	vX = _mm_fmadd_ps(vZ, M2.c[2], vX);
+	vX = _mm_fmadd_ps(vW, M2.c[3], vX);
+	__m128 r2 = vX;
+	vW = M1.c[3];
+	vX = _mm_broadcastss_ps(vW);
+	vY = _mm_permute_ps(vW, _MM_SHUFFLE(1, 1, 1, 1));
+	vZ = _mm_permute_ps(vW, _MM_SHUFFLE(2, 2, 2, 2));
+	vW = _mm_permute_ps(vW, _MM_SHUFFLE(3, 3, 3, 3));
+	vX = _mm_mul_ps(vX, M2.c[0]);
+	vX = _mm_fmadd_ps(vY, M2.c[1], vX);
+	vX = _mm_fmadd_ps(vZ, M2.c[2], vX);
+	vX = _mm_fmadd_ps(vW, M2.c[3], vX);
+	__m128 r3 = vX;
+
+	// x.x,x.y,y.x,y.y
+	XMVECTOR vTemp1 = _mm_shuffle_ps(r0, r1, _MM_SHUFFLE(1, 0, 1, 0));
+	// x.z,x.w,y.z,y.w
+	XMVECTOR vTemp3 = _mm_shuffle_ps(r0, r1, _MM_SHUFFLE(3, 2, 3, 2));
+	// z.x,z.y,w.x,w.y
+	XMVECTOR vTemp2 = _mm_shuffle_ps(r2, r3, _MM_SHUFFLE(1, 0, 1, 0));
+	// z.z,z.w,w.z,w.w
+	XMVECTOR vTemp4 = _mm_shuffle_ps(r2, r3, _MM_SHUFFLE(3, 2, 3, 2));
+
+	XMMATRIX mResult;
+	// x.x,y.x,z.x,w.x
+	mResult.c[0] = _mm_shuffle_ps(vTemp1, vTemp2, _MM_SHUFFLE(2, 0, 2, 0));
+	// x.y,y.y,z.y,w.y
+	mResult.c[1] = _mm_shuffle_ps(vTemp1, vTemp2, _MM_SHUFFLE(3, 1, 3, 1));
+	// x.z,y.z,z.z,w.z
+	mResult.c[2] = _mm_shuffle_ps(vTemp3, vTemp4, _MM_SHUFFLE(2, 0, 2, 0));
+	// x.w,y.w,z.w,w.w
+	mResult.c[3] = _mm_shuffle_ps(vTemp3, vTemp4, _MM_SHUFFLE(3, 1, 3, 1));
 	return mResult;
 #elif defined(_XM_SSE_INTRINSICS_)
 	// Use vW to hold the original row
