@@ -450,31 +450,6 @@ struct alignas(16) XMVECTORU32
 };
 
 //------------------------------------------------------------------------------
-// Vector operators
-#ifndef _XM_ARM_NEON_INTRINSICS_
-
-XMVECTOR    XM_CALLCONV     operator+ (FXMVECTOR V);
-XMVECTOR    XM_CALLCONV     operator- (FXMVECTOR V);
-
-XMVECTOR&   XM_CALLCONV     operator+= (XMVECTOR& V1, FXMVECTOR V2);
-XMVECTOR&   XM_CALLCONV     operator-= (XMVECTOR& V1, FXMVECTOR V2);
-XMVECTOR&   XM_CALLCONV     operator*= (XMVECTOR& V1, FXMVECTOR V2);
-XMVECTOR&   XM_CALLCONV     operator/= (XMVECTOR& V1, FXMVECTOR V2);
-
-XMVECTOR&   operator*= (XMVECTOR& V, float S);
-XMVECTOR&   operator/= (XMVECTOR& V, float S);
-
-XMVECTOR    XM_CALLCONV     operator+ (FXMVECTOR V1, FXMVECTOR V2);
-XMVECTOR    XM_CALLCONV     operator- (FXMVECTOR V1, FXMVECTOR V2);
-XMVECTOR    XM_CALLCONV     operator* (FXMVECTOR V1, FXMVECTOR V2);
-XMVECTOR    XM_CALLCONV     operator/ (FXMVECTOR V1, FXMVECTOR V2);
-XMVECTOR    XM_CALLCONV     operator* (FXMVECTOR V, float S);
-XMVECTOR    XM_CALLCONV     operator* (float S, FXMVECTOR V);
-XMVECTOR    XM_CALLCONV     operator/ (FXMVECTOR V, float S);
-
-#endif
-
-//------------------------------------------------------------------------------
 // Matrix type: Sixteen 32 bit floating point components aligned on a
 // 16 byte boundary and mapped to four hardware vector registers
 
