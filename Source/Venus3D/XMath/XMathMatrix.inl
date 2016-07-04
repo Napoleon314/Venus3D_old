@@ -2891,7 +2891,9 @@ inline XMMATRIX XM_CALLCONV XMMatrixOrthographicOffCenterRH
 #endif
 }
 
-#pragma prefast(pop)
+#ifdef _MSC_VER
+#	pragma prefast(pop)
+#endif
 
 /****************************************************************************
 *
