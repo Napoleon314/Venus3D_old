@@ -2360,7 +2360,7 @@ namespace Internal
 
 #endif
 
-#if !defined(_XM_NO_INTRINSICS_)
+#if !defined(_XM_NO_INTRINSICS_) && defined(_MSC_VER)
 #pragma float_control(push)
 #pragma float_control(precise, on)
 #endif
@@ -2413,7 +2413,7 @@ inline XMVECTOR XM_CALLCONV XMVectorRound
 #endif
 }
 
-#if !defined(_XM_NO_INTRINSICS_)
+#if !defined(_XM_NO_INTRINSICS_) && defined(_MSC_VER)
 #pragma float_control(pop)
 #endif
 
@@ -4121,8 +4121,8 @@ inline XMVECTOR XM_CALLCONV XMVectorPow
 	};
 	return vResult;
 #elif defined(_XM_SSE_INTRINSICS_)
-	__declspec(align(16)) float a[4];
-	__declspec(align(16)) float b[4];
+	alignas(16) float a[4];
+	alignas(16) float b[4];
 	_mm_store_ps(a, V1);
 	_mm_store_ps(b, V2);
 	XMVECTOR vResult = _mm_setr_ps(
