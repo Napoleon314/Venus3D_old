@@ -14146,3 +14146,188 @@ inline XMFLOAT4* XM_CALLCONV XMVector4TransformStream
 	return pOutputStream;
 #endif
 }
+
+/****************************************************************************
+*
+* XMVECTOR operators
+*
+****************************************************************************/
+
+#ifndef _XM_ARM_NEON_INTRINSICS_
+
+//------------------------------------------------------------------------------
+
+inline XMVECTOR XM_CALLCONV operator+ (FXMVECTOR V)
+{
+	return V;
+}
+
+//------------------------------------------------------------------------------
+
+inline XMVECTOR XM_CALLCONV operator- (FXMVECTOR V)
+{
+	return XMVectorNegate(V);
+}
+
+//------------------------------------------------------------------------------
+
+inline XMVECTOR& XM_CALLCONV operator+=
+(
+	XMVECTOR&       V1,
+	FXMVECTOR       V2
+	)
+{
+	V1 = XMVectorAdd(V1, V2);
+	return V1;
+}
+
+//------------------------------------------------------------------------------
+
+inline XMVECTOR& XM_CALLCONV operator-=
+(
+	XMVECTOR&       V1,
+	FXMVECTOR       V2
+	)
+{
+	V1 = XMVectorSubtract(V1, V2);
+	return V1;
+}
+
+//------------------------------------------------------------------------------
+
+inline XMVECTOR& XM_CALLCONV operator*=
+(
+	XMVECTOR&       V1,
+	FXMVECTOR       V2
+	)
+{
+	V1 = XMVectorMultiply(V1, V2);
+	return V1;
+}
+
+//------------------------------------------------------------------------------
+
+inline XMVECTOR& XM_CALLCONV operator/=
+(
+	XMVECTOR&       V1,
+	FXMVECTOR       V2
+	)
+{
+	V1 = XMVectorDivide(V1, V2);
+	return V1;
+}
+
+//------------------------------------------------------------------------------
+
+inline XMVECTOR& operator*=
+(
+	XMVECTOR&   V,
+	const float S
+	)
+{
+	V = XMVectorScale(V, S);
+	return V;
+}
+
+//------------------------------------------------------------------------------
+
+inline XMVECTOR& operator/=
+(
+	XMVECTOR&   V,
+	const float S
+	)
+{
+	XMVECTOR vS = XMVectorReplicate(S);
+	V = XMVectorDivide(V, vS);
+	return V;
+}
+
+//------------------------------------------------------------------------------
+
+inline XMVECTOR XM_CALLCONV operator+
+(
+	FXMVECTOR V1,
+	FXMVECTOR V2
+	)
+{
+	return XMVectorAdd(V1, V2);
+}
+
+//------------------------------------------------------------------------------
+
+inline XMVECTOR XM_CALLCONV operator-
+(
+	FXMVECTOR V1,
+	FXMVECTOR V2
+	)
+{
+	return XMVectorSubtract(V1, V2);
+}
+
+//------------------------------------------------------------------------------
+
+inline XMVECTOR XM_CALLCONV operator*
+(
+	FXMVECTOR V1,
+	FXMVECTOR V2
+	)
+{
+	return XMVectorMultiply(V1, V2);
+}
+
+//------------------------------------------------------------------------------
+
+inline XMVECTOR XM_CALLCONV operator/
+(
+	FXMVECTOR V1,
+	FXMVECTOR V2
+	)
+{
+	return XMVectorDivide(V1, V2);
+}
+
+//------------------------------------------------------------------------------
+
+inline XMVECTOR XM_CALLCONV operator*
+(
+	FXMVECTOR      V,
+	const float    S
+	)
+{
+	return XMVectorScale(V, S);
+}
+
+//------------------------------------------------------------------------------
+
+inline XMVECTOR XM_CALLCONV operator/
+(
+	FXMVECTOR      V,
+	const float    S
+	)
+{
+	XMVECTOR vS = XMVectorReplicate(S);
+	return XMVectorDivide(V, vS);
+}
+
+//------------------------------------------------------------------------------
+
+inline XMVECTOR XM_CALLCONV operator*
+(
+	float           S,
+	FXMVECTOR  	    V
+	)
+{
+	return XMVectorScale(V, S);
+}
+
+#endif
+
+#if defined(_XM_NO_INTRINSICS_)
+#undef XMISNAN
+#undef XMISINF
+#endif
+
+#if defined(_XM_SSE_INTRINSICS_)
+#undef XM3UNPACK3INTO4
+#undef XM3PACK4INTO3
+#endif
