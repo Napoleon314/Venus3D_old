@@ -340,4 +340,5 @@
 #endif
 //#define _XM_NO_INTRINSICS_
 #include "XMath/XMath.h"
+#include "XMath/XPackedVector.h"
 #include "XMath/XColors.h"
