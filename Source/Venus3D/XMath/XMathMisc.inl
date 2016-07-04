@@ -1977,60 +1977,60 @@ inline XMVECTOR XM_CALLCONV XMColorSRGBToRGB(FXMVECTOR srgb)
 ****************************************************************************/
 
 //------------------------------------------------------------------------------
+#ifndef XM_CPU_ID
+#if defined(__GNUC__) && defined(i386)
+#define XM_CPU_ID(func, a, b, c, d) \
+    __asm__ __volatile__ ( \
+"        pushl %%ebx        \n" \
+"        xorl %%ecx,%%ecx   \n" \
+"        cpuid              \n" \
+"        movl %%ebx, %%esi  \n" \
+"        popl %%ebx         \n" : \
+            "=a" (a), "=S" (b), "=c" (c), "=d" (d) : "a" (func))
+#elif defined(__GNUC__) && defined(__x86_64__)
+#define XM_CPU_ID(func, a, b, c, d) \
+    __asm__ __volatile__ ( \
+"        pushq %%rbx        \n" \
+"        xorq %%rcx,%%rcx   \n" \
+"        cpuid              \n" \
+"        movq %%rbx, %%rsi  \n" \
+"        popq %%rbx         \n" : \
+            "=a" (a), "=S" (b), "=c" (c), "=d" (d) : "a" (func))
+#elif (defined(_MSC_VER) && defined(_M_IX86)) || defined(__WATCOMC__)
+#define XM_CPU_ID(func, a, b, c, d) \
+    __asm { \
+        __asm mov eax, func \
+        __asm xor ecx, ecx \
+        __asm cpuid \
+        __asm mov a, eax \
+        __asm mov b, ebx \
+        __asm mov c, ecx \
+        __asm mov d, edx \
+}
+#elif defined(_MSC_VER) && defined(_M_X64)
+#define XM_CPU_ID(func, a, b, c, d) \
+{ \
+    int CPUInfo[4]; \
+    __cpuid(CPUInfo, func); \
+    a = CPUInfo[0]; \
+    b = CPUInfo[1]; \
+    c = CPUInfo[2]; \
+    d = CPUInfo[3]; \
+}
+#else
+#define XM_CPU_ID(func, a, b, c, d) \
+    a = b = c = d = 0
+#endif
+#endif
 
 inline bool XMVerifyCPUSupport()
 {
-#if defined(_XM_SSE_INTRINSICS_) && !defined(_XM_NO_INTRINSICS_)
-	int CPUInfo[4] = { -1 };
-	__cpuid(CPUInfo, 0);
-
-#ifdef __AVX2__
-	if (CPUInfo[0] < 7)
-		return false;
-#else
-	if (CPUInfo[0] < 1)
-		return false;
-#endif
-
-	__cpuid(CPUInfo, 1);
-
-#ifdef __AVX2__
-	// The compiler can emit FMA3 instructions even without explicit intrinsics use
-	if ((CPUInfo[2] & 0x38081001) != 0x38081001)
-		return false; // No F16C/AVX/OSXSAVE/SSE4.1/FMA3/SSE3 support
-#elif defined(_XM_F16C_INTRINSICS_)
-	if ((CPUInfo[2] & 0x38080001) != 0x38080001)
-		return false; // No F16C/AVX/OSXSAVE/SSE4.1/SSE3 support
-#elif defined(__AVX__) || defined(_XM_AVX_INTRINSICS_)
-	if ((CPUInfo[2] & 0x18080001) != 0x18080001)
-		return false; // No AVX/OSXSAVE/SSE4.1/SSE3 support
-#elif defined(_XM_SSE4_INTRINSICS_)
-	if ((CPUInfo[2] & 0x80001) != 0x80001)
-		return false; // No SSE3/SSE4.1 support
-#elif defined(_XM_SSE3_INTRINSICS_)
-	if (!(CPUInfo[2] & 0x1))
-		return false; // No SSE3 support  
-#endif
-
-					  // The x64 processor model requires SSE2 support, but no harm in checking
-	if ((CPUInfo[3] & 0x6000000) != 0x6000000)
-		return false; // No SSE2/SSE support
-
-#ifdef __AVX2__
-	__cpuidex(CPUInfo, 7, 0);
-	if (!(CPUInfo[1] & 0x20))
-		return false; // No AVX2 support
-#endif
-
 	return true;
-#elif defined(_XM_ARM_NEON_INTRINSICS_) && !defined(_XM_NO_INTRINSICS_)
-	// ARM-NEON support is required for the Windows on ARM platform
-	return true;
-#else
-	// No intrinsics path always supported
-	return true;
-#endif
 }
+
+#ifdef XM_CPU_ID
+#undef XM_CPU_ID
+#endif
 
 //------------------------------------------------------------------------------
 
