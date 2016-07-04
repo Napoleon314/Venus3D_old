@@ -342,3 +342,4 @@
 #include "XMath/XMath.h"
 #include "XMath/XPackedVector.h"
 #include "XMath/XColors.h"
+#include "XMath/XCollision.h"
