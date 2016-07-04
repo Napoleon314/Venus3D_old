@@ -67,8 +67,11 @@ inline float XMConvertHalfToFloat
 }
 
 //------------------------------------------------------------------------------
-#pragma prefast(push)
-#pragma prefast(disable : 26015 26019, "PREfast noise: Esp:1307" )
+
+#ifdef _MSC_VER
+#	pragma prefast(push)
+#	pragma prefast(disable : 26015 26019, "PREfast noise: Esp:1307" )
+#endif
 
 _Use_decl_annotations_
 inline float* XMConvertHalfToFloatStream
@@ -514,15 +517,20 @@ inline HALF* XMConvertFloatToHalfStream
 #endif // !_XM_F16C_INTRINSICS_
 }
 
-#pragma prefast(pop)
+#ifdef _MSC_VER
+#	pragma prefast(pop)
+#endif
 
 /****************************************************************************
 *
 * Vector and matrix load operations
 *
 ****************************************************************************/
-#pragma prefast(push)
-#pragma prefast(disable:28931, "PREfast noise: Esp:1266")
+
+#ifdef _MSC_VER
+#	pragma prefast(push)
+#	pragma prefast(disable:28931, "PREfast noise: Esp:1266")
+#endif
 
 _Use_decl_annotations_
 inline XMVECTOR XM_CALLCONV XMLoadColor
@@ -1325,9 +1333,12 @@ inline XMVECTOR XM_CALLCONV XMLoadXDecN4
 }
 
 //------------------------------------------------------------------------------
-#pragma warning(push)
-#pragma warning(disable : 4996)
+
+#ifdef _MSC_VER
+#	pragma warning(push)
+#	pragma warning(disable : 4996)
 // C4996: ignore deprecation warning
+#endif
 
 _Use_decl_annotations_
 inline XMVECTOR XM_CALLCONV XMLoadXDec4
@@ -1378,7 +1389,9 @@ inline XMVECTOR XM_CALLCONV XMLoadXDec4
 #endif
 }
 
-#pragma warning(pop)
+#ifdef _MSC_VER
+#	pragma warning(pop)
+#endif
 
 //------------------------------------------------------------------------------
 _Use_decl_annotations_
@@ -1524,9 +1537,12 @@ inline XMVECTOR XM_CALLCONV XMLoadUDec4
 }
 
 //------------------------------------------------------------------------------
-#pragma warning(push)
-#pragma warning(disable : 4996)
+
+#ifdef _MSC_VER
+#	pragma warning(push)
+#	pragma warning(disable : 4996)
 // C4996: ignore deprecation warning
+#endif
 
 _Use_decl_annotations_
 inline XMVECTOR XM_CALLCONV XMLoadDecN4
@@ -1627,7 +1643,9 @@ inline XMVECTOR XM_CALLCONV XMLoadDec4
 #endif
 }
 
-#pragma warning(pop)
+#ifdef _MSC_VER
+#	pragma warning(pop)
+#endif
 
 //------------------------------------------------------------------------------
 _Use_decl_annotations_
@@ -1867,7 +1885,9 @@ inline XMVECTOR XM_CALLCONV XMLoadU555
 #endif
 }
 
-#pragma prefast(pop)
+#ifdef _MSC_VER
+#	pragma prefast(pop)
+#endif
 
 /****************************************************************************
 *
@@ -2751,9 +2771,12 @@ inline void XM_CALLCONV XMStoreXDecN4
 }
 
 //------------------------------------------------------------------------------
-#pragma warning(push)
-#pragma warning(disable : 4996)
+
+#ifdef _MSC_VER
+#	pragma warning(push)
+#	pragma warning(disable : 4996)
 // C4996: ignore deprecation warning
+#endif
 
 _Use_decl_annotations_
 inline void XM_CALLCONV XMStoreXDec4
@@ -2825,7 +2848,9 @@ inline void XM_CALLCONV XMStoreXDec4
 #endif
 }
 
-#pragma warning(pop)
+#ifdef _MSC_VER
+#	pragma warning(pop)
+#endif
 
 //------------------------------------------------------------------------------
 _Use_decl_annotations_
@@ -3042,9 +3067,12 @@ inline void XM_CALLCONV XMStoreUDec4
 }
 
 //------------------------------------------------------------------------------
-#pragma warning(push)
-#pragma warning(disable : 4996)
+
+#ifdef _MSC_VER
+#	pragma warning(push)
+#	pragma warning(disable : 4996)
 // C4996: ignore deprecation warning
+#endif
 
 _Use_decl_annotations_
 inline void XM_CALLCONV XMStoreDecN4
@@ -3169,7 +3197,9 @@ inline void XM_CALLCONV XMStoreDec4
 #endif
 }
 
-#pragma warning(pop)
+#ifdef _MSC_VER
+#	pragma warning(pop)
+#endif
 
 //------------------------------------------------------------------------------
 _Use_decl_annotations_
@@ -4041,9 +4071,11 @@ inline XMXDECN4::XMXDECN4
 *
 ****************************************************************************/
 
-#pragma warning(push)
-#pragma warning(disable : 4996)
+#ifdef _MSC_VER
+#	pragma warning(push)
+#	pragma warning(disable : 4996)
 // C4996: ignore deprecation warning
+#endif
 
 //------------------------------------------------------------------------------
 
@@ -4126,7 +4158,9 @@ inline XMDEC4::XMDEC4
 	XMStoreDec4(this, XMLoadFloat4(reinterpret_cast<const XMFLOAT4*>(pArray)));
 }
 
-#pragma warning(pop)
+#ifdef _MSC_VER
+#	pragma warning(pop)
+#endif
 
 /****************************************************************************
 *
