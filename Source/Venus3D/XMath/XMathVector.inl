@@ -8514,5 +8514,3837 @@ inline XMFLOAT2* XM_CALLCONV XMVector2TransformNormalStream
 #endif
 }
 
+/****************************************************************************
+*
+* 3D Vector
+*
+****************************************************************************/
 
+//------------------------------------------------------------------------------
+// Comparison operations
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+
+inline bool XM_CALLCONV XMVector3Equal
+(
+	FXMVECTOR V1,
+	FXMVECTOR V2
+)
+{
+#if defined(_XM_NO_INTRINSICS_)
+	return (((V1.vector4_f32[0] == V2.vector4_f32[0]) && (V1.vector4_f32[1] == V2.vector4_f32[1]) && (V1.vector4_f32[2] == V2.vector4_f32[2])) != 0);
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	uint32x4_t vResult = vceqq_f32(V1, V2);
+	uint8x8x2_t vTemp = vzip_u8(vget_low_u8(vResult), vget_high_u8(vResult));
+	return ((vget_lane_u32(vzip_u16(vTemp.val[0], vTemp.val[1]).val[1], 1) & 0xFFFFFFU) == 0xFFFFFFU);
+#elif defined(_XM_SSE_INTRINSICS_)
+	XMVECTOR vTemp = _mm_cmpeq_ps(V1, V2);
+	return (((_mm_movemask_ps(vTemp) & 7) == 7) != 0);
+#endif
+}
+
+//------------------------------------------------------------------------------
+
+inline uint32_t XM_CALLCONV XMVector3EqualR
+(
+	FXMVECTOR V1,
+	FXMVECTOR V2
+)
+{
+#if defined(_XM_NO_INTRINSICS_)
+	uint32_t CR = 0;
+	if ((V1.vector4_f32[0] == V2.vector4_f32[0]) &&
+		(V1.vector4_f32[1] == V2.vector4_f32[1]) &&
+		(V1.vector4_f32[2] == V2.vector4_f32[2]))
+	{
+		CR = XM_CRMASK_CR6TRUE;
+	}
+	else if ((V1.vector4_f32[0] != V2.vector4_f32[0]) &&
+		(V1.vector4_f32[1] != V2.vector4_f32[1]) &&
+		(V1.vector4_f32[2] != V2.vector4_f32[2]))
+	{
+		CR = XM_CRMASK_CR6FALSE;
+	}
+	return CR;
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	uint32x4_t vResult = vceqq_f32(V1, V2);
+	uint8x8x2_t vTemp = vzip_u8(vget_low_u8(vResult), vget_high_u8(vResult));
+	uint32_t r = vget_lane_u32(vzip_u16(vTemp.val[0], vTemp.val[1]).val[1], 1) & 0xFFFFFFU;
+
+	uint32_t CR = 0;
+	if (r == 0xFFFFFFU)
+	{
+		CR = XM_CRMASK_CR6TRUE;
+	}
+	else if (!r)
+	{
+		CR = XM_CRMASK_CR6FALSE;
+	}
+	return CR;
+#elif defined(_XM_SSE_INTRINSICS_)
+	XMVECTOR vTemp = _mm_cmpeq_ps(V1, V2);
+	int iTest = _mm_movemask_ps(vTemp) & 7;
+	uint32_t CR = 0;
+	if (iTest == 7)
+	{
+		CR = XM_CRMASK_CR6TRUE;
+	}
+	else if (!iTest)
+	{
+		CR = XM_CRMASK_CR6FALSE;
+	}
+	return CR;
+#endif
+}
+
+//------------------------------------------------------------------------------
+
+inline bool XM_CALLCONV XMVector3EqualInt
+(
+	FXMVECTOR V1,
+	FXMVECTOR V2
+)
+{
+#if defined(_XM_NO_INTRINSICS_)
+	return (((V1.vector4_u32[0] == V2.vector4_u32[0]) && (V1.vector4_u32[1] == V2.vector4_u32[1]) && (V1.vector4_u32[2] == V2.vector4_u32[2])) != 0);
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	uint32x4_t vResult = vceqq_u32(V1, V2);
+	uint8x8x2_t vTemp = vzip_u8(vget_low_u8(vResult), vget_high_u8(vResult));
+	return ((vget_lane_u32(vzip_u16(vTemp.val[0], vTemp.val[1]).val[1], 1) & 0xFFFFFFU) == 0xFFFFFFU);
+#elif defined(_XM_SSE_INTRINSICS_)
+	__m128i vTemp = _mm_cmpeq_epi32(_mm_castps_si128(V1), _mm_castps_si128(V2));
+	return (((_mm_movemask_ps(_mm_castsi128_ps(vTemp)) & 7) == 7) != 0);
+#endif
+}
+
+//------------------------------------------------------------------------------
+
+inline uint32_t XM_CALLCONV XMVector3EqualIntR
+(
+	FXMVECTOR V1,
+	FXMVECTOR V2
+)
+{
+#if defined(_XM_NO_INTRINSICS_)
+	uint32_t CR = 0;
+	if ((V1.vector4_u32[0] == V2.vector4_u32[0]) &&
+		(V1.vector4_u32[1] == V2.vector4_u32[1]) &&
+		(V1.vector4_u32[2] == V2.vector4_u32[2]))
+	{
+		CR = XM_CRMASK_CR6TRUE;
+	}
+	else if ((V1.vector4_u32[0] != V2.vector4_u32[0]) &&
+		(V1.vector4_u32[1] != V2.vector4_u32[1]) &&
+		(V1.vector4_u32[2] != V2.vector4_u32[2]))
+	{
+		CR = XM_CRMASK_CR6FALSE;
+	}
+	return CR;
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	uint32x4_t vResult = vceqq_u32(V1, V2);
+	uint8x8x2_t vTemp = vzip_u8(vget_low_u8(vResult), vget_high_u8(vResult));
+	uint32_t r = vget_lane_u32(vzip_u16(vTemp.val[0], vTemp.val[1]).val[1], 1) & 0xFFFFFFU;
+
+	uint32_t CR = 0;
+	if (r == 0xFFFFFFU)
+	{
+		CR = XM_CRMASK_CR6TRUE;
+	}
+	else if (!r)
+	{
+		CR = XM_CRMASK_CR6FALSE;
+	}
+	return CR;
+#elif defined(_XM_SSE_INTRINSICS_)
+	__m128i vTemp = _mm_cmpeq_epi32(_mm_castps_si128(V1), _mm_castps_si128(V2));
+	int iTemp = _mm_movemask_ps(_mm_castsi128_ps(vTemp)) & 7;
+	uint32_t CR = 0;
+	if (iTemp == 7)
+	{
+		CR = XM_CRMASK_CR6TRUE;
+	}
+	else if (!iTemp)
+	{
+		CR = XM_CRMASK_CR6FALSE;
+	}
+	return CR;
+#endif
+}
+
+//------------------------------------------------------------------------------
+
+inline bool XM_CALLCONV XMVector3NearEqual
+(
+	FXMVECTOR V1,
+	FXMVECTOR V2,
+	FXMVECTOR Epsilon
+)
+{
+#if defined(_XM_NO_INTRINSICS_)
+	float dx, dy, dz;
+
+	dx = fabsf(V1.vector4_f32[0] - V2.vector4_f32[0]);
+	dy = fabsf(V1.vector4_f32[1] - V2.vector4_f32[1]);
+	dz = fabsf(V1.vector4_f32[2] - V2.vector4_f32[2]);
+	return (((dx <= Epsilon.vector4_f32[0]) &&
+		(dy <= Epsilon.vector4_f32[1]) &&
+		(dz <= Epsilon.vector4_f32[2])) != 0);
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	float32x4_t vDelta = vsubq_f32(V1, V2);
+	uint32x4_t vResult = vcaleq_f32(vDelta, Epsilon);
+	uint8x8x2_t vTemp = vzip_u8(vget_low_u8(vResult), vget_high_u8(vResult));
+	return ((vget_lane_u32(vzip_u16(vTemp.val[0], vTemp.val[1]).val[1], 1) & 0xFFFFFFU) == 0xFFFFFFU);
+#elif defined(_XM_SSE_INTRINSICS_)
+	// Get the difference
+	XMVECTOR vDelta = _mm_sub_ps(V1, V2);
+	// Get the absolute value of the difference
+	XMVECTOR vTemp = _mm_setzero_ps();
+	vTemp = _mm_sub_ps(vTemp, vDelta);
+	vTemp = _mm_max_ps(vTemp, vDelta);
+	vTemp = _mm_cmple_ps(vTemp, Epsilon);
+	// w is don't care
+	return (((_mm_movemask_ps(vTemp) & 7) == 0x7) != 0);
+#endif
+}
+
+//------------------------------------------------------------------------------
+
+inline bool XM_CALLCONV XMVector3NotEqual
+(
+	FXMVECTOR V1,
+	FXMVECTOR V2
+)
+{
+#if defined(_XM_NO_INTRINSICS_)
+	return (((V1.vector4_f32[0] != V2.vector4_f32[0]) || (V1.vector4_f32[1] != V2.vector4_f32[1]) || (V1.vector4_f32[2] != V2.vector4_f32[2])) != 0);
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	uint32x4_t vResult = vceqq_f32(V1, V2);
+	uint8x8x2_t vTemp = vzip_u8(vget_low_u8(vResult), vget_high_u8(vResult));
+	return ((vget_lane_u32(vzip_u16(vTemp.val[0], vTemp.val[1]).val[1], 1) & 0xFFFFFFU) != 0xFFFFFFU);
+#elif defined(_XM_SSE_INTRINSICS_)
+	XMVECTOR vTemp = _mm_cmpeq_ps(V1, V2);
+	return (((_mm_movemask_ps(vTemp) & 7) != 7) != 0);
+#endif
+}
+
+//------------------------------------------------------------------------------
+
+inline bool XM_CALLCONV XMVector3NotEqualInt
+(
+	FXMVECTOR V1,
+	FXMVECTOR V2
+)
+{
+#if defined(_XM_NO_INTRINSICS_)
+	return (((V1.vector4_u32[0] != V2.vector4_u32[0]) || (V1.vector4_u32[1] != V2.vector4_u32[1]) || (V1.vector4_u32[2] != V2.vector4_u32[2])) != 0);
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	uint32x4_t vResult = vceqq_u32(V1, V2);
+	uint8x8x2_t vTemp = vzip_u8(vget_low_u8(vResult), vget_high_u8(vResult));
+	return ((vget_lane_u32(vzip_u16(vTemp.val[0], vTemp.val[1]).val[1], 1) & 0xFFFFFFU) != 0xFFFFFFU);
+#elif defined(_XM_SSE_INTRINSICS_)
+	__m128i vTemp = _mm_cmpeq_epi32(_mm_castps_si128(V1), _mm_castps_si128(V2));
+	return (((_mm_movemask_ps(_mm_castsi128_ps(vTemp)) & 7) != 7) != 0);
+#endif
+}
+
+//------------------------------------------------------------------------------
+
+inline bool XM_CALLCONV XMVector3Greater
+(
+	FXMVECTOR V1,
+	FXMVECTOR V2
+)
+{
+#if defined(_XM_NO_INTRINSICS_)
+	return (((V1.vector4_f32[0] > V2.vector4_f32[0]) && (V1.vector4_f32[1] > V2.vector4_f32[1]) && (V1.vector4_f32[2] > V2.vector4_f32[2])) != 0);
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	uint32x4_t vResult = vcgtq_f32(V1, V2);
+	uint8x8x2_t vTemp = vzip_u8(vget_low_u8(vResult), vget_high_u8(vResult));
+	return ((vget_lane_u32(vzip_u16(vTemp.val[0], vTemp.val[1]).val[1], 1) & 0xFFFFFFU) == 0xFFFFFFU);
+#elif defined(_XM_SSE_INTRINSICS_)
+	XMVECTOR vTemp = _mm_cmpgt_ps(V1, V2);
+	return (((_mm_movemask_ps(vTemp) & 7) == 7) != 0);
+#endif
+}
+
+//------------------------------------------------------------------------------
+
+inline uint32_t XM_CALLCONV XMVector3GreaterR
+(
+	FXMVECTOR V1,
+	FXMVECTOR V2
+)
+{
+#if defined(_XM_NO_INTRINSICS_)
+	uint32_t CR = 0;
+	if ((V1.vector4_f32[0] > V2.vector4_f32[0]) &&
+		(V1.vector4_f32[1] > V2.vector4_f32[1]) &&
+		(V1.vector4_f32[2] > V2.vector4_f32[2]))
+	{
+		CR = XM_CRMASK_CR6TRUE;
+	}
+	else if ((V1.vector4_f32[0] <= V2.vector4_f32[0]) &&
+		(V1.vector4_f32[1] <= V2.vector4_f32[1]) &&
+		(V1.vector4_f32[2] <= V2.vector4_f32[2]))
+	{
+		CR = XM_CRMASK_CR6FALSE;
+	}
+	return CR;
+
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	uint32x4_t vResult = vcgtq_f32(V1, V2);
+	uint8x8x2_t vTemp = vzip_u8(vget_low_u8(vResult), vget_high_u8(vResult));
+	uint32_t r = vget_lane_u32(vzip_u16(vTemp.val[0], vTemp.val[1]).val[1], 1) & 0xFFFFFFU;
+
+	uint32_t CR = 0;
+	if (r == 0xFFFFFFU)
+	{
+		CR = XM_CRMASK_CR6TRUE;
+	}
+	else if (!r)
+	{
+		CR = XM_CRMASK_CR6FALSE;
+	}
+	return CR;
+#elif defined(_XM_SSE_INTRINSICS_)
+	XMVECTOR vTemp = _mm_cmpgt_ps(V1, V2);
+	uint32_t CR = 0;
+	int iTest = _mm_movemask_ps(vTemp) & 7;
+	if (iTest == 7)
+	{
+		CR = XM_CRMASK_CR6TRUE;
+	}
+	else if (!iTest)
+	{
+		CR = XM_CRMASK_CR6FALSE;
+	}
+	return CR;
+#endif
+}
+
+//------------------------------------------------------------------------------
+
+inline bool XM_CALLCONV XMVector3GreaterOrEqual
+(
+	FXMVECTOR V1,
+	FXMVECTOR V2
+)
+{
+#if defined(_XM_NO_INTRINSICS_)
+	return (((V1.vector4_f32[0] >= V2.vector4_f32[0]) && (V1.vector4_f32[1] >= V2.vector4_f32[1]) && (V1.vector4_f32[2] >= V2.vector4_f32[2])) != 0);
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	uint32x4_t vResult = vcgeq_f32(V1, V2);
+	uint8x8x2_t vTemp = vzip_u8(vget_low_u8(vResult), vget_high_u8(vResult));
+	return ((vget_lane_u32(vzip_u16(vTemp.val[0], vTemp.val[1]).val[1], 1) & 0xFFFFFFU) == 0xFFFFFFU);
+#elif defined(_XM_SSE_INTRINSICS_)
+	XMVECTOR vTemp = _mm_cmpge_ps(V1, V2);
+	return (((_mm_movemask_ps(vTemp) & 7) == 7) != 0);
+#endif
+}
+
+//------------------------------------------------------------------------------
+
+inline uint32_t XM_CALLCONV XMVector3GreaterOrEqualR
+(
+	FXMVECTOR V1,
+	FXMVECTOR V2
+)
+{
+#if defined(_XM_NO_INTRINSICS_)
+
+	uint32_t CR = 0;
+	if ((V1.vector4_f32[0] >= V2.vector4_f32[0]) &&
+		(V1.vector4_f32[1] >= V2.vector4_f32[1]) &&
+		(V1.vector4_f32[2] >= V2.vector4_f32[2]))
+	{
+		CR = XM_CRMASK_CR6TRUE;
+	}
+	else if ((V1.vector4_f32[0] < V2.vector4_f32[0]) &&
+		(V1.vector4_f32[1] < V2.vector4_f32[1]) &&
+		(V1.vector4_f32[2] < V2.vector4_f32[2]))
+	{
+		CR = XM_CRMASK_CR6FALSE;
+	}
+	return CR;
+
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	uint32x4_t vResult = vcgeq_f32(V1, V2);
+	uint8x8x2_t vTemp = vzip_u8(vget_low_u8(vResult), vget_high_u8(vResult));
+	uint32_t r = vget_lane_u32(vzip_u16(vTemp.val[0], vTemp.val[1]).val[1], 1) & 0xFFFFFFU;
+
+	uint32_t CR = 0;
+	if (r == 0xFFFFFFU)
+	{
+		CR = XM_CRMASK_CR6TRUE;
+	}
+	else if (!r)
+	{
+		CR = XM_CRMASK_CR6FALSE;
+	}
+	return CR;
+#elif defined(_XM_SSE_INTRINSICS_)
+	XMVECTOR vTemp = _mm_cmpge_ps(V1, V2);
+	uint32_t CR = 0;
+	int iTest = _mm_movemask_ps(vTemp) & 7;
+	if (iTest == 7)
+	{
+		CR = XM_CRMASK_CR6TRUE;
+	}
+	else if (!iTest)
+	{
+		CR = XM_CRMASK_CR6FALSE;
+	}
+	return CR;
+#endif
+}
+
+//------------------------------------------------------------------------------
+
+inline bool XM_CALLCONV XMVector3Less
+(
+	FXMVECTOR V1,
+	FXMVECTOR V2
+)
+{
+#if defined(_XM_NO_INTRINSICS_)
+	return (((V1.vector4_f32[0] < V2.vector4_f32[0]) && (V1.vector4_f32[1] < V2.vector4_f32[1]) && (V1.vector4_f32[2] < V2.vector4_f32[2])) != 0);
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	uint32x4_t vResult = vcltq_f32(V1, V2);
+	uint8x8x2_t vTemp = vzip_u8(vget_low_u8(vResult), vget_high_u8(vResult));
+	return ((vget_lane_u32(vzip_u16(vTemp.val[0], vTemp.val[1]).val[1], 1) & 0xFFFFFFU) == 0xFFFFFFU);
+#elif defined(_XM_SSE_INTRINSICS_)
+	XMVECTOR vTemp = _mm_cmplt_ps(V1, V2);
+	return (((_mm_movemask_ps(vTemp) & 7) == 7) != 0);
+#endif
+}
+
+//------------------------------------------------------------------------------
+
+inline bool XM_CALLCONV XMVector3LessOrEqual
+(
+	FXMVECTOR V1,
+	FXMVECTOR V2
+)
+{
+#if defined(_XM_NO_INTRINSICS_)
+	return (((V1.vector4_f32[0] <= V2.vector4_f32[0]) && (V1.vector4_f32[1] <= V2.vector4_f32[1]) && (V1.vector4_f32[2] <= V2.vector4_f32[2])) != 0);
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	uint32x4_t vResult = vcleq_f32(V1, V2);
+	uint8x8x2_t vTemp = vzip_u8(vget_low_u8(vResult), vget_high_u8(vResult));
+	return ((vget_lane_u32(vzip_u16(vTemp.val[0], vTemp.val[1]).val[1], 1) & 0xFFFFFFU) == 0xFFFFFFU);
+#elif defined(_XM_SSE_INTRINSICS_)
+	XMVECTOR vTemp = _mm_cmple_ps(V1, V2);
+	return (((_mm_movemask_ps(vTemp) & 7) == 7) != 0);
+#endif
+}
+
+//------------------------------------------------------------------------------
+
+inline bool XM_CALLCONV XMVector3InBounds
+(
+	FXMVECTOR V,
+	FXMVECTOR Bounds
+)
+{
+#if defined(_XM_NO_INTRINSICS_)
+	return (((V.vector4_f32[0] <= Bounds.vector4_f32[0] && V.vector4_f32[0] >= -Bounds.vector4_f32[0]) &&
+		(V.vector4_f32[1] <= Bounds.vector4_f32[1] && V.vector4_f32[1] >= -Bounds.vector4_f32[1]) &&
+		(V.vector4_f32[2] <= Bounds.vector4_f32[2] && V.vector4_f32[2] >= -Bounds.vector4_f32[2])) != 0);
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	// Test if less than or equal
+	uint32x4_t ivTemp1 = vcleq_f32(V, Bounds);
+	// Negate the bounds
+	float32x4_t vTemp2 = vnegq_f32(Bounds);
+	// Test if greater or equal (Reversed)
+	uint32x4_t ivTemp2 = vcleq_f32(vTemp2, V);
+	// Blend answers
+	ivTemp1 = vandq_u32(ivTemp1, ivTemp2);
+	// in bounds?
+	uint8x8x2_t vTemp = vzip_u8(vget_low_u8(ivTemp1), vget_high_u8(ivTemp1));
+	return ((vget_lane_u32(vzip_u16(vTemp.val[0], vTemp.val[1]).val[1], 1) & 0xFFFFFFU) == 0xFFFFFFU);
+#elif defined(_XM_SSE_INTRINSICS_)
+	// Test if less than or equal
+	XMVECTOR vTemp1 = _mm_cmple_ps(V, Bounds);
+	// Negate the bounds
+	XMVECTOR vTemp2 = _mm_mul_ps(Bounds, g_XMNegativeOne);
+	// Test if greater or equal (Reversed)
+	vTemp2 = _mm_cmple_ps(vTemp2, V);
+	// Blend answers
+	vTemp1 = _mm_and_ps(vTemp1, vTemp2);
+	// x,y and z in bounds? (w is don't care)
+	return (((_mm_movemask_ps(vTemp1) & 0x7) == 0x7) != 0);
+#else
+	return XMComparisonAllInBounds(XMVector3InBoundsR(V, Bounds));
+#endif
+}
+
+//------------------------------------------------------------------------------
+
+inline bool XM_CALLCONV XMVector3IsNaN
+(
+	FXMVECTOR V
+)
+{
+#if defined(_XM_NO_INTRINSICS_)
+
+	return (XMISNAN(V.vector4_f32[0]) ||
+		XMISNAN(V.vector4_f32[1]) ||
+		XMISNAN(V.vector4_f32[2]));
+
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	// Test against itself. NaN is always not equal
+	uint32x4_t vTempNan = vceqq_f32(V, V);
+	uint8x8x2_t vTemp = vzip_u8(vget_low_u8(vTempNan), vget_high_u8(vTempNan));
+	// If x or y or z are NaN, the mask is zero
+	return ((vget_lane_u32(vzip_u16(vTemp.val[0], vTemp.val[1]).val[1], 1) & 0xFFFFFFU) != 0xFFFFFFU);
+#elif defined(_XM_SSE_INTRINSICS_)
+	// Test against itself. NaN is always not equal
+	XMVECTOR vTempNan = _mm_cmpneq_ps(V, V);
+	// If x or y or z are NaN, the mask is non-zero
+	return ((_mm_movemask_ps(vTempNan) & 7) != 0);
+#endif
+}
+
+//------------------------------------------------------------------------------
+
+inline bool XM_CALLCONV XMVector3IsInfinite
+(
+	FXMVECTOR V
+)
+{
+#if defined(_XM_NO_INTRINSICS_)
+	return (XMISINF(V.vector4_f32[0]) ||
+		XMISINF(V.vector4_f32[1]) ||
+		XMISINF(V.vector4_f32[2]));
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	// Mask off the sign bit
+	uint32x4_t vTempInf = vandq_u32(V, g_XMAbsMask);
+	// Compare to infinity
+	vTempInf = vceqq_f32(vTempInf, g_XMInfinity);
+	// If any are infinity, the signs are true.
+	uint8x8x2_t vTemp = vzip_u8(vget_low_u8(vTempInf), vget_high_u8(vTempInf));
+	return ((vget_lane_u32(vzip_u16(vTemp.val[0], vTemp.val[1]).val[1], 1) & 0xFFFFFFU) != 0);
+#elif defined(_XM_SSE_INTRINSICS_)
+	// Mask off the sign bit
+	__m128 vTemp = _mm_and_ps(V, g_XMAbsMask);
+	// Compare to infinity
+	vTemp = _mm_cmpeq_ps(vTemp, g_XMInfinity);
+	// If x,y or z are infinity, the signs are true.
+	return ((_mm_movemask_ps(vTemp) & 7) != 0);
+#endif
+}
+
+//------------------------------------------------------------------------------
+// Computation operations
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+
+inline XMVECTOR XM_CALLCONV XMVector3Dot
+(
+	FXMVECTOR V1,
+	FXMVECTOR V2
+)
+{
+#if defined(_XM_NO_INTRINSICS_)
+	float fValue = V1.vector4_f32[0] * V2.vector4_f32[0] + V1.vector4_f32[1] * V2.vector4_f32[1] + V1.vector4_f32[2] * V2.vector4_f32[2];
+	XMVECTOR vResult;
+	vResult.vector4_f32[0] =
+		vResult.vector4_f32[1] =
+		vResult.vector4_f32[2] =
+		vResult.vector4_f32[3] = fValue;
+	return vResult;
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	float32x4_t vTemp = vmulq_f32(V1, V2);
+	float32x2_t v1 = vget_low_f32(vTemp);
+	float32x2_t v2 = vget_high_f32(vTemp);
+	v1 = vpadd_f32(v1, v1);
+	v2 = vdup_lane_f32(v2, 0);
+	v1 = vadd_f32(v1, v2);
+	return vcombine_f32(v1, v1);
+#elif defined(_XM_SSE4_INTRINSICS_)
+	return _mm_dp_ps(V1, V2, 0x7f);
+#elif defined(_XM_SSE_INTRINSICS_)
+	// Perform the dot product
+	XMVECTOR vDot = _mm_mul_ps(V1, V2);
+	// x=Dot.vector4_f32[1], y=Dot.vector4_f32[2]
+	XMVECTOR vTemp = XM_PERMUTE_PS(vDot, _MM_SHUFFLE(2, 1, 2, 1));
+	// Result.vector4_f32[0] = x+y
+	vDot = _mm_add_ss(vDot, vTemp);
+	// x=Dot.vector4_f32[2]
+	vTemp = XM_PERMUTE_PS(vTemp, _MM_SHUFFLE(1, 1, 1, 1));
+	// Result.vector4_f32[0] = (x+y)+z
+	vDot = _mm_add_ss(vDot, vTemp);
+	// Splat x
+	return XM_PERMUTE_PS(vDot, _MM_SHUFFLE(0, 0, 0, 0));
+#endif
+}
+
+//------------------------------------------------------------------------------
+
+inline XMVECTOR XM_CALLCONV XMVector3Cross
+(
+	FXMVECTOR V1,
+	FXMVECTOR V2
+)
+{
+	// [ V1.y*V2.z - V1.z*V2.y, V1.z*V2.x - V1.x*V2.z, V1.x*V2.y - V1.y*V2.x ]
+
+#if defined(_XM_NO_INTRINSICS_)
+	XMVECTOR vResult = {
+		(V1.vector4_f32[1] * V2.vector4_f32[2]) - (V1.vector4_f32[2] * V2.vector4_f32[1]),
+		(V1.vector4_f32[2] * V2.vector4_f32[0]) - (V1.vector4_f32[0] * V2.vector4_f32[2]),
+		(V1.vector4_f32[0] * V2.vector4_f32[1]) - (V1.vector4_f32[1] * V2.vector4_f32[0]),
+		0.0f
+	};
+	return vResult;
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	float32x2_t v1xy = vget_low_f32(V1);
+	float32x2_t v2xy = vget_low_f32(V2);
+
+	float32x2_t v1yx = vrev64_f32(v1xy);
+	float32x2_t v2yx = vrev64_f32(v2xy);
+
+	float32x2_t v1zz = vdup_lane_f32(vget_high_f32(V1), 0);
+	float32x2_t v2zz = vdup_lane_f32(vget_high_f32(V2), 0);
+
+	XMVECTOR vResult = vmulq_f32(vcombine_f32(v1yx, v1xy), vcombine_f32(v2zz, v2yx));
+	vResult = vmlsq_f32(vResult, vcombine_f32(v1zz, v1yx), vcombine_f32(v2yx, v2xy));
+	vResult = veorq_u32(vResult, g_XMFlipY);
+	return vandq_u32(vResult, g_XMMask3);
+#elif defined(_XM_SSE_INTRINSICS_)
+	// y1,z1,x1,w1
+	XMVECTOR vTemp1 = XM_PERMUTE_PS(V1, _MM_SHUFFLE(3, 0, 2, 1));
+	// z2,x2,y2,w2
+	XMVECTOR vTemp2 = XM_PERMUTE_PS(V2, _MM_SHUFFLE(3, 1, 0, 2));
+	// Perform the left operation
+	XMVECTOR vResult = _mm_mul_ps(vTemp1, vTemp2);
+	// z1,x1,y1,w1
+	vTemp1 = XM_PERMUTE_PS(vTemp1, _MM_SHUFFLE(3, 0, 2, 1));
+	// y2,z2,x2,w2
+	vTemp2 = XM_PERMUTE_PS(vTemp2, _MM_SHUFFLE(3, 1, 0, 2));
+	// Perform the right operation
+	vTemp1 = _mm_mul_ps(vTemp1, vTemp2);
+	// Subract the right from left, and return answer
+	vResult = _mm_sub_ps(vResult, vTemp1);
+	// Set w to zero
+	return _mm_and_ps(vResult, g_XMMask3);
+#endif
+}
+
+//------------------------------------------------------------------------------
+
+inline XMVECTOR XM_CALLCONV XMVector3LengthSq
+(
+	FXMVECTOR V
+)
+{
+	return XMVector3Dot(V, V);
+}
+
+//------------------------------------------------------------------------------
+
+inline XMVECTOR XM_CALLCONV XMVector3ReciprocalLengthEst
+(
+	FXMVECTOR V
+)
+{
+#if defined(_XM_NO_INTRINSICS_)
+
+	XMVECTOR Result;
+
+	Result = XMVector3LengthSq(V);
+	Result = XMVectorReciprocalSqrtEst(Result);
+
+	return Result;
+
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	// Dot3
+	float32x4_t vTemp = vmulq_f32(V, V);
+	float32x2_t v1 = vget_low_f32(vTemp);
+	float32x2_t v2 = vget_high_f32(vTemp);
+	v1 = vpadd_f32(v1, v1);
+	v2 = vdup_lane_f32(v2, 0);
+	v1 = vadd_f32(v1, v2);
+	// Reciprocal sqrt (estimate)
+	v2 = vrsqrte_f32(v1);
+	return vcombine_f32(v2, v2);
+#elif defined(_XM_SSE4_INTRINSICS_)
+	XMVECTOR vTemp = _mm_dp_ps(V, V, 0x7f);
+	return _mm_rsqrt_ps(vTemp);
+#elif defined(_XM_SSE_INTRINSICS_)
+	// Perform the dot product on x,y and z
+	XMVECTOR vLengthSq = _mm_mul_ps(V, V);
+	// vTemp has z and y
+	XMVECTOR vTemp = XM_PERMUTE_PS(vLengthSq, _MM_SHUFFLE(1, 2, 1, 2));
+	// x+z, y
+	vLengthSq = _mm_add_ss(vLengthSq, vTemp);
+	// y,y,y,y
+	vTemp = XM_PERMUTE_PS(vTemp, _MM_SHUFFLE(1, 1, 1, 1));
+	// x+z+y,??,??,??
+	vLengthSq = _mm_add_ss(vLengthSq, vTemp);
+	// Splat the length squared
+	vLengthSq = XM_PERMUTE_PS(vLengthSq, _MM_SHUFFLE(0, 0, 0, 0));
+	// Get the reciprocal
+	vLengthSq = _mm_rsqrt_ps(vLengthSq);
+	return vLengthSq;
+#endif
+}
+
+//------------------------------------------------------------------------------
+
+inline XMVECTOR XM_CALLCONV XMVector3ReciprocalLength
+(
+	FXMVECTOR V
+)
+{
+#if defined(_XM_NO_INTRINSICS_)
+
+	XMVECTOR Result;
+
+	Result = XMVector3LengthSq(V);
+	Result = XMVectorReciprocalSqrt(Result);
+
+	return Result;
+
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	// Dot3
+	float32x4_t vTemp = vmulq_f32(V, V);
+	float32x2_t v1 = vget_low_f32(vTemp);
+	float32x2_t v2 = vget_high_f32(vTemp);
+	v1 = vpadd_f32(v1, v1);
+	v2 = vdup_lane_f32(v2, 0);
+	v1 = vadd_f32(v1, v2);
+	// Reciprocal sqrt
+	float32x2_t  S0 = vrsqrte_f32(v1);
+	float32x2_t  P0 = vmul_f32(v1, S0);
+	float32x2_t  R0 = vrsqrts_f32(P0, S0);
+	float32x2_t  S1 = vmul_f32(S0, R0);
+	float32x2_t  P1 = vmul_f32(v1, S1);
+	float32x2_t  R1 = vrsqrts_f32(P1, S1);
+	float32x2_t Result = vmul_f32(S1, R1);
+	return vcombine_f32(Result, Result);
+#elif defined(_XM_SSE4_INTRINSICS_)
+	XMVECTOR vTemp = _mm_dp_ps(V, V, 0x7f);
+	XMVECTOR vLengthSq = _mm_sqrt_ps(vTemp);
+	return _mm_div_ps(g_XMOne, vLengthSq);
+#elif defined(_XM_SSE_INTRINSICS_)
+	// Perform the dot product
+	XMVECTOR vDot = _mm_mul_ps(V, V);
+	// x=Dot.y, y=Dot.z
+	XMVECTOR vTemp = XM_PERMUTE_PS(vDot, _MM_SHUFFLE(2, 1, 2, 1));
+	// Result.x = x+y
+	vDot = _mm_add_ss(vDot, vTemp);
+	// x=Dot.z
+	vTemp = XM_PERMUTE_PS(vTemp, _MM_SHUFFLE(1, 1, 1, 1));
+	// Result.x = (x+y)+z
+	vDot = _mm_add_ss(vDot, vTemp);
+	// Splat x
+	vDot = XM_PERMUTE_PS(vDot, _MM_SHUFFLE(0, 0, 0, 0));
+	// Get the reciprocal
+	vDot = _mm_sqrt_ps(vDot);
+	// Get the reciprocal
+	vDot = _mm_div_ps(g_XMOne, vDot);
+	return vDot;
+#endif
+}
+
+//------------------------------------------------------------------------------
+
+inline XMVECTOR XM_CALLCONV XMVector3LengthEst
+(
+	FXMVECTOR V
+)
+{
+#if defined(_XM_NO_INTRINSICS_)
+
+	XMVECTOR Result;
+
+	Result = XMVector3LengthSq(V);
+	Result = XMVectorSqrtEst(Result);
+
+	return Result;
+
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	// Dot3
+	float32x4_t vTemp = vmulq_f32(V, V);
+	float32x2_t v1 = vget_low_f32(vTemp);
+	float32x2_t v2 = vget_high_f32(vTemp);
+	v1 = vpadd_f32(v1, v1);
+	v2 = vdup_lane_f32(v2, 0);
+	v1 = vadd_f32(v1, v2);
+	const float32x2_t zero = vdup_n_f32(0);
+	uint32x2_t VEqualsZero = vceq_f32(v1, zero);
+	// Sqrt (estimate)
+	float32x2_t Result = vrsqrte_f32(v1);
+	Result = vmul_f32(v1, Result);
+	Result = vbsl_f32(VEqualsZero, zero, Result);
+	return vcombine_f32(Result, Result);
+#elif defined(_XM_SSE4_INTRINSICS_)
+	XMVECTOR vTemp = _mm_dp_ps(V, V, 0x7f);
+	return _mm_sqrt_ps(vTemp);
+#elif defined(_XM_SSE_INTRINSICS_)
+	// Perform the dot product on x,y and z
+	XMVECTOR vLengthSq = _mm_mul_ps(V, V);
+	// vTemp has z and y
+	XMVECTOR vTemp = XM_PERMUTE_PS(vLengthSq, _MM_SHUFFLE(1, 2, 1, 2));
+	// x+z, y
+	vLengthSq = _mm_add_ss(vLengthSq, vTemp);
+	// y,y,y,y
+	vTemp = XM_PERMUTE_PS(vTemp, _MM_SHUFFLE(1, 1, 1, 1));
+	// x+z+y,??,??,??
+	vLengthSq = _mm_add_ss(vLengthSq, vTemp);
+	// Splat the length squared
+	vLengthSq = XM_PERMUTE_PS(vLengthSq, _MM_SHUFFLE(0, 0, 0, 0));
+	// Get the length
+	vLengthSq = _mm_sqrt_ps(vLengthSq);
+	return vLengthSq;
+#endif
+}
+
+//------------------------------------------------------------------------------
+
+inline XMVECTOR XM_CALLCONV XMVector3Length
+(
+	FXMVECTOR V
+)
+{
+#if defined(_XM_NO_INTRINSICS_)
+
+	XMVECTOR Result;
+
+	Result = XMVector3LengthSq(V);
+	Result = XMVectorSqrt(Result);
+
+	return Result;
+
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	// Dot3
+	float32x4_t vTemp = vmulq_f32(V, V);
+	float32x2_t v1 = vget_low_f32(vTemp);
+	float32x2_t v2 = vget_high_f32(vTemp);
+	v1 = vpadd_f32(v1, v1);
+	v2 = vdup_lane_f32(v2, 0);
+	v1 = vadd_f32(v1, v2);
+	const float32x2_t zero = vdup_n_f32(0);
+	uint32x2_t VEqualsZero = vceq_f32(v1, zero);
+	// Sqrt
+	float32x2_t S0 = vrsqrte_f32(v1);
+	float32x2_t P0 = vmul_f32(v1, S0);
+	float32x2_t R0 = vrsqrts_f32(P0, S0);
+	float32x2_t S1 = vmul_f32(S0, R0);
+	float32x2_t P1 = vmul_f32(v1, S1);
+	float32x2_t R1 = vrsqrts_f32(P1, S1);
+	float32x2_t Result = vmul_f32(S1, R1);
+	Result = vmul_f32(v1, Result);
+	Result = vbsl_f32(VEqualsZero, zero, Result);
+	return vcombine_f32(Result, Result);
+#elif defined(_XM_SSE4_INTRINSICS_)
+	XMVECTOR vTemp = _mm_dp_ps(V, V, 0x7f);
+	return _mm_sqrt_ps(vTemp);
+#elif defined(_XM_SSE_INTRINSICS_)
+	// Perform the dot product on x,y and z
+	XMVECTOR vLengthSq = _mm_mul_ps(V, V);
+	// vTemp has z and y
+	XMVECTOR vTemp = XM_PERMUTE_PS(vLengthSq, _MM_SHUFFLE(1, 2, 1, 2));
+	// x+z, y
+	vLengthSq = _mm_add_ss(vLengthSq, vTemp);
+	// y,y,y,y
+	vTemp = XM_PERMUTE_PS(vTemp, _MM_SHUFFLE(1, 1, 1, 1));
+	// x+z+y,??,??,??
+	vLengthSq = _mm_add_ss(vLengthSq, vTemp);
+	// Splat the length squared
+	vLengthSq = XM_PERMUTE_PS(vLengthSq, _MM_SHUFFLE(0, 0, 0, 0));
+	// Get the length
+	vLengthSq = _mm_sqrt_ps(vLengthSq);
+	return vLengthSq;
+#endif
+}
+
+//------------------------------------------------------------------------------
+// XMVector3NormalizeEst uses a reciprocal estimate and
+// returns QNaN on zero and infinite vectors.
+
+inline XMVECTOR XM_CALLCONV XMVector3NormalizeEst
+(
+	FXMVECTOR V
+)
+{
+#if defined(_XM_NO_INTRINSICS_)
+
+	XMVECTOR Result;
+	Result = XMVector3ReciprocalLength(V);
+	Result = XMVectorMultiply(V, Result);
+	return Result;
+
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	// Dot3
+	float32x4_t vTemp = vmulq_f32(V, V);
+	float32x2_t v1 = vget_low_f32(vTemp);
+	float32x2_t v2 = vget_high_f32(vTemp);
+	v1 = vpadd_f32(v1, v1);
+	v2 = vdup_lane_f32(v2, 0);
+	v1 = vadd_f32(v1, v2);
+	// Reciprocal sqrt (estimate)
+	v2 = vrsqrte_f32(v1);
+	// Normalize
+	return vmulq_f32(V, vcombine_f32(v2, v2));
+#elif defined(_XM_SSE4_INTRINSICS_)
+	XMVECTOR vTemp = _mm_dp_ps(V, V, 0x7f);
+	XMVECTOR vResult = _mm_rsqrt_ps(vTemp);
+	return _mm_mul_ps(vResult, V);
+#elif defined(_XM_SSE_INTRINSICS_)
+	// Perform the dot product
+	XMVECTOR vDot = _mm_mul_ps(V, V);
+	// x=Dot.y, y=Dot.z
+	XMVECTOR vTemp = XM_PERMUTE_PS(vDot, _MM_SHUFFLE(2, 1, 2, 1));
+	// Result.x = x+y
+	vDot = _mm_add_ss(vDot, vTemp);
+	// x=Dot.z
+	vTemp = XM_PERMUTE_PS(vTemp, _MM_SHUFFLE(1, 1, 1, 1));
+	// Result.x = (x+y)+z
+	vDot = _mm_add_ss(vDot, vTemp);
+	// Splat x
+	vDot = XM_PERMUTE_PS(vDot, _MM_SHUFFLE(0, 0, 0, 0));
+	// Get the reciprocal
+	vDot = _mm_rsqrt_ps(vDot);
+	// Perform the normalization
+	vDot = _mm_mul_ps(vDot, V);
+	return vDot;
+#endif
+}
+
+//------------------------------------------------------------------------------
+
+inline XMVECTOR XM_CALLCONV XMVector3Normalize
+(
+	FXMVECTOR V
+)
+{
+#if defined(_XM_NO_INTRINSICS_)
+	float fLength;
+	XMVECTOR vResult;
+
+	vResult = XMVector3Length(V);
+	fLength = vResult.vector4_f32[0];
+
+	// Prevent divide by zero
+	if (fLength > 0) {
+		fLength = 1.0f / fLength;
+	}
+
+	vResult.vector4_f32[0] = V.vector4_f32[0] * fLength;
+	vResult.vector4_f32[1] = V.vector4_f32[1] * fLength;
+	vResult.vector4_f32[2] = V.vector4_f32[2] * fLength;
+	vResult.vector4_f32[3] = V.vector4_f32[3] * fLength;
+	return vResult;
+
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	// Dot3
+	float32x4_t vTemp = vmulq_f32(V, V);
+	float32x2_t v1 = vget_low_f32(vTemp);
+	float32x2_t v2 = vget_high_f32(vTemp);
+	v1 = vpadd_f32(v1, v1);
+	v2 = vdup_lane_f32(v2, 0);
+	v1 = vadd_f32(v1, v2);
+	uint32x2_t VEqualsZero = vceq_f32(v1, vdup_n_f32(0));
+	uint32x2_t VEqualsInf = vceq_f32(v1, vget_low_f32(g_XMInfinity));
+	// Reciprocal sqrt (2 iterations of Newton-Raphson)
+	float32x2_t S0 = vrsqrte_f32(v1);
+	float32x2_t P0 = vmul_f32(v1, S0);
+	float32x2_t R0 = vrsqrts_f32(P0, S0);
+	float32x2_t S1 = vmul_f32(S0, R0);
+	float32x2_t P1 = vmul_f32(v1, S1);
+	float32x2_t R1 = vrsqrts_f32(P1, S1);
+	v2 = vmul_f32(S1, R1);
+	// Normalize
+	XMVECTOR vResult = vmulq_f32(V, vcombine_f32(v2, v2));
+	vResult = vbslq_f32(vcombine_f32(VEqualsZero, VEqualsZero), vdupq_n_f32(0), vResult);
+	return vbslq_f32(vcombine_f32(VEqualsInf, VEqualsInf), g_XMQNaN, vResult);
+#elif defined(_XM_SSE4_INTRINSICS_)
+	XMVECTOR vLengthSq = _mm_dp_ps(V, V, 0x7f);
+	// Prepare for the division
+	XMVECTOR vResult = _mm_sqrt_ps(vLengthSq);
+	// Create zero with a single instruction
+	XMVECTOR vZeroMask = _mm_setzero_ps();
+	// Test for a divide by zero (Must be FP to detect -0.0)
+	vZeroMask = _mm_cmpneq_ps(vZeroMask, vResult);
+	// Failsafe on zero (Or epsilon) length planes
+	// If the length is infinity, set the elements to zero
+	vLengthSq = _mm_cmpneq_ps(vLengthSq, g_XMInfinity);
+	// Divide to perform the normalization
+	vResult = _mm_div_ps(V, vResult);
+	// Any that are infinity, set to zero
+	vResult = _mm_and_ps(vResult, vZeroMask);
+	// Select qnan or result based on infinite length
+	XMVECTOR vTemp1 = _mm_andnot_ps(vLengthSq, g_XMQNaN);
+	XMVECTOR vTemp2 = _mm_and_ps(vResult, vLengthSq);
+	vResult = _mm_or_ps(vTemp1, vTemp2);
+	return vResult;
+#elif defined(_XM_SSE_INTRINSICS_)
+	// Perform the dot product on x,y and z only
+	XMVECTOR vLengthSq = _mm_mul_ps(V, V);
+	XMVECTOR vTemp = XM_PERMUTE_PS(vLengthSq, _MM_SHUFFLE(2, 1, 2, 1));
+	vLengthSq = _mm_add_ss(vLengthSq, vTemp);
+	vTemp = XM_PERMUTE_PS(vTemp, _MM_SHUFFLE(1, 1, 1, 1));
+	vLengthSq = _mm_add_ss(vLengthSq, vTemp);
+	vLengthSq = XM_PERMUTE_PS(vLengthSq, _MM_SHUFFLE(0, 0, 0, 0));
+	// Prepare for the division
+	XMVECTOR vResult = _mm_sqrt_ps(vLengthSq);
+	// Create zero with a single instruction
+	XMVECTOR vZeroMask = _mm_setzero_ps();
+	// Test for a divide by zero (Must be FP to detect -0.0)
+	vZeroMask = _mm_cmpneq_ps(vZeroMask, vResult);
+	// Failsafe on zero (Or epsilon) length planes
+	// If the length is infinity, set the elements to zero
+	vLengthSq = _mm_cmpneq_ps(vLengthSq, g_XMInfinity);
+	// Divide to perform the normalization
+	vResult = _mm_div_ps(V, vResult);
+	// Any that are infinity, set to zero
+	vResult = _mm_and_ps(vResult, vZeroMask);
+	// Select qnan or result based on infinite length
+	XMVECTOR vTemp1 = _mm_andnot_ps(vLengthSq, g_XMQNaN);
+	XMVECTOR vTemp2 = _mm_and_ps(vResult, vLengthSq);
+	vResult = _mm_or_ps(vTemp1, vTemp2);
+	return vResult;
+#endif
+}
+
+//------------------------------------------------------------------------------
+
+inline XMVECTOR XM_CALLCONV XMVector3ClampLength
+(
+	FXMVECTOR V,
+	float    LengthMin,
+	float    LengthMax
+)
+{
+	XMVECTOR ClampMax = XMVectorReplicate(LengthMax);
+	XMVECTOR ClampMin = XMVectorReplicate(LengthMin);
+
+	return XMVector3ClampLengthV(V, ClampMin, ClampMax);
+}
+
+//------------------------------------------------------------------------------
+
+inline XMVECTOR XM_CALLCONV XMVector3ClampLengthV
+(
+	FXMVECTOR V,
+	FXMVECTOR LengthMin,
+	FXMVECTOR LengthMax
+)
+{
+	assert((XMVectorGetY(LengthMin) == XMVectorGetX(LengthMin)) && (XMVectorGetZ(LengthMin) == XMVectorGetX(LengthMin)));
+	assert((XMVectorGetY(LengthMax) == XMVectorGetX(LengthMax)) && (XMVectorGetZ(LengthMax) == XMVectorGetX(LengthMax)));
+	assert(XMVector3GreaterOrEqual(LengthMin, XMVectorZero()));
+	assert(XMVector3GreaterOrEqual(LengthMax, XMVectorZero()));
+	assert(XMVector3GreaterOrEqual(LengthMax, LengthMin));
+
+	XMVECTOR LengthSq = XMVector3LengthSq(V);
+
+	const XMVECTOR Zero = XMVectorZero();
+
+	XMVECTOR RcpLength = XMVectorReciprocalSqrt(LengthSq);
+
+	XMVECTOR InfiniteLength = XMVectorEqualInt(LengthSq, g_XMInfinity.v);
+	XMVECTOR ZeroLength = XMVectorEqual(LengthSq, Zero);
+
+	XMVECTOR Normal = XMVectorMultiply(V, RcpLength);
+
+	XMVECTOR Length = XMVectorMultiply(LengthSq, RcpLength);
+
+	XMVECTOR Select = XMVectorEqualInt(InfiniteLength, ZeroLength);
+	Length = XMVectorSelect(LengthSq, Length, Select);
+	Normal = XMVectorSelect(LengthSq, Normal, Select);
+
+	XMVECTOR ControlMax = XMVectorGreater(Length, LengthMax);
+	XMVECTOR ControlMin = XMVectorLess(Length, LengthMin);
+
+	XMVECTOR ClampLength = XMVectorSelect(Length, LengthMax, ControlMax);
+	ClampLength = XMVectorSelect(ClampLength, LengthMin, ControlMin);
+
+	XMVECTOR Result = XMVectorMultiply(Normal, ClampLength);
+
+	// Preserve the original vector (with no precision loss) if the length falls within the given range
+	XMVECTOR Control = XMVectorEqualInt(ControlMax, ControlMin);
+	Result = XMVectorSelect(Result, V, Control);
+
+	return Result;
+}
+
+//------------------------------------------------------------------------------
+
+inline XMVECTOR XM_CALLCONV XMVector3Reflect
+(
+	FXMVECTOR Incident,
+	FXMVECTOR Normal
+)
+{
+	// Result = Incident - (2 * dot(Incident, Normal)) * Normal
+
+	XMVECTOR Result = XMVector3Dot(Incident, Normal);
+	Result = XMVectorAdd(Result, Result);
+	Result = XMVectorNegativeMultiplySubtract(Result, Normal, Incident);
+
+	return Result;
+}
+
+//------------------------------------------------------------------------------
+
+inline XMVECTOR XM_CALLCONV XMVector3Refract
+(
+	FXMVECTOR Incident,
+	FXMVECTOR Normal,
+	float    RefractionIndex
+)
+{
+	XMVECTOR Index = XMVectorReplicate(RefractionIndex);
+	return XMVector3RefractV(Incident, Normal, Index);
+}
+
+//------------------------------------------------------------------------------
+
+inline XMVECTOR XM_CALLCONV XMVector3RefractV
+(
+	FXMVECTOR Incident,
+	FXMVECTOR Normal,
+	FXMVECTOR RefractionIndex
+)
+{
+	// Result = RefractionIndex * Incident - Normal * (RefractionIndex * dot(Incident, Normal) + 
+	// sqrt(1 - RefractionIndex * RefractionIndex * (1 - dot(Incident, Normal) * dot(Incident, Normal))))
+
+#if defined(_XM_NO_INTRINSICS_)
+
+	const XMVECTOR  Zero = XMVectorZero();
+
+	XMVECTOR IDotN = XMVector3Dot(Incident, Normal);
+
+	// R = 1.0f - RefractionIndex * RefractionIndex * (1.0f - IDotN * IDotN)
+	XMVECTOR R = XMVectorNegativeMultiplySubtract(IDotN, IDotN, g_XMOne.v);
+	R = XMVectorMultiply(R, RefractionIndex);
+	R = XMVectorNegativeMultiplySubtract(R, RefractionIndex, g_XMOne.v);
+
+	if (XMVector4LessOrEqual(R, Zero))
+	{
+		// Total internal reflection
+		return Zero;
+	}
+	else
+	{
+		// R = RefractionIndex * IDotN + sqrt(R)
+		R = XMVectorSqrt(R);
+		R = XMVectorMultiplyAdd(RefractionIndex, IDotN, R);
+
+		// Result = RefractionIndex * Incident - Normal * R
+		XMVECTOR Result = XMVectorMultiply(RefractionIndex, Incident);
+		Result = XMVectorNegativeMultiplySubtract(Normal, R, Result);
+
+		return Result;
+	}
+
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	XMVECTOR IDotN = XMVector3Dot(Incident, Normal);
+
+	// R = 1.0f - RefractionIndex * RefractionIndex * (1.0f - IDotN * IDotN)
+	float32x4_t R = vmlsq_f32(g_XMOne, IDotN, IDotN);
+	R = vmulq_f32(R, RefractionIndex);
+	R = vmlsq_f32(g_XMOne, R, RefractionIndex);
+
+	uint32x4_t vResult = vcleq_f32(R, g_XMZero);
+	uint8x8x2_t vTemp = vzip_u8(vget_low_u8(vResult), vget_high_u8(vResult));
+	if (vget_lane_u32(vzip_u16(vTemp.val[0], vTemp.val[1]).val[1], 1) == 0xFFFFFFFFU)
+	{
+		// Total internal reflection
+		vResult = g_XMZero;
+	}
+	else
+	{
+		// Sqrt(R)
+		float32x4_t S0 = vrsqrteq_f32(R);
+		float32x4_t P0 = vmulq_f32(R, S0);
+		float32x4_t R0 = vrsqrtsq_f32(P0, S0);
+		float32x4_t S1 = vmulq_f32(S0, R0);
+		float32x4_t P1 = vmulq_f32(R, S1);
+		float32x4_t R1 = vrsqrtsq_f32(P1, S1);
+		float32x4_t S2 = vmulq_f32(S1, R1);
+		R = vmulq_f32(R, S2);
+		// R = RefractionIndex * IDotN + sqrt(R)
+		R = vmlaq_f32(R, RefractionIndex, IDotN);
+		// Result = RefractionIndex * Incident - Normal * R
+		vResult = vmulq_f32(RefractionIndex, Incident);
+		vResult = vmlsq_f32(vResult, R, Normal);
+	}
+	return vResult;
+#elif defined(_XM_SSE_INTRINSICS_)
+	// Result = RefractionIndex * Incident - Normal * (RefractionIndex * dot(Incident, Normal) + 
+	// sqrt(1 - RefractionIndex * RefractionIndex * (1 - dot(Incident, Normal) * dot(Incident, Normal))))
+	XMVECTOR IDotN = XMVector3Dot(Incident, Normal);
+	// R = 1.0f - RefractionIndex * RefractionIndex * (1.0f - IDotN * IDotN)
+	XMVECTOR R = _mm_mul_ps(IDotN, IDotN);
+	R = _mm_sub_ps(g_XMOne, R);
+	R = _mm_mul_ps(R, RefractionIndex);
+	R = _mm_mul_ps(R, RefractionIndex);
+	R = _mm_sub_ps(g_XMOne, R);
+
+	XMVECTOR vResult = _mm_cmple_ps(R, g_XMZero);
+	if (_mm_movemask_ps(vResult) == 0x0f)
+	{
+		// Total internal reflection
+		vResult = g_XMZero;
+	}
+	else
+	{
+		// R = RefractionIndex * IDotN + sqrt(R)
+		R = _mm_sqrt_ps(R);
+		vResult = _mm_mul_ps(RefractionIndex, IDotN);
+		R = _mm_add_ps(R, vResult);
+		// Result = RefractionIndex * Incident - Normal * R
+		vResult = _mm_mul_ps(RefractionIndex, Incident);
+		R = _mm_mul_ps(R, Normal);
+		vResult = _mm_sub_ps(vResult, R);
+	}
+	return vResult;
+#endif
+}
+
+//------------------------------------------------------------------------------
+
+inline XMVECTOR XM_CALLCONV XMVector3Orthogonal
+(
+	FXMVECTOR V
+)
+{
+	XMVECTOR Zero = XMVectorZero();
+	XMVECTOR Z = XMVectorSplatZ(V);
+	XMVECTOR YZYY = XMVectorSwizzle<XM_SWIZZLE_Y, XM_SWIZZLE_Z, XM_SWIZZLE_Y, XM_SWIZZLE_Y>(V);
+
+	XMVECTOR NegativeV = XMVectorSubtract(Zero, V);
+
+	XMVECTOR ZIsNegative = XMVectorLess(Z, Zero);
+	XMVECTOR YZYYIsNegative = XMVectorLess(YZYY, Zero);
+
+	XMVECTOR S = XMVectorAdd(YZYY, Z);
+	XMVECTOR D = XMVectorSubtract(YZYY, Z);
+
+	XMVECTOR Select = XMVectorEqualInt(ZIsNegative, YZYYIsNegative);
+
+	XMVECTOR R0 = XMVectorPermute<XM_PERMUTE_1X, XM_PERMUTE_0X, XM_PERMUTE_0X, XM_PERMUTE_0X>(NegativeV, S);
+	XMVECTOR R1 = XMVectorPermute<XM_PERMUTE_1X, XM_PERMUTE_0X, XM_PERMUTE_0X, XM_PERMUTE_0X>(V, D);
+
+	return XMVectorSelect(R1, R0, Select);
+}
+
+//------------------------------------------------------------------------------
+
+inline XMVECTOR XM_CALLCONV XMVector3AngleBetweenNormalsEst
+(
+	FXMVECTOR N1,
+	FXMVECTOR N2
+)
+{
+	XMVECTOR Result = XMVector3Dot(N1, N2);
+	Result = XMVectorClamp(Result, g_XMNegativeOne.v, g_XMOne.v);
+	Result = XMVectorACosEst(Result);
+	return Result;
+}
+
+//------------------------------------------------------------------------------
+
+inline XMVECTOR XM_CALLCONV XMVector3AngleBetweenNormals
+(
+	FXMVECTOR N1,
+	FXMVECTOR N2
+)
+{
+	XMVECTOR Result = XMVector3Dot(N1, N2);
+	Result = XMVectorClamp(Result, g_XMNegativeOne.v, g_XMOne.v);
+	Result = XMVectorACos(Result);
+	return Result;
+}
+
+//------------------------------------------------------------------------------
+
+inline XMVECTOR XM_CALLCONV XMVector3AngleBetweenVectors
+(
+	FXMVECTOR V1,
+	FXMVECTOR V2
+)
+{
+	XMVECTOR L1 = XMVector3ReciprocalLength(V1);
+	XMVECTOR L2 = XMVector3ReciprocalLength(V2);
+
+	XMVECTOR Dot = XMVector3Dot(V1, V2);
+
+	L1 = XMVectorMultiply(L1, L2);
+
+	XMVECTOR CosAngle = XMVectorMultiply(Dot, L1);
+	CosAngle = XMVectorClamp(CosAngle, g_XMNegativeOne.v, g_XMOne.v);
+
+	return XMVectorACos(CosAngle);
+}
+
+//------------------------------------------------------------------------------
+
+inline XMVECTOR XM_CALLCONV XMVector3LinePointDistance
+(
+	FXMVECTOR LinePoint1,
+	FXMVECTOR LinePoint2,
+	FXMVECTOR Point
+)
+{
+	// Given a vector PointVector from LinePoint1 to Point and a vector
+	// LineVector from LinePoint1 to LinePoint2, the scaled distance 
+	// PointProjectionScale from LinePoint1 to the perpendicular projection
+	// of PointVector onto the line is defined as:
+	//
+	//     PointProjectionScale = dot(PointVector, LineVector) / LengthSq(LineVector)
+
+	XMVECTOR PointVector = XMVectorSubtract(Point, LinePoint1);
+	XMVECTOR LineVector = XMVectorSubtract(LinePoint2, LinePoint1);
+
+	XMVECTOR LengthSq = XMVector3LengthSq(LineVector);
+
+	XMVECTOR PointProjectionScale = XMVector3Dot(PointVector, LineVector);
+	PointProjectionScale = XMVectorDivide(PointProjectionScale, LengthSq);
+
+	XMVECTOR DistanceVector = XMVectorMultiply(LineVector, PointProjectionScale);
+	DistanceVector = XMVectorSubtract(PointVector, DistanceVector);
+
+	return XMVector3Length(DistanceVector);
+}
+
+//------------------------------------------------------------------------------
+
+_Use_decl_annotations_
+inline void XM_CALLCONV XMVector3ComponentsFromNormal
+(
+	XMVECTOR* pParallel,
+	XMVECTOR* pPerpendicular,
+	FXMVECTOR  V,
+	FXMVECTOR  Normal
+)
+{
+	assert(pParallel != nullptr);
+	assert(pPerpendicular != nullptr);
+
+	XMVECTOR Scale = XMVector3Dot(V, Normal);
+
+	XMVECTOR Parallel = XMVectorMultiply(Normal, Scale);
+
+	*pParallel = Parallel;
+	*pPerpendicular = XMVectorSubtract(V, Parallel);
+}
+
+//------------------------------------------------------------------------------
+// Transform a vector using a rotation expressed as a unit quaternion
+
+inline XMVECTOR XM_CALLCONV XMVector3Rotate
+(
+	FXMVECTOR V,
+	FXMVECTOR RotationQuaternion
+)
+{
+	XMVECTOR A = XMVectorSelect(g_XMSelect1110.v, V, g_XMSelect1110.v);
+	XMVECTOR Q = XMQuaternionConjugate(RotationQuaternion);
+	XMVECTOR Result = XMQuaternionMultiply(Q, A);
+	return XMQuaternionMultiply(Result, RotationQuaternion);
+}
+
+//------------------------------------------------------------------------------
+// Transform a vector using the inverse of a rotation expressed as a unit quaternion
+
+inline XMVECTOR XM_CALLCONV XMVector3InverseRotate
+(
+	FXMVECTOR V,
+	FXMVECTOR RotationQuaternion
+)
+{
+	XMVECTOR A = XMVectorSelect(g_XMSelect1110.v, V, g_XMSelect1110.v);
+	XMVECTOR Result = XMQuaternionMultiply(RotationQuaternion, A);
+	XMVECTOR Q = XMQuaternionConjugate(RotationQuaternion);
+	return XMQuaternionMultiply(Result, Q);
+}
+
+//------------------------------------------------------------------------------
+
+inline XMVECTOR XM_CALLCONV XMVector3Transform
+(
+	FXMVECTOR V,
+	FXMMATRIX M
+)
+{
+#if defined(_XM_NO_INTRINSICS_)
+
+	XMVECTOR Z = XMVectorSplatZ(V);
+	XMVECTOR Y = XMVectorSplatY(V);
+	XMVECTOR X = XMVectorSplatX(V);
+
+	XMVECTOR Result = XMVectorMultiplyAdd(Z, M.r[2], M.r[3]);
+	Result = XMVectorMultiplyAdd(Y, M.r[1], Result);
+	Result = XMVectorMultiplyAdd(X, M.r[0], Result);
+
+	return Result;
+
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	float32x2_t VL = vget_low_f32(V);
+	XMVECTOR vResult = vmlaq_lane_f32(M.c[3], M.c[0], VL, 0); // X
+	vResult = vmlaq_lane_f32(vResult, M.c[1], VL, 1); // Y
+	return vmlaq_lane_f32(vResult, M.c[2], vget_high_f32(V), 0); // Z
+#elif defined(_XM_SSE_INTRINSICS_)
+	XMVECTOR vResult = XM_PERMUTE_PS(V, _MM_SHUFFLE(0, 0, 0, 0));
+	vResult = _mm_mul_ps(vResult, M.c[0]);
+	XMVECTOR vTemp = XM_PERMUTE_PS(V, _MM_SHUFFLE(1, 1, 1, 1));
+	vTemp = _mm_mul_ps(vTemp, M.c[1]);
+	vResult = _mm_add_ps(vResult, vTemp);
+	vTemp = XM_PERMUTE_PS(V, _MM_SHUFFLE(2, 2, 2, 2));
+	vTemp = _mm_mul_ps(vTemp, M.c[2]);
+	vResult = _mm_add_ps(vResult, vTemp);
+	vResult = _mm_add_ps(vResult, M.c[3]);
+	return vResult;
+#endif
+}
+
+//------------------------------------------------------------------------------
+
+_Use_decl_annotations_
+inline XMFLOAT4* XM_CALLCONV XMVector3TransformStream
+(
+	XMFLOAT4*       pOutputStream,
+	size_t          OutputStride,
+	const XMFLOAT3* pInputStream,
+	size_t          InputStride,
+	size_t          VectorCount,
+	FXMMATRIX       M
+)
+{
+	assert(pOutputStream != nullptr);
+	assert(pInputStream != nullptr);
+
+	assert(InputStride >= sizeof(XMFLOAT3));
+	_Analysis_assume_(InputStride >= sizeof(XMFLOAT3));
+
+	assert(OutputStride >= sizeof(XMFLOAT4));
+	_Analysis_assume_(OutputStride >= sizeof(XMFLOAT4));
+
+#if defined(_XM_NO_INTRINSICS_)
+
+	const uint8_t* pInputVector = (const uint8_t*)pInputStream;
+	uint8_t* pOutputVector = (uint8_t*)pOutputStream;
+
+	const XMVECTOR row0 = M.r[0];
+	const XMVECTOR row1 = M.r[1];
+	const XMVECTOR row2 = M.r[2];
+	const XMVECTOR row3 = M.r[3];
+
+	for (size_t i = 0; i < VectorCount; i++)
+	{
+		XMVECTOR V = XMLoadFloat3((const XMFLOAT3*)pInputVector);
+		XMVECTOR Z = XMVectorSplatZ(V);
+		XMVECTOR Y = XMVectorSplatY(V);
+		XMVECTOR X = XMVectorSplatX(V);
+
+		XMVECTOR Result = XMVectorMultiplyAdd(Z, row2, row3);
+		Result = XMVectorMultiplyAdd(Y, row1, Result);
+		Result = XMVectorMultiplyAdd(X, row0, Result);
+
+#pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+		XMStoreFloat4((XMFLOAT4*)pOutputVector, Result);
+
+		pInputVector += InputStride;
+		pOutputVector += OutputStride;
+	}
+
+	return pOutputStream;
+
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	const uint8_t* pInputVector = (const uint8_t*)pInputStream;
+	uint8_t* pOutputVector = (uint8_t*)pOutputStream;
+
+	const XMVECTOR row0 = M.c[0];
+	const XMVECTOR row1 = M.c[1];
+	const XMVECTOR row2 = M.c[2];
+	const XMVECTOR row3 = M.c[3];
+
+	size_t i = 0;
+	size_t four = VectorCount >> 2;
+	if (four > 0)
+	{
+		if ((InputStride == sizeof(XMFLOAT3)) && (OutputStride == sizeof(XMFLOAT4)))
+		{
+			for (size_t j = 0; j < four; ++j)
+			{
+				float32x4x3_t V = vld3q_f32(reinterpret_cast<const float*>(pInputVector));
+				pInputVector += sizeof(XMFLOAT3) * 4;
+
+				float32x2_t r3 = vget_low_f32(row3);
+				float32x2_t r = vget_low_f32(row0);
+				XMVECTOR vResult0 = vmlaq_lane_f32(vdupq_lane_f32(r3, 0), V.val[0], r, 0); // Ax+M
+				XMVECTOR vResult1 = vmlaq_lane_f32(vdupq_lane_f32(r3, 1), V.val[0], r, 1); // Bx+N
+
+				__builtin_prefetch(pInputVector);
+
+				r3 = vget_high_f32(row3);
+				r = vget_high_f32(row0);
+				XMVECTOR vResult2 = vmlaq_lane_f32(vdupq_lane_f32(r3, 0), V.val[0], r, 0); // Cx+O
+				XMVECTOR vResult3 = vmlaq_lane_f32(vdupq_lane_f32(r3, 1), V.val[0], r, 1); // Dx+P
+
+				__builtin_prefetch(pInputVector + XM_CACHE_LINE_SIZE);
+
+				r = vget_low_f32(row1);
+				vResult0 = vmlaq_lane_f32(vResult0, V.val[1], r, 0); // Ax+Ey+M
+				vResult1 = vmlaq_lane_f32(vResult1, V.val[1], r, 1); // Bx+Fy+N
+
+				__builtin_prefetch(pInputVector + (XM_CACHE_LINE_SIZE * 2));
+
+				r = vget_high_f32(row1);
+				vResult2 = vmlaq_lane_f32(vResult2, V.val[1], r, 0); // Cx+Gy+O
+				vResult3 = vmlaq_lane_f32(vResult3, V.val[1], r, 1); // Dx+Hy+P
+
+				__builtin_prefetch(pInputVector + (XM_CACHE_LINE_SIZE * 3));
+
+				r = vget_low_f32(row2);
+				vResult0 = vmlaq_lane_f32(vResult0, V.val[2], r, 0); // Ax+Ey+Iz+M
+				vResult1 = vmlaq_lane_f32(vResult1, V.val[2], r, 1); // Bx+Fy+Jz+N
+
+				__builtin_prefetch(pInputVector + (XM_CACHE_LINE_SIZE * 4));
+
+				r = vget_high_f32(row2);
+				vResult2 = vmlaq_lane_f32(vResult2, V.val[2], r, 0); // Cx+Gy+Kz+O
+				vResult3 = vmlaq_lane_f32(vResult3, V.val[2], r, 1); // Dx+Hy+Lz+P
+
+				__builtin_prefetch(pInputVector + (XM_CACHE_LINE_SIZE * 5));
+
+				float32x4x4_t R;
+				R.val[0] = vResult0;
+				R.val[1] = vResult1;
+				R.val[2] = vResult2;
+				R.val[3] = vResult3;
+
+				vst4q_f32(reinterpret_cast<float*>(pOutputVector), R);
+				pOutputVector += sizeof(XMFLOAT4) * 4;
+
+				i += 4;
+			}
+		}
+	}
+
+	for (; i < VectorCount; i++)
+	{
+		float32x2_t VL = vld1_f32(reinterpret_cast<const float*>(pInputVector));
+		float32x2_t zero = vdup_n_f32(0);
+		float32x2_t VH = vld1_lane_f32(reinterpret_cast<const float*>(pInputVector) + 2, zero, 0);
+		pInputVector += InputStride;
+
+		XMVECTOR vResult = vmlaq_lane_f32(row3, row0, VL, 0); // X
+		vResult = vmlaq_lane_f32(vResult, row1, VL, 1); // Y
+		vResult = vmlaq_lane_f32(vResult, row2, VH, 0); // Z
+
+		vst1q_f32(reinterpret_cast<float*>(pOutputVector), vResult);
+		pOutputVector += OutputStride;
+	}
+
+	return pOutputStream;
+#elif defined(_XM_SSE_INTRINSICS_)
+	const uint8_t* pInputVector = (const uint8_t*)pInputStream;
+	uint8_t* pOutputVector = (uint8_t*)pOutputStream;
+
+	const XMVECTOR row0 = M.c[0];
+	const XMVECTOR row1 = M.c[1];
+	const XMVECTOR row2 = M.c[2];
+	const XMVECTOR row3 = M.c[3];
+
+	size_t i = 0;
+	size_t four = VectorCount >> 2;
+	if (four > 0)
+	{
+		if (InputStride == sizeof(XMFLOAT3))
+		{
+			if (!((uintptr_t)pOutputStream & 0xF) && !(OutputStride & 0xF))
+			{
+				// Packed input, aligned output
+				for (size_t j = 0; j < four; ++j)
+				{
+					__m128 V1 = _mm_loadu_ps(reinterpret_cast<const float*>(pInputVector));
+					__m128 L2 = _mm_loadu_ps(reinterpret_cast<const float*>(pInputVector + 16));
+					__m128 L3 = _mm_loadu_ps(reinterpret_cast<const float*>(pInputVector + 32));
+					pInputVector += sizeof(XMFLOAT3) * 4;
+
+					// Unpack the 4 vectors (.w components are junk)
+					XM3UNPACK3INTO4(V1, L2, L3);
+
+					// Result 1
+					XMVECTOR Z = XM_PERMUTE_PS(V1, _MM_SHUFFLE(2, 2, 2, 2));
+					XMVECTOR Y = XM_PERMUTE_PS(V1, _MM_SHUFFLE(1, 1, 1, 1));
+					XMVECTOR X = XM_PERMUTE_PS(V1, _MM_SHUFFLE(0, 0, 0, 0));
+
+					XMVECTOR vTemp = _mm_mul_ps(Z, row2);
+					XMVECTOR vTemp2 = _mm_mul_ps(Y, row1);
+					XMVECTOR vTemp3 = _mm_mul_ps(X, row0);
+					vTemp = _mm_add_ps(vTemp, row3);
+					vTemp = _mm_add_ps(vTemp, vTemp2);
+					vTemp = _mm_add_ps(vTemp, vTemp3);
+					XM_STREAM_PS(reinterpret_cast<float*>(pOutputVector), vTemp);
+					pOutputVector += OutputStride;
+
+					// Result 2
+					Z = XM_PERMUTE_PS(V2, _MM_SHUFFLE(2, 2, 2, 2));
+					Y = XM_PERMUTE_PS(V2, _MM_SHUFFLE(1, 1, 1, 1));
+					X = XM_PERMUTE_PS(V2, _MM_SHUFFLE(0, 0, 0, 0));
+
+					vTemp = _mm_mul_ps(Z, row2);
+					vTemp2 = _mm_mul_ps(Y, row1);
+					vTemp3 = _mm_mul_ps(X, row0);
+					vTemp = _mm_add_ps(vTemp, row3);
+					vTemp = _mm_add_ps(vTemp, vTemp2);
+					vTemp = _mm_add_ps(vTemp, vTemp3);
+					XM_STREAM_PS(reinterpret_cast<float*>(pOutputVector), vTemp);
+					pOutputVector += OutputStride;
+
+					// Result 3
+					Z = XM_PERMUTE_PS(V3, _MM_SHUFFLE(2, 2, 2, 2));
+					Y = XM_PERMUTE_PS(V3, _MM_SHUFFLE(1, 1, 1, 1));
+					X = XM_PERMUTE_PS(V3, _MM_SHUFFLE(0, 0, 0, 0));
+
+					vTemp = _mm_mul_ps(Z, row2);
+					vTemp2 = _mm_mul_ps(Y, row1);
+					vTemp3 = _mm_mul_ps(X, row0);
+					vTemp = _mm_add_ps(vTemp, row3);
+					vTemp = _mm_add_ps(vTemp, vTemp2);
+					vTemp = _mm_add_ps(vTemp, vTemp3);
+					XM_STREAM_PS(reinterpret_cast<float*>(pOutputVector), vTemp);
+					pOutputVector += OutputStride;
+
+					// Result 4
+					Z = XM_PERMUTE_PS(V4, _MM_SHUFFLE(2, 2, 2, 2));
+					Y = XM_PERMUTE_PS(V4, _MM_SHUFFLE(1, 1, 1, 1));
+					X = XM_PERMUTE_PS(V4, _MM_SHUFFLE(0, 0, 0, 0));
+
+					vTemp = _mm_mul_ps(Z, row2);
+					vTemp2 = _mm_mul_ps(Y, row1);
+					vTemp3 = _mm_mul_ps(X, row0);
+					vTemp = _mm_add_ps(vTemp, row3);
+					vTemp = _mm_add_ps(vTemp, vTemp2);
+					vTemp = _mm_add_ps(vTemp, vTemp3);
+					XM_STREAM_PS(reinterpret_cast<float*>(pOutputVector), vTemp);
+					pOutputVector += OutputStride;
+
+					i += 4;
+				}
+			}
+			else
+			{
+				// Packed input, unaligned output
+				for (size_t j = 0; j < four; ++j)
+				{
+					__m128 V1 = _mm_loadu_ps(reinterpret_cast<const float*>(pInputVector));
+					__m128 L2 = _mm_loadu_ps(reinterpret_cast<const float*>(pInputVector + 16));
+					__m128 L3 = _mm_loadu_ps(reinterpret_cast<const float*>(pInputVector + 32));
+					pInputVector += sizeof(XMFLOAT3) * 4;
+
+					// Unpack the 4 vectors (.w components are junk)
+					XM3UNPACK3INTO4(V1, L2, L3);
+
+					// Result 1
+					XMVECTOR Z = XM_PERMUTE_PS(V1, _MM_SHUFFLE(2, 2, 2, 2));
+					XMVECTOR Y = XM_PERMUTE_PS(V1, _MM_SHUFFLE(1, 1, 1, 1));
+					XMVECTOR X = XM_PERMUTE_PS(V1, _MM_SHUFFLE(0, 0, 0, 0));
+
+					XMVECTOR vTemp = _mm_mul_ps(Z, row2);
+					XMVECTOR vTemp2 = _mm_mul_ps(Y, row1);
+					XMVECTOR vTemp3 = _mm_mul_ps(X, row0);
+					vTemp = _mm_add_ps(vTemp, row3);
+					vTemp = _mm_add_ps(vTemp, vTemp2);
+					vTemp = _mm_add_ps(vTemp, vTemp3);
+					_mm_storeu_ps(reinterpret_cast<float*>(pOutputVector), vTemp);
+					pOutputVector += OutputStride;
+
+					// Result 2
+					Z = XM_PERMUTE_PS(V2, _MM_SHUFFLE(2, 2, 2, 2));
+					Y = XM_PERMUTE_PS(V2, _MM_SHUFFLE(1, 1, 1, 1));
+					X = XM_PERMUTE_PS(V2, _MM_SHUFFLE(0, 0, 0, 0));
+
+					vTemp = _mm_mul_ps(Z, row2);
+					vTemp2 = _mm_mul_ps(Y, row1);
+					vTemp3 = _mm_mul_ps(X, row0);
+					vTemp = _mm_add_ps(vTemp, row3);
+					vTemp = _mm_add_ps(vTemp, vTemp2);
+					vTemp = _mm_add_ps(vTemp, vTemp3);
+					_mm_storeu_ps(reinterpret_cast<float*>(pOutputVector), vTemp);
+					pOutputVector += OutputStride;
+
+					// Result 3
+					Z = XM_PERMUTE_PS(V3, _MM_SHUFFLE(2, 2, 2, 2));
+					Y = XM_PERMUTE_PS(V3, _MM_SHUFFLE(1, 1, 1, 1));
+					X = XM_PERMUTE_PS(V3, _MM_SHUFFLE(0, 0, 0, 0));
+
+					vTemp = _mm_mul_ps(Z, row2);
+					vTemp2 = _mm_mul_ps(Y, row1);
+					vTemp3 = _mm_mul_ps(X, row0);
+					vTemp = _mm_add_ps(vTemp, row3);
+					vTemp = _mm_add_ps(vTemp, vTemp2);
+					vTemp = _mm_add_ps(vTemp, vTemp3);
+					_mm_storeu_ps(reinterpret_cast<float*>(pOutputVector), vTemp);
+					pOutputVector += OutputStride;
+
+					// Result 4
+					Z = XM_PERMUTE_PS(V4, _MM_SHUFFLE(2, 2, 2, 2));
+					Y = XM_PERMUTE_PS(V4, _MM_SHUFFLE(1, 1, 1, 1));
+					X = XM_PERMUTE_PS(V4, _MM_SHUFFLE(0, 0, 0, 0));
+
+					vTemp = _mm_mul_ps(Z, row2);
+					vTemp2 = _mm_mul_ps(Y, row1);
+					vTemp3 = _mm_mul_ps(X, row0);
+					vTemp = _mm_add_ps(vTemp, row3);
+					vTemp = _mm_add_ps(vTemp, vTemp2);
+					vTemp = _mm_add_ps(vTemp, vTemp3);
+					_mm_storeu_ps(reinterpret_cast<float*>(pOutputVector), vTemp);
+					pOutputVector += OutputStride;
+
+					i += 4;
+				}
+			}
+		}
+	}
+
+	if (!((uintptr_t)pOutputStream & 0xF) && !(OutputStride & 0xF))
+	{
+		// Aligned output
+		for (; i < VectorCount; ++i)
+		{
+#pragma prefast( suppress : 26019, "PREfast noise: Esp:1307" )
+			XMVECTOR V = XMLoadFloat3(reinterpret_cast<const XMFLOAT3*>(pInputVector));
+			pInputVector += InputStride;
+
+			XMVECTOR Z = XM_PERMUTE_PS(V, _MM_SHUFFLE(2, 2, 2, 2));
+			XMVECTOR Y = XM_PERMUTE_PS(V, _MM_SHUFFLE(1, 1, 1, 1));
+			XMVECTOR X = XM_PERMUTE_PS(V, _MM_SHUFFLE(0, 0, 0, 0));
+
+			XMVECTOR vTemp = _mm_mul_ps(Z, row2);
+			XMVECTOR vTemp2 = _mm_mul_ps(Y, row1);
+			XMVECTOR vTemp3 = _mm_mul_ps(X, row0);
+			vTemp = _mm_add_ps(vTemp, row3);
+			vTemp = _mm_add_ps(vTemp, vTemp2);
+			vTemp = _mm_add_ps(vTemp, vTemp3);
+
+			XM_STREAM_PS(reinterpret_cast<float*>(pOutputVector), vTemp);
+			pOutputVector += OutputStride;
+		}
+	}
+	else
+	{
+		// Unaligned output
+		for (; i < VectorCount; ++i)
+		{
+#pragma prefast( suppress : 26019, "PREfast noise: Esp:1307" )
+			XMVECTOR V = XMLoadFloat3(reinterpret_cast<const XMFLOAT3*>(pInputVector));
+			pInputVector += InputStride;
+
+			XMVECTOR Z = XM_PERMUTE_PS(V, _MM_SHUFFLE(2, 2, 2, 2));
+			XMVECTOR Y = XM_PERMUTE_PS(V, _MM_SHUFFLE(1, 1, 1, 1));
+			XMVECTOR X = XM_PERMUTE_PS(V, _MM_SHUFFLE(0, 0, 0, 0));
+
+			XMVECTOR vTemp = _mm_mul_ps(Z, row2);
+			XMVECTOR vTemp2 = _mm_mul_ps(Y, row1);
+			XMVECTOR vTemp3 = _mm_mul_ps(X, row0);
+			vTemp = _mm_add_ps(vTemp, row3);
+			vTemp = _mm_add_ps(vTemp, vTemp2);
+			vTemp = _mm_add_ps(vTemp, vTemp3);
+
+			_mm_storeu_ps(reinterpret_cast<float*>(pOutputVector), vTemp);
+			pOutputVector += OutputStride;
+		}
+	}
+
+	XM_SFENCE();
+
+	return pOutputStream;
+#endif
+}
+
+//------------------------------------------------------------------------------
+
+inline XMVECTOR XM_CALLCONV XMVector3TransformCoord
+(
+	FXMVECTOR V,
+	FXMMATRIX M
+)
+{
+	XMVECTOR Z = XMVectorSplatZ(V);
+	XMVECTOR Y = XMVectorSplatY(V);
+	XMVECTOR X = XMVectorSplatX(V);
+
+	XMVECTOR Result = XMVectorMultiplyAdd(Z, M.c[2], M.c[3]);
+	Result = XMVectorMultiplyAdd(Y, M.c[1], Result);
+	Result = XMVectorMultiplyAdd(X, M.c[0], Result);
+
+	XMVECTOR W = XMVectorSplatW(Result);
+	return XMVectorDivide(Result, W);
+}
+
+//------------------------------------------------------------------------------
+
+_Use_decl_annotations_
+inline XMFLOAT3* XM_CALLCONV XMVector3TransformCoordStream
+(
+	XMFLOAT3*       pOutputStream,
+	size_t          OutputStride,
+	const XMFLOAT3* pInputStream,
+	size_t          InputStride,
+	size_t          VectorCount,
+	FXMMATRIX       M
+)
+{
+	assert(pOutputStream != nullptr);
+	assert(pInputStream != nullptr);
+
+	assert(InputStride >= sizeof(XMFLOAT3));
+	_Analysis_assume_(InputStride >= sizeof(XMFLOAT3));
+
+	assert(OutputStride >= sizeof(XMFLOAT3));
+	_Analysis_assume_(OutputStride >= sizeof(XMFLOAT3));
+
+#if defined(_XM_NO_INTRINSICS_)
+
+	const uint8_t* pInputVector = (const uint8_t*)pInputStream;
+	uint8_t*    pOutputVector = (uint8_t*)pOutputStream;
+
+	const XMVECTOR row0 = M.r[0];
+	const XMVECTOR row1 = M.r[1];
+	const XMVECTOR row2 = M.r[2];
+	const XMVECTOR row3 = M.r[3];
+
+	for (size_t i = 0; i < VectorCount; i++)
+	{
+		XMVECTOR V = XMLoadFloat3((const XMFLOAT3*)pInputVector);
+		XMVECTOR Z = XMVectorSplatZ(V);
+		XMVECTOR Y = XMVectorSplatY(V);
+		XMVECTOR X = XMVectorSplatX(V);
+
+		XMVECTOR Result = XMVectorMultiplyAdd(Z, row2, row3);
+		Result = XMVectorMultiplyAdd(Y, row1, Result);
+		Result = XMVectorMultiplyAdd(X, row0, Result);
+
+		XMVECTOR W = XMVectorSplatW(Result);
+
+		Result = XMVectorDivide(Result, W);
+
+#pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+		XMStoreFloat3((XMFLOAT3*)pOutputVector, Result);
+
+		pInputVector += InputStride;
+		pOutputVector += OutputStride;
+	}
+
+	return pOutputStream;
+
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	const uint8_t* pInputVector = (const uint8_t*)pInputStream;
+	uint8_t* pOutputVector = (uint8_t*)pOutputStream;
+
+	const XMVECTOR row0 = M.c[0];
+	const XMVECTOR row1 = M.c[1];
+	const XMVECTOR row2 = M.c[2];
+	const XMVECTOR row3 = M.c[3];
+
+	size_t i = 0;
+	size_t four = VectorCount >> 2;
+	if (four > 0)
+	{
+		if ((InputStride == sizeof(XMFLOAT3)) && (OutputStride == sizeof(XMFLOAT3)))
+		{
+			for (size_t j = 0; j < four; ++j)
+			{
+				float32x4x3_t V = vld3q_f32(reinterpret_cast<const float*>(pInputVector));
+				pInputVector += sizeof(XMFLOAT3) * 4;
+
+				float32x2_t r3 = vget_low_f32(row3);
+				float32x2_t r = vget_low_f32(row0);
+				XMVECTOR vResult0 = vmlaq_lane_f32(vdupq_lane_f32(r3, 0), V.val[0], r, 0); // Ax+M
+				XMVECTOR vResult1 = vmlaq_lane_f32(vdupq_lane_f32(r3, 1), V.val[0], r, 1); // Bx+N
+
+				__builtin_prefetch(pInputVector);
+
+				r3 = vget_high_f32(row3);
+				r = vget_high_f32(row0);
+				XMVECTOR vResult2 = vmlaq_lane_f32(vdupq_lane_f32(r3, 0), V.val[0], r, 0); // Cx+O
+				XMVECTOR W = vmlaq_lane_f32(vdupq_lane_f32(r3, 1), V.val[0], r, 1); // Dx+P
+
+				__builtin_prefetch(pInputVector + XM_CACHE_LINE_SIZE);
+
+				r = vget_low_f32(row1);
+				vResult0 = vmlaq_lane_f32(vResult0, V.val[1], r, 0); // Ax+Ey+M
+				vResult1 = vmlaq_lane_f32(vResult1, V.val[1], r, 1); // Bx+Fy+N
+
+				__builtin_prefetch(pInputVector + (XM_CACHE_LINE_SIZE * 2));
+
+				r = vget_high_f32(row1);
+				vResult2 = vmlaq_lane_f32(vResult2, V.val[1], r, 0); // Cx+Gy+O
+				W = vmlaq_lane_f32(W, V.val[1], r, 1); // Dx+Hy+P
+
+				__builtin_prefetch(pInputVector + (XM_CACHE_LINE_SIZE * 3));
+
+				r = vget_low_f32(row2);
+				vResult0 = vmlaq_lane_f32(vResult0, V.val[2], r, 0); // Ax+Ey+Iz+M
+				vResult1 = vmlaq_lane_f32(vResult1, V.val[2], r, 1); // Bx+Fy+Jz+N
+
+				__builtin_prefetch(pInputVector + (XM_CACHE_LINE_SIZE * 4));
+
+				r = vget_high_f32(row2);
+				vResult2 = vmlaq_lane_f32(vResult2, V.val[2], r, 0); // Cx+Gy+Kz+O
+				W = vmlaq_lane_f32(W, V.val[2], r, 1); // Dx+Hy+Lz+P
+
+				__builtin_prefetch(pInputVector + (XM_CACHE_LINE_SIZE * 5));
+
+				// 2 iterations of Newton-Raphson refinement of reciprocal
+				float32x4_t Reciprocal = vrecpeq_f32(W);
+				float32x4_t S = vrecpsq_f32(Reciprocal, W);
+				Reciprocal = vmulq_f32(S, Reciprocal);
+				S = vrecpsq_f32(Reciprocal, W);
+				Reciprocal = vmulq_f32(S, Reciprocal);
+
+				V.val[0] = vmulq_f32(vResult0, Reciprocal);
+				V.val[1] = vmulq_f32(vResult1, Reciprocal);
+				V.val[2] = vmulq_f32(vResult2, Reciprocal);
+
+				vst3q_f32(reinterpret_cast<float*>(pOutputVector), V);
+				pOutputVector += sizeof(XMFLOAT3) * 4;
+
+				i += 4;
+			}
+		}
+	}
+
+	for (; i < VectorCount; i++)
+	{
+		float32x2_t VL = vld1_f32(reinterpret_cast<const float*>(pInputVector));
+		float32x2_t zero = vdup_n_f32(0);
+		float32x2_t VH = vld1_lane_f32(reinterpret_cast<const float*>(pInputVector) + 2, zero, 0);
+		pInputVector += InputStride;
+
+		XMVECTOR vResult = vmlaq_lane_f32(row3, row0, VL, 0); // X
+		vResult = vmlaq_lane_f32(vResult, row1, VL, 1); // Y
+		vResult = vmlaq_lane_f32(vResult, row2, VH, 0); // Z
+
+		VH = vget_high_f32(vResult);
+		XMVECTOR W = vdupq_lane_f32(VH, 1);
+
+		// 2 iterations of Newton-Raphson refinement of reciprocal for W
+		float32x4_t Reciprocal = vrecpeq_f32(W);
+		float32x4_t S = vrecpsq_f32(Reciprocal, W);
+		Reciprocal = vmulq_f32(S, Reciprocal);
+		S = vrecpsq_f32(Reciprocal, W);
+		Reciprocal = vmulq_f32(S, Reciprocal);
+
+		vResult = vmulq_f32(vResult, Reciprocal);
+
+		VL = vget_low_f32(vResult);
+		vst1_f32(reinterpret_cast<float*>(pOutputVector), VL);
+		vst1q_lane_f32(reinterpret_cast<float*>(pOutputVector) + 2, vResult, 2);
+		pOutputVector += OutputStride;
+	}
+
+	return pOutputStream;
+#elif defined(_XM_SSE_INTRINSICS_)
+	const uint8_t* pInputVector = (const uint8_t*)pInputStream;
+	uint8_t* pOutputVector = (uint8_t*)pOutputStream;
+
+	const XMVECTOR row0 = M.c[0];
+	const XMVECTOR row1 = M.c[1];
+	const XMVECTOR row2 = M.c[2];
+	const XMVECTOR row3 = M.c[3];
+
+	size_t i = 0;
+	size_t four = VectorCount >> 2;
+	if (four > 0)
+	{
+		if (InputStride == sizeof(XMFLOAT3))
+		{
+			if (OutputStride == sizeof(XMFLOAT3))
+			{
+				if (!((uintptr_t)pOutputStream & 0xF))
+				{
+					// Packed input, aligned & packed output
+					for (size_t j = 0; j < four; ++j)
+					{
+						__m128 V1 = _mm_loadu_ps(reinterpret_cast<const float*>(pInputVector));
+						__m128 L2 = _mm_loadu_ps(reinterpret_cast<const float*>(pInputVector + 16));
+						__m128 L3 = _mm_loadu_ps(reinterpret_cast<const float*>(pInputVector + 32));
+						pInputVector += sizeof(XMFLOAT3) * 4;
+
+						// Unpack the 4 vectors (.w components are junk)
+						XM3UNPACK3INTO4(V1, L2, L3);
+
+						// Result 1
+						XMVECTOR Z = XM_PERMUTE_PS(V1, _MM_SHUFFLE(2, 2, 2, 2));
+						XMVECTOR Y = XM_PERMUTE_PS(V1, _MM_SHUFFLE(1, 1, 1, 1));
+						XMVECTOR X = XM_PERMUTE_PS(V1, _MM_SHUFFLE(0, 0, 0, 0));
+
+						XMVECTOR vTemp = _mm_mul_ps(Z, row2);
+						XMVECTOR vTemp2 = _mm_mul_ps(Y, row1);
+						XMVECTOR vTemp3 = _mm_mul_ps(X, row0);
+						vTemp = _mm_add_ps(vTemp, row3);
+						vTemp = _mm_add_ps(vTemp, vTemp2);
+						vTemp = _mm_add_ps(vTemp, vTemp3);
+
+						XMVECTOR W = XM_PERMUTE_PS(vTemp, _MM_SHUFFLE(3, 3, 3, 3));
+
+						V1 = _mm_div_ps(vTemp, W);
+
+						// Result 2
+						Z = XM_PERMUTE_PS(V2, _MM_SHUFFLE(2, 2, 2, 2));
+						Y = XM_PERMUTE_PS(V2, _MM_SHUFFLE(1, 1, 1, 1));
+						X = XM_PERMUTE_PS(V2, _MM_SHUFFLE(0, 0, 0, 0));
+
+						vTemp = _mm_mul_ps(Z, row2);
+						vTemp2 = _mm_mul_ps(Y, row1);
+						vTemp3 = _mm_mul_ps(X, row0);
+						vTemp = _mm_add_ps(vTemp, row3);
+						vTemp = _mm_add_ps(vTemp, vTemp2);
+						vTemp = _mm_add_ps(vTemp, vTemp3);
+
+						W = XM_PERMUTE_PS(vTemp, _MM_SHUFFLE(3, 3, 3, 3));
+
+						V2 = _mm_div_ps(vTemp, W);
+
+						// Result 3
+						Z = XM_PERMUTE_PS(V3, _MM_SHUFFLE(2, 2, 2, 2));
+						Y = XM_PERMUTE_PS(V3, _MM_SHUFFLE(1, 1, 1, 1));
+						X = XM_PERMUTE_PS(V3, _MM_SHUFFLE(0, 0, 0, 0));
+
+						vTemp = _mm_mul_ps(Z, row2);
+						vTemp2 = _mm_mul_ps(Y, row1);
+						vTemp3 = _mm_mul_ps(X, row0);
+						vTemp = _mm_add_ps(vTemp, row3);
+						vTemp = _mm_add_ps(vTemp, vTemp2);
+						vTemp = _mm_add_ps(vTemp, vTemp3);
+
+						W = XM_PERMUTE_PS(vTemp, _MM_SHUFFLE(3, 3, 3, 3));
+
+						V3 = _mm_div_ps(vTemp, W);
+
+						// Result 4
+						Z = XM_PERMUTE_PS(V4, _MM_SHUFFLE(2, 2, 2, 2));
+						Y = XM_PERMUTE_PS(V4, _MM_SHUFFLE(1, 1, 1, 1));
+						X = XM_PERMUTE_PS(V4, _MM_SHUFFLE(0, 0, 0, 0));
+
+						vTemp = _mm_mul_ps(Z, row2);
+						vTemp2 = _mm_mul_ps(Y, row1);
+						vTemp3 = _mm_mul_ps(X, row0);
+						vTemp = _mm_add_ps(vTemp, row3);
+						vTemp = _mm_add_ps(vTemp, vTemp2);
+						vTemp = _mm_add_ps(vTemp, vTemp3);
+
+						W = XM_PERMUTE_PS(vTemp, _MM_SHUFFLE(3, 3, 3, 3));
+
+						V4 = _mm_div_ps(vTemp, W);
+
+						// Pack and store the vectors
+						XM3PACK4INTO3(vTemp);
+						XM_STREAM_PS(reinterpret_cast<float*>(pOutputVector), V1);
+						XM_STREAM_PS(reinterpret_cast<float*>(pOutputVector + 16), vTemp);
+						XM_STREAM_PS(reinterpret_cast<float*>(pOutputVector + 32), V3);
+						pOutputVector += sizeof(XMFLOAT3) * 4;
+						i += 4;
+					}
+				}
+				else
+				{
+					// Packed input, unaligned & packed output
+					for (size_t j = 0; j < four; ++j)
+					{
+						__m128 V1 = _mm_loadu_ps(reinterpret_cast<const float*>(pInputVector));
+						__m128 L2 = _mm_loadu_ps(reinterpret_cast<const float*>(pInputVector + 16));
+						__m128 L3 = _mm_loadu_ps(reinterpret_cast<const float*>(pInputVector + 32));
+						pInputVector += sizeof(XMFLOAT3) * 4;
+
+						// Unpack the 4 vectors (.w components are junk)
+						XM3UNPACK3INTO4(V1, L2, L3);
+
+						// Result 1
+						XMVECTOR Z = XM_PERMUTE_PS(V1, _MM_SHUFFLE(2, 2, 2, 2));
+						XMVECTOR Y = XM_PERMUTE_PS(V1, _MM_SHUFFLE(1, 1, 1, 1));
+						XMVECTOR X = XM_PERMUTE_PS(V1, _MM_SHUFFLE(0, 0, 0, 0));
+
+						XMVECTOR vTemp = _mm_mul_ps(Z, row2);
+						XMVECTOR vTemp2 = _mm_mul_ps(Y, row1);
+						XMVECTOR vTemp3 = _mm_mul_ps(X, row0);
+						vTemp = _mm_add_ps(vTemp, row3);
+						vTemp = _mm_add_ps(vTemp, vTemp2);
+						vTemp = _mm_add_ps(vTemp, vTemp3);
+
+						XMVECTOR W = XM_PERMUTE_PS(vTemp, _MM_SHUFFLE(3, 3, 3, 3));
+
+						V1 = _mm_div_ps(vTemp, W);
+
+						// Result 2
+						Z = XM_PERMUTE_PS(V2, _MM_SHUFFLE(2, 2, 2, 2));
+						Y = XM_PERMUTE_PS(V2, _MM_SHUFFLE(1, 1, 1, 1));
+						X = XM_PERMUTE_PS(V2, _MM_SHUFFLE(0, 0, 0, 0));
+
+						vTemp = _mm_mul_ps(Z, row2);
+						vTemp2 = _mm_mul_ps(Y, row1);
+						vTemp3 = _mm_mul_ps(X, row0);
+						vTemp = _mm_add_ps(vTemp, row3);
+						vTemp = _mm_add_ps(vTemp, vTemp2);
+						vTemp = _mm_add_ps(vTemp, vTemp3);
+
+						W = XM_PERMUTE_PS(vTemp, _MM_SHUFFLE(3, 3, 3, 3));
+
+						V2 = _mm_div_ps(vTemp, W);
+
+						// Result 3
+						Z = XM_PERMUTE_PS(V3, _MM_SHUFFLE(2, 2, 2, 2));
+						Y = XM_PERMUTE_PS(V3, _MM_SHUFFLE(1, 1, 1, 1));
+						X = XM_PERMUTE_PS(V3, _MM_SHUFFLE(0, 0, 0, 0));
+
+						vTemp = _mm_mul_ps(Z, row2);
+						vTemp2 = _mm_mul_ps(Y, row1);
+						vTemp3 = _mm_mul_ps(X, row0);
+						vTemp = _mm_add_ps(vTemp, row3);
+						vTemp = _mm_add_ps(vTemp, vTemp2);
+						vTemp = _mm_add_ps(vTemp, vTemp3);
+
+						W = XM_PERMUTE_PS(vTemp, _MM_SHUFFLE(3, 3, 3, 3));
+
+						V3 = _mm_div_ps(vTemp, W);
+
+						// Result 4
+						Z = XM_PERMUTE_PS(V4, _MM_SHUFFLE(2, 2, 2, 2));
+						Y = XM_PERMUTE_PS(V4, _MM_SHUFFLE(1, 1, 1, 1));
+						X = XM_PERMUTE_PS(V4, _MM_SHUFFLE(0, 0, 0, 0));
+
+						vTemp = _mm_mul_ps(Z, row2);
+						vTemp2 = _mm_mul_ps(Y, row1);
+						vTemp3 = _mm_mul_ps(X, row0);
+						vTemp = _mm_add_ps(vTemp, row3);
+						vTemp = _mm_add_ps(vTemp, vTemp2);
+						vTemp = _mm_add_ps(vTemp, vTemp3);
+
+						W = XM_PERMUTE_PS(vTemp, _MM_SHUFFLE(3, 3, 3, 3));
+
+						V4 = _mm_div_ps(vTemp, W);
+
+						// Pack and store the vectors
+						XM3PACK4INTO3(vTemp);
+						_mm_storeu_ps(reinterpret_cast<float*>(pOutputVector), V1);
+						_mm_storeu_ps(reinterpret_cast<float*>(pOutputVector + 16), vTemp);
+						_mm_storeu_ps(reinterpret_cast<float*>(pOutputVector + 32), V3);
+						pOutputVector += sizeof(XMFLOAT3) * 4;
+						i += 4;
+					}
+				}
+			}
+			else
+			{
+				// Packed input, unpacked output
+				for (size_t j = 0; j < four; ++j)
+				{
+					__m128 V1 = _mm_loadu_ps(reinterpret_cast<const float*>(pInputVector));
+					__m128 L2 = _mm_loadu_ps(reinterpret_cast<const float*>(pInputVector + 16));
+					__m128 L3 = _mm_loadu_ps(reinterpret_cast<const float*>(pInputVector + 32));
+					pInputVector += sizeof(XMFLOAT3) * 4;
+
+					// Unpack the 4 vectors (.w components are junk)
+					XM3UNPACK3INTO4(V1, L2, L3);
+
+					// Result 1
+					XMVECTOR Z = XM_PERMUTE_PS(V1, _MM_SHUFFLE(2, 2, 2, 2));
+					XMVECTOR Y = XM_PERMUTE_PS(V1, _MM_SHUFFLE(1, 1, 1, 1));
+					XMVECTOR X = XM_PERMUTE_PS(V1, _MM_SHUFFLE(0, 0, 0, 0));
+
+					XMVECTOR vTemp = _mm_mul_ps(Z, row2);
+					XMVECTOR vTemp2 = _mm_mul_ps(Y, row1);
+					XMVECTOR vTemp3 = _mm_mul_ps(X, row0);
+					vTemp = _mm_add_ps(vTemp, row3);
+					vTemp = _mm_add_ps(vTemp, vTemp2);
+					vTemp = _mm_add_ps(vTemp, vTemp3);
+
+					XMVECTOR W = XM_PERMUTE_PS(vTemp, _MM_SHUFFLE(3, 3, 3, 3));
+
+					vTemp = _mm_div_ps(vTemp, W);
+#pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+					XMStoreFloat3(reinterpret_cast<XMFLOAT3*>(pOutputVector), vTemp);
+					pOutputVector += OutputStride;
+
+					// Result 2
+					Z = XM_PERMUTE_PS(V2, _MM_SHUFFLE(2, 2, 2, 2));
+					Y = XM_PERMUTE_PS(V2, _MM_SHUFFLE(1, 1, 1, 1));
+					X = XM_PERMUTE_PS(V2, _MM_SHUFFLE(0, 0, 0, 0));
+
+					vTemp = _mm_mul_ps(Z, row2);
+					vTemp2 = _mm_mul_ps(Y, row1);
+					vTemp3 = _mm_mul_ps(X, row0);
+					vTemp = _mm_add_ps(vTemp, row3);
+					vTemp = _mm_add_ps(vTemp, vTemp2);
+					vTemp = _mm_add_ps(vTemp, vTemp3);
+
+					W = XM_PERMUTE_PS(vTemp, _MM_SHUFFLE(3, 3, 3, 3));
+
+					vTemp = _mm_div_ps(vTemp, W);
+#pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+					XMStoreFloat3(reinterpret_cast<XMFLOAT3*>(pOutputVector), vTemp);
+					pOutputVector += OutputStride;
+
+					// Result 3
+					Z = XM_PERMUTE_PS(V3, _MM_SHUFFLE(2, 2, 2, 2));
+					Y = XM_PERMUTE_PS(V3, _MM_SHUFFLE(1, 1, 1, 1));
+					X = XM_PERMUTE_PS(V3, _MM_SHUFFLE(0, 0, 0, 0));
+
+					vTemp = _mm_mul_ps(Z, row2);
+					vTemp2 = _mm_mul_ps(Y, row1);
+					vTemp3 = _mm_mul_ps(X, row0);
+					vTemp = _mm_add_ps(vTemp, row3);
+					vTemp = _mm_add_ps(vTemp, vTemp2);
+					vTemp = _mm_add_ps(vTemp, vTemp3);
+
+					W = XM_PERMUTE_PS(vTemp, _MM_SHUFFLE(3, 3, 3, 3));
+
+					vTemp = _mm_div_ps(vTemp, W);
+#pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+					XMStoreFloat3(reinterpret_cast<XMFLOAT3*>(pOutputVector), vTemp);
+					pOutputVector += OutputStride;
+
+					// Result 4
+					Z = XM_PERMUTE_PS(V4, _MM_SHUFFLE(2, 2, 2, 2));
+					Y = XM_PERMUTE_PS(V4, _MM_SHUFFLE(1, 1, 1, 1));
+					X = XM_PERMUTE_PS(V4, _MM_SHUFFLE(0, 0, 0, 0));
+
+					vTemp = _mm_mul_ps(Z, row2);
+					vTemp2 = _mm_mul_ps(Y, row1);
+					vTemp3 = _mm_mul_ps(X, row0);
+					vTemp = _mm_add_ps(vTemp, row3);
+					vTemp = _mm_add_ps(vTemp, vTemp2);
+					vTemp = _mm_add_ps(vTemp, vTemp3);
+
+					W = XM_PERMUTE_PS(vTemp, _MM_SHUFFLE(3, 3, 3, 3));
+
+					vTemp = _mm_div_ps(vTemp, W);
+#pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+					XMStoreFloat3(reinterpret_cast<XMFLOAT3*>(pOutputVector), vTemp);
+					pOutputVector += OutputStride;
+
+					i += 4;
+				}
+			}
+		}
+	}
+
+	for (; i < VectorCount; i++)
+	{
+#pragma prefast( suppress : 26019, "PREfast noise: Esp:1307" )
+		XMVECTOR V = XMLoadFloat3(reinterpret_cast<const XMFLOAT3*>(pInputVector));
+		pInputVector += InputStride;
+
+		XMVECTOR Z = XM_PERMUTE_PS(V, _MM_SHUFFLE(2, 2, 2, 2));
+		XMVECTOR Y = XM_PERMUTE_PS(V, _MM_SHUFFLE(1, 1, 1, 1));
+		XMVECTOR X = XM_PERMUTE_PS(V, _MM_SHUFFLE(0, 0, 0, 0));
+
+		XMVECTOR vTemp = _mm_mul_ps(Z, row2);
+		XMVECTOR vTemp2 = _mm_mul_ps(Y, row1);
+		XMVECTOR vTemp3 = _mm_mul_ps(X, row0);
+		vTemp = _mm_add_ps(vTemp, row3);
+		vTemp = _mm_add_ps(vTemp, vTemp2);
+		vTemp = _mm_add_ps(vTemp, vTemp3);
+
+		XMVECTOR W = XM_PERMUTE_PS(vTemp, _MM_SHUFFLE(3, 3, 3, 3));
+
+		vTemp = _mm_div_ps(vTemp, W);
+
+#pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+		XMStoreFloat3(reinterpret_cast<XMFLOAT3*>(pOutputVector), vTemp);
+		pOutputVector += OutputStride;
+	}
+
+	XM_SFENCE();
+
+	return pOutputStream;
+#endif
+}
+
+//------------------------------------------------------------------------------
+
+inline XMVECTOR XM_CALLCONV XMVector3TransformNormal
+(
+	FXMVECTOR V,
+	FXMMATRIX M
+)
+{
+#if defined(_XM_NO_INTRINSICS_)
+
+	XMVECTOR Z = XMVectorSplatZ(V);
+	XMVECTOR Y = XMVectorSplatY(V);
+	XMVECTOR X = XMVectorSplatX(V);
+
+	XMVECTOR Result = XMVectorMultiply(Z, M.r[2]);
+	Result = XMVectorMultiplyAdd(Y, M.r[1], Result);
+	Result = XMVectorMultiplyAdd(X, M.r[0], Result);
+
+	return Result;
+
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	float32x2_t VL = vget_low_f32(V);
+	XMVECTOR vResult = vmulq_lane_f32(M.c[0], VL, 0); // X
+	vResult = vmlaq_lane_f32(vResult, M.c[1], VL, 1); // Y
+	return vmlaq_lane_f32(vResult, M.c[2], vget_high_f32(V), 0); // Z
+#elif defined(_XM_SSE_INTRINSICS_)
+	XMVECTOR vResult = XM_PERMUTE_PS(V, _MM_SHUFFLE(0, 0, 0, 0));
+	vResult = _mm_mul_ps(vResult, M.c[0]);
+	XMVECTOR vTemp = XM_PERMUTE_PS(V, _MM_SHUFFLE(1, 1, 1, 1));
+	vTemp = _mm_mul_ps(vTemp, M.c[1]);
+	vResult = _mm_add_ps(vResult, vTemp);
+	vTemp = XM_PERMUTE_PS(V, _MM_SHUFFLE(2, 2, 2, 2));
+	vTemp = _mm_mul_ps(vTemp, M.c[2]);
+	vResult = _mm_add_ps(vResult, vTemp);
+	return vResult;
+#endif
+}
+
+//------------------------------------------------------------------------------
+
+_Use_decl_annotations_
+inline XMFLOAT3* XM_CALLCONV XMVector3TransformNormalStream
+(
+	XMFLOAT3*       pOutputStream,
+	size_t          OutputStride,
+	const XMFLOAT3* pInputStream,
+	size_t          InputStride,
+	size_t          VectorCount,
+	FXMMATRIX       M
+)
+{
+	assert(pOutputStream != nullptr);
+	assert(pInputStream != nullptr);
+
+	assert(InputStride >= sizeof(XMFLOAT3));
+	_Analysis_assume_(InputStride >= sizeof(XMFLOAT3));
+
+	assert(OutputStride >= sizeof(XMFLOAT3));
+	_Analysis_assume_(OutputStride >= sizeof(XMFLOAT3));
+
+#if defined(_XM_NO_INTRINSICS_)
+
+	const uint8_t* pInputVector = (const uint8_t*)pInputStream;
+	uint8_t* pOutputVector = (uint8_t*)pOutputStream;
+
+	const XMVECTOR row0 = M.r[0];
+	const XMVECTOR row1 = M.r[1];
+	const XMVECTOR row2 = M.r[2];
+
+	for (size_t i = 0; i < VectorCount; i++)
+	{
+		XMVECTOR V = XMLoadFloat3((const XMFLOAT3*)pInputVector);
+		XMVECTOR Z = XMVectorSplatZ(V);
+		XMVECTOR Y = XMVectorSplatY(V);
+		XMVECTOR X = XMVectorSplatX(V);
+
+		XMVECTOR Result = XMVectorMultiply(Z, row2);
+		Result = XMVectorMultiplyAdd(Y, row1, Result);
+		Result = XMVectorMultiplyAdd(X, row0, Result);
+
+#pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+		XMStoreFloat3((XMFLOAT3*)pOutputVector, Result);
+
+		pInputVector += InputStride;
+		pOutputVector += OutputStride;
+	}
+
+	return pOutputStream;
+
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	const uint8_t* pInputVector = (const uint8_t*)pInputStream;
+	uint8_t* pOutputVector = (uint8_t*)pOutputStream;
+
+	const XMVECTOR row0 = M.c[0];
+	const XMVECTOR row1 = M.c[1];
+	const XMVECTOR row2 = M.c[2];
+
+	size_t i = 0;
+	size_t four = VectorCount >> 2;
+	if (four > 0)
+	{
+		if ((InputStride == sizeof(XMFLOAT3)) && (OutputStride == sizeof(XMFLOAT3)))
+		{
+			for (size_t j = 0; j < four; ++j)
+			{
+				float32x4x3_t V = vld3q_f32(reinterpret_cast<const float*>(pInputVector));
+				pInputVector += sizeof(XMFLOAT3) * 4;
+
+				float32x2_t r = vget_low_f32(row0);
+				XMVECTOR vResult0 = vmulq_lane_f32(V.val[0], r, 0); // Ax
+				XMVECTOR vResult1 = vmulq_lane_f32(V.val[0], r, 1); // Bx
+
+				__builtin_prefetch(pInputVector);
+
+				r = vget_high_f32(row0);
+				XMVECTOR vResult2 = vmulq_lane_f32(V.val[0], r, 0); // Cx
+
+				__builtin_prefetch(pInputVector + XM_CACHE_LINE_SIZE);
+
+				r = vget_low_f32(row1);
+				vResult0 = vmlaq_lane_f32(vResult0, V.val[1], r, 0); // Ax+Ey
+				vResult1 = vmlaq_lane_f32(vResult1, V.val[1], r, 1); // Bx+Fy
+
+				__builtin_prefetch(pInputVector + (XM_CACHE_LINE_SIZE * 2));
+
+				r = vget_high_f32(row1);
+				vResult2 = vmlaq_lane_f32(vResult2, V.val[1], r, 0); // Cx+Gy
+
+				__builtin_prefetch(pInputVector + (XM_CACHE_LINE_SIZE * 3));
+
+				r = vget_low_f32(row2);
+				vResult0 = vmlaq_lane_f32(vResult0, V.val[2], r, 0); // Ax+Ey+Iz
+				vResult1 = vmlaq_lane_f32(vResult1, V.val[2], r, 1); // Bx+Fy+Jz
+
+				__builtin_prefetch(pInputVector + (XM_CACHE_LINE_SIZE * 4));
+
+				r = vget_high_f32(row2);
+				vResult2 = vmlaq_lane_f32(vResult2, V.val[2], r, 0); // Cx+Gy+Kz
+
+				__builtin_prefetch(pInputVector + (XM_CACHE_LINE_SIZE * 5));
+
+				V.val[0] = vResult0;
+				V.val[1] = vResult1;
+				V.val[2] = vResult2;
+
+				vst3q_f32(reinterpret_cast<float*>(pOutputVector), V);
+				pOutputVector += sizeof(XMFLOAT3) * 4;
+
+				i += 4;
+			}
+		}
+	}
+
+	for (; i < VectorCount; i++)
+	{
+		float32x2_t VL = vld1_f32(reinterpret_cast<const float*>(pInputVector));
+		float32x2_t zero = vdup_n_f32(0);
+		float32x2_t VH = vld1_lane_f32(reinterpret_cast<const float*>(pInputVector) + 2, zero, 0);
+		pInputVector += InputStride;
+
+		XMVECTOR vResult = vmulq_lane_f32(row0, VL, 0); // X
+		vResult = vmlaq_lane_f32(vResult, row1, VL, 1); // Y
+		vResult = vmlaq_lane_f32(vResult, row2, VH, 0); // Z
+
+		VL = vget_low_f32(vResult);
+		vst1_f32(reinterpret_cast<float*>(pOutputVector), VL);
+		vst1q_lane_f32(reinterpret_cast<float*>(pOutputVector) + 2, vResult, 2);
+		pOutputVector += OutputStride;
+	}
+
+	return pOutputStream;
+#elif defined(_XM_SSE_INTRINSICS_)
+	const uint8_t* pInputVector = (const uint8_t*)pInputStream;
+	uint8_t* pOutputVector = (uint8_t*)pOutputStream;
+
+	const XMVECTOR row0 = M.c[0];
+	const XMVECTOR row1 = M.c[1];
+	const XMVECTOR row2 = M.c[2];
+
+	size_t i = 0;
+	size_t four = VectorCount >> 2;
+	if (four > 0)
+	{
+		if (InputStride == sizeof(XMFLOAT3))
+		{
+			if (OutputStride == sizeof(XMFLOAT3))
+			{
+				if (!((uintptr_t)pOutputStream & 0xF))
+				{
+					// Packed input, aligned & packed output
+					for (size_t j = 0; j < four; ++j)
+					{
+						__m128 V1 = _mm_loadu_ps(reinterpret_cast<const float*>(pInputVector));
+						__m128 L2 = _mm_loadu_ps(reinterpret_cast<const float*>(pInputVector + 16));
+						__m128 L3 = _mm_loadu_ps(reinterpret_cast<const float*>(pInputVector + 32));
+						pInputVector += sizeof(XMFLOAT3) * 4;
+
+						// Unpack the 4 vectors (.w components are junk)
+						XM3UNPACK3INTO4(V1, L2, L3);
+
+						// Result 1
+						XMVECTOR Z = XM_PERMUTE_PS(V1, _MM_SHUFFLE(2, 2, 2, 2));
+						XMVECTOR Y = XM_PERMUTE_PS(V1, _MM_SHUFFLE(1, 1, 1, 1));
+						XMVECTOR X = XM_PERMUTE_PS(V1, _MM_SHUFFLE(0, 0, 0, 0));
+
+						XMVECTOR vTemp = _mm_mul_ps(Z, row2);
+						XMVECTOR vTemp2 = _mm_mul_ps(Y, row1);
+						XMVECTOR vTemp3 = _mm_mul_ps(X, row0);
+						vTemp = _mm_add_ps(vTemp, vTemp2);
+						V1 = _mm_add_ps(vTemp, vTemp3);
+
+						// Result 2
+						Z = XM_PERMUTE_PS(V2, _MM_SHUFFLE(2, 2, 2, 2));
+						Y = XM_PERMUTE_PS(V2, _MM_SHUFFLE(1, 1, 1, 1));
+						X = XM_PERMUTE_PS(V2, _MM_SHUFFLE(0, 0, 0, 0));
+
+						vTemp = _mm_mul_ps(Z, row2);
+						vTemp2 = _mm_mul_ps(Y, row1);
+						vTemp3 = _mm_mul_ps(X, row0);
+						vTemp = _mm_add_ps(vTemp, vTemp2);
+						V2 = _mm_add_ps(vTemp, vTemp3);
+
+						// Result 3
+						Z = XM_PERMUTE_PS(V3, _MM_SHUFFLE(2, 2, 2, 2));
+						Y = XM_PERMUTE_PS(V3, _MM_SHUFFLE(1, 1, 1, 1));
+						X = XM_PERMUTE_PS(V3, _MM_SHUFFLE(0, 0, 0, 0));
+
+						vTemp = _mm_mul_ps(Z, row2);
+						vTemp2 = _mm_mul_ps(Y, row1);
+						vTemp3 = _mm_mul_ps(X, row0);
+						vTemp = _mm_add_ps(vTemp, vTemp2);
+						V3 = _mm_add_ps(vTemp, vTemp3);
+
+						// Result 4
+						Z = XM_PERMUTE_PS(V4, _MM_SHUFFLE(2, 2, 2, 2));
+						Y = XM_PERMUTE_PS(V4, _MM_SHUFFLE(1, 1, 1, 1));
+						X = XM_PERMUTE_PS(V4, _MM_SHUFFLE(0, 0, 0, 0));
+
+						vTemp = _mm_mul_ps(Z, row2);
+						vTemp2 = _mm_mul_ps(Y, row1);
+						vTemp3 = _mm_mul_ps(X, row0);
+						vTemp = _mm_add_ps(vTemp, vTemp2);
+						V4 = _mm_add_ps(vTemp, vTemp3);
+
+						// Pack and store the vectors
+						XM3PACK4INTO3(vTemp);
+						XM_STREAM_PS(reinterpret_cast<float*>(pOutputVector), V1);
+						XM_STREAM_PS(reinterpret_cast<float*>(pOutputVector + 16), vTemp);
+						XM_STREAM_PS(reinterpret_cast<float*>(pOutputVector + 32), V3);
+						pOutputVector += sizeof(XMFLOAT3) * 4;
+						i += 4;
+					}
+				}
+				else
+				{
+					// Packed input, unaligned & packed output
+					for (size_t j = 0; j < four; ++j)
+					{
+						__m128 V1 = _mm_loadu_ps(reinterpret_cast<const float*>(pInputVector));
+						__m128 L2 = _mm_loadu_ps(reinterpret_cast<const float*>(pInputVector + 16));
+						__m128 L3 = _mm_loadu_ps(reinterpret_cast<const float*>(pInputVector + 32));
+						pInputVector += sizeof(XMFLOAT3) * 4;
+
+						// Unpack the 4 vectors (.w components are junk)
+						XM3UNPACK3INTO4(V1, L2, L3);
+
+						// Result 1
+						XMVECTOR Z = XM_PERMUTE_PS(V1, _MM_SHUFFLE(2, 2, 2, 2));
+						XMVECTOR Y = XM_PERMUTE_PS(V1, _MM_SHUFFLE(1, 1, 1, 1));
+						XMVECTOR X = XM_PERMUTE_PS(V1, _MM_SHUFFLE(0, 0, 0, 0));
+
+						XMVECTOR vTemp = _mm_mul_ps(Z, row2);
+						XMVECTOR vTemp2 = _mm_mul_ps(Y, row1);
+						XMVECTOR vTemp3 = _mm_mul_ps(X, row0);
+						vTemp = _mm_add_ps(vTemp, vTemp2);
+						V1 = _mm_add_ps(vTemp, vTemp3);
+
+						// Result 2
+						Z = XM_PERMUTE_PS(V2, _MM_SHUFFLE(2, 2, 2, 2));
+						Y = XM_PERMUTE_PS(V2, _MM_SHUFFLE(1, 1, 1, 1));
+						X = XM_PERMUTE_PS(V2, _MM_SHUFFLE(0, 0, 0, 0));
+
+						vTemp = _mm_mul_ps(Z, row2);
+						vTemp2 = _mm_mul_ps(Y, row1);
+						vTemp3 = _mm_mul_ps(X, row0);
+						vTemp = _mm_add_ps(vTemp, vTemp2);
+						V2 = _mm_add_ps(vTemp, vTemp3);
+
+						// Result 3
+						Z = XM_PERMUTE_PS(V3, _MM_SHUFFLE(2, 2, 2, 2));
+						Y = XM_PERMUTE_PS(V3, _MM_SHUFFLE(1, 1, 1, 1));
+						X = XM_PERMUTE_PS(V3, _MM_SHUFFLE(0, 0, 0, 0));
+
+						vTemp = _mm_mul_ps(Z, row2);
+						vTemp2 = _mm_mul_ps(Y, row1);
+						vTemp3 = _mm_mul_ps(X, row0);
+						vTemp = _mm_add_ps(vTemp, vTemp2);
+						V3 = _mm_add_ps(vTemp, vTemp3);
+
+						// Result 4
+						Z = XM_PERMUTE_PS(V4, _MM_SHUFFLE(2, 2, 2, 2));
+						Y = XM_PERMUTE_PS(V4, _MM_SHUFFLE(1, 1, 1, 1));
+						X = XM_PERMUTE_PS(V4, _MM_SHUFFLE(0, 0, 0, 0));
+
+						vTemp = _mm_mul_ps(Z, row2);
+						vTemp2 = _mm_mul_ps(Y, row1);
+						vTemp3 = _mm_mul_ps(X, row0);
+						vTemp = _mm_add_ps(vTemp, vTemp2);
+						V4 = _mm_add_ps(vTemp, vTemp3);
+
+						// Pack and store the vectors
+						XM3PACK4INTO3(vTemp);
+						_mm_storeu_ps(reinterpret_cast<float*>(pOutputVector), V1);
+						_mm_storeu_ps(reinterpret_cast<float*>(pOutputVector + 16), vTemp);
+						_mm_storeu_ps(reinterpret_cast<float*>(pOutputVector + 32), V3);
+						pOutputVector += sizeof(XMFLOAT3) * 4;
+						i += 4;
+					}
+				}
+			}
+			else
+			{
+				// Packed input, unpacked output
+				for (size_t j = 0; j < four; ++j)
+				{
+					__m128 V1 = _mm_loadu_ps(reinterpret_cast<const float*>(pInputVector));
+					__m128 L2 = _mm_loadu_ps(reinterpret_cast<const float*>(pInputVector + 16));
+					__m128 L3 = _mm_loadu_ps(reinterpret_cast<const float*>(pInputVector + 32));
+					pInputVector += sizeof(XMFLOAT3) * 4;
+
+					// Unpack the 4 vectors (.w components are junk)
+					XM3UNPACK3INTO4(V1, L2, L3);
+
+					// Result 1
+					XMVECTOR Z = XM_PERMUTE_PS(V1, _MM_SHUFFLE(2, 2, 2, 2));
+					XMVECTOR Y = XM_PERMUTE_PS(V1, _MM_SHUFFLE(1, 1, 1, 1));
+					XMVECTOR X = XM_PERMUTE_PS(V1, _MM_SHUFFLE(0, 0, 0, 0));
+
+					XMVECTOR vTemp = _mm_mul_ps(Z, row2);
+					XMVECTOR vTemp2 = _mm_mul_ps(Y, row1);
+					XMVECTOR vTemp3 = _mm_mul_ps(X, row0);
+					vTemp = _mm_add_ps(vTemp, vTemp2);
+					vTemp = _mm_add_ps(vTemp, vTemp3);
+
+#pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+					XMStoreFloat3(reinterpret_cast<XMFLOAT3*>(pOutputVector), vTemp);
+					pOutputVector += OutputStride;
+
+					// Result 2
+					Z = XM_PERMUTE_PS(V2, _MM_SHUFFLE(2, 2, 2, 2));
+					Y = XM_PERMUTE_PS(V2, _MM_SHUFFLE(1, 1, 1, 1));
+					X = XM_PERMUTE_PS(V2, _MM_SHUFFLE(0, 0, 0, 0));
+
+					vTemp = _mm_mul_ps(Z, row2);
+					vTemp2 = _mm_mul_ps(Y, row1);
+					vTemp3 = _mm_mul_ps(X, row0);
+					vTemp = _mm_add_ps(vTemp, vTemp2);
+					vTemp = _mm_add_ps(vTemp, vTemp3);
+
+#pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+					XMStoreFloat3(reinterpret_cast<XMFLOAT3*>(pOutputVector), vTemp);
+					pOutputVector += OutputStride;
+
+					// Result 3
+					Z = XM_PERMUTE_PS(V3, _MM_SHUFFLE(2, 2, 2, 2));
+					Y = XM_PERMUTE_PS(V3, _MM_SHUFFLE(1, 1, 1, 1));
+					X = XM_PERMUTE_PS(V3, _MM_SHUFFLE(0, 0, 0, 0));
+
+					vTemp = _mm_mul_ps(Z, row2);
+					vTemp2 = _mm_mul_ps(Y, row1);
+					vTemp3 = _mm_mul_ps(X, row0);
+					vTemp = _mm_add_ps(vTemp, vTemp2);
+					vTemp = _mm_add_ps(vTemp, vTemp3);
+
+#pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+					XMStoreFloat3(reinterpret_cast<XMFLOAT3*>(pOutputVector), vTemp);
+					pOutputVector += OutputStride;
+
+					// Result 4
+					Z = XM_PERMUTE_PS(V4, _MM_SHUFFLE(2, 2, 2, 2));
+					Y = XM_PERMUTE_PS(V4, _MM_SHUFFLE(1, 1, 1, 1));
+					X = XM_PERMUTE_PS(V4, _MM_SHUFFLE(0, 0, 0, 0));
+
+					vTemp = _mm_mul_ps(Z, row2);
+					vTemp2 = _mm_mul_ps(Y, row1);
+					vTemp3 = _mm_mul_ps(X, row0);
+					vTemp = _mm_add_ps(vTemp, vTemp2);
+					vTemp = _mm_add_ps(vTemp, vTemp3);
+
+#pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+					XMStoreFloat3(reinterpret_cast<XMFLOAT3*>(pOutputVector), vTemp);
+					pOutputVector += OutputStride;
+
+					i += 4;
+				}
+			}
+		}
+	}
+
+	for (; i < VectorCount; i++)
+	{
+#pragma prefast( suppress : 26019, "PREfast noise: Esp:1307" )
+		XMVECTOR V = XMLoadFloat3(reinterpret_cast<const XMFLOAT3*>(pInputVector));
+		pInputVector += InputStride;
+
+		XMVECTOR Z = XM_PERMUTE_PS(V, _MM_SHUFFLE(2, 2, 2, 2));
+		XMVECTOR Y = XM_PERMUTE_PS(V, _MM_SHUFFLE(1, 1, 1, 1));
+		XMVECTOR X = XM_PERMUTE_PS(V, _MM_SHUFFLE(0, 0, 0, 0));
+
+		XMVECTOR vTemp = _mm_mul_ps(Z, row2);
+		XMVECTOR vTemp2 = _mm_mul_ps(Y, row1);
+		XMVECTOR vTemp3 = _mm_mul_ps(X, row0);
+		vTemp = _mm_add_ps(vTemp, vTemp2);
+		vTemp = _mm_add_ps(vTemp, vTemp3);
+
+#pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+		XMStoreFloat3(reinterpret_cast<XMFLOAT3*>(pOutputVector), vTemp);
+		pOutputVector += OutputStride;
+	}
+
+	XM_SFENCE();
+
+	return pOutputStream;
+#endif
+}
+
+//------------------------------------------------------------------------------
+
+inline XMVECTOR XM_CALLCONV XMVector3Project
+(
+	FXMVECTOR V,
+	float    ViewportX,
+	float    ViewportY,
+	float    ViewportWidth,
+	float    ViewportHeight,
+	float    ViewportMinZ,
+	float    ViewportMaxZ,
+	FXMMATRIX Projection,
+	CXMMATRIX View,
+	CXMMATRIX World
+)
+{
+	const float HalfViewportWidth = ViewportWidth * 0.5f;
+	const float HalfViewportHeight = ViewportHeight * 0.5f;
+
+	XMVECTOR Scale = XMVectorSet(HalfViewportWidth, -HalfViewportHeight, ViewportMaxZ - ViewportMinZ, 0.0f);
+	XMVECTOR Offset = XMVectorSet(ViewportX + HalfViewportWidth, ViewportY + HalfViewportHeight, ViewportMinZ, 0.0f);
+
+	XMMATRIX Transform = XMMatrixMultiply(World, View);
+	Transform = XMMatrixMultiply(Transform, Projection);
+
+	XMVECTOR Result = XMVector3TransformCoord(V, Transform);
+
+	Result = XMVectorMultiplyAdd(Result, Scale, Offset);
+
+	return Result;
+}
+
+//------------------------------------------------------------------------------
+
+_Use_decl_annotations_
+inline XMFLOAT3* XM_CALLCONV XMVector3ProjectStream
+(
+	XMFLOAT3*       pOutputStream,
+	size_t          OutputStride,
+	const XMFLOAT3* pInputStream,
+	size_t          InputStride,
+	size_t          VectorCount,
+	float           ViewportX,
+	float           ViewportY,
+	float           ViewportWidth,
+	float           ViewportHeight,
+	float           ViewportMinZ,
+	float           ViewportMaxZ,
+	FXMMATRIX     Projection,
+	CXMMATRIX     View,
+	CXMMATRIX     World
+)
+{
+	assert(pOutputStream != nullptr);
+	assert(pInputStream != nullptr);
+
+	assert(InputStride >= sizeof(XMFLOAT3));
+	_Analysis_assume_(InputStride >= sizeof(XMFLOAT3));
+
+	assert(OutputStride >= sizeof(XMFLOAT3));
+	_Analysis_assume_(OutputStride >= sizeof(XMFLOAT3));
+
+#if defined(_XM_NO_INTRINSICS_)
+
+	const float HalfViewportWidth = ViewportWidth * 0.5f;
+	const float HalfViewportHeight = ViewportHeight * 0.5f;
+
+	XMVECTOR Scale = XMVectorSet(HalfViewportWidth, -HalfViewportHeight, ViewportMaxZ - ViewportMinZ, 1.0f);
+	XMVECTOR Offset = XMVectorSet(ViewportX + HalfViewportWidth, ViewportY + HalfViewportHeight, ViewportMinZ, 0.0f);
+
+	XMMATRIX Transform = XMMatrixMultiply(World, View);
+	Transform = XMMatrixMultiply(Transform, Projection);
+
+	const uint8_t* pInputVector = (const uint8_t*)pInputStream;
+	uint8_t* pOutputVector = (uint8_t*)pOutputStream;
+
+	for (size_t i = 0; i < VectorCount; i++)
+	{
+		XMVECTOR V = XMLoadFloat3((const XMFLOAT3*)pInputVector);
+
+		XMVECTOR Result = XMVector3TransformCoord(V, Transform);
+		Result = XMVectorMultiplyAdd(Result, Scale, Offset);
+
+#pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+		XMStoreFloat3((XMFLOAT3*)pOutputVector, Result);
+
+		pInputVector += InputStride;
+		pOutputVector += OutputStride;
+	}
+
+	return pOutputStream;
+
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	const float HalfViewportWidth = ViewportWidth * 0.5f;
+	const float HalfViewportHeight = ViewportHeight * 0.5f;
+
+	XMMATRIX Transform = XMMatrixMultiply(World, View);
+	Transform = XMMatrixMultiply(Transform, Projection);
+	const uint8_t* pInputVector = (const uint8_t*)pInputStream;
+	uint8_t* pOutputVector = (uint8_t*)pOutputStream;
+
+	size_t i = 0;
+	size_t four = VectorCount >> 2;
+	if (four > 0)
+	{
+		if ((InputStride == sizeof(XMFLOAT3)) && (OutputStride == sizeof(XMFLOAT3)))
+		{
+			XMVECTOR ScaleX = vdupq_n_f32(HalfViewportWidth);
+			XMVECTOR ScaleY = vdupq_n_f32(-HalfViewportHeight);
+			XMVECTOR ScaleZ = vdupq_n_f32(ViewportMaxZ - ViewportMinZ);
+
+			XMVECTOR OffsetX = vdupq_n_f32(ViewportX + HalfViewportWidth);
+			XMVECTOR OffsetY = vdupq_n_f32(ViewportY + HalfViewportHeight);
+			XMVECTOR OffsetZ = vdupq_n_f32(ViewportMinZ);
+
+			for (size_t j = 0; j < four; ++j)
+			{
+				float32x4x3_t V = vld3q_f32(reinterpret_cast<const float*>(pInputVector));
+				pInputVector += sizeof(XMFLOAT3) * 4;
+
+				float32x2_t r3 = vget_low_f32(Transform.c[3]);
+				float32x2_t r = vget_low_f32(Transform.c[0]);
+				XMVECTOR vResult0 = vmlaq_lane_f32(vdupq_lane_f32(r3, 0), V.val[0], r, 0); // Ax+M
+				XMVECTOR vResult1 = vmlaq_lane_f32(vdupq_lane_f32(r3, 1), V.val[0], r, 1); // Bx+N
+
+				__builtin_prefetch(pInputVector);
+
+				r3 = vget_high_f32(Transform.c[3]);
+				r = vget_high_f32(Transform.c[0]);
+				XMVECTOR vResult2 = vmlaq_lane_f32(vdupq_lane_f32(r3, 0), V.val[0], r, 0); // Cx+O
+				XMVECTOR W = vmlaq_lane_f32(vdupq_lane_f32(r3, 1), V.val[0], r, 1); // Dx+P
+
+				__builtin_prefetch(pInputVector + XM_CACHE_LINE_SIZE);
+
+				r = vget_low_f32(Transform.c[1]);
+				vResult0 = vmlaq_lane_f32(vResult0, V.val[1], r, 0); // Ax+Ey+M
+				vResult1 = vmlaq_lane_f32(vResult1, V.val[1], r, 1); // Bx+Fy+N
+
+				__builtin_prefetch(pInputVector + (XM_CACHE_LINE_SIZE * 2));
+
+				r = vget_high_f32(Transform.c[1]);
+				vResult2 = vmlaq_lane_f32(vResult2, V.val[1], r, 0); // Cx+Gy+O
+				W = vmlaq_lane_f32(W, V.val[1], r, 1); // Dx+Hy+P
+
+				__builtin_prefetch(pInputVector + (XM_CACHE_LINE_SIZE * 3));
+
+				r = vget_low_f32(Transform.c[2]);
+				vResult0 = vmlaq_lane_f32(vResult0, V.val[2], r, 0); // Ax+Ey+Iz+M
+				vResult1 = vmlaq_lane_f32(vResult1, V.val[2], r, 1); // Bx+Fy+Jz+N
+
+				__builtin_prefetch(pInputVector + (XM_CACHE_LINE_SIZE * 4));
+
+				r = vget_high_f32(Transform.c[2]);
+				vResult2 = vmlaq_lane_f32(vResult2, V.val[2], r, 0); // Cx+Gy+Kz+O
+				W = vmlaq_lane_f32(W, V.val[2], r, 1); // Dx+Hy+Lz+P
+
+				__builtin_prefetch(pInputVector + (XM_CACHE_LINE_SIZE * 5));
+
+				// 2 iterations of Newton-Raphson refinement of reciprocal
+				float32x4_t Reciprocal = vrecpeq_f32(W);
+				float32x4_t S = vrecpsq_f32(Reciprocal, W);
+				Reciprocal = vmulq_f32(S, Reciprocal);
+				S = vrecpsq_f32(Reciprocal, W);
+				Reciprocal = vmulq_f32(S, Reciprocal);
+
+				vResult0 = vmulq_f32(vResult0, Reciprocal);
+				vResult1 = vmulq_f32(vResult1, Reciprocal);
+				vResult2 = vmulq_f32(vResult2, Reciprocal);
+
+				V.val[0] = vmlaq_f32(OffsetX, vResult0, ScaleX);
+				V.val[1] = vmlaq_f32(OffsetY, vResult1, ScaleY);
+				V.val[2] = vmlaq_f32(OffsetZ, vResult2, ScaleZ);
+
+				vst3q_f32(reinterpret_cast<float*>(pOutputVector), V);
+				pOutputVector += sizeof(XMFLOAT3) * 4;
+
+				i += 4;
+			}
+		}
+	}
+
+	if (i < VectorCount)
+	{
+		XMVECTOR Scale = XMVectorSet(HalfViewportWidth, -HalfViewportHeight, ViewportMaxZ - ViewportMinZ, 1.0f);
+		XMVECTOR Offset = XMVectorSet(ViewportX + HalfViewportWidth, ViewportY + HalfViewportHeight, ViewportMinZ, 0.0f);
+
+		for (; i < VectorCount; i++)
+		{
+			float32x2_t VL = vld1_f32(reinterpret_cast<const float*>(pInputVector));
+			float32x2_t zero = vdup_n_f32(0);
+			float32x2_t VH = vld1_lane_f32(reinterpret_cast<const float*>(pInputVector) + 2, zero, 0);
+			pInputVector += InputStride;
+
+			XMVECTOR vResult = vmlaq_lane_f32(Transform.c[3], Transform.c[0], VL, 0); // X
+			vResult = vmlaq_lane_f32(vResult, Transform.c[1], VL, 1); // Y
+			vResult = vmlaq_lane_f32(vResult, Transform.c[2], VH, 0); // Z
+
+			VH = vget_high_f32(vResult);
+			XMVECTOR W = vdupq_lane_f32(VH, 1);
+
+			// 2 iterations of Newton-Raphson refinement of reciprocal for W
+			float32x4_t Reciprocal = vrecpeq_f32(W);
+			float32x4_t S = vrecpsq_f32(Reciprocal, W);
+			Reciprocal = vmulq_f32(S, Reciprocal);
+			S = vrecpsq_f32(Reciprocal, W);
+			Reciprocal = vmulq_f32(S, Reciprocal);
+
+			vResult = vmulq_f32(vResult, Reciprocal);
+
+			vResult = vmlaq_f32(Offset, vResult, Scale);
+
+			VL = vget_low_f32(vResult);
+			vst1_f32(reinterpret_cast<float*>(pOutputVector), VL);
+			vst1q_lane_f32(reinterpret_cast<float*>(pOutputVector) + 2, vResult, 2);
+			pOutputVector += OutputStride;
+		}
+	}
+
+	return pOutputStream;
+#elif defined(_XM_SSE_INTRINSICS_)
+	const float HalfViewportWidth = ViewportWidth * 0.5f;
+	const float HalfViewportHeight = ViewportHeight * 0.5f;
+
+	XMVECTOR Scale = XMVectorSet(HalfViewportWidth, -HalfViewportHeight, ViewportMaxZ - ViewportMinZ, 1.0f);
+	XMVECTOR Offset = XMVectorSet(ViewportX + HalfViewportWidth, ViewportY + HalfViewportHeight, ViewportMinZ, 0.0f);
+
+	XMMATRIX Transform = XMMatrixMultiply(World, View);
+	Transform = XMMatrixMultiply(Transform, Projection);
+
+	const uint8_t* pInputVector = (const uint8_t*)pInputStream;
+	uint8_t* pOutputVector = (uint8_t*)pOutputStream;
+
+	size_t i = 0;
+	size_t four = VectorCount >> 2;
+	if (four > 0)
+	{
+		if (InputStride == sizeof(XMFLOAT3))
+		{
+			if (OutputStride == sizeof(XMFLOAT3))
+			{
+				if (!((uintptr_t)pOutputStream & 0xF))
+				{
+					// Packed input, aligned & packed output
+					for (size_t j = 0; j < four; ++j)
+					{
+						__m128 V1 = _mm_loadu_ps(reinterpret_cast<const float*>(pInputVector));
+						__m128 L2 = _mm_loadu_ps(reinterpret_cast<const float*>(pInputVector + 16));
+						__m128 L3 = _mm_loadu_ps(reinterpret_cast<const float*>(pInputVector + 32));
+						pInputVector += sizeof(XMFLOAT3) * 4;
+
+						// Unpack the 4 vectors (.w components are junk)
+						XM3UNPACK3INTO4(V1, L2, L3);
+
+						// Result 1
+						XMVECTOR Z = XM_PERMUTE_PS(V1, _MM_SHUFFLE(2, 2, 2, 2));
+						XMVECTOR Y = XM_PERMUTE_PS(V1, _MM_SHUFFLE(1, 1, 1, 1));
+						XMVECTOR X = XM_PERMUTE_PS(V1, _MM_SHUFFLE(0, 0, 0, 0));
+
+						XMVECTOR vTemp = _mm_mul_ps(Z, Transform.c[2]);
+						XMVECTOR vTemp2 = _mm_mul_ps(Y, Transform.c[1]);
+						XMVECTOR vTemp3 = _mm_mul_ps(X, Transform.c[0]);
+						vTemp = _mm_add_ps(vTemp, Transform.c[3]);
+						vTemp = _mm_add_ps(vTemp, vTemp2);
+						vTemp = _mm_add_ps(vTemp, vTemp3);
+
+						XMVECTOR W = XM_PERMUTE_PS(vTemp, _MM_SHUFFLE(3, 3, 3, 3));
+						vTemp = _mm_div_ps(vTemp, W);
+
+						vTemp = _mm_mul_ps(vTemp, Scale);
+						V1 = _mm_add_ps(vTemp, Offset);
+
+						// Result 2
+						Z = XM_PERMUTE_PS(V2, _MM_SHUFFLE(2, 2, 2, 2));
+						Y = XM_PERMUTE_PS(V2, _MM_SHUFFLE(1, 1, 1, 1));
+						X = XM_PERMUTE_PS(V2, _MM_SHUFFLE(0, 0, 0, 0));
+
+						vTemp = _mm_mul_ps(Z, Transform.c[2]);
+						vTemp2 = _mm_mul_ps(Y, Transform.c[1]);
+						vTemp3 = _mm_mul_ps(X, Transform.c[0]);
+						vTemp = _mm_add_ps(vTemp, Transform.c[3]);
+						vTemp = _mm_add_ps(vTemp, vTemp2);
+						vTemp = _mm_add_ps(vTemp, vTemp3);
+
+						W = XM_PERMUTE_PS(vTemp, _MM_SHUFFLE(3, 3, 3, 3));
+						vTemp = _mm_div_ps(vTemp, W);
+
+						vTemp = _mm_mul_ps(vTemp, Scale);
+						V2 = _mm_add_ps(vTemp, Offset);
+
+						// Result 3
+						Z = XM_PERMUTE_PS(V3, _MM_SHUFFLE(2, 2, 2, 2));
+						Y = XM_PERMUTE_PS(V3, _MM_SHUFFLE(1, 1, 1, 1));
+						X = XM_PERMUTE_PS(V3, _MM_SHUFFLE(0, 0, 0, 0));
+
+						vTemp = _mm_mul_ps(Z, Transform.c[2]);
+						vTemp2 = _mm_mul_ps(Y, Transform.c[1]);
+						vTemp3 = _mm_mul_ps(X, Transform.c[0]);
+						vTemp = _mm_add_ps(vTemp, Transform.c[3]);
+						vTemp = _mm_add_ps(vTemp, vTemp2);
+						vTemp = _mm_add_ps(vTemp, vTemp3);
+
+						W = XM_PERMUTE_PS(vTemp, _MM_SHUFFLE(3, 3, 3, 3));
+						vTemp = _mm_div_ps(vTemp, W);
+
+						vTemp = _mm_mul_ps(vTemp, Scale);
+						V3 = _mm_add_ps(vTemp, Offset);
+
+						// Result 4
+						Z = XM_PERMUTE_PS(V4, _MM_SHUFFLE(2, 2, 2, 2));
+						Y = XM_PERMUTE_PS(V4, _MM_SHUFFLE(1, 1, 1, 1));
+						X = XM_PERMUTE_PS(V4, _MM_SHUFFLE(0, 0, 0, 0));
+
+						vTemp = _mm_mul_ps(Z, Transform.c[2]);
+						vTemp2 = _mm_mul_ps(Y, Transform.c[1]);
+						vTemp3 = _mm_mul_ps(X, Transform.c[0]);
+						vTemp = _mm_add_ps(vTemp, Transform.c[3]);
+						vTemp = _mm_add_ps(vTemp, vTemp2);
+						vTemp = _mm_add_ps(vTemp, vTemp3);
+
+						W = XM_PERMUTE_PS(vTemp, _MM_SHUFFLE(3, 3, 3, 3));
+						vTemp = _mm_div_ps(vTemp, W);
+
+						vTemp = _mm_mul_ps(vTemp, Scale);
+						V4 = _mm_add_ps(vTemp, Offset);
+
+						// Pack and store the vectors
+						XM3PACK4INTO3(vTemp);
+						XM_STREAM_PS(reinterpret_cast<float*>(pOutputVector), V1);
+						XM_STREAM_PS(reinterpret_cast<float*>(pOutputVector + 16), vTemp);
+						XM_STREAM_PS(reinterpret_cast<float*>(pOutputVector + 32), V3);
+						pOutputVector += sizeof(XMFLOAT3) * 4;
+						i += 4;
+					}
+				}
+				else
+				{
+					// Packed input, unaligned & packed output
+					for (size_t j = 0; j < four; ++j)
+					{
+						__m128 V1 = _mm_loadu_ps(reinterpret_cast<const float*>(pInputVector));
+						__m128 L2 = _mm_loadu_ps(reinterpret_cast<const float*>(pInputVector + 16));
+						__m128 L3 = _mm_loadu_ps(reinterpret_cast<const float*>(pInputVector + 32));
+						pInputVector += sizeof(XMFLOAT3) * 4;
+
+						// Unpack the 4 vectors (.w components are junk)
+						XM3UNPACK3INTO4(V1, L2, L3);
+
+						// Result 1
+						XMVECTOR Z = XM_PERMUTE_PS(V1, _MM_SHUFFLE(2, 2, 2, 2));
+						XMVECTOR Y = XM_PERMUTE_PS(V1, _MM_SHUFFLE(1, 1, 1, 1));
+						XMVECTOR X = XM_PERMUTE_PS(V1, _MM_SHUFFLE(0, 0, 0, 0));
+
+						XMVECTOR vTemp = _mm_mul_ps(Z, Transform.c[2]);
+						XMVECTOR vTemp2 = _mm_mul_ps(Y, Transform.c[1]);
+						XMVECTOR vTemp3 = _mm_mul_ps(X, Transform.c[0]);
+						vTemp = _mm_add_ps(vTemp, Transform.c[3]);
+						vTemp = _mm_add_ps(vTemp, vTemp2);
+						vTemp = _mm_add_ps(vTemp, vTemp3);
+
+						XMVECTOR W = XM_PERMUTE_PS(vTemp, _MM_SHUFFLE(3, 3, 3, 3));
+						vTemp = _mm_div_ps(vTemp, W);
+
+						vTemp = _mm_mul_ps(vTemp, Scale);
+						V1 = _mm_add_ps(vTemp, Offset);
+
+						// Result 2
+						Z = XM_PERMUTE_PS(V2, _MM_SHUFFLE(2, 2, 2, 2));
+						Y = XM_PERMUTE_PS(V2, _MM_SHUFFLE(1, 1, 1, 1));
+						X = XM_PERMUTE_PS(V2, _MM_SHUFFLE(0, 0, 0, 0));
+
+						vTemp = _mm_mul_ps(Z, Transform.c[2]);
+						vTemp2 = _mm_mul_ps(Y, Transform.c[1]);
+						vTemp3 = _mm_mul_ps(X, Transform.c[0]);
+						vTemp = _mm_add_ps(vTemp, Transform.c[3]);
+						vTemp = _mm_add_ps(vTemp, vTemp2);
+						vTemp = _mm_add_ps(vTemp, vTemp3);
+
+						W = XM_PERMUTE_PS(vTemp, _MM_SHUFFLE(3, 3, 3, 3));
+						vTemp = _mm_div_ps(vTemp, W);
+
+						vTemp = _mm_mul_ps(vTemp, Scale);
+						V2 = _mm_add_ps(vTemp, Offset);
+
+						// Result 3
+						Z = XM_PERMUTE_PS(V3, _MM_SHUFFLE(2, 2, 2, 2));
+						Y = XM_PERMUTE_PS(V3, _MM_SHUFFLE(1, 1, 1, 1));
+						X = XM_PERMUTE_PS(V3, _MM_SHUFFLE(0, 0, 0, 0));
+
+						vTemp = _mm_mul_ps(Z, Transform.c[2]);
+						vTemp2 = _mm_mul_ps(Y, Transform.c[1]);
+						vTemp3 = _mm_mul_ps(X, Transform.c[0]);
+						vTemp = _mm_add_ps(vTemp, Transform.c[3]);
+						vTemp = _mm_add_ps(vTemp, vTemp2);
+						vTemp = _mm_add_ps(vTemp, vTemp3);
+
+						W = XM_PERMUTE_PS(vTemp, _MM_SHUFFLE(3, 3, 3, 3));
+						vTemp = _mm_div_ps(vTemp, W);
+
+						vTemp = _mm_mul_ps(vTemp, Scale);
+						V3 = _mm_add_ps(vTemp, Offset);
+
+						// Result 4
+						Z = XM_PERMUTE_PS(V4, _MM_SHUFFLE(2, 2, 2, 2));
+						Y = XM_PERMUTE_PS(V4, _MM_SHUFFLE(1, 1, 1, 1));
+						X = XM_PERMUTE_PS(V4, _MM_SHUFFLE(0, 0, 0, 0));
+
+						vTemp = _mm_mul_ps(Z, Transform.c[2]);
+						vTemp2 = _mm_mul_ps(Y, Transform.c[1]);
+						vTemp3 = _mm_mul_ps(X, Transform.c[0]);
+						vTemp = _mm_add_ps(vTemp, Transform.c[3]);
+						vTemp = _mm_add_ps(vTemp, vTemp2);
+						vTemp = _mm_add_ps(vTemp, vTemp3);
+
+						W = XM_PERMUTE_PS(vTemp, _MM_SHUFFLE(3, 3, 3, 3));
+						vTemp = _mm_div_ps(vTemp, W);
+
+						vTemp = _mm_mul_ps(vTemp, Scale);
+						V4 = _mm_add_ps(vTemp, Offset);
+
+						// Pack and store the vectors
+						XM3PACK4INTO3(vTemp);
+						_mm_storeu_ps(reinterpret_cast<float*>(pOutputVector), V1);
+						_mm_storeu_ps(reinterpret_cast<float*>(pOutputVector + 16), vTemp);
+						_mm_storeu_ps(reinterpret_cast<float*>(pOutputVector + 32), V3);
+						pOutputVector += sizeof(XMFLOAT3) * 4;
+						i += 4;
+					}
+				}
+			}
+			else
+			{
+				// Packed input, unpacked output
+				for (size_t j = 0; j < four; ++j)
+				{
+					__m128 V1 = _mm_loadu_ps(reinterpret_cast<const float*>(pInputVector));
+					__m128 L2 = _mm_loadu_ps(reinterpret_cast<const float*>(pInputVector + 16));
+					__m128 L3 = _mm_loadu_ps(reinterpret_cast<const float*>(pInputVector + 32));
+					pInputVector += sizeof(XMFLOAT3) * 4;
+
+					// Unpack the 4 vectors (.w components are junk)
+					XM3UNPACK3INTO4(V1, L2, L3);
+
+					// Result 1
+					XMVECTOR Z = XM_PERMUTE_PS(V1, _MM_SHUFFLE(2, 2, 2, 2));
+					XMVECTOR Y = XM_PERMUTE_PS(V1, _MM_SHUFFLE(1, 1, 1, 1));
+					XMVECTOR X = XM_PERMUTE_PS(V1, _MM_SHUFFLE(0, 0, 0, 0));
+
+					XMVECTOR vTemp = _mm_mul_ps(Z, Transform.c[2]);
+					XMVECTOR vTemp2 = _mm_mul_ps(Y, Transform.c[1]);
+					XMVECTOR vTemp3 = _mm_mul_ps(X, Transform.c[0]);
+					vTemp = _mm_add_ps(vTemp, Transform.c[3]);
+					vTemp = _mm_add_ps(vTemp, vTemp2);
+					vTemp = _mm_add_ps(vTemp, vTemp3);
+
+					XMVECTOR W = XM_PERMUTE_PS(vTemp, _MM_SHUFFLE(3, 3, 3, 3));
+					vTemp = _mm_div_ps(vTemp, W);
+
+					vTemp = _mm_mul_ps(vTemp, Scale);
+					vTemp = _mm_add_ps(vTemp, Offset);
+
+#pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+					XMStoreFloat3(reinterpret_cast<XMFLOAT3*>(pOutputVector), vTemp);
+					pOutputVector += OutputStride;
+
+					// Result 2
+					Z = XM_PERMUTE_PS(V2, _MM_SHUFFLE(2, 2, 2, 2));
+					Y = XM_PERMUTE_PS(V2, _MM_SHUFFLE(1, 1, 1, 1));
+					X = XM_PERMUTE_PS(V2, _MM_SHUFFLE(0, 0, 0, 0));
+
+					vTemp = _mm_mul_ps(Z, Transform.c[2]);
+					vTemp2 = _mm_mul_ps(Y, Transform.c[1]);
+					vTemp3 = _mm_mul_ps(X, Transform.c[0]);
+					vTemp = _mm_add_ps(vTemp, Transform.c[3]);
+					vTemp = _mm_add_ps(vTemp, vTemp2);
+					vTemp = _mm_add_ps(vTemp, vTemp3);
+
+					W = XM_PERMUTE_PS(vTemp, _MM_SHUFFLE(3, 3, 3, 3));
+					vTemp = _mm_div_ps(vTemp, W);
+
+					vTemp = _mm_mul_ps(vTemp, Scale);
+					vTemp = _mm_add_ps(vTemp, Offset);
+
+#pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+					XMStoreFloat3(reinterpret_cast<XMFLOAT3*>(pOutputVector), vTemp);
+					pOutputVector += OutputStride;
+
+					// Result 3
+					Z = XM_PERMUTE_PS(V3, _MM_SHUFFLE(2, 2, 2, 2));
+					Y = XM_PERMUTE_PS(V3, _MM_SHUFFLE(1, 1, 1, 1));
+					X = XM_PERMUTE_PS(V3, _MM_SHUFFLE(0, 0, 0, 0));
+
+					vTemp = _mm_mul_ps(Z, Transform.c[2]);
+					vTemp2 = _mm_mul_ps(Y, Transform.c[1]);
+					vTemp3 = _mm_mul_ps(X, Transform.c[0]);
+					vTemp = _mm_add_ps(vTemp, Transform.c[3]);
+					vTemp = _mm_add_ps(vTemp, vTemp2);
+					vTemp = _mm_add_ps(vTemp, vTemp3);
+
+					W = XM_PERMUTE_PS(vTemp, _MM_SHUFFLE(3, 3, 3, 3));
+					vTemp = _mm_div_ps(vTemp, W);
+
+					vTemp = _mm_mul_ps(vTemp, Scale);
+					vTemp = _mm_add_ps(vTemp, Offset);
+
+#pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+					XMStoreFloat3(reinterpret_cast<XMFLOAT3*>(pOutputVector), vTemp);
+					pOutputVector += OutputStride;
+
+					// Result 4
+					Z = XM_PERMUTE_PS(V4, _MM_SHUFFLE(2, 2, 2, 2));
+					Y = XM_PERMUTE_PS(V4, _MM_SHUFFLE(1, 1, 1, 1));
+					X = XM_PERMUTE_PS(V4, _MM_SHUFFLE(0, 0, 0, 0));
+
+					vTemp = _mm_mul_ps(Z, Transform.c[2]);
+					vTemp2 = _mm_mul_ps(Y, Transform.c[1]);
+					vTemp3 = _mm_mul_ps(X, Transform.c[0]);
+					vTemp = _mm_add_ps(vTemp, Transform.c[3]);
+					vTemp = _mm_add_ps(vTemp, vTemp2);
+					vTemp = _mm_add_ps(vTemp, vTemp3);
+
+					W = XM_PERMUTE_PS(vTemp, _MM_SHUFFLE(3, 3, 3, 3));
+					vTemp = _mm_div_ps(vTemp, W);
+
+					vTemp = _mm_mul_ps(vTemp, Scale);
+					vTemp = _mm_add_ps(vTemp, Offset);
+
+#pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+					XMStoreFloat3(reinterpret_cast<XMFLOAT3*>(pOutputVector), vTemp);
+					pOutputVector += OutputStride;
+
+					i += 4;
+				}
+			}
+		}
+	}
+
+	for (; i < VectorCount; i++)
+	{
+#pragma prefast( suppress : 26019, "PREfast noise: Esp:1307" )
+		XMVECTOR V = XMLoadFloat3(reinterpret_cast<const XMFLOAT3*>(pInputVector));
+		pInputVector += InputStride;
+
+		XMVECTOR Z = XM_PERMUTE_PS(V, _MM_SHUFFLE(2, 2, 2, 2));
+		XMVECTOR Y = XM_PERMUTE_PS(V, _MM_SHUFFLE(1, 1, 1, 1));
+		XMVECTOR X = XM_PERMUTE_PS(V, _MM_SHUFFLE(0, 0, 0, 0));
+
+		XMVECTOR vTemp = _mm_mul_ps(Z, Transform.c[2]);
+		XMVECTOR vTemp2 = _mm_mul_ps(Y, Transform.c[1]);
+		XMVECTOR vTemp3 = _mm_mul_ps(X, Transform.c[0]);
+		vTemp = _mm_add_ps(vTemp, Transform.c[3]);
+		vTemp = _mm_add_ps(vTemp, vTemp2);
+		vTemp = _mm_add_ps(vTemp, vTemp3);
+
+		XMVECTOR W = XM_PERMUTE_PS(vTemp, _MM_SHUFFLE(3, 3, 3, 3));
+		vTemp = _mm_div_ps(vTemp, W);
+
+		vTemp = _mm_mul_ps(vTemp, Scale);
+		vTemp = _mm_add_ps(vTemp, Offset);
+
+#pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+		XMStoreFloat3(reinterpret_cast<XMFLOAT3*>(pOutputVector), vTemp);
+		pOutputVector += OutputStride;
+	}
+
+	XM_SFENCE();
+
+	return pOutputStream;
+#endif
+}
+
+//------------------------------------------------------------------------------
+
+inline XMVECTOR XM_CALLCONV XMVector3Unproject
+(
+	FXMVECTOR V,
+	float     ViewportX,
+	float     ViewportY,
+	float     ViewportWidth,
+	float     ViewportHeight,
+	float     ViewportMinZ,
+	float     ViewportMaxZ,
+	FXMMATRIX Projection,
+	CXMMATRIX View,
+	CXMMATRIX World
+)
+{
+	static const XMVECTORF32 D = { -1.0f, 1.0f, 0.0f, 0.0f };
+
+	XMVECTOR Scale = XMVectorSet(ViewportWidth * 0.5f, -ViewportHeight * 0.5f, ViewportMaxZ - ViewportMinZ, 1.0f);
+	Scale = XMVectorReciprocal(Scale);
+
+	XMVECTOR Offset = XMVectorSet(-ViewportX, -ViewportY, -ViewportMinZ, 0.0f);
+	Offset = XMVectorMultiplyAdd(Scale, Offset, D.v);
+
+	XMMATRIX Transform = XMMatrixMultiply(World, View);
+	Transform = XMMatrixMultiply(Transform, Projection);
+	Transform = XMMatrixInverse(nullptr, Transform);
+
+	XMVECTOR Result = XMVectorMultiplyAdd(V, Scale, Offset);
+
+	return XMVector3TransformCoord(Result, Transform);
+}
+
+//------------------------------------------------------------------------------
+
+_Use_decl_annotations_
+inline XMFLOAT3* XM_CALLCONV XMVector3UnprojectStream
+(
+	XMFLOAT3*       pOutputStream,
+	size_t          OutputStride,
+	const XMFLOAT3* pInputStream,
+	size_t          InputStride,
+	size_t          VectorCount,
+	float           ViewportX,
+	float           ViewportY,
+	float           ViewportWidth,
+	float           ViewportHeight,
+	float           ViewportMinZ,
+	float           ViewportMaxZ,
+	FXMMATRIX       Projection,
+	CXMMATRIX       View,
+	CXMMATRIX       World)
+{
+	assert(pOutputStream != nullptr);
+	assert(pInputStream != nullptr);
+
+	assert(InputStride >= sizeof(XMFLOAT3));
+	_Analysis_assume_(InputStride >= sizeof(XMFLOAT3));
+
+	assert(OutputStride >= sizeof(XMFLOAT3));
+	_Analysis_assume_(OutputStride >= sizeof(XMFLOAT3));
+
+#if defined(_XM_NO_INTRINSICS_)
+
+	static const XMVECTORF32 D = { -1.0f, 1.0f, 0.0f, 0.0f };
+
+	XMVECTOR Scale = XMVectorSet(ViewportWidth * 0.5f, -ViewportHeight * 0.5f, ViewportMaxZ - ViewportMinZ, 1.0f);
+	Scale = XMVectorReciprocal(Scale);
+
+	XMVECTOR Offset = XMVectorSet(-ViewportX, -ViewportY, -ViewportMinZ, 0.0f);
+	Offset = XMVectorMultiplyAdd(Scale, Offset, D.v);
+
+	XMMATRIX Transform = XMMatrixMultiply(World, View);
+	Transform = XMMatrixMultiply(Transform, Projection);
+	Transform = XMMatrixInverse(nullptr, Transform);
+
+	const uint8_t* pInputVector = (const uint8_t*)pInputStream;
+	uint8_t* pOutputVector = (uint8_t*)pOutputStream;
+
+	for (size_t i = 0; i < VectorCount; i++)
+	{
+		XMVECTOR V = XMLoadFloat3((const XMFLOAT3*)pInputVector);
+
+		XMVECTOR Result = XMVectorMultiplyAdd(V, Scale, Offset);
+
+		Result = XMVector3TransformCoord(Result, Transform);
+
+#pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+		XMStoreFloat3((XMFLOAT3*)pOutputVector, Result);
+
+		pInputVector += InputStride;
+		pOutputVector += OutputStride;
+	}
+
+	return pOutputStream;
+
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	XMMATRIX Transform = XMMatrixMultiply(World, View);
+	Transform = XMMatrixMultiply(Transform, Projection);
+	Transform = XMMatrixInverse(nullptr, Transform);
+
+	const uint8_t* pInputVector = (const uint8_t*)pInputStream;
+	uint8_t* pOutputVector = (uint8_t*)pOutputStream;
+
+	float sx = 1.f / (ViewportWidth * 0.5f);
+	float sy = 1.f / (-ViewportHeight * 0.5f);
+	float sz = 1.f / (ViewportMaxZ - ViewportMinZ);
+
+	float ox = (-ViewportX * sx) - 1.f;
+	float oy = (-ViewportY * sy) + 1.f;
+	float oz = (-ViewportMinZ * sz);
+
+	size_t i = 0;
+	size_t four = VectorCount >> 2;
+	if (four > 0)
+	{
+		if ((InputStride == sizeof(XMFLOAT3)) && (OutputStride == sizeof(XMFLOAT3)))
+		{
+			for (size_t j = 0; j < four; ++j)
+			{
+				float32x4x3_t V = vld3q_f32(reinterpret_cast<const float*>(pInputVector));
+				pInputVector += sizeof(XMFLOAT3) * 4;
+
+				XMVECTOR ScaleX = vdupq_n_f32(sx);
+				XMVECTOR OffsetX = vdupq_n_f32(ox);
+				XMVECTOR VX = vmlaq_f32(OffsetX, ScaleX, V.val[0]);
+
+				float32x2_t r3 = vget_low_f32(Transform.c[3]);
+				float32x2_t r = vget_low_f32(Transform.c[0]);
+				XMVECTOR vResult0 = vmlaq_lane_f32(vdupq_lane_f32(r3, 0), VX, r, 0); // Ax+M
+				XMVECTOR vResult1 = vmlaq_lane_f32(vdupq_lane_f32(r3, 1), VX, r, 1); // Bx+N
+
+				__builtin_prefetch(pInputVector);
+
+				r3 = vget_high_f32(Transform.c[3]);
+				r = vget_high_f32(Transform.c[0]);
+				XMVECTOR vResult2 = vmlaq_lane_f32(vdupq_lane_f32(r3, 0), VX, r, 0); // Cx+O
+				XMVECTOR W = vmlaq_lane_f32(vdupq_lane_f32(r3, 1), VX, r, 1); // Dx+P
+
+				__builtin_prefetch(pInputVector + XM_CACHE_LINE_SIZE);
+
+				XMVECTOR ScaleY = vdupq_n_f32(sy);
+				XMVECTOR OffsetY = vdupq_n_f32(oy);
+				XMVECTOR VY = vmlaq_f32(OffsetY, ScaleY, V.val[1]);
+
+				r = vget_low_f32(Transform.c[1]);
+				vResult0 = vmlaq_lane_f32(vResult0, VY, r, 0); // Ax+Ey+M
+				vResult1 = vmlaq_lane_f32(vResult1, VY, r, 1); // Bx+Fy+N
+
+				__builtin_prefetch(pInputVector + (XM_CACHE_LINE_SIZE * 2));
+
+				r = vget_high_f32(Transform.c[1]);
+				vResult2 = vmlaq_lane_f32(vResult2, VY, r, 0); // Cx+Gy+O
+				W = vmlaq_lane_f32(W, VY, r, 1); // Dx+Hy+P
+
+				__builtin_prefetch(pInputVector + (XM_CACHE_LINE_SIZE * 3));
+
+				XMVECTOR ScaleZ = vdupq_n_f32(sz);
+				XMVECTOR OffsetZ = vdupq_n_f32(oz);
+				XMVECTOR VZ = vmlaq_f32(OffsetZ, ScaleZ, V.val[2]);
+
+				r = vget_low_f32(Transform.c[2]);
+				vResult0 = vmlaq_lane_f32(vResult0, VZ, r, 0); // Ax+Ey+Iz+M
+				vResult1 = vmlaq_lane_f32(vResult1, VZ, r, 1); // Bx+Fy+Jz+N
+
+				__builtin_prefetch(pInputVector + (XM_CACHE_LINE_SIZE * 4));
+
+				r = vget_high_f32(Transform.c[2]);
+				vResult2 = vmlaq_lane_f32(vResult2, VZ, r, 0); // Cx+Gy+Kz+O
+				W = vmlaq_lane_f32(W, VZ, r, 1); // Dx+Hy+Lz+P
+
+				__builtin_prefetch(pInputVector + (XM_CACHE_LINE_SIZE * 5));
+
+				// 2 iterations of Newton-Raphson refinement of reciprocal
+				float32x4_t Reciprocal = vrecpeq_f32(W);
+				float32x4_t S = vrecpsq_f32(Reciprocal, W);
+				Reciprocal = vmulq_f32(S, Reciprocal);
+				S = vrecpsq_f32(Reciprocal, W);
+				Reciprocal = vmulq_f32(S, Reciprocal);
+
+				V.val[0] = vmulq_f32(vResult0, Reciprocal);
+				V.val[1] = vmulq_f32(vResult1, Reciprocal);
+				V.val[2] = vmulq_f32(vResult2, Reciprocal);
+
+				vst3q_f32(reinterpret_cast<float*>(pOutputVector), V);
+				pOutputVector += sizeof(XMFLOAT3) * 4;
+
+				i += 4;
+			}
+		}
+	}
+
+	if (i < VectorCount)
+	{
+		float32x2_t ScaleL = vcreate_f32(((uint64_t)*(const uint32_t *)&sx) | ((uint64_t)(*(const uint32_t *)&sy) << 32));
+		float32x2_t ScaleH = vcreate_f32((uint64_t)*(const uint32_t *)&sz);
+
+		float32x2_t OffsetL = vcreate_f32(((uint64_t)*(const uint32_t *)&ox) | ((uint64_t)(*(const uint32_t *)&oy) << 32));
+		float32x2_t OffsetH = vcreate_f32((uint64_t)*(const uint32_t *)&oz);
+
+		for (; i < VectorCount; i++)
+		{
+			float32x2_t VL = vld1_f32(reinterpret_cast<const float*>(pInputVector));
+			float32x2_t zero = vdup_n_f32(0);
+			float32x2_t VH = vld1_lane_f32(reinterpret_cast<const float*>(pInputVector) + 2, zero, 0);
+			pInputVector += InputStride;
+
+			VL = vmla_f32(OffsetL, VL, ScaleL);
+			VH = vmla_f32(OffsetH, VH, ScaleH);
+
+			XMVECTOR vResult = vmlaq_lane_f32(Transform.c[3], Transform.c[0], VL, 0); // X
+			vResult = vmlaq_lane_f32(vResult, Transform.c[1], VL, 1); // Y
+			vResult = vmlaq_lane_f32(vResult, Transform.c[2], VH, 0); // Z
+
+			VH = vget_high_f32(vResult);
+			XMVECTOR W = vdupq_lane_f32(VH, 1);
+
+			// 2 iterations of Newton-Raphson refinement of reciprocal for W
+			float32x4_t Reciprocal = vrecpeq_f32(W);
+			float32x4_t S = vrecpsq_f32(Reciprocal, W);
+			Reciprocal = vmulq_f32(S, Reciprocal);
+			S = vrecpsq_f32(Reciprocal, W);
+			Reciprocal = vmulq_f32(S, Reciprocal);
+
+			vResult = vmulq_f32(vResult, Reciprocal);
+
+			VL = vget_low_f32(vResult);
+			vst1_f32(reinterpret_cast<float*>(pOutputVector), VL);
+			vst1q_lane_f32(reinterpret_cast<float*>(pOutputVector) + 2, vResult, 2);
+			pOutputVector += OutputStride;
+		}
+	}
+
+	return pOutputStream;
+#elif defined(_XM_SSE_INTRINSICS_)
+	static const XMVECTORF32 D = { -1.0f, 1.0f, 0.0f, 0.0f };
+
+	XMVECTOR Scale = XMVectorSet(ViewportWidth * 0.5f, -ViewportHeight * 0.5f, ViewportMaxZ - ViewportMinZ, 1.0f);
+	Scale = XMVectorReciprocal(Scale);
+
+	XMVECTOR Offset = XMVectorSet(-ViewportX, -ViewportY, -ViewportMinZ, 0.0f);
+	Offset = _mm_mul_ps(Scale, Offset);
+	Offset = _mm_add_ps(Offset, D);
+
+	XMMATRIX Transform = XMMatrixMultiply(World, View);
+	Transform = XMMatrixMultiply(Transform, Projection);
+	Transform = XMMatrixInverse(nullptr, Transform);
+
+	const uint8_t* pInputVector = (const uint8_t*)pInputStream;
+	uint8_t* pOutputVector = (uint8_t*)pOutputStream;
+
+	size_t i = 0;
+	size_t four = VectorCount >> 2;
+	if (four > 0)
+	{
+		if (InputStride == sizeof(XMFLOAT3))
+		{
+			if (OutputStride == sizeof(XMFLOAT3))
+			{
+				if (!((uintptr_t)pOutputStream & 0xF))
+				{
+					// Packed input, aligned & packed output
+					for (size_t j = 0; j < four; ++j)
+					{
+						__m128 V1 = _mm_loadu_ps(reinterpret_cast<const float*>(pInputVector));
+						__m128 L2 = _mm_loadu_ps(reinterpret_cast<const float*>(pInputVector + 16));
+						__m128 L3 = _mm_loadu_ps(reinterpret_cast<const float*>(pInputVector + 32));
+						pInputVector += sizeof(XMFLOAT3) * 4;
+
+						// Unpack the 4 vectors (.w components are junk)
+						XM3UNPACK3INTO4(V1, L2, L3);
+
+						// Result 1
+						V1 = _mm_mul_ps(V1, Scale);
+						V1 = _mm_add_ps(V1, Offset);
+
+						XMVECTOR Z = XM_PERMUTE_PS(V1, _MM_SHUFFLE(2, 2, 2, 2));
+						XMVECTOR Y = XM_PERMUTE_PS(V1, _MM_SHUFFLE(1, 1, 1, 1));
+						XMVECTOR X = XM_PERMUTE_PS(V1, _MM_SHUFFLE(0, 0, 0, 0));
+
+						XMVECTOR vTemp = _mm_mul_ps(Z, Transform.c[2]);
+						XMVECTOR vTemp2 = _mm_mul_ps(Y, Transform.c[1]);
+						XMVECTOR vTemp3 = _mm_mul_ps(X, Transform.c[0]);
+						vTemp = _mm_add_ps(vTemp, Transform.c[3]);
+						vTemp = _mm_add_ps(vTemp, vTemp2);
+						vTemp = _mm_add_ps(vTemp, vTemp3);
+
+						XMVECTOR W = XM_PERMUTE_PS(vTemp, _MM_SHUFFLE(3, 3, 3, 3));
+						V1 = _mm_div_ps(vTemp, W);
+
+						// Result 2
+						V2 = _mm_mul_ps(V2, Scale);
+						V2 = _mm_add_ps(V2, Offset);
+
+						Z = XM_PERMUTE_PS(V2, _MM_SHUFFLE(2, 2, 2, 2));
+						Y = XM_PERMUTE_PS(V2, _MM_SHUFFLE(1, 1, 1, 1));
+						X = XM_PERMUTE_PS(V2, _MM_SHUFFLE(0, 0, 0, 0));
+
+						vTemp = _mm_mul_ps(Z, Transform.c[2]);
+						vTemp2 = _mm_mul_ps(Y, Transform.c[1]);
+						vTemp3 = _mm_mul_ps(X, Transform.c[0]);
+						vTemp = _mm_add_ps(vTemp, Transform.c[3]);
+						vTemp = _mm_add_ps(vTemp, vTemp2);
+						vTemp = _mm_add_ps(vTemp, vTemp3);
+
+						W = XM_PERMUTE_PS(vTemp, _MM_SHUFFLE(3, 3, 3, 3));
+						V2 = _mm_div_ps(vTemp, W);
+
+						// Result 3
+						V3 = _mm_mul_ps(V3, Scale);
+						V3 = _mm_add_ps(V3, Offset);
+
+						Z = XM_PERMUTE_PS(V3, _MM_SHUFFLE(2, 2, 2, 2));
+						Y = XM_PERMUTE_PS(V3, _MM_SHUFFLE(1, 1, 1, 1));
+						X = XM_PERMUTE_PS(V3, _MM_SHUFFLE(0, 0, 0, 0));
+
+						vTemp = _mm_mul_ps(Z, Transform.c[2]);
+						vTemp2 = _mm_mul_ps(Y, Transform.c[1]);
+						vTemp3 = _mm_mul_ps(X, Transform.c[0]);
+						vTemp = _mm_add_ps(vTemp, Transform.c[3]);
+						vTemp = _mm_add_ps(vTemp, vTemp2);
+						vTemp = _mm_add_ps(vTemp, vTemp3);
+
+						W = XM_PERMUTE_PS(vTemp, _MM_SHUFFLE(3, 3, 3, 3));
+						V3 = _mm_div_ps(vTemp, W);
+
+						// Result 4
+						V4 = _mm_mul_ps(V4, Scale);
+						V4 = _mm_add_ps(V4, Offset);
+
+						Z = XM_PERMUTE_PS(V4, _MM_SHUFFLE(2, 2, 2, 2));
+						Y = XM_PERMUTE_PS(V4, _MM_SHUFFLE(1, 1, 1, 1));
+						X = XM_PERMUTE_PS(V4, _MM_SHUFFLE(0, 0, 0, 0));
+
+						vTemp = _mm_mul_ps(Z, Transform.c[2]);
+						vTemp2 = _mm_mul_ps(Y, Transform.c[1]);
+						vTemp3 = _mm_mul_ps(X, Transform.c[0]);
+						vTemp = _mm_add_ps(vTemp, Transform.c[3]);
+						vTemp = _mm_add_ps(vTemp, vTemp2);
+						vTemp = _mm_add_ps(vTemp, vTemp3);
+
+						W = XM_PERMUTE_PS(vTemp, _MM_SHUFFLE(3, 3, 3, 3));
+						V4 = _mm_div_ps(vTemp, W);
+
+						// Pack and store the vectors
+						XM3PACK4INTO3(vTemp);
+						XM_STREAM_PS(reinterpret_cast<float*>(pOutputVector), V1);
+						XM_STREAM_PS(reinterpret_cast<float*>(pOutputVector + 16), vTemp);
+						XM_STREAM_PS(reinterpret_cast<float*>(pOutputVector + 32), V3);
+						pOutputVector += sizeof(XMFLOAT3) * 4;
+						i += 4;
+					}
+				}
+				else
+				{
+					// Packed input, unaligned & packed output
+					for (size_t j = 0; j < four; ++j)
+					{
+						__m128 V1 = _mm_loadu_ps(reinterpret_cast<const float*>(pInputVector));
+						__m128 L2 = _mm_loadu_ps(reinterpret_cast<const float*>(pInputVector + 16));
+						__m128 L3 = _mm_loadu_ps(reinterpret_cast<const float*>(pInputVector + 32));
+						pInputVector += sizeof(XMFLOAT3) * 4;
+
+						// Unpack the 4 vectors (.w components are junk)
+						XM3UNPACK3INTO4(V1, L2, L3);
+
+						// Result 1
+						V1 = _mm_mul_ps(V1, Scale);
+						V1 = _mm_add_ps(V1, Offset);
+
+						XMVECTOR Z = XM_PERMUTE_PS(V1, _MM_SHUFFLE(2, 2, 2, 2));
+						XMVECTOR Y = XM_PERMUTE_PS(V1, _MM_SHUFFLE(1, 1, 1, 1));
+						XMVECTOR X = XM_PERMUTE_PS(V1, _MM_SHUFFLE(0, 0, 0, 0));
+
+						XMVECTOR vTemp = _mm_mul_ps(Z, Transform.c[2]);
+						XMVECTOR vTemp2 = _mm_mul_ps(Y, Transform.c[1]);
+						XMVECTOR vTemp3 = _mm_mul_ps(X, Transform.c[0]);
+						vTemp = _mm_add_ps(vTemp, Transform.c[3]);
+						vTemp = _mm_add_ps(vTemp, vTemp2);
+						vTemp = _mm_add_ps(vTemp, vTemp3);
+
+						XMVECTOR W = XM_PERMUTE_PS(vTemp, _MM_SHUFFLE(3, 3, 3, 3));
+						V1 = _mm_div_ps(vTemp, W);
+
+						// Result 2
+						V2 = _mm_mul_ps(V2, Scale);
+						V2 = _mm_add_ps(V2, Offset);
+
+						Z = XM_PERMUTE_PS(V2, _MM_SHUFFLE(2, 2, 2, 2));
+						Y = XM_PERMUTE_PS(V2, _MM_SHUFFLE(1, 1, 1, 1));
+						X = XM_PERMUTE_PS(V2, _MM_SHUFFLE(0, 0, 0, 0));
+
+						vTemp = _mm_mul_ps(Z, Transform.c[2]);
+						vTemp2 = _mm_mul_ps(Y, Transform.c[1]);
+						vTemp3 = _mm_mul_ps(X, Transform.c[0]);
+						vTemp = _mm_add_ps(vTemp, Transform.c[3]);
+						vTemp = _mm_add_ps(vTemp, vTemp2);
+						vTemp = _mm_add_ps(vTemp, vTemp3);
+
+						W = XM_PERMUTE_PS(vTemp, _MM_SHUFFLE(3, 3, 3, 3));
+						V2 = _mm_div_ps(vTemp, W);
+
+						// Result 3
+						V3 = _mm_mul_ps(V3, Scale);
+						V3 = _mm_add_ps(V3, Offset);
+
+						Z = XM_PERMUTE_PS(V3, _MM_SHUFFLE(2, 2, 2, 2));
+						Y = XM_PERMUTE_PS(V3, _MM_SHUFFLE(1, 1, 1, 1));
+						X = XM_PERMUTE_PS(V3, _MM_SHUFFLE(0, 0, 0, 0));
+
+						vTemp = _mm_mul_ps(Z, Transform.c[2]);
+						vTemp2 = _mm_mul_ps(Y, Transform.c[1]);
+						vTemp3 = _mm_mul_ps(X, Transform.c[0]);
+						vTemp = _mm_add_ps(vTemp, Transform.c[3]);
+						vTemp = _mm_add_ps(vTemp, vTemp2);
+						vTemp = _mm_add_ps(vTemp, vTemp3);
+
+						W = XM_PERMUTE_PS(vTemp, _MM_SHUFFLE(3, 3, 3, 3));
+						V3 = _mm_div_ps(vTemp, W);
+
+						// Result 4
+						V4 = _mm_mul_ps(V4, Scale);
+						V4 = _mm_add_ps(V4, Offset);
+
+						Z = XM_PERMUTE_PS(V4, _MM_SHUFFLE(2, 2, 2, 2));
+						Y = XM_PERMUTE_PS(V4, _MM_SHUFFLE(1, 1, 1, 1));
+						X = XM_PERMUTE_PS(V4, _MM_SHUFFLE(0, 0, 0, 0));
+
+						vTemp = _mm_mul_ps(Z, Transform.c[2]);
+						vTemp2 = _mm_mul_ps(Y, Transform.c[1]);
+						vTemp3 = _mm_mul_ps(X, Transform.c[0]);
+						vTemp = _mm_add_ps(vTemp, Transform.c[3]);
+						vTemp = _mm_add_ps(vTemp, vTemp2);
+						vTemp = _mm_add_ps(vTemp, vTemp3);
+
+						W = XM_PERMUTE_PS(vTemp, _MM_SHUFFLE(3, 3, 3, 3));
+						V4 = _mm_div_ps(vTemp, W);
+
+						// Pack and store the vectors
+						XM3PACK4INTO3(vTemp);
+						_mm_storeu_ps(reinterpret_cast<float*>(pOutputVector), V1);
+						_mm_storeu_ps(reinterpret_cast<float*>(pOutputVector + 16), vTemp);
+						_mm_storeu_ps(reinterpret_cast<float*>(pOutputVector + 32), V3);
+						pOutputVector += sizeof(XMFLOAT3) * 4;
+						i += 4;
+					}
+				}
+			}
+			else
+			{
+				// Packed input, unpacked output
+				for (size_t j = 0; j < four; ++j)
+				{
+					__m128 V1 = _mm_loadu_ps(reinterpret_cast<const float*>(pInputVector));
+					__m128 L2 = _mm_loadu_ps(reinterpret_cast<const float*>(pInputVector + 16));
+					__m128 L3 = _mm_loadu_ps(reinterpret_cast<const float*>(pInputVector + 32));
+					pInputVector += sizeof(XMFLOAT3) * 4;
+
+					// Unpack the 4 vectors (.w components are junk)
+					XM3UNPACK3INTO4(V1, L2, L3);
+
+					// Result 1
+					V1 = _mm_mul_ps(V1, Scale);
+					V1 = _mm_add_ps(V1, Offset);
+
+					XMVECTOR Z = XM_PERMUTE_PS(V1, _MM_SHUFFLE(2, 2, 2, 2));
+					XMVECTOR Y = XM_PERMUTE_PS(V1, _MM_SHUFFLE(1, 1, 1, 1));
+					XMVECTOR X = XM_PERMUTE_PS(V1, _MM_SHUFFLE(0, 0, 0, 0));
+
+					XMVECTOR vTemp = _mm_mul_ps(Z, Transform.c[2]);
+					XMVECTOR vTemp2 = _mm_mul_ps(Y, Transform.c[1]);
+					XMVECTOR vTemp3 = _mm_mul_ps(X, Transform.c[0]);
+					vTemp = _mm_add_ps(vTemp, Transform.c[3]);
+					vTemp = _mm_add_ps(vTemp, vTemp2);
+					vTemp = _mm_add_ps(vTemp, vTemp3);
+
+					XMVECTOR W = XM_PERMUTE_PS(vTemp, _MM_SHUFFLE(3, 3, 3, 3));
+					vTemp = _mm_div_ps(vTemp, W);
+
+#pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+					XMStoreFloat3(reinterpret_cast<XMFLOAT3*>(pOutputVector), vTemp);
+					pOutputVector += OutputStride;
+
+					// Result 2
+					V2 = _mm_mul_ps(V2, Scale);
+					V2 = _mm_add_ps(V2, Offset);
+
+					Z = XM_PERMUTE_PS(V2, _MM_SHUFFLE(2, 2, 2, 2));
+					Y = XM_PERMUTE_PS(V2, _MM_SHUFFLE(1, 1, 1, 1));
+					X = XM_PERMUTE_PS(V2, _MM_SHUFFLE(0, 0, 0, 0));
+
+					vTemp = _mm_mul_ps(Z, Transform.c[2]);
+					vTemp2 = _mm_mul_ps(Y, Transform.c[1]);
+					vTemp3 = _mm_mul_ps(X, Transform.c[0]);
+					vTemp = _mm_add_ps(vTemp, Transform.c[3]);
+					vTemp = _mm_add_ps(vTemp, vTemp2);
+					vTemp = _mm_add_ps(vTemp, vTemp3);
+
+					W = XM_PERMUTE_PS(vTemp, _MM_SHUFFLE(3, 3, 3, 3));
+					vTemp = _mm_div_ps(vTemp, W);
+
+#pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+					XMStoreFloat3(reinterpret_cast<XMFLOAT3*>(pOutputVector), vTemp);
+					pOutputVector += OutputStride;
+
+					// Result 3
+					V3 = _mm_mul_ps(V3, Scale);
+					V3 = _mm_add_ps(V3, Offset);
+
+					Z = XM_PERMUTE_PS(V3, _MM_SHUFFLE(2, 2, 2, 2));
+					Y = XM_PERMUTE_PS(V3, _MM_SHUFFLE(1, 1, 1, 1));
+					X = XM_PERMUTE_PS(V3, _MM_SHUFFLE(0, 0, 0, 0));
+
+					vTemp = _mm_mul_ps(Z, Transform.c[2]);
+					vTemp2 = _mm_mul_ps(Y, Transform.c[1]);
+					vTemp3 = _mm_mul_ps(X, Transform.c[0]);
+					vTemp = _mm_add_ps(vTemp, Transform.c[3]);
+					vTemp = _mm_add_ps(vTemp, vTemp2);
+					vTemp = _mm_add_ps(vTemp, vTemp3);
+
+					W = XM_PERMUTE_PS(vTemp, _MM_SHUFFLE(3, 3, 3, 3));
+					vTemp = _mm_div_ps(vTemp, W);
+
+#pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+					XMStoreFloat3(reinterpret_cast<XMFLOAT3*>(pOutputVector), vTemp);
+					pOutputVector += OutputStride;
+
+					// Result 4
+					V4 = _mm_mul_ps(V4, Scale);
+					V4 = _mm_add_ps(V4, Offset);
+
+					Z = XM_PERMUTE_PS(V4, _MM_SHUFFLE(2, 2, 2, 2));
+					Y = XM_PERMUTE_PS(V4, _MM_SHUFFLE(1, 1, 1, 1));
+					X = XM_PERMUTE_PS(V4, _MM_SHUFFLE(0, 0, 0, 0));
+
+					vTemp = _mm_mul_ps(Z, Transform.c[2]);
+					vTemp2 = _mm_mul_ps(Y, Transform.c[1]);
+					vTemp3 = _mm_mul_ps(X, Transform.c[0]);
+					vTemp = _mm_add_ps(vTemp, Transform.c[3]);
+					vTemp = _mm_add_ps(vTemp, vTemp2);
+					vTemp = _mm_add_ps(vTemp, vTemp3);
+
+					W = XM_PERMUTE_PS(vTemp, _MM_SHUFFLE(3, 3, 3, 3));
+					vTemp = _mm_div_ps(vTemp, W);
+
+#pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+					XMStoreFloat3(reinterpret_cast<XMFLOAT3*>(pOutputVector), vTemp);
+					pOutputVector += OutputStride;
+
+					i += 4;
+				}
+			}
+		}
+	}
+
+	for (; i < VectorCount; i++)
+	{
+#pragma prefast( suppress : 26019, "PREfast noise: Esp:1307" )
+		XMVECTOR V = XMLoadFloat3(reinterpret_cast<const XMFLOAT3*>(pInputVector));
+		pInputVector += InputStride;
+
+		V = _mm_mul_ps(V, Scale);
+		V = _mm_add_ps(V, Offset);
+
+		XMVECTOR Z = XM_PERMUTE_PS(V, _MM_SHUFFLE(2, 2, 2, 2));
+		XMVECTOR Y = XM_PERMUTE_PS(V, _MM_SHUFFLE(1, 1, 1, 1));
+		XMVECTOR X = XM_PERMUTE_PS(V, _MM_SHUFFLE(0, 0, 0, 0));
+
+		XMVECTOR vTemp = _mm_mul_ps(Z, Transform.c[2]);
+		XMVECTOR vTemp2 = _mm_mul_ps(Y, Transform.c[1]);
+		XMVECTOR vTemp3 = _mm_mul_ps(X, Transform.c[0]);
+		vTemp = _mm_add_ps(vTemp, Transform.c[3]);
+		vTemp = _mm_add_ps(vTemp, vTemp2);
+		vTemp = _mm_add_ps(vTemp, vTemp3);
+
+		XMVECTOR W = XM_PERMUTE_PS(vTemp, _MM_SHUFFLE(3, 3, 3, 3));
+		vTemp = _mm_div_ps(vTemp, W);
+
+#pragma prefast( suppress : 26015, "PREfast noise: Esp:1307" )
+		XMStoreFloat3(reinterpret_cast<XMFLOAT3*>(pOutputVector), vTemp);
+		pOutputVector += OutputStride;
+	}
+
+	XM_SFENCE();
+
+	return pOutputStream;
+#endif
+}
 
