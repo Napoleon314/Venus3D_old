@@ -1585,3 +1585,700 @@ inline XMVECTOR XM_CALLCONV XMVectorInsert(FXMVECTOR VD, FXMVECTOR VS, uint32_t 
 	XMVECTOR Control = XMVectorSelectControl(Select0 & 1, Select1 & 1, Select2 & 1, Select3 & 1);
 	return XMVectorSelect(VD, XMVectorRotateLeft(VS, VSLeftRotateElements), Control);
 }
+
+//------------------------------------------------------------------------------
+// Comparison operations
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+
+inline XMVECTOR XM_CALLCONV XMVectorEqual
+(
+	FXMVECTOR V1,
+	FXMVECTOR V2
+)
+{
+#if defined(_XM_NO_INTRINSICS_)
+
+	XMVECTOR Control;
+	Control.vector4_u32[0] = (V1.vector4_f32[0] == V2.vector4_f32[0]) ? 0xFFFFFFFF : 0;
+	Control.vector4_u32[1] = (V1.vector4_f32[1] == V2.vector4_f32[1]) ? 0xFFFFFFFF : 0;
+	Control.vector4_u32[2] = (V1.vector4_f32[2] == V2.vector4_f32[2]) ? 0xFFFFFFFF : 0;
+	Control.vector4_u32[3] = (V1.vector4_f32[3] == V2.vector4_f32[3]) ? 0xFFFFFFFF : 0;
+	return Control;
+
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	return vceqq_f32(V1, V2);
+#elif defined(_XM_SSE_INTRINSICS_)
+	return _mm_cmpeq_ps(V1, V2);
+#endif
+}
+
+//------------------------------------------------------------------------------
+
+_Use_decl_annotations_
+inline XMVECTOR XM_CALLCONV XMVectorEqualR
+(
+	uint32_t*    pCR,
+	FXMVECTOR V1,
+	FXMVECTOR V2
+)
+{
+	assert(pCR != nullptr);
+#if defined(_XM_NO_INTRINSICS_)
+	uint32_t ux = (V1.vector4_f32[0] == V2.vector4_f32[0]) ? 0xFFFFFFFFU : 0;
+	uint32_t uy = (V1.vector4_f32[1] == V2.vector4_f32[1]) ? 0xFFFFFFFFU : 0;
+	uint32_t uz = (V1.vector4_f32[2] == V2.vector4_f32[2]) ? 0xFFFFFFFFU : 0;
+	uint32_t uw = (V1.vector4_f32[3] == V2.vector4_f32[3]) ? 0xFFFFFFFFU : 0;
+	uint32_t CR = 0;
+	if (ux&uy&uz&uw)
+	{
+		// All elements are greater
+		CR = XM_CRMASK_CR6TRUE;
+	}
+	else if (!(ux | uy | uz | uw))
+	{
+		// All elements are not greater
+		CR = XM_CRMASK_CR6FALSE;
+	}
+	*pCR = CR;
+
+	XMVECTOR Control;
+	Control.vector4_u32[0] = ux;
+	Control.vector4_u32[1] = uy;
+	Control.vector4_u32[2] = uz;
+	Control.vector4_u32[3] = uw;
+	return Control;
+
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	uint32x4_t vResult = vceqq_f32(V1, V2);
+	uint8x8x2_t vTemp = vzip_u8(vget_low_u8(vResult), vget_high_u8(vResult));	
+	uint32_t r = vget_lane_u32(vzip_u16(vTemp.val[0], vTemp.val[1]).val[1], 1);
+	uint32_t CR = 0;
+	if (r == 0xFFFFFFFFU)
+	{
+		// All elements are equal
+		CR = XM_CRMASK_CR6TRUE;
+	}
+	else if (!r)
+	{
+		// All elements are not equal
+		CR = XM_CRMASK_CR6FALSE;
+	}
+	*pCR = CR;
+	return vResult;
+#elif defined(_XM_SSE_INTRINSICS_)
+	XMVECTOR vTemp = _mm_cmpeq_ps(V1, V2);
+	uint32_t CR = 0;
+	int iTest = _mm_movemask_ps(vTemp);
+	if (iTest == 0xf)
+	{
+		CR = XM_CRMASK_CR6TRUE;
+	}
+	else if (!iTest)
+	{
+		// All elements are not greater
+		CR = XM_CRMASK_CR6FALSE;
+	}
+	*pCR = CR;
+	return vTemp;
+#endif
+}
+
+//------------------------------------------------------------------------------
+// Treat the components of the vectors as unsigned integers and
+// compare individual bits between the two.  This is useful for
+// comparing control vectors and result vectors returned from
+// other comparison operations.
+
+inline XMVECTOR XM_CALLCONV XMVectorEqualInt
+(
+	FXMVECTOR V1,
+	FXMVECTOR V2
+)
+{
+#if defined(_XM_NO_INTRINSICS_)
+
+	XMVECTOR Control;
+	Control.vector4_u32[0] = (V1.vector4_u32[0] == V2.vector4_u32[0]) ? 0xFFFFFFFF : 0;
+	Control.vector4_u32[1] = (V1.vector4_u32[1] == V2.vector4_u32[1]) ? 0xFFFFFFFF : 0;
+	Control.vector4_u32[2] = (V1.vector4_u32[2] == V2.vector4_u32[2]) ? 0xFFFFFFFF : 0;
+	Control.vector4_u32[3] = (V1.vector4_u32[3] == V2.vector4_u32[3]) ? 0xFFFFFFFF : 0;
+	return Control;
+
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	return vceqq_u32(V1, V2);
+#elif defined(_XM_SSE_INTRINSICS_)
+	__m128i V = _mm_cmpeq_epi32(_mm_castps_si128(V1), _mm_castps_si128(V2));
+	return _mm_castsi128_ps(V);
+#endif
+}
+
+//------------------------------------------------------------------------------
+
+_Use_decl_annotations_
+inline XMVECTOR XM_CALLCONV XMVectorEqualIntR
+(
+	uint32_t*    pCR,
+	FXMVECTOR V1,
+	FXMVECTOR V2
+)
+{
+	assert(pCR != nullptr);
+#if defined(_XM_NO_INTRINSICS_)
+
+	XMVECTOR Control = XMVectorEqualInt(V1, V2);
+
+	*pCR = 0;
+	if (XMVector4EqualInt(Control, XMVectorTrueInt()))
+	{
+		// All elements are equal
+		*pCR |= XM_CRMASK_CR6TRUE;
+	}
+	else if (XMVector4EqualInt(Control, XMVectorFalseInt()))
+	{
+		// All elements are not equal
+		*pCR |= XM_CRMASK_CR6FALSE;
+	}
+	return Control;
+
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	uint32x4_t vResult = vceqq_u32(V1, V2);
+	uint8x8x2_t vTemp = vzip_u8(vget_low_u8(vResult), vget_high_u8(vResult));
+	uint32_t r = vget_lane_u32(vzip_u16(vTemp.val[0], vTemp.val[1]).val[1], 1);
+	uint32_t CR = 0;
+	if (r == 0xFFFFFFFFU)
+	{
+		// All elements are equal
+		CR = XM_CRMASK_CR6TRUE;
+	}
+	else if (!r)
+	{
+		// All elements are not equal
+		CR = XM_CRMASK_CR6FALSE;
+	}
+	*pCR = CR;
+	return vResult;
+#elif defined(_XM_SSE_INTRINSICS_)
+	__m128i V = _mm_cmpeq_epi32(_mm_castps_si128(V1), _mm_castps_si128(V2));
+	int iTemp = _mm_movemask_ps(_mm_castsi128_ps(V));
+	uint32_t CR = 0;
+	if (iTemp == 0x0F)
+	{
+		CR = XM_CRMASK_CR6TRUE;
+	}
+	else if (!iTemp)
+	{
+		CR = XM_CRMASK_CR6FALSE;
+	}
+	*pCR = CR;
+	return _mm_castsi128_ps(V);
+#endif
+}
+
+//------------------------------------------------------------------------------
+
+inline XMVECTOR XM_CALLCONV XMVectorNearEqual
+(
+	FXMVECTOR V1,
+	FXMVECTOR V2,
+	FXMVECTOR Epsilon
+)
+{
+#if defined(_XM_NO_INTRINSICS_)
+
+	float fDeltax = V1.vector4_f32[0] - V2.vector4_f32[0];
+	float fDeltay = V1.vector4_f32[1] - V2.vector4_f32[1];
+	float fDeltaz = V1.vector4_f32[2] - V2.vector4_f32[2];
+	float fDeltaw = V1.vector4_f32[3] - V2.vector4_f32[3];
+
+	fDeltax = fabsf(fDeltax);
+	fDeltay = fabsf(fDeltay);
+	fDeltaz = fabsf(fDeltaz);
+	fDeltaw = fabsf(fDeltaw);
+
+	XMVECTOR Control;
+	Control.vector4_u32[0] = (fDeltax <= Epsilon.vector4_f32[0]) ? 0xFFFFFFFFU : 0;
+	Control.vector4_u32[1] = (fDeltay <= Epsilon.vector4_f32[1]) ? 0xFFFFFFFFU : 0;
+	Control.vector4_u32[2] = (fDeltaz <= Epsilon.vector4_f32[2]) ? 0xFFFFFFFFU : 0;
+	Control.vector4_u32[3] = (fDeltaw <= Epsilon.vector4_f32[3]) ? 0xFFFFFFFFU : 0;
+	return Control;
+
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	XMVECTOR vDelta = vsubq_f32(V1, V2);
+	return vcaleq_f32(vDelta, Epsilon);
+#elif defined(_XM_SSE_INTRINSICS_)
+	// Get the difference
+	XMVECTOR vDelta = _mm_sub_ps(V1, V2);
+	// Get the absolute value of the difference
+	XMVECTOR vTemp = _mm_setzero_ps();
+	vTemp = _mm_sub_ps(vTemp, vDelta);
+	vTemp = _mm_max_ps(vTemp, vDelta);
+	vTemp = _mm_cmple_ps(vTemp, Epsilon);
+	return vTemp;
+#endif
+}
+
+//------------------------------------------------------------------------------
+
+inline XMVECTOR XM_CALLCONV XMVectorNotEqual
+(
+	FXMVECTOR V1,
+	FXMVECTOR V2
+)
+{
+#if defined(_XM_NO_INTRINSICS_)
+
+	XMVECTOR Control;
+	Control.vector4_u32[0] = (V1.vector4_f32[0] != V2.vector4_f32[0]) ? 0xFFFFFFFF : 0;
+	Control.vector4_u32[1] = (V1.vector4_f32[1] != V2.vector4_f32[1]) ? 0xFFFFFFFF : 0;
+	Control.vector4_u32[2] = (V1.vector4_f32[2] != V2.vector4_f32[2]) ? 0xFFFFFFFF : 0;
+	Control.vector4_u32[3] = (V1.vector4_f32[3] != V2.vector4_f32[3]) ? 0xFFFFFFFF : 0;
+	return Control;
+
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	return vmvnq_u32(vceqq_f32(V1, V2));
+#elif defined(_XM_SSE_INTRINSICS_)
+	return _mm_cmpneq_ps(V1, V2);
+#endif
+}
+
+//------------------------------------------------------------------------------
+
+inline XMVECTOR XM_CALLCONV XMVectorNotEqualInt
+(
+	FXMVECTOR V1,
+	FXMVECTOR V2
+)
+{
+#if defined(_XM_NO_INTRINSICS_)
+
+	XMVECTOR Control;
+	Control.vector4_u32[0] = (V1.vector4_u32[0] != V2.vector4_u32[0]) ? 0xFFFFFFFFU : 0;
+	Control.vector4_u32[1] = (V1.vector4_u32[1] != V2.vector4_u32[1]) ? 0xFFFFFFFFU : 0;
+	Control.vector4_u32[2] = (V1.vector4_u32[2] != V2.vector4_u32[2]) ? 0xFFFFFFFFU : 0;
+	Control.vector4_u32[3] = (V1.vector4_u32[3] != V2.vector4_u32[3]) ? 0xFFFFFFFFU : 0;
+	return Control;
+
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	return vmvnq_u32(vceqq_u32(V1, V2));
+#elif defined(_XM_SSE_INTRINSICS_)
+	__m128i V = _mm_cmpeq_epi32(_mm_castps_si128(V1), _mm_castps_si128(V2));
+	return _mm_xor_ps(_mm_castsi128_ps(V), g_XMNegOneMask);
+#endif
+}
+
+//------------------------------------------------------------------------------
+
+inline XMVECTOR XM_CALLCONV XMVectorGreater
+(
+	FXMVECTOR V1,
+	FXMVECTOR V2
+)
+{
+#if defined(_XM_NO_INTRINSICS_)
+
+	XMVECTOR Control;
+	Control.vector4_u32[0] = (V1.vector4_f32[0] > V2.vector4_f32[0]) ? 0xFFFFFFFF : 0;
+	Control.vector4_u32[1] = (V1.vector4_f32[1] > V2.vector4_f32[1]) ? 0xFFFFFFFF : 0;
+	Control.vector4_u32[2] = (V1.vector4_f32[2] > V2.vector4_f32[2]) ? 0xFFFFFFFF : 0;
+	Control.vector4_u32[3] = (V1.vector4_f32[3] > V2.vector4_f32[3]) ? 0xFFFFFFFF : 0;
+	return Control;
+
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	return vcgtq_f32(V1, V2);
+#elif defined(_XM_SSE_INTRINSICS_)
+	return _mm_cmpgt_ps(V1, V2);
+#endif
+}
+
+//------------------------------------------------------------------------------
+
+_Use_decl_annotations_
+inline XMVECTOR XM_CALLCONV XMVectorGreaterR
+(
+	uint32_t*    pCR,
+	FXMVECTOR V1,
+	FXMVECTOR V2
+)
+{
+	assert(pCR != nullptr);
+#if defined(_XM_NO_INTRINSICS_)
+
+	uint32_t ux = (V1.vector4_f32[0] > V2.vector4_f32[0]) ? 0xFFFFFFFFU : 0;
+	uint32_t uy = (V1.vector4_f32[1] > V2.vector4_f32[1]) ? 0xFFFFFFFFU : 0;
+	uint32_t uz = (V1.vector4_f32[2] > V2.vector4_f32[2]) ? 0xFFFFFFFFU : 0;
+	uint32_t uw = (V1.vector4_f32[3] > V2.vector4_f32[3]) ? 0xFFFFFFFFU : 0;
+	uint32_t CR = 0;
+	if (ux&uy&uz&uw)
+	{
+		// All elements are greater
+		CR = XM_CRMASK_CR6TRUE;
+	}
+	else if (!(ux | uy | uz | uw))
+	{
+		// All elements are not greater
+		CR = XM_CRMASK_CR6FALSE;
+	}
+	*pCR = CR;
+
+	XMVECTOR Control;
+	Control.vector4_u32[0] = ux;
+	Control.vector4_u32[1] = uy;
+	Control.vector4_u32[2] = uz;
+	Control.vector4_u32[3] = uw;
+	return Control;
+
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	uint32x4_t vResult = vcgtq_f32(V1, V2);
+	uint8x8x2_t vTemp = vzip_u8(vget_low_u8(vResult), vget_high_u8(vResult));	
+	uint32_t r = vget_lane_u32(vzip_u16(vTemp.val[0], vTemp.val[1]).val[1], 1);
+	uint32_t CR = 0;
+	if (r == 0xFFFFFFFFU)
+	{
+		// All elements are greater
+		CR = XM_CRMASK_CR6TRUE;
+	}
+	else if (!r)
+	{
+		// All elements are not greater
+		CR = XM_CRMASK_CR6FALSE;
+	}
+	*pCR = CR;
+	return vResult;
+#elif defined(_XM_SSE_INTRINSICS_)
+	XMVECTOR vTemp = _mm_cmpgt_ps(V1, V2);
+	uint32_t CR = 0;
+	int iTest = _mm_movemask_ps(vTemp);
+	if (iTest == 0xf)
+	{
+		CR = XM_CRMASK_CR6TRUE;
+	}
+	else if (!iTest)
+	{
+		// All elements are not greater
+		CR = XM_CRMASK_CR6FALSE;
+	}
+	*pCR = CR;
+	return vTemp;
+#endif
+}
+
+//------------------------------------------------------------------------------
+
+inline XMVECTOR XM_CALLCONV XMVectorGreaterOrEqual
+(
+	FXMVECTOR V1,
+	FXMVECTOR V2
+)
+{
+#if defined(_XM_NO_INTRINSICS_)
+
+	XMVECTOR Control;
+	Control.vector4_u32[0] = (V1.vector4_f32[0] >= V2.vector4_f32[0]) ? 0xFFFFFFFF : 0;
+	Control.vector4_u32[1] = (V1.vector4_f32[1] >= V2.vector4_f32[1]) ? 0xFFFFFFFF : 0;
+	Control.vector4_u32[2] = (V1.vector4_f32[2] >= V2.vector4_f32[2]) ? 0xFFFFFFFF : 0;
+	Control.vector4_u32[3] = (V1.vector4_f32[3] >= V2.vector4_f32[3]) ? 0xFFFFFFFF : 0;
+	return Control;
+
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	return vcgeq_f32(V1, V2);
+#elif defined(_XM_SSE_INTRINSICS_)
+	return _mm_cmpge_ps(V1, V2);
+#endif
+}
+
+//------------------------------------------------------------------------------
+
+_Use_decl_annotations_
+inline XMVECTOR XM_CALLCONV XMVectorGreaterOrEqualR
+(
+	uint32_t*    pCR,
+	FXMVECTOR V1,
+	FXMVECTOR V2
+)
+{
+	assert(pCR != nullptr);
+#if defined(_XM_NO_INTRINSICS_)
+
+	uint32_t ux = (V1.vector4_f32[0] >= V2.vector4_f32[0]) ? 0xFFFFFFFFU : 0;
+	uint32_t uy = (V1.vector4_f32[1] >= V2.vector4_f32[1]) ? 0xFFFFFFFFU : 0;
+	uint32_t uz = (V1.vector4_f32[2] >= V2.vector4_f32[2]) ? 0xFFFFFFFFU : 0;
+	uint32_t uw = (V1.vector4_f32[3] >= V2.vector4_f32[3]) ? 0xFFFFFFFFU : 0;
+	uint32_t CR = 0;
+	if (ux&uy&uz&uw)
+	{
+		// All elements are greater
+		CR = XM_CRMASK_CR6TRUE;
+	}
+	else if (!(ux | uy | uz | uw))
+	{
+		// All elements are not greater
+		CR = XM_CRMASK_CR6FALSE;
+	}
+	*pCR = CR;
+
+	XMVECTOR Control;
+	Control.vector4_u32[0] = ux;
+	Control.vector4_u32[1] = uy;
+	Control.vector4_u32[2] = uz;
+	Control.vector4_u32[3] = uw;
+	return Control;
+
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	uint32x4_t vResult = vcgeq_f32(V1, V2);
+	uint8x8x2_t vTemp = vzip_u8(vget_low_u8(vResult), vget_high_u8(vResult));
+	uint32_t r = vget_lane_u32(vzip_u16(vTemp.val[0], vTemp.val[1]).val[1], 1);
+	uint32_t CR = 0;
+	if (r == 0xFFFFFFFFU)
+	{
+		// All elements are greater or equal
+		CR = XM_CRMASK_CR6TRUE;
+	}
+	else if (!r)
+	{
+		// All elements are not greater or equal
+		CR = XM_CRMASK_CR6FALSE;
+	}
+	*pCR = CR;
+	return vResult;
+#elif defined(_XM_SSE_INTRINSICS_)
+	XMVECTOR vTemp = _mm_cmpge_ps(V1, V2);
+	uint32_t CR = 0;
+	int iTest = _mm_movemask_ps(vTemp);
+	if (iTest == 0xf)
+	{
+		CR = XM_CRMASK_CR6TRUE;
+	}
+	else if (!iTest)
+	{
+		// All elements are not greater
+		CR = XM_CRMASK_CR6FALSE;
+	}
+	*pCR = CR;
+	return vTemp;
+#endif
+}
+
+//------------------------------------------------------------------------------
+
+inline XMVECTOR XM_CALLCONV XMVectorLess
+(
+	FXMVECTOR V1,
+	FXMVECTOR V2
+)
+{
+#if defined(_XM_NO_INTRINSICS_)
+
+	XMVECTOR Control;
+	Control.vector4_u32[0] = (V1.vector4_f32[0] < V2.vector4_f32[0]) ? 0xFFFFFFFF : 0;
+	Control.vector4_u32[1] = (V1.vector4_f32[1] < V2.vector4_f32[1]) ? 0xFFFFFFFF : 0;
+	Control.vector4_u32[2] = (V1.vector4_f32[2] < V2.vector4_f32[2]) ? 0xFFFFFFFF : 0;
+	Control.vector4_u32[3] = (V1.vector4_f32[3] < V2.vector4_f32[3]) ? 0xFFFFFFFF : 0;
+	return Control;
+
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	return vcltq_f32(V1, V2);
+#elif defined(_XM_SSE_INTRINSICS_)
+	return _mm_cmplt_ps(V1, V2);
+#endif
+}
+
+//------------------------------------------------------------------------------
+
+inline XMVECTOR XM_CALLCONV XMVectorLessOrEqual
+(
+	FXMVECTOR V1,
+	FXMVECTOR V2
+)
+{
+#if defined(_XM_NO_INTRINSICS_)
+
+	XMVECTOR Control;
+	Control.vector4_u32[0] = (V1.vector4_f32[0] <= V2.vector4_f32[0]) ? 0xFFFFFFFF : 0;
+	Control.vector4_u32[1] = (V1.vector4_f32[1] <= V2.vector4_f32[1]) ? 0xFFFFFFFF : 0;
+	Control.vector4_u32[2] = (V1.vector4_f32[2] <= V2.vector4_f32[2]) ? 0xFFFFFFFF : 0;
+	Control.vector4_u32[3] = (V1.vector4_f32[3] <= V2.vector4_f32[3]) ? 0xFFFFFFFF : 0;
+	return Control;
+
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	return vcleq_f32(V1, V2);
+#elif defined(_XM_SSE_INTRINSICS_)
+	return _mm_cmple_ps(V1, V2);
+#endif
+}
+
+//------------------------------------------------------------------------------
+
+inline XMVECTOR XM_CALLCONV XMVectorInBounds
+(
+	FXMVECTOR V,
+	FXMVECTOR Bounds
+)
+{
+#if defined(_XM_NO_INTRINSICS_)
+
+	XMVECTOR Control;
+	Control.vector4_u32[0] = (V.vector4_f32[0] <= Bounds.vector4_f32[0] && V.vector4_f32[0] >= -Bounds.vector4_f32[0]) ? 0xFFFFFFFF : 0;
+	Control.vector4_u32[1] = (V.vector4_f32[1] <= Bounds.vector4_f32[1] && V.vector4_f32[1] >= -Bounds.vector4_f32[1]) ? 0xFFFFFFFF : 0;
+	Control.vector4_u32[2] = (V.vector4_f32[2] <= Bounds.vector4_f32[2] && V.vector4_f32[2] >= -Bounds.vector4_f32[2]) ? 0xFFFFFFFF : 0;
+	Control.vector4_u32[3] = (V.vector4_f32[3] <= Bounds.vector4_f32[3] && V.vector4_f32[3] >= -Bounds.vector4_f32[3]) ? 0xFFFFFFFF : 0;
+	return Control;
+
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	// Test if less than or equal
+	XMVECTOR vTemp1 = vcleq_f32(V, Bounds);
+	// Negate the bounds
+	XMVECTOR vTemp2 = vnegq_f32(Bounds);
+	// Test if greater or equal (Reversed)
+	vTemp2 = vcleq_f32(vTemp2, V);
+	// Blend answers
+	vTemp1 = vandq_u32(vTemp1, vTemp2);
+	return vTemp1;
+#elif defined(_XM_SSE_INTRINSICS_)
+	// Test if less than or equal
+	XMVECTOR vTemp1 = _mm_cmple_ps(V, Bounds);
+	// Negate the bounds
+	XMVECTOR vTemp2 = _mm_mul_ps(Bounds, g_XMNegativeOne);
+	// Test if greater or equal (Reversed)
+	vTemp2 = _mm_cmple_ps(vTemp2, V);
+	// Blend answers
+	vTemp1 = _mm_and_ps(vTemp1, vTemp2);
+	return vTemp1;
+#endif
+}
+
+//------------------------------------------------------------------------------
+
+_Use_decl_annotations_
+inline XMVECTOR XM_CALLCONV XMVectorInBoundsR
+(
+	uint32_t*    pCR,
+	FXMVECTOR V,
+	FXMVECTOR Bounds
+)
+{
+	assert(pCR != nullptr);
+#if defined(_XM_NO_INTRINSICS_)
+
+	uint32_t ux = (V.vector4_f32[0] <= Bounds.vector4_f32[0] && V.vector4_f32[0] >= -Bounds.vector4_f32[0]) ? 0xFFFFFFFFU : 0;
+	uint32_t uy = (V.vector4_f32[1] <= Bounds.vector4_f32[1] && V.vector4_f32[1] >= -Bounds.vector4_f32[1]) ? 0xFFFFFFFFU : 0;
+	uint32_t uz = (V.vector4_f32[2] <= Bounds.vector4_f32[2] && V.vector4_f32[2] >= -Bounds.vector4_f32[2]) ? 0xFFFFFFFFU : 0;
+	uint32_t uw = (V.vector4_f32[3] <= Bounds.vector4_f32[3] && V.vector4_f32[3] >= -Bounds.vector4_f32[3]) ? 0xFFFFFFFFU : 0;
+
+	uint32_t CR = 0;
+	if (ux&uy&uz&uw)
+	{
+		// All elements are in bounds
+		CR = XM_CRMASK_CR6BOUNDS;
+	}
+	*pCR = CR;
+
+	XMVECTOR Control;
+	Control.vector4_u32[0] = ux;
+	Control.vector4_u32[1] = uy;
+	Control.vector4_u32[2] = uz;
+	Control.vector4_u32[3] = uw;
+	return Control;
+
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	// Test if less than or equal
+	XMVECTOR vTemp1 = vcleq_f32(V, Bounds);
+	// Negate the bounds
+	XMVECTOR vTemp2 = vnegq_f32(Bounds);
+	// Test if greater or equal (Reversed)
+	vTemp2 = vcleq_f32(vTemp2, V);
+	// Blend answers
+	vTemp1 = vandq_u32(vTemp1, vTemp2);
+	uint8x8x2_t vTemp = vzip_u8(vget_low_u8(vTemp1), vget_high_u8(vTemp1));
+	uint32_t r = vget_lane_u32(vzip_u16(vTemp.val[0], vTemp.val[1]).val[1], 1);
+	uint32_t CR = 0;
+	if (r == 0xFFFFFFFFU)
+	{
+		// All elements are in bounds
+		CR = XM_CRMASK_CR6BOUNDS;
+	}
+	*pCR = CR;
+	return vTemp1;
+#elif defined(_XM_SSE_INTRINSICS_)
+	// Test if less than or equal
+	XMVECTOR vTemp1 = _mm_cmple_ps(V, Bounds);
+	// Negate the bounds
+	XMVECTOR vTemp2 = _mm_mul_ps(Bounds, g_XMNegativeOne);
+	// Test if greater or equal (Reversed)
+	vTemp2 = _mm_cmple_ps(vTemp2, V);
+	// Blend answers
+	vTemp1 = _mm_and_ps(vTemp1, vTemp2);
+
+	uint32_t CR = 0;
+	if (_mm_movemask_ps(vTemp1) == 0xf) {
+		// All elements are in bounds
+		CR = XM_CRMASK_CR6BOUNDS;
+	}
+	*pCR = CR;
+	return vTemp1;
+#endif
+}
+
+//------------------------------------------------------------------------------
+
+inline XMVECTOR XM_CALLCONV XMVectorIsNaN
+(
+	FXMVECTOR V
+)
+{
+#if defined(_XM_NO_INTRINSICS_)
+
+	XMVECTOR Control;
+	Control.vector4_u32[0] = XMISNAN(V.vector4_f32[0]) ? 0xFFFFFFFFU : 0;
+	Control.vector4_u32[1] = XMISNAN(V.vector4_f32[1]) ? 0xFFFFFFFFU : 0;
+	Control.vector4_u32[2] = XMISNAN(V.vector4_f32[2]) ? 0xFFFFFFFFU : 0;
+	Control.vector4_u32[3] = XMISNAN(V.vector4_f32[3]) ? 0xFFFFFFFFU : 0;
+	return Control;
+
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	// Test against itself. NaN is always not equal
+	uint32x4_t vTempNan = vceqq_f32(V, V);
+	// Flip results
+	return vmvnq_u32(vTempNan);
+#elif defined(_XM_SSE_INTRINSICS_)
+	// Test against itself. NaN is always not equal
+	return _mm_cmpneq_ps(V, V);
+#endif
+}
+
+//------------------------------------------------------------------------------
+
+inline XMVECTOR XM_CALLCONV XMVectorIsInfinite
+(
+	FXMVECTOR V
+)
+{
+#if defined(_XM_NO_INTRINSICS_)
+
+	XMVECTOR Control;
+	Control.vector4_u32[0] = XMISINF(V.vector4_f32[0]) ? 0xFFFFFFFFU : 0;
+	Control.vector4_u32[1] = XMISINF(V.vector4_f32[1]) ? 0xFFFFFFFFU : 0;
+	Control.vector4_u32[2] = XMISINF(V.vector4_f32[2]) ? 0xFFFFFFFFU : 0;
+	Control.vector4_u32[3] = XMISINF(V.vector4_f32[3]) ? 0xFFFFFFFFU : 0;
+	return Control;
+
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+	// Mask off the sign bit
+	uint32x4_t vTemp = vandq_u32(V, g_XMAbsMask);
+	// Compare to infinity
+	vTemp = vceqq_f32(vTemp, g_XMInfinity);
+	// If any are infinity, the signs are true.
+	return vTemp;
+#elif defined(_XM_SSE_INTRINSICS_)
+	// Mask off the sign bit
+	__m128 vTemp = _mm_and_ps(V, g_XMAbsMask);
+	// Compare to infinity
+	vTemp = _mm_cmpeq_ps(vTemp, g_XMInfinity);
+	// If any are infinity, the signs are true.
+	return vTemp;
+#endif
+}
+
+
+
