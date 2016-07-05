@@ -90,7 +90,7 @@ namespace vtd
 	{
 		static_assert(std::is_class<_Ty>::value, "wrong type");
 
-		static void inc(_Ty* ptr) noexcept
+		static void inc(_Ty*) noexcept
 		{
 			
 		}

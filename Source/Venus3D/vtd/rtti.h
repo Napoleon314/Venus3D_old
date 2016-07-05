@@ -133,7 +133,7 @@ namespace vtd
 		struct unpacker<>
 		{
 			template<class _Ty>
-			static void set(identity<_Ty>, base::_Base* _Desc) noexcept
+			static void set(identity<_Ty>, base::_Base*) noexcept
 			{
 
 			}
