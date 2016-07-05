@@ -3,9 +3,9 @@
 //  The MIT License (MIT)
 //  Copyright (c) 2016 Albert D Yang
 // -------------------------------------------------------------------------
-//  Module:      Venus3D
-//  File name:   stdafx.cpp
-//  Created:     2016/07/01 by Albert
+//  Module:      vtd
+//  File name:   utility.h
+//  Created:     2016/04/01 by Albert D Yang
 //  Description:
 // -------------------------------------------------------------------------
 //  Permission is hereby granted, free of charge, to any person obtaining a
@@ -28,4 +28,21 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-#include "stdafx.h"
+#pragma once
+
+#include <stdint.h>
+#include <utility>
+
+namespace vtd
+{
+	template<class _Ty>
+	struct identity
+	{
+		typedef _Ty type;
+
+		const _Ty& operator()(const _Ty& _Left) const
+		{
+			return (_Left);
+		}
+	};
+}

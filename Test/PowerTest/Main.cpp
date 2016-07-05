@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////
 //
 //  The MIT License (MIT)
-//  Copyright (c) 2016 Venus3D
+//  Copyright (c) 2016 Albert D Yang
 // -------------------------------------------------------------------------
 //  Module:      PowerTest
 //  File name:   Main.cpp
@@ -31,6 +31,10 @@
 #include <Venus3D.h>
 
 using namespace XMath;
+
+// update: probably wrong, because the above 
+// form is not allowed for string-literals:    
+
 
 int main(/*int argc, char * argv[]*/)
 {

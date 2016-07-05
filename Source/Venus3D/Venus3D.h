@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////
 //
 //  The MIT License (MIT)
-//  Copyright (c) 2016 Venus3D
+//  Copyright (c) 2016 Albert D Yang
 // -------------------------------------------------------------------------
 //  Module:      Venus3D
 //  File name:   Venus3D.h
@@ -343,3 +343,9 @@
 #include "XMath/XPackedVector.h"
 #include "XMath/XColors.h"
 #include "XMath/XCollision.h"
+
+#include "vtd/rtti.h"
+#include "vtd/intrusive_ptr.h"
+#include "vtd/string.h"
+
+VENUS_API void Test() noexcept;
