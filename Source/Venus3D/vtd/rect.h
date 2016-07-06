@@ -38,6 +38,15 @@ namespace vtd
 	template<class _Ty>
 	struct alignas(sizeof(_Ty) ) rect
 	{
+		enum outcode
+		{
+			CODE_BOTTOM = 1,
+			CODE_TOP = 2,
+			CODE_LEFT = 4,
+			CODE_RIGHT = 8
+		};
+
+
 		rect() noexcept = default;
 
 		rect(const rect&) noexcept = default;
@@ -202,6 +211,159 @@ namespace vtd
 			if (Bmax > Amax)
 				Amax = Bmax;
 			h = Amax - Amin;
+		}		
+
+		uint32_t compute_outcode(_Ty _x, _Ty _y) const noexcept
+		{
+			uint32_t code = 0;
+			if (_y < y) {
+				code |= CODE_TOP;
+			}
+			else if (_y >= y + h) {
+				code |= CODE_BOTTOM;
+			}
+			if (_x < x) {
+				code |= CODE_LEFT;
+			}
+			else if (_x >= x + w) {
+				code |= CODE_RIGHT;
+			}
+			return code;
+		}
+
+		uint32_t compute_outcode(const point<_Ty>& p) const noexcept
+		{
+			return compute_outcode(p.x, p.y);
+		}
+
+		bool intersects(point<_Ty>& p1, point<_Ty>& p2) const noexcept
+		{
+			_Ty x = 0;
+			_Ty y = 0;
+			_Ty x1, y1;
+			_Ty x2, y2;
+			_Ty rectx1;
+			_Ty recty1;
+			_Ty rectx2;
+			_Ty recty2;
+			_Ty outcode1, outcode2;
+
+			/* Special case for empty rect */
+			if (empty()) {
+				return false;
+			}
+
+			x1 = p1.x;
+			y1 = p1.y;
+			x2 = p2.x;
+			y2 = p2.y;
+			rectx1 = x;
+			recty1 = y;
+			rectx2 = x + w - 1;
+			recty2 = y + h - 1;
+
+			/* Check to see if entire line is inside rect */
+			if (x1 >= rectx1 && x1 <= rectx2 && x2 >= rectx1 && x2 <= rectx2 &&
+				y1 >= recty1 && y1 <= recty2 && y2 >= recty1 && y2 <= recty2) {
+				return true;
+			}
+
+			/* Check to see if entire line is to one side of rect */
+			if ((x1 < rectx1 && x2 < rectx1) || (x1 > rectx2 && x2 > rectx2) ||
+				(y1 < recty1 && y2 < recty1) || (y1 > recty2 && y2 > recty2)) {
+				return false;
+			}
+
+			if (y1 == y2) {
+				/* Horizontal line, easy to clip */
+				if (x1 < rectx1) {
+					p1.x = rectx1;
+				}
+				else if (x1 > rectx2) {
+					p1.x = rectx2;
+				}
+				if (x2 < rectx1) {
+					p2.x = rectx1;
+				}
+				else if (x2 > rectx2) {
+					p2.x = rectx2;
+				}
+				return true;
+			}
+
+			if (x1 == x2) {
+				/* Vertical line, easy to clip */
+				if (y1 < recty1) {
+					p1.y = recty1;
+				}
+				else if (y1 > recty2) {
+					p1.y = recty2;
+				}
+				if (y2 < recty1) {
+					p2.y = recty1;
+				}
+				else if (y2 > recty2) {
+					p2.y = recty2;
+				}
+				return true;
+			}
+
+			/* More complicated Cohen-Sutherland algorithm */
+			outcode1 = compute_outcode(x1, y1);
+			outcode2 = compute_outcode(x2, y2);
+			while (outcode1 || outcode2) {
+				if (outcode1 & outcode2) {
+					return false;
+				}
+
+				if (outcode1) {
+					if (outcode1 & CODE_TOP) {
+						y = recty1;
+						x = x1 + ((x2 - x1) * (y - y1)) / (y2 - y1);
+					}
+					else if (outcode1 & CODE_BOTTOM) {
+						y = recty2;
+						x = x1 + ((x2 - x1) * (y - y1)) / (y2 - y1);
+					}
+					else if (outcode1 & CODE_LEFT) {
+						x = rectx1;
+						y = y1 + ((y2 - y1) * (x - x1)) / (x2 - x1);
+					}
+					else if (outcode1 & CODE_RIGHT) {
+						x = rectx2;
+						y = y1 + ((y2 - y1) * (x - x1)) / (x2 - x1);
+					}
+					x1 = x;
+					y1 = y;
+					outcode1 = compute_outcode(x, y);
+				}
+				else {
+					if (outcode2 & CODE_TOP) {
+						y = recty1;
+						x = x1 + ((x2 - x1) * (y - y1)) / (y2 - y1);
+					}
+					else if (outcode2 & CODE_BOTTOM) {
+						y = recty2;
+						x = x1 + ((x2 - x1) * (y - y1)) / (y2 - y1);
+					}
+					else if (outcode2 & CODE_LEFT) {
+						x = rectx1;
+						y = y1 + ((y2 - y1) * (x - x1)) / (x2 - x1);
+					}
+					else if (outcode2 & CODE_RIGHT) {
+						x = rectx2;
+						y = y1 + ((y2 - y1) * (x - x1)) / (x2 - x1);
+					}
+					x2 = x;
+					y2 = y;
+					outcode2 = compute_outcode(x, y);
+				}
+			}
+			p1.x = x1;
+			p1.y = y1;
+			p2.x = x2;
+			p2.y = y2;
+			return true;
 		}
 
 		_Ty x = 0, y = 0, w = 0, h = 0;
