@@ -32,6 +32,7 @@
 
 #include "utility.h"
 #include <string.h>
+#include <string>
 
 namespace vtd
 {
@@ -68,7 +69,7 @@ namespace vtd
 	template <class _Ty>
 	inline size_t strlen(const _Ty* _Str) noexcept
 	{
-		static_assert(is_char<_Ty>::value, "_Ty is not char");
+		static_assert(is_char<_Ty>::value, "_Ty has to be a kind of char");
 		const _Ty* _Eos = _Str;
 		while (*_Eos++);
 		return (_Eos - _Str - 1);
@@ -83,7 +84,7 @@ namespace vtd
 	template <class _Ty>
 	inline int strcmp(const _Ty* _Str1, const _Ty* _Str2) noexcept
 	{
-		static_assert(is_char<_Ty>::value, "_Ty is not char");
+		static_assert(is_char<_Ty>::value, "_Ty has to be a kind of char");
 		int _Ret = 0;
 		while (!(_Ret = unsigned(*_Str1) - unsigned(*_Str2)) && *_Str2)
 			++_Str1, ++_Str2;
@@ -105,7 +106,7 @@ namespace vtd
 	inline int strncmp(const _Ty* _Str1, const _Ty* _Str2,
 		size_t _Count) noexcept
 	{
-		static_assert(is_char<_Ty>::value, "_Ty is not char");
+		static_assert(is_char<_Ty>::value, "_Ty has to be a kind of char");
 		for (size_t x(0); x < _Count; x++)
 		{
 			if (*_Str1 == 0 || *_Str1 != *_Str2)
@@ -129,6 +130,7 @@ namespace vtd
 	inline int stricmp(const _Ty* _Str1,
 		const _Ty* _Str2) noexcept
 	{
+		static_assert(is_char<_Ty>::value, "_Ty has to be a kind of char");
 		int f, l;
 		do
 		{
@@ -165,7 +167,7 @@ namespace vtd
 	template <class _Ty>
 	inline const _Ty* strchr(const _Ty* _Str, _Ty _Char) noexcept
 	{
-		static_assert(is_char<_Ty>::value, "_Ty is not char");
+		static_assert(is_char<_Ty>::value, "_Ty has to be a kind of char");
 		while (*_Str && *_Str != _Char)
 			++_Str;
 
@@ -184,7 +186,7 @@ namespace vtd
 	template <class _Ty>
 	inline const _Ty* strrchr(const _Ty* _Str, _Ty _Char) noexcept
 	{
-		static_assert(is_char<_Ty>::value, "_Ty is not char");
+		static_assert(is_char<_Ty>::value, "_Ty has to be a kind of char");
 		const _Ty* _Start = _Str;
 		while (*_Str++);
 		while (--_Str != _Start && *_Str != _Char);
@@ -202,7 +204,7 @@ namespace vtd
 	template <class _Ty>
 	inline const _Ty* strstr(const _Ty* _Str1, const _Ty* _Str2) noexcept
 	{
-		static_assert(is_char<_Ty>::value, "_Ty is not char");
+		static_assert(is_char<_Ty>::value, "_Ty has to be a kind of char");
 		const _Ty* cp = _Str1;
 		const _Ty *s1, *s2;
 
@@ -231,41 +233,10 @@ namespace vtd
 	}
 
 	template <class _Ty>
-	inline _Ty* strstr(_Ty* _Str1, const _Ty* _Str2) noexcept
-	{
-		static_assert(is_char<_Ty>::value, "_Ty is not char");
-		_Ty* cp = _Str1;
-		_Ty *s1, *s2;
-
-		if (!*_Str2)
-			return _Str1;
-
-		while (*cp)
-		{
-			s1 = cp;
-			s2 = _Str2;
-			while (*s1 && *s2 && !(*s1 - *s2))
-				s1++, s2++;
-			if (!*s2)
-				return(cp);
-			cp++;
-		}
-
-		return nullptr;
-	}
-
-	template <>
-	inline char* strstr<char>(char* _Str1,
-		const char* _Str2) noexcept
-	{
-		return ::strstr(_Str1, _Str2);
-	}
-
-	template <class _Ty>
 	inline _Ty* strtok(_Ty* _Str, const _Ty* _Delimit,
 		_Ty** _Context) noexcept
 	{
-		static_assert(is_char<_Ty>::value, "_Ty is not char");
+		static_assert(is_char<_Ty>::value, "_Ty has to be a kind of char");
 		_Ty* _StrStart = _Str;
 		if ((!_StrStart) && _Context)
 		{
@@ -279,6 +250,72 @@ namespace vtd
 			{
 				*pcTemp = '\0';
 				if (_Context) *_Context = pcTemp += _Len;
+				return _StrStart;
+			}
+			else if (*_StrStart)
+			{
+				if (_Context) *_Context = nullptr;
+				return _StrStart;
+			}
+			else
+			{
+				if (_Context) *_Context = nullptr;
+				return nullptr;
+			}
+		}
+		return nullptr;
+	}
+
+	template <class _Ty>
+	inline _Ty* strtrim(_Ty* _Str) noexcept
+	{
+		static_assert(is_char<_Ty>::value, "_Ty has to be a kind of char");
+		size_t i1 = strlen(_Str);
+		size_t i0(0);
+		while (i0 < i1 && isspace((int)_Str[i0]))
+			++i0;
+		while (i1 > 0 && isspace((int)_Str[i1 - 1]))
+			--i1;
+		_Str[i1] = 0;
+		return _Str + i0;
+	}
+
+	template <class _Ty>
+	inline _Ty* strline(_Ty* _Str, _Ty** _Context) noexcept
+	{
+		static_assert(is_char<_Ty>::value, "_Ty has to be a kind of char");
+		_Ty* _StrStart = _Str;
+		if ((!_StrStart) && _Context)
+		{
+			_StrStart = *_Context;
+		}
+		if (_StrStart)
+		{
+			_Ty* pcTemp = _StrStart;
+			while (pcTemp)
+			{
+				if ((*pcTemp == '\r') || (*pcTemp == '\n'))
+				{
+					break;
+				}
+				else if (*pcTemp == '\0')
+				{
+					pcTemp = nullptr;
+					break;
+				}
+				else
+				{
+					++pcTemp;
+				}
+			}
+			if (pcTemp)
+			{
+				*(pcTemp++) = '\0';
+				if (_Context)
+				{
+					if (*pcTemp == '\n') ++pcTemp;
+					*_Context = pcTemp;
+				}
 				return _StrStart;
 			}
 			else if (*_StrStart)

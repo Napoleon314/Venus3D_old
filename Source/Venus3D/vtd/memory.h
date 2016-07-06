@@ -3,9 +3,9 @@
 //  The MIT License (MIT)
 //  Copyright (c) 2016 Albert D Yang
 // -------------------------------------------------------------------------
-//  Module:      PowerTest
-//  File name:   Main.cpp
-//  Created:     2016/07/01 by Albert
+//  Module:      vtd
+//  File name:   memory.h
+//  Created:     2016/07/06 by Albert
 //  Description:
 // -------------------------------------------------------------------------
 //  Permission is hereby granted, free of charge, to any person obtaining a
@@ -28,37 +28,9 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-#include <Venus3D.h>
+#pragma once
 
-using namespace XMath;
-
-// update: probably wrong, because the above 
-// form is not allowed for string-literals:    
-
-
-int main(/*int argc, char * argv[]*/)
+namespace vtd
 {
-#ifdef __SSE2__
-	printf("SSE2\n");
-#endif //
 
-#ifdef __AVX__
-	printf("AVX\n");
-#endif //
-
-#ifdef __AVX2__
-	printf("AVX2\n");
-#endif //
-    
-#ifdef __ARM_NEON__
-    printf("NEON\n");
-#endif
-    
-#ifdef _XM_ARM_NEON_INTRINSICS_
-    printf("NEON MATH\n");
-#endif
-
-	vtd::rect<int> p = { 3,4 };
-
-	return 0;
 }

@@ -344,8 +344,12 @@
 #include "XMath/XColors.h"
 #include "XMath/XCollision.h"
 
+#include "vtd/memory.h"
 #include "vtd/rtti.h"
 #include "vtd/intrusive_ptr.h"
 #include "vtd/string.h"
+#include "vtd/thread.h"
+#include "vtd/point.h"
+#include "vtd/rect.h"
 
 VENUS_API void Test() noexcept;

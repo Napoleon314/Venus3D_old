@@ -4,8 +4,8 @@
 //  Copyright (c) 2016 Albert D Yang
 // -------------------------------------------------------------------------
 //  Module:      vtd
-//  File name:   utility.h
-//  Created:     2016/04/01 by Albert D Yang
+//  File name:   point.h
+//  Created:     2016/07/06 by Albert
 //  Description:
 // -------------------------------------------------------------------------
 //  Permission is hereby granted, free of charge, to any person obtaining a
@@ -30,81 +30,109 @@
 
 #pragma once
 
-#include <stdint.h>
-#include <utility>
-
-#ifdef max
-#	undef max
-#endif
-#ifdef min
-#	undef min
-#endif
-
 namespace vtd
 {
 	template<class _Ty>
-	struct identity
+	struct point
 	{
-		typedef _Ty type;
+		static_assert(std::is_arithmetic<_Ty>::value, "_Ty has to be an arithmetic type.");
 
-		const _Ty& operator()(const _Ty& _Left) const
+		point() noexcept = default;
+
+		point(const point&) noexcept = default;
+
+		point(point&&) noexcept = default;
+
+		point& operator = (const point&) noexcept = default;
+
+		~point() noexcept = default;
+
+		point(std::initializer_list<_Ty> l) noexcept
 		{
-			return (_Left);
+			for (size_t i(0); i < min(l.size(), 2); ++i)
+			{
+				(&x)[i] = l.begin()[i];
+			}
 		}
+
+		point(_Ty _1, _Ty _2) noexcept : x(_1), y(_2) {}
+
+		point& operator += (const point& p) noexcept
+		{
+			x += p.x;
+			y += p.y;
+			return *this;
+		}
+
+		point& operator -= (const point& p) noexcept
+		{
+			x -= p.x;
+			y -= p.y;
+			return *this;
+		}
+
+		point& operator *= (_Ty s) noexcept
+		{
+			x *= s;
+			y *= s;
+			return *this;
+		}
+
+		point& operator /= (_Ty s) noexcept
+		{
+			x /= s;
+			y /= s;
+			return *this;
+		}
+
+		point operator + () const noexcept
+		{
+			return *this;
+		}
+
+		point operator - () const noexcept
+		{
+			return point(-x, -y);
+		}
+
+		point operator + (const point& p) const noexcept
+		{
+			return point(x + p.x, y + p.y);
+		}
+
+		point operator - (const point& p) const noexcept
+		{
+			return point(x - p.x, y - p.y);
+		}
+
+		point operator * (_Ty s) const noexcept
+		{
+			return point(x * s, y * s);
+		}
+
+		point operator / (_Ty s) const noexcept
+		{
+			return point(x / s, y / s);
+		}
+
+		bool operator == (const point& p) const noexcept
+		{
+			return x == p.x && y == p.y;
+		}
+
+		bool operator != (const point& p) const noexcept
+		{
+			return x != p.x || y != p.y;
+		}
+
+		_Ty x = 0, y = 0;
+
 	};
 
-	namespace detail
+	template<class _Ty>
+	point<_Ty> operator * (_Ty s, const point<_Ty>& p) noexcept
 	{
-		template<class... _Types>
-		struct comparer;
-
-		template<class _Ty>
-		struct comparer<_Ty>
-		{
-			static _Ty max(_Ty val) noexcept
-			{			
-				return val;
-			}
-
-			static _Ty min(_Ty val) noexcept
-			{
-				return val;
-			}
-		};
-
-		template<class _This, class... _Rest>
-		struct comparer<_This, _Rest...>
-		{
-			static _This max(_This val, _Rest... pak) noexcept
-			{
-				static_assert(sizeof...(_Rest) > 0,
-					"Number of factors has to be more than two.");
-				_This pre = comparer<_Rest...>::max(pak...);
-				return val > pre ? val : pre;
-			}
-
-			static _This min(_This val, _Rest... pak) noexcept
-			{
-				static_assert(sizeof...(_Rest) > 0,
-					"Number of factors has to be more than two.");
-				_This pre = comparer<_Rest...>::min(pak...);
-				return val < pre ? val : pre;
-			}
-		};
-
-
-	}
-
-	template<class _This, class... _Rest>
-	_This max(_This val, _Rest... pak) noexcept
-	{
-		return detail::comparer<_This, _Rest...>::max(val, pak...);
-	}
-
-	template<class _This, class... _Rest>
-	_This min(_This val, _Rest... pak) noexcept
-	{
-		return detail::comparer<_This, _Rest...>::min(val, pak...);
+		return p * s;
 	}
 
 }
