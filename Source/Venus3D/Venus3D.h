@@ -305,8 +305,8 @@
 		VE_MASK_ADD(flag,VE_MASK(location));
 
 #define VE_MAKE_FOURCC(ch0, ch1, ch2, ch3)								\
-	((VeDWord)(VeByte)(ch0) | ((VeDWord)(VeByte)(ch1) << 8) |			\
-	((VeDWord)(VeByte)(ch2) << 16) | ((VeDWord)(VeByte)(ch3) << 24 ))
+	((uint32_t)(ch0) | ((uint32_t)(ch1) << 8) |							\
+	((uint32_t)(ch2) << 16) | ((uint32_t)(ch3) << 24 ))
 
 #define VeNoCopy(cls) \
 	cls(const cls&) = delete;\
@@ -351,5 +351,7 @@
 #include "vtd/thread.h"
 #include "vtd/point.h"
 #include "vtd/rect.h"
+
+#include "Video/VePixel.h"
 
 VENUS_API void Test() noexcept;
