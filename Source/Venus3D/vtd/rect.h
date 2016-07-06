@@ -92,10 +92,10 @@ namespace vtd
 			_Ty Amin, Amax, Bmin, Bmax;
 
 			/* Horizontal intersection */
-			Amin = A->x;
-			Amax = Amin + A->w;
-			Bmin = B->x;
-			Bmax = Bmin + B->w;
+			Amin = x;
+			Amax = Amin + w;
+			Bmin = r.x;
+			Bmax = Bmin + r.w;
 			if (Bmin > Amin)
 				Amin = Bmin;
 			if (Bmax < Amax)
@@ -104,10 +104,10 @@ namespace vtd
 				return false;
 
 			/* Vertical intersection */
-			Amin = A->y;
-			Amax = Amin + A->h;
-			Bmin = B->y;
-			Bmax = Bmin + B->h;
+			Amin = y;
+			Amax = Amin + h;
+			Bmin = r.y;
+			Bmax = Bmin + r.h;
 			if (Bmin > Amin)
 				Amin = Bmin;
 			if (Bmax < Amax)
