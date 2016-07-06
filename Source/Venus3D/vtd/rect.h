@@ -475,4 +475,64 @@ namespace vtd
 		return true;
 	}
 
+	template <class _Ty>
+	bool get_span_enclosing_rect(_Ty width, _Ty height,
+		size_t numrects, const rect<_Ty> * rects, const rect<_Ty> *span) noexcept
+	{
+		size_t i;
+		_Ty span_y1, span_y2;
+		_Ty rect_y1, rect_y2;
+
+		if (width < 1) {
+			return false;
+		}
+
+		if (height < 1) {
+			return false;
+		}
+
+		if (!rects) {
+			return false;
+		}
+
+		if (!span) {
+			return false;
+		}
+
+		if (numrects < 1) {
+			return false;
+		}
+
+		/* Initialize to empty rect */
+		span_y1 = height;
+		span_y2 = 0;
+
+		for (i = 0; i < numrects; ++i) {
+			rect_y1 = rects[i].y;
+			rect_y2 = rect_y1 + rects[i].h;
+
+			/* Clip out of bounds rectangles, and expand span rect */
+			if (rect_y1 < 0) {
+				span_y1 = 0;
+			}
+			else if (rect_y1 < span_y1) {
+				span_y1 = rect_y1;
+			}
+			if (rect_y2 > height) {
+				span_y2 = height;
+			}
+			else if (rect_y2 > span_y2) {
+				span_y2 = rect_y2;
+			}
+		}
+		if (span_y2 > span_y1) {
+			span->x = 0;
+			span->y = span_y1;
+			span->w = width;
+			span->h = (span_y2 - span_y1);
+			return true;
+		}
+		return false;
+	}
+
 }
