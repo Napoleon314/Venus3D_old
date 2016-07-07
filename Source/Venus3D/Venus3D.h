@@ -354,6 +354,8 @@
 #include "vtd/point.h"
 #include "vtd/rect.h"
 
+#include "Memory/VeMemory.h"
+
 #include "Video/VePixel.h"
 
 VENUS_API void Test() noexcept;
