@@ -32,7 +32,11 @@
 
 #include "utility.h"
 #include <assert.h>
-#include <malloc.h>
+#ifdef __APPLE__
+#   include <stdlib.h>
+#else
+#   include <malloc.h>
+#endif
 #include <string.h>
 
 #include <vector>
@@ -64,7 +68,7 @@ namespace vtd
 
 		static void memory_copy(pointer _Dst, const_pointer _Src, size_type _Count) noexcept
 		{
-			memcpy(_Dst, _Src, _Count * sizeof(value_type))
+            memcpy(_Dst, _Src, _Count * sizeof(value_type));
 		}
 
 		static pointer address(reference _Val) noexcept
@@ -77,7 +81,7 @@ namespace vtd
 			return &_Val;
 		}
 
-		static void deallocate(pointer _Ptr, size_type _Count) noexcept
+		static void deallocate(pointer _Ptr, size_type) noexcept
 		{
 			free(_Ptr);
 		}
@@ -128,8 +132,8 @@ namespace vtd
 		typedef typename _Mani::size_type size_type;
 		typedef typename _Mani::difference_type difference_type;
 
-		typedef typename pointer iterator;
-		typedef typename const_pointer const_iterator;
+		typedef pointer iterator;
+		typedef const_pointer const_iterator;
 
 		vector() noexcept = default;
 
