@@ -45,7 +45,7 @@ VePixelFormat::VePixelFormat()
 {
 	m_kNode.m_Content = this;
 }
-
+//--------------------------------------------------------------------------
 bool VePixelFormat::Init(uint32_t u32PixelFormat) noexcept
 {
 	int32_t bpp;
