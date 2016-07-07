@@ -122,8 +122,14 @@ inline void _VeAlignedFree(void* pvMemory) noexcept;
 
 #define VE_DELETE delete
 
-#define VE_DELETE_ARRAY VE_DELETE []
+#define VE_DELETE_ARRAY delete []
 
 #endif
+
+#define VE_SAFE_DELETE(p)			{ if(p) { VE_DELETE (p); (p) = nullptr; } }
+
+#define VE_SAFE_DELETE_ARRAY(p)		{ if(p) { VE_DELETE_ARRAY(p); (p) = nullptr; } }
+
+#define VE_SAFE_RELEASE(p)			{ if(p) { (p)->Release(); (p) = nullptr; } }
 
 #include "VeMemory.inl"

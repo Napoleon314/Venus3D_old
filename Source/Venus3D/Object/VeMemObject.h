@@ -61,3 +61,53 @@ public:
 #endif
 
 };
+
+template <class _Ty>
+class VeSingleton : public VeMemObject
+{
+public:
+	VeSingleton() noexcept
+	{
+		assert(!ms_pSingleton);
+		ms_pSingleton = static_cast<_Ty*>(this);
+	}
+
+	virtual ~VeSingleton() noexcept
+	{
+		assert(ms_pSingleton);
+		ms_pSingleton = nullptr;
+	}
+
+	static bool IsAvailable() noexcept
+	{
+		return ms_pSingleton ? true : false;
+	}
+
+	template<class... _Types>
+	static void Create(_Types... pak) noexcept
+	{
+		VE_NEW T(pak...);
+	}
+
+	static void Destory() noexcept
+	{
+		VE_SAFE_DELETE(ms_pSingleton);
+	}
+
+	static _Ty& GetSingleton() noexcept
+	{
+		assert(ms_pSingleton);
+		return (*ms_pSingleton);
+	}
+
+	static _Ty* GetSingletonPtr() noexcept
+	{
+		return ms_pSingleton;
+	}
+
+protected:
+	static _Ty* ms_pSingleton;
+
+};
+
+template<class _Ty> _Ty* VeSingleton<_Ty>::ms_pSingleton = nullptr;
