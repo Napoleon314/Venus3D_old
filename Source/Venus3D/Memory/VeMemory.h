@@ -53,3 +53,11 @@ inline void* aligned_malloc(size_t _Size, size_t _Alignment) noexcept
 #	endif
 }
 
+inline void aligned_free(void* _Block) noexcept
+{
+#	ifdef BUILD_PLATFORM_WIN
+	_aligned_free(_Block);
+#	else
+	free(_Block);
+#	endif
+}
