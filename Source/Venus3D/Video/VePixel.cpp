@@ -117,7 +117,7 @@ VePixelFormatPtr VePixelFormat::Create(uint32_t u32PixelFormat) noexcept
 		}
 	}
 
-	VePixelFormatPtr spFormat = new VePixelFormat();
+	VePixelFormatPtr spFormat = VE_NEW VePixelFormat();
 	assert(spFormat);
 	if (!spFormat->Init(u32PixelFormat))
 	{

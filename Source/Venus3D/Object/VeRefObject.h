@@ -4,7 +4,7 @@
 //  Copyright (c) 2016 Albert D Yang
 // -------------------------------------------------------------------------
 //  Module:      Object
-//  File name:   VeMemObject.h
+//  File name:   VeRefObject.h
 //  Created:     2016/07/08 by Albert
 //  Description:
 // -------------------------------------------------------------------------
@@ -30,30 +30,72 @@
 
 #pragma once
 
-class VENUS_API VeMemObject
+class VENUS_API VeRefObject : public VeMemObject
 {
+	VeNoCopy(VeRefObject);
 public:
+	VeRefObject() noexcept;
 
-#ifdef VE_MEM_DEBUG
+	virtual ~VeRefObject() noexcept;
 
-	static void* operator new (size_t stSize, const char* pcSourceFile, int32_t i32SourceLine, const char* pcFunction) noexcept;
+	void IncRefCount() noexcept;
 
-	static void* operator new[](size_t stSize, const char* pcSourceFile, int32_t i32SourceLine, const char* pcFunction) noexcept;
+	void DecRefCount() noexcept;
 
-	static void operator delete (void* pvMem, const char* pcSourceFile, int32_t i32SourceLine, const char* pcFunction) noexcept;
+	inline uint32_t GetRefCount() const noexcept;
 
-	static void operator delete[](void* pvMem, const char* pcSourceFile, int32_t i32SourceLine, const char* pcFunction) noexcept;
+	inline static uint32_t GetTotalObjectCount() noexcept;
 
-#else
+protected:
+	void DeleteThis() noexcept;
 
-	static void* operator new (size_t stSize) noexcept;
-
-	static void* operator new[](size_t stSize) noexcept;
-
-	static void operator delete (void* pvMem) noexcept;
-
-	static void operator delete[](void* pvMem) noexcept;
-
-#endif
+private:
+	uint32_t m_u32RefCount = 0;
+	static uint32_t ms_u32Objects;
 
 };
+
+namespace vtd
+{
+	template <class _Ty>
+	struct intrusive_ref_obj
+	{
+		static_assert(std::is_base_of<VeRefObject, typename std::remove_cv<_Ty>::type>::value, "wrong type");
+
+		static void inc(_Ty* ptr) noexcept
+		{
+			if (ptr) ptr->IncRefCount();
+		}
+
+		static void dec(_Ty* ptr) noexcept
+		{
+			if (ptr) ptr->DecRefCount();
+		}
+	};
+
+	template <class _Ty>
+	struct intrusive_custom_obj
+	{
+		static_assert(std::is_class<_Ty>::value, "wrong type");
+
+		static void inc(_Ty*) noexcept
+		{
+
+		}
+
+		static void dec(_Ty* ptr) noexcept
+		{
+			if (ptr) delete ptr;
+		}
+	};
+
+	template <class _Ty>
+	struct intrusive_obj : std::conditional<std::is_base_of<VeRefObject, typename std::remove_cv<_Ty>::type>::value,
+		intrusive_ref_obj<_Ty>, intrusive_custom_obj<_Ty> >::type
+	{
+
+
+	};
+}
+
+#include "VeRefObject.inl"

@@ -258,7 +258,7 @@ struct VeRGBA
 #	pragma warning(pop)
 #endif
 
-struct VePalette : public vtd::ref_obj
+struct VePalette : public VeRefObject
 {
 	VePalette(size_t stNumColors) noexcept;
 
@@ -270,7 +270,7 @@ typedef vtd::intrusive_ptr<VePalette> VePalettePtr;
 struct VePixelFormat;
 typedef vtd::intrusive_ptr<VePixelFormat> VePixelFormatPtr;
 
-struct VePixelFormat : public vtd::ref_obj
+struct VePixelFormat : public VeRefObject
 {
 	uint32_t m_u32Format;
 	VePalettePtr m_spPalette;

@@ -33,81 +33,8 @@
 
 namespace vtd
 {
-	class ref_obj
-	{
-	public:
-		ref_obj() noexcept = default;
-
-		virtual ~ref_obj() noexcept = default;
-
-		void inc() noexcept
-		{
-			++ref_count;
-		}
-
-		void dec() noexcept
-		{
-			--ref_count;
-			if (!ref_count)
-			{
-				delete_this();
-			}
-		}
-
-		inline size_t get_ref_count() const noexcept
-		{
-			return ref_count;
-		}
-
-	protected:
-		virtual void delete_this() noexcept
-		{
-			delete this;
-		}
-
-	private:
-		size_t ref_count = 0;
-	};
-
 	template <class _Ty>
-	struct intrusive_ref_obj
-	{
-        static_assert(std::is_base_of<ref_obj, typename std::remove_cv<_Ty>::type>::value, "wrong type");
-
-		static void inc(_Ty* ptr) noexcept
-		{
-			if(ptr) ptr->inc();
-		}
-
-		static void dec(_Ty* ptr) noexcept
-		{
-			if (ptr) ptr->dec();
-		}
-	};
-
-	template <class _Ty>
-	struct intrusive_custom_obj
-	{
-		static_assert(std::is_class<_Ty>::value, "wrong type");
-
-		static void inc(_Ty*) noexcept
-		{
-			
-		}
-
-		static void dec(_Ty* ptr) noexcept
-		{
-			if(ptr) delete ptr;
-		}
-	};
-
-	template <class _Ty>
-	struct intrusive_obj : std::conditional<std::is_base_of<ref_obj, typename std::remove_cv<_Ty>::type>::value,
-		intrusive_ref_obj<_Ty>, intrusive_custom_obj<_Ty> >::type
-	{
-
-
-	};
+	struct intrusive_obj;
 
 	template <class _Ty>
 	class intrusive_ptr

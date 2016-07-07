@@ -4,7 +4,7 @@
 //  Copyright (c) 2016 Albert D Yang
 // -------------------------------------------------------------------------
 //  Module:      Object
-//  File name:   VeMemObject.h
+//  File name:   VeRefObject.inl
 //  Created:     2016/07/08 by Albert
 //  Description:
 // -------------------------------------------------------------------------
@@ -28,32 +28,14 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-#pragma once
-
-class VENUS_API VeMemObject
+//--------------------------------------------------------------------------
+inline uint32_t VeRefObject::GetRefCount() const noexcept
 {
-public:
-
-#ifdef VE_MEM_DEBUG
-
-	static void* operator new (size_t stSize, const char* pcSourceFile, int32_t i32SourceLine, const char* pcFunction) noexcept;
-
-	static void* operator new[](size_t stSize, const char* pcSourceFile, int32_t i32SourceLine, const char* pcFunction) noexcept;
-
-	static void operator delete (void* pvMem, const char* pcSourceFile, int32_t i32SourceLine, const char* pcFunction) noexcept;
-
-	static void operator delete[](void* pvMem, const char* pcSourceFile, int32_t i32SourceLine, const char* pcFunction) noexcept;
-
-#else
-
-	static void* operator new (size_t stSize) noexcept;
-
-	static void* operator new[](size_t stSize) noexcept;
-
-	static void operator delete (void* pvMem) noexcept;
-
-	static void operator delete[](void* pvMem) noexcept;
-
-#endif
-
-};
+	return m_u32RefCount;
+}
+//--------------------------------------------------------------------------
+inline uint32_t VeRefObject::GetTotalObjectCount() noexcept
+{
+	return ms_u32Objects;
+}
+//--------------------------------------------------------------------------

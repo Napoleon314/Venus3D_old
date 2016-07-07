@@ -4,7 +4,7 @@
 //  Copyright (c) 2016 Albert D Yang
 // -------------------------------------------------------------------------
 //  Module:      Object
-//  File name:   VeMemObject.h
+//  File name:   VeRefObject.cpp
 //  Created:     2016/07/08 by Albert
 //  Description:
 // -------------------------------------------------------------------------
@@ -28,32 +28,36 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-#pragma once
+#include "stdafx.h"
 
-class VENUS_API VeMemObject
+//--------------------------------------------------------------------------
+uint32_t VeRefObject::ms_u32Objects(0);
+//--------------------------------------------------------------------------
+VeRefObject::VeRefObject() noexcept
 {
-public:
-
-#ifdef VE_MEM_DEBUG
-
-	static void* operator new (size_t stSize, const char* pcSourceFile, int32_t i32SourceLine, const char* pcFunction) noexcept;
-
-	static void* operator new[](size_t stSize, const char* pcSourceFile, int32_t i32SourceLine, const char* pcFunction) noexcept;
-
-	static void operator delete (void* pvMem, const char* pcSourceFile, int32_t i32SourceLine, const char* pcFunction) noexcept;
-
-	static void operator delete[](void* pvMem, const char* pcSourceFile, int32_t i32SourceLine, const char* pcFunction) noexcept;
-
-#else
-
-	static void* operator new (size_t stSize) noexcept;
-
-	static void* operator new[](size_t stSize) noexcept;
-
-	static void operator delete (void* pvMem) noexcept;
-
-	static void operator delete[](void* pvMem) noexcept;
-
-#endif
-
-};
+	++ms_u32Objects;
+}
+//--------------------------------------------------------------------------
+VeRefObject::~VeRefObject() noexcept
+{
+	--ms_u32Objects;
+}
+//--------------------------------------------------------------------------
+void VeRefObject::DeleteThis() noexcept
+{
+	VE_DELETE(this);
+}
+//--------------------------------------------------------------------------
+void VeRefObject::IncRefCount() noexcept
+{
+	++m_u32RefCount;
+}
+//--------------------------------------------------------------------------
+void VeRefObject::DecRefCount() noexcept
+{
+	if (!(--m_u32RefCount))
+	{
+		DeleteThis();
+	}
+}
+//--------------------------------------------------------------------------

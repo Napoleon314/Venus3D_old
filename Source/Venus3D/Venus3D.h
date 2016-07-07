@@ -357,6 +357,7 @@
 #include "Memory/VeMemory.h"
 
 #include "Object/VeMemObject.h"
+#include "Object/VeRefObject.h"
 
 #include "Video/VePixel.h"
 
