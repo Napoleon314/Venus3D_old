@@ -356,6 +356,8 @@
 
 #include "Memory/VeMemory.h"
 
+#include "Object/VeMemObject.h"
+
 #include "Video/VePixel.h"
 
 VENUS_API void Test() noexcept;
