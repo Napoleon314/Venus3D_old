@@ -33,6 +33,12 @@
 #endif
 #include <Venus3D.h>
 
+class A : public VeMemObject
+{
+public:
+	int x, y;
+};
+
 int main(/*int argc, char * argv[]*/)
 {
 #ifdef __SSE2__
@@ -54,6 +60,13 @@ int main(/*int argc, char * argv[]*/)
 #ifdef _XM_ARM_NEON_INTRINSICS_
     printf("NEON MATH\n");
 #endif
+	A* a1 = VE_NEW A();
+	
+	VE_DELETE(a1);
+
+	A* a2 = VE_NEW A[10];
+
+	VE_DELETE_ARRAY(a2);
 
 	return 0;
 }

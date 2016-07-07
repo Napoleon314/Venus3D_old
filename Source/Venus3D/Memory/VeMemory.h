@@ -90,9 +90,9 @@ VENUS_API void _VeAlignedFree(void* pvMemory, const char* pcSourceFile, int32_t 
 
 #define VE_NEW new(__FILE__, __LINE__, __FUNCTION__)
 
-#define VE_DELETE(p) operator delete (p, __FILE__, __LINE__, __FUNCTION__)
+#define VE_DELETE(p) std::remove_pointer<decltype(p)>::type::operator delete (p, __FILE__, __LINE__, __FUNCTION__)
 
-#define VE_DELETE_ARRAY(p) operator delete[] (p, __FILE__, __LINE__, __FUNCTION__)
+#define VE_DELETE_ARRAY(p) std::remove_pointer<decltype(p)>::type::operator delete[] (p, __FILE__, __LINE__, __FUNCTION__)
 
 #else
 
