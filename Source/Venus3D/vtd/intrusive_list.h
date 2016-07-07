@@ -195,16 +195,9 @@ namespace vtd
 		value_type m_Content;
 
 	private:
-		intrusive_node(const _Node&) noexcept
-		{
-			assert(!"Copy constructor is no available");
-		}
+		intrusive_node(const _Node&) = delete;
 
-		_Node& operator=(const _Node&) noexcept
-		{
-			assert(!"Copy equal is no available");
-			return *this;
-		}
+		_Node& operator=(const _Node&) noexcept = delete;
 
 		_Node* _Pre = nullptr;
 		_Node* _Next = nullptr;
@@ -580,16 +573,9 @@ namespace vtd
 		}
 
 	private:
-		intrusive_list(const _List&) noexcept
-		{
-			assert(!"Copy constructor is no available");
-		}
+		intrusive_list(const _List&) = delete;
 
-		intrusive_list& operator=(const _List&) noexcept
-		{
-			assert(!"Copy equal is no available");
-			return *this;
-		}
+		intrusive_list& operator=(const _List&) = delete;
 
 		mutable _Node* _InnerIter = nullptr;
 		_Node* _Head = nullptr;

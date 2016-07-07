@@ -293,6 +293,25 @@ struct VePixelFormat : public vtd::ref_obj
 
 	inline bool SetPalette(const VePalettePtr& spPalette) noexcept;
 
+	static VePixelFormatPtr Create(uint32_t u32PixelFormat) noexcept;
+
+protected:
+	VePixelFormat();
+
+	bool Init(uint32_t u32PixelFormat) noexcept;
+
+	vtd::intrusive_node<VePixelFormat*> m_kNode;
+
+	static vtd::intrusive_list<VePixelFormat*> ms_kList;
+
 };
+
+const char* VeGetPixelFormatName(uint32_t u32Format) noexcept;
+
+bool VePixelFormatEnumToMasks(uint32_t u32Format, int32_t& i32Bpp, uint32_t& u32Rmask,
+	uint32_t& u32Gmask, uint32_t& u32Bmask, uint32_t& u32Amask) noexcept;
+
+uint32_t VeMasksToPixelFormatEnum(int32_t i32Bpp, uint32_t u32Rmask,
+	uint32_t u32Gmask, uint32_t u32Bmask, uint32_t u32Amask) noexcept;
 
 #include "VePixel.inl"
