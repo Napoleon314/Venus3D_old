@@ -38,7 +38,7 @@
 #	define VE_MEM_TRACK
 #endif
 
-#ifndef VE_PLATFORM_APPLE
+#ifndef BUILD_PLATFORM_APPLE
 #	include <malloc.h>
 #endif
 
