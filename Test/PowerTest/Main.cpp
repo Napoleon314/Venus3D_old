@@ -28,7 +28,9 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-#include <vld.h>
+#ifdef BUILD_PLATFORM_WIN
+#	include <vld.h>
+#endif
 #include <Venus3D.h>
 
 int main(/*int argc, char * argv[]*/)
