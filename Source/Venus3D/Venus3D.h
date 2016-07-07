@@ -183,8 +183,9 @@
 #define VE_TS_LIBRARY_FILESYSTEM_V3_SUPPORT
 
 #ifdef VE_COMPILER_MSVC
-//#	pragma warning(disable: 4251) // STL classes are not dllexport.
-//#	pragma warning(disable: 4275) // Derived from non dllexport classes.
+#	pragma warning(disable: 4251) // STL classes are not dllexport.
+#	pragma warning(disable: 4275) // Derived from non dllexport classes.
+#	pragma warning(disable: 4334)
 #endif
 
 #ifndef _CRT_SECURE_NO_DEPRECATE
@@ -344,7 +345,7 @@
 #include "XMath/XColors.h"
 #include "XMath/XCollision.h"
 
-#include "vtd/memory.h"
+#include "vtd/vector.h"
 #include "vtd/rtti.h"
 #include "vtd/intrusive_ptr.h"
 #include "vtd/string.h"

@@ -30,12 +30,6 @@
 
 #include <Venus3D.h>
 
-using namespace XMath;
-
-// update: probably wrong, because the above 
-// form is not allowed for string-literals:    
-
-
 int main(/*int argc, char * argv[]*/)
 {
 #ifdef __SSE2__
@@ -57,8 +51,6 @@ int main(/*int argc, char * argv[]*/)
 #ifdef _XM_ARM_NEON_INTRINSICS_
     printf("NEON MATH\n");
 #endif
-
-	vtd::rect<int> p = { 3,4 };
 
 	return 0;
 }

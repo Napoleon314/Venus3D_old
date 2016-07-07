@@ -233,6 +233,11 @@ enum
 	VE_MAKE_FOURCC('Y', 'V', 'Y', 'U')
 };
 
+#ifdef _MSC_VER
+#	pragma warning(push)
+#	pragma warning(disable:4201)
+#endif
+
 struct VeRGBA
 {
 	union
@@ -245,15 +250,19 @@ struct VeRGBA
 			uint8_t a;  // Alpha:   0/255 to 255/255
 		};
 		uint32_t c;
-		uint8_t a[4];
+		uint8_t ac[4];
 	};
 };
+
+#ifdef _MSC_VER
+#	pragma warning(pop)
+#endif
 
 struct VePalette : public vtd::ref_obj
 {
 	VePalette(size_t stNumColors) noexcept;
 
-	std::vector<VeRGBA> m_kColors;
+	vtd::vector<VeRGBA> m_kColors;
 	uint32_t m_u32Version;
 };
 
