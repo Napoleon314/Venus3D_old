@@ -31,11 +31,11 @@
 #pragma once
 
 #ifdef VE_DEBUG
-#	define VE_MEM_DEBUG
+#	define VE_MEM_TRACK
 #endif
 
 #ifndef VE_SHIPPING
-#	define VE_MEM_TRACK
+#	define VE_MEM_DEBUG
 #endif
 
 #ifndef BUILD_PLATFORM_APPLE
@@ -61,3 +61,69 @@ inline void aligned_free(void* _Block) noexcept
 	free(_Block);
 #	endif
 }
+
+#ifdef VE_MEM_DEBUG
+
+VENUS_API void _VeMemoryExit() noexcept;
+
+VENUS_API void* _VeMalloc(size_t stSizeInBytes, const char* pcSourceFile, int32_t iSourceLine, const char* pcFunction) noexcept;
+
+VENUS_API void* _VeAlignedMalloc(size_t stSizeInBytes, size_t stAlignment, const char* pcSourceFile, int32_t iSourceLine, const char* pcFunction) noexcept;
+
+VENUS_API void* _VeRealloc(void* pvMemblock, size_t stSizeInBytes, const char* pcSourceFile, int32_t iSourceLine, const char* pcFunction) noexcept;
+
+VENUS_API void _VeFree(void* pvMemory, const char* pcSourceFile, int32_t iSourceLine, const char* pcFunction) noexcept;
+
+VENUS_API void _VeAlignedFree(void* pvMemory, const char* pcSourceFile, int32_t iSourceLine, const char* pcFunction) noexcept;
+
+#define VeAlloc(T, count) ((T*)_VeMalloc(sizeof(T)*(count), __FILE__, __LINE__, __FUNCTION__))
+
+#define VeMalloc(size) _VeMalloc(size, __FILE__, __LINE__, __FUNCTION__)
+
+#define VeAlignedMalloc(size,align) _VeAlignedMalloc(size, align, __FILE__, __LINE__, __FUNCTION__)
+
+#define VeRealloc(mem,size) _VeRealloc(mem, size, __FILE__, __LINE__, __FUNCTION__)
+
+#define VeFree(mem) _VeFree(mem, __FILE__, __LINE__, __FUNCTION__)
+
+#define VeAlignedFree(mem) _VeAlignedFree(mem, __FILE__, __LINE__, __FUNCTION__)
+
+#define VE_NEW new(__FILE__, __LINE__, __FUNCTION__)
+
+#define VE_DELETE(p) VeMemObject::PushDeleteCallParams(__FILE__, __LINE__, __FUNCTION__); delete p; VeMemObject::PopDeleteCallParams()
+
+#define VE_DELETE_ARRAY(p) VeMemObject::PushDeleteCallParams(__FILE__, __LINE__, __FUNCTION__); delete [] p; VeMemObject::PopDeleteCallParams()
+
+#else
+
+inline void* _VeMalloc(size_t stSizeInBytes) noexcept;
+
+inline void* _VeAlignedMalloc(size_t stSizeInBytes, size_t stAlignment) noexcept;
+
+inline void* _VeRealloc(void* pvMemblock, size_t stSizeInBytes) noexcept;
+
+inline void _VeFree(void* pvMemory) noexcept;
+
+inline void _VeAlignedFree(void* pvMemory) noexcept;
+
+#define VeAlloc(T, count) ((T*)_VeMalloc(sizeof(T)*(count)))
+
+#define VeMalloc(size) _VeMalloc(size)
+
+#define VeAlignedMalloc(size,align) _VeAlignedMalloc(size, align)
+
+#define VeRealloc(mem,size) _VeRealloc(mem, size)
+
+#define VeFree(mem) _VeFree(mem)
+
+#define VeAlignedFree(mem) _VeAlignedFree(mem)
+
+#define VE_NEW new
+
+#define VE_DELETE delete
+
+#define VE_DELETE_ARRAY VE_DELETE []
+
+#endif
+
+#include "VeMemory.inl"
