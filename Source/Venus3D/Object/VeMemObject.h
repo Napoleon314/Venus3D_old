@@ -40,9 +40,9 @@ public:
 
 	static void* operator new[](size_t stSize, const char* pcSourceFile, int32_t i32SourceLine, const char* pcFunction) noexcept;
 
-	static void operator delete (void* pvMem) noexcept;
+	static void operator delete (void*) noexcept;
 
-	static void operator delete[](void* pvMem) noexcept;
+	static void operator delete[](void*) noexcept;
 
 	static void operator delete (void* pvMem, const char* pcSourceFile, int32_t i32SourceLine, const char* pcFunction) noexcept;
 

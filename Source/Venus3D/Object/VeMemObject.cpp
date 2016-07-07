@@ -45,12 +45,12 @@ int32_t i32SourceLine, const char* pcFunction) noexcept
 	return _VeMalloc(stSize, pcSourceFile, i32SourceLine, pcFunction);
 }
 //--------------------------------------------------------------------------
-void VeMemObject::operator delete (void* pvMem) noexcept
+void VeMemObject::operator delete (void*) noexcept
 {
 	assert(!"Can not use normal delete for VeMemObject");
 }
 //--------------------------------------------------------------------------
-void VeMemObject::operator delete[](void* pvMem) noexcept
+void VeMemObject::operator delete[](void*) noexcept
 {
 	assert(!"Can not use normal delete [] for VeMemObject");
 }
