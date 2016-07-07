@@ -38,8 +38,7 @@
 #   include <malloc.h>
 #endif
 #include <string.h>
-
-#include <vector>
+#include <type_traits>
 
 namespace vtd
 {
