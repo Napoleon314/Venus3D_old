@@ -48,7 +48,7 @@ inline void* aligned_malloc(size_t _Size, size_t _Alignment) noexcept
 	return _aligned_malloc(_Size, _Alignment);
 #	else
 	void* _Pointer(nullptr);
-	posix_memalign(&pvPointer, _Alignment, _Size);
+	posix_memalign(&_Pointer, _Alignment, _Size);
 	return _Pointer;
 #	endif
 }
