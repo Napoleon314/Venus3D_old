@@ -342,7 +342,7 @@ namespace vtd
 #endif
 
 	template <class _Ty>
-	class string
+	class basic_string
 	{
 		static_assert(is_char<_Ty>::value, "_Ty has to be a kind of char");
 	public:
@@ -355,19 +355,19 @@ namespace vtd
 		typedef ptrdiff_t difference_type;
 		typedef pointer string_handle;
 
-		string() noexcept = default;		
+		basic_string() noexcept = default;		
 
-		string(const char* str) noexcept
+		basic_string(const char* str) noexcept
 		{
 			holder = add_string(str);
 		}
 
-		string(const char* str, size_t len) noexcept
+		basic_string(const char* str, size_t len) noexcept
 		{
 			holder = add_string(str, (uint32_t)len);
 		}
 
-		string(const string& copy) noexcept
+		basic_string(const basic_string& copy) noexcept
 		{
 			if (copy.holder)
 			{
@@ -376,13 +376,13 @@ namespace vtd
 			}			
 		}
 
-		string(string&& move) noexcept
+		basic_string(basic_string&& move) noexcept
 		{
 			holder = move.holder;
 			move.holder = nullptr;
 		}
 
-		~string() noexcept
+		~basic_string() noexcept
 		{
 			dec_refcount(holder);
 		}
@@ -424,7 +424,7 @@ namespace vtd
 			{
 				uint32_t alloc_len = uint32_t((len + 1) * sizeof(value_type)) + 8;
 				alloc_len = (alloc_len + 7) & (~7);
-				void* mem = VeMalloc(alloc_len);
+				void* mem = malloc(alloc_len);
 				handle = (string_handle)((uint8_t*)mem + 8);
 				((uint16_t*)mem)[0] = 2;
 				((uint16_t*)mem)[1] = uint16_t(len);
@@ -496,7 +496,7 @@ namespace vtd
 					if ((--mem[0]) == 0)
 					{
 						assert(!get_refcount(handle));
-						VeFree(get_real_start(handle));
+						free(get_real_start(handle));
 						if (i < (str_array.size() - 1))
 						{
 							str_array[i] = str_array.back();
@@ -599,9 +599,14 @@ namespace vtd
 
 	};
 
-	template<class _Ty> size_t string<_Ty>::str_num = 0;
-	template<class _Ty> vector<_Ty*> string<_Ty>::hash_array[VTD_STR_TAB_MASK + 1];
-	template<class _Ty> spin_lock string<_Ty>::lock;
+	template<class _Ty> size_t basic_string<_Ty>::str_num = 0;
+	template<class _Ty> vector<_Ty*> basic_string<_Ty>::hash_array[VTD_STR_TAB_MASK + 1];
+	template<class _Ty> spin_lock basic_string<_Ty>::lock;
+
+	typedef basic_string<char> string;
+	typedef basic_string<wchar_t> wstring;	
+	typedef basic_string<char16_t> u16string;
+	typedef basic_string<char32_t> u32string;
 
 #ifdef VTD_STR_TAB_MASK
 #	undef VTD_STR_TAB_MASK

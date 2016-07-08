@@ -345,8 +345,6 @@
 #include "XMath/XColors.h"
 #include "XMath/XCollision.h"
 
-#include "Memory/VeMemory.h"
-
 #include "vtd/rtti.h"
 #include "vtd/thread.h"
 #include "vtd/vector.h"
@@ -356,13 +354,12 @@
 #include "vtd/point.h"
 #include "vtd/rect.h"
 
-
+#include "Memory/VeMemory.h"
 #include "Memory/VeMemObject.h"
 #include "Memory/VeRefObject.h"
 #include "Memory/VeBlob.h"
 
 #include "Video/VePixel.h"
 #include "Video/VeSurface.h"
-//#include "Video/VeWindow.h"
 
 VENUS_API void Test() noexcept;

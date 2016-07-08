@@ -71,8 +71,8 @@ int main(/*int argc, char * argv[]*/)
 	using namespace vtd;
 
 	
-	string<char> ch("test");
-	string<char> ch2("test");
+	string ch("test");
+	string ch2("test");
 	
 	return 0;
 }
