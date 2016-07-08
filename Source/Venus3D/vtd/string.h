@@ -31,6 +31,11 @@
 #pragma once
 
 #include "utility.h"
+#ifdef __APPLE__
+#   include <stdlib.h>
+#else
+#   include <malloc.h>
+#endif
 #include <string.h>
 #include <string>
 
@@ -331,4 +336,224 @@ namespace vtd
 		}
 		return nullptr;
 	}
+
+#ifndef VTD_STR_TAB_MASK
+#	define VTD_STR_TAB_MASK (0x7FF)
+#endif
+
+	template <class _Ty>
+	class string
+	{
+		static_assert(is_char<_Ty>::value, "_Ty has to be a kind of char");
+	public:
+		typedef _Ty value_type;
+		typedef value_type* pointer;
+		typedef const value_type* const_pointer;
+		typedef value_type& reference;
+		typedef const value_type& const_reference;
+		typedef size_t size_type;
+		typedef ptrdiff_t difference_type;
+		typedef pointer string_handle;
+
+	public:
+
+		static const string_handle add_string(const_pointer str) noexcept
+		{
+			if (!str) return nullptr;
+			uint32_t len = (uint32_t)strlen(str);
+			return add_string(str, len);
+		}
+
+		static const string_handle add_string(const_pointer str, uint32_t len) noexcept
+		{
+			assert(len < UINT16_MAX);
+			uint32_t hash = hash_func(str, len);
+			string_handle handle = find_string(str, len, hash);
+			if (handle)
+			{
+				inc_refcount(handle);
+			}
+			else
+			{
+				uint32_t alloc_len = uint32_t((len + 1) * sizeof(value_type)) + 8;
+				alloc_len = (alloc_len + 3) & (~3);
+				void* mem = malloc(alloc_len);
+				handle = (string_handle)((uint8_t*)mem + 8);
+				((uint16_t*)mem)[0] = 2;
+				((uint16_t*)mem)[1] = uint16_t(len);
+				((uint32_t*)mem)[1] = hash;
+				memcpy(handle, str, len * sizeof(value_type));
+				handle[len] = 0;
+				insert_string(handle, hash);
+			}
+			return handle;
+		}
+
+		static size_t get_num_string() noexcept
+		{
+			return str_num;
+		}
+
+		static size_t get_bucket_size(size_t which) noexcept
+		{
+			assert(which <= VTD_STR_TAB_MASK);
+			return hash_array[which].size();
+		}
+
+		static constexpr size_t get_total_num_of_buckets() noexcept
+		{
+			return VTD_STR_TAB_MASK + 1;
+		}
+
+		static size_t get_max_bucket_size() noexcept
+		{
+			size_t res = 0;
+			for (auto& vec : hash_array)
+			{
+				res = max(res, vec.size());
+			}
+			return res;
+		}
+
+		static const string_handle find_string(const_pointer str, uint32_t len, uint32_t hash) noexcept
+		{
+			auto& str_array = hash_array[hash & VTD_STR_TAB_MASK];
+			for (auto s : str_array)
+			{
+				if (s == str || (get_string(s) && get_length(s) == len
+					&& strcmp(get_string(s), str) == 0))
+				{
+					return s;
+				}
+			}
+			return nullptr;
+		}
+
+		static void insert_string(const string_handle& handle, uint32_t hash) noexcept
+		{
+			assert(handle && validate(handle));
+			hash_array[hash & VTD_STR_TAB_MASK].push_back(handle);
+			++str_num;
+		}
+
+		static void remove_string(const string_handle& handle, uint32_t hash) noexcept
+		{
+			const_pointer s = get_string(handle);			
+			auto& str_array = hash_array[hash & VTD_STR_TAB_MASK];
+			for (size_t i(0); i < str_array.size(); ++i)
+			{
+				if (str_array[i] == s)
+				{
+					uint16_t* mem = (uint16_t*)get_real_start(handle);
+					assert(get_refcount(handle) > 0);
+					if ((--mem[0]) == 0)
+					{
+						assert(!get_refcount(handle));
+						free(get_real_start(handle));
+						if (i < (str_array.size() - 1))
+						{
+							str_array[i] = str_array.back();
+						}
+						str_array.pop_back();
+						--str_num;
+					}
+					break;
+				}
+			}
+		}
+
+		static pointer get_real_start(const string_handle& handle) noexcept
+		{
+			assert(handle);
+			return (uint8_t*)handle - 8;
+		}
+
+		static uint32_t hash_func(const_pointer str, uint32_t len) noexcept
+		{
+			uint32_t hash = 0;
+			uint32_t unroll = (uint32_t)(len & ~0x3);
+			for (uint32_t ui = 0; ui < unroll; ui += 4)
+			{
+				uint32_t hash0 = *str;
+				hash = (hash << 5) + hash + hash0;
+				uint32_t hash1 = *(str + 1);
+				hash = (hash << 5) + hash + hash1;
+				uint32_t hash2 = *(str + 2);
+				hash = (hash << 5) + hash + hash2;
+				uint32_t hash3 = *(str + 3);
+				hash = (hash << 5) + hash + hash3;
+				str += 4;
+			}
+			while (*str)
+				hash = (hash << 5) + hash + *str++;
+			return hash;
+		}
+
+		static void inc_refcount(string_handle& handle) noexcept
+		{
+			if (handle)
+			{
+				assert(validate(handle));
+				uint16_t* mem = (uint16_t*)get_real_start(handle);
+				assert(mem[0] < UINT16_MAX);
+				++mem[0];
+			}
+		}
+
+		static void dec_refcount(string_handle& handle) noexcept
+		{
+			if (handle)
+			{
+				assert(validate(handle));
+				uint16_t* mem = (uint16_t*)get_real_start(handle);
+				uint32_t hash = get_hash_value(handle);
+				if ((--mem[0]) > 1) return;
+				remove_string(handle, hash);
+			}
+		}
+
+		static const_pointer get_string(const string_handle& handle) noexcept
+		{
+			assert(handle && validate(handle));
+			return (const_pointer)handle;
+		}
+
+		static uint32_t get_length(const string_handle& handle) noexcept
+		{
+			assert(handle && validate(handle));
+			uint16_t* mem = (uint16_t*)get_real_start(handle);
+			return mem[1];
+		}
+
+		static uint32_t get_hash_value(const string_handle& handle) noexcept
+		{
+			assert(handle && validate(handle));
+			uint32_t* mem = (uint32_t*)get_real_start(handle);
+			return mem[1];
+		}
+
+		static uint32_t get_refcount(const string_handle& handle) noexcept
+		{
+			assert(handle && validate(handle));
+			uint16_t* mem = (uint16_t*)get_real_start(handle);
+			return mem[0];
+		}
+
+		static bool validate(const string_handle& handle) noexcept
+		{
+			if (!handle) return true;
+			uint16_t* mem = (uint16_t*)get_real_start(handle);
+			return size_t(mem[1]) == strlen(handle);
+		}
+	
+		static size_t str_num;
+		static vector<string_handle> hash_array[VTD_STR_TAB_MASK + 1];
+		static spin_lock lock;
+
+	};
+
+#ifdef VTD_STR_TAB_MASK
+#	undef VTD_STR_TAB_MASK
+#endif
+
 }

@@ -44,7 +44,7 @@ struct VeMallocInfo
 };
 static std::map<size_t, VeMallocInfo> s_kMallocMap;
 static std::map<size_t, std::pair<VeMallocInfo, size_t>> s_kAlignedMallocMap;
-static vtd::spin_lock s_kMutex;
+static vtd::spin_lock s_kLock;
 //--------------------------------------------------------------------------
 #endif
 //--------------------------------------------------------------------------
@@ -72,7 +72,7 @@ void* _VeMalloc(size_t stSizeInBytes,
 ) noexcept
 {
 #	ifdef VE_MEM_TRACK
-	std::lock_guard<vtd::spin_lock> lck(s_kMutex);
+	std::lock_guard<vtd::spin_lock> lck(s_kLock);
 	++s_stMallocCount;
 	void* pvRes = malloc(stSizeInBytes);
 	VeMallocInfo& kInfo = s_kMallocMap[(size_t)pvRes];
@@ -98,7 +98,7 @@ void* _VeAlignedMalloc(size_t stSizeInBytes, size_t stAlignment,
 ) noexcept
 {
 #	ifdef VE_MEM_TRACK
-	std::lock_guard<vtd::spin_lock> lck(s_kMutex);
+	std::lock_guard<vtd::spin_lock> lck(s_kLock);
 	++s_stAlignedMallocCount;
 	void* pvRes = aligned_malloc(stSizeInBytes, stAlignment);
 	std::pair<VeMallocInfo, size_t>& kInfo = s_kAlignedMallocMap[(size_t)pvRes];
@@ -125,7 +125,7 @@ void* _VeRealloc(void* pvMemblock, size_t stSizeInBytes,
 ) noexcept
 {
 #	ifdef VE_MEM_TRACK
-	std::lock_guard<vtd::spin_lock> lck(s_kMutex);
+	std::lock_guard<vtd::spin_lock> lck(s_kLock);
 	void* pvRes = realloc(pvMemblock, stSizeInBytes);
 	auto it = s_kMallocMap.find((size_t)pvMemblock);
 	assert(it != s_kMallocMap.end());
@@ -150,7 +150,7 @@ void _VeFree(void* pvMemory,
 ) noexcept
 {
 #	ifdef VE_MEM_TRACK
-	std::lock_guard<vtd::spin_lock> lck(s_kMutex);
+	std::lock_guard<vtd::spin_lock> lck(s_kLock);
 	--s_stMallocCount;
 	free(pvMemory);
 	auto it = s_kMallocMap.find((size_t)pvMemory);
@@ -173,7 +173,7 @@ void _VeAlignedFree(void* pvMemory,
 ) noexcept
 {
 #	ifdef VE_MEM_TRACK
-	std::lock_guard<vtd::spin_lock> lck(s_kMutex);
+	std::lock_guard<vtd::spin_lock> lck(s_kLock);
 	--s_stAlignedMallocCount;
 	aligned_free(pvMemory);
 	auto it = s_kAlignedMallocMap.find((size_t)pvMemory);

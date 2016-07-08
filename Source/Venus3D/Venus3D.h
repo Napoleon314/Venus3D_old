@@ -293,7 +293,7 @@
 #include <thread>
 #include <mutex>
 
-#define VE_MASK(location) (VeUInt32(0x01<<(location)))
+#define VE_MASK(location) (uint32_t(0x01<<(location)))
 #define VE_MASK_HAS_ANY(flag,mask) (((flag)&(mask))!=0)
 #define VE_MASK_HAS_ALL(flag,mask) (((flag)&(mask))==(mask))
 #define VE_MASK_ADD(flag,mask) ((flag)|=(mask))
@@ -346,11 +346,11 @@
 #include "XMath/XCollision.h"
 
 #include "vtd/rtti.h"
+#include "vtd/thread.h"
 #include "vtd/vector.h"
 #include "vtd/intrusive_list.h"
 #include "vtd/intrusive_ptr.h"
 #include "vtd/string.h"
-#include "vtd/thread.h"
 #include "vtd/point.h"
 #include "vtd/rect.h"
 
@@ -361,5 +361,6 @@
 
 #include "Video/VePixel.h"
 #include "Video/VeSurface.h"
+//#include "Video/VeWindow.h"
 
 VENUS_API void Test() noexcept;

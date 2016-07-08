@@ -102,4 +102,6 @@ namespace vtd
 	class classname;													\
 	typedef vtd::intrusive_ptr<classname> classname##Ptr
 
+VeSmartPointer(VeRefObject);
+
 #include "VeRefObject.inl"
