@@ -84,9 +84,9 @@ public:
 	}
 
 	template<class... _Types>
-	static void Create(_Types... pak) noexcept
+	static void Create(_Types&&... _Args) noexcept
 	{
-		VE_NEW T(pak...);
+		VE_NEW _Ty(std::forward<_Types>(_Args)...);
 	}
 
 	static void Destory() noexcept
