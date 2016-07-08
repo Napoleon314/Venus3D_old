@@ -3,7 +3,7 @@
 //  The MIT License (MIT)
 //  Copyright (c) 2016 Albert D Yang
 // -------------------------------------------------------------------------
-//  Module:      Object
+//  Module:      Memory
 //  File name:   VeRefObject.cpp
 //  Created:     2016/07/08 by Albert
 //  Description:

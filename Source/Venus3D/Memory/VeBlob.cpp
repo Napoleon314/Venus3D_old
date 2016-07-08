@@ -3,9 +3,9 @@
 //  The MIT License (MIT)
 //  Copyright (c) 2016 Albert D Yang
 // -------------------------------------------------------------------------
-//  Module:      Object
-//  File name:   VeRefObject.h
-//  Created:     2016/07/08 by Albert
+//  Module:      Memory
+//  File name:   VeBlob.cpp
+//  Created:     2016/07/09 by Albert
 //  Description:
 // -------------------------------------------------------------------------
 //  Permission is hereby granted, free of charge, to any person obtaining a
@@ -28,74 +28,55 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-#pragma once
+#include "stdafx.h"
 
-class VENUS_API VeRefObject : public VeMemObject
+//--------------------------------------------------------------------------
+VeBlob::VeBlob() noexcept
 {
-	VeNoCopy(VeRefObject);
-public:
-	VeRefObject() noexcept;
 
-	virtual ~VeRefObject() noexcept;
-
-	void IncRefCount() noexcept;
-
-	void DecRefCount() noexcept;
-
-	inline uint32_t GetRefCount() const noexcept;
-
-	inline static uint32_t GetTotalObjectCount() noexcept;
-
-protected:
-	void DeleteThis() noexcept;
-
-private:
-	uint32_t m_u32RefCount = 0;
-	static uint32_t ms_u32Objects;
-
-};
-
-namespace vtd
-{
-	template <class _Ty>
-	struct intrusive_ref_obj
-	{
-		static_assert(std::is_base_of<VeRefObject, typename std::remove_cv<_Ty>::type>::value, "wrong type");
-
-		static void inc(_Ty* ptr) noexcept
-		{
-			if (ptr) ptr->IncRefCount();
-		}
-
-		static void dec(_Ty* ptr) noexcept
-		{
-			if (ptr) ptr->DecRefCount();
-		}
-	};
-
-	template <class _Ty>
-	struct intrusive_custom_obj
-	{
-		static_assert(std::is_class<_Ty>::value, "wrong type");
-
-		static void inc(_Ty*) noexcept
-		{
-
-		}
-
-		static void dec(_Ty* ptr) noexcept
-		{
-			if (ptr) delete ptr;
-		}
-	};
-
-	template <class _Ty>
-	struct intrusive_obj : std::conditional<std::is_base_of<VeRefObject, typename std::remove_cv<_Ty>::type>::value,
-		intrusive_ref_obj<_Ty>, intrusive_custom_obj<_Ty> >::type
-	{
-
-
-	};
 }
-
-#include "VeRefObject.inl"
+//--------------------------------------------------------------------------
+VeBlob::VeBlob(size_t stSize) noexcept
+{
+	if (stSize)
+	{
+		m_pvBuffer = VeMalloc(stSize + 1);
+		((char*)m_pvBuffer)[stSize] = 0;
+		m_stByteSize = stSize;
+	}
+}
+//--------------------------------------------------------------------------
+VeBlob::VeBlob(void* pvBuffer, size_t stSize) noexcept
+{
+	if (stSize)
+	{
+		m_pvBuffer = pvBuffer;
+		m_stByteSize = stSize;
+		m_bNeedFree = false;
+	}
+}
+//--------------------------------------------------------------------------
+VeBlob::~VeBlob() noexcept
+{
+	if (m_pvBuffer && m_bNeedFree)
+	{
+		VeFree(m_pvBuffer);
+	}
+}
+//--------------------------------------------------------------------------
+void VeBlob::AddSize(size_t stSize) noexcept
+{
+	assert(m_bNeedFree && stSize);
+	if (m_pvBuffer)
+	{
+		m_stByteSize += stSize;
+		m_pvBuffer = VeRealloc(m_pvBuffer, m_stByteSize + 1);
+	}
+	else
+	{
+		m_stByteSize = stSize;
+		m_pvBuffer = VeMalloc(m_stByteSize + 1);
+	}
+	((char*)m_pvBuffer)[m_stByteSize] = 0;
+}
+//--------------------------------------------------------------------------

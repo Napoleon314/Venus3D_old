@@ -355,10 +355,11 @@
 #include "vtd/rect.h"
 
 #include "Memory/VeMemory.h"
-
-#include "Object/VeMemObject.h"
-#include "Object/VeRefObject.h"
+#include "Memory/VeMemObject.h"
+#include "Memory/VeRefObject.h"
+#include "Memory/VeBlob.h"
 
 #include "Video/VePixel.h"
+#include "Video/VeSurface.h"
 
 VENUS_API void Test() noexcept;

@@ -3,8 +3,8 @@
 //  The MIT License (MIT)
 //  Copyright (c) 2016 Albert D Yang
 // -------------------------------------------------------------------------
-//  Module:      Object
-//  File name:   VeMemObject.h
+//  Module:      Memory
+//  File name:   VeRefObject.h
 //  Created:     2016/07/08 by Albert
 //  Description:
 // -------------------------------------------------------------------------
@@ -30,84 +30,76 @@
 
 #pragma once
 
-class VENUS_API VeMemObject
+class VENUS_API VeRefObject : public VeMemObject
 {
+	VeNoCopy(VeRefObject);
 public:
+	VeRefObject() noexcept;
 
-#ifdef VE_MEM_DEBUG
+	virtual ~VeRefObject() noexcept;
 
-	static void* operator new (size_t stSize, const char* pcSourceFile, int32_t i32SourceLine, const char* pcFunction) noexcept;
+	void IncRefCount() noexcept;
 
-	static void* operator new[](size_t stSize, const char* pcSourceFile, int32_t i32SourceLine, const char* pcFunction) noexcept;
+	void DecRefCount() noexcept;
 
-	static void operator delete (void*) noexcept;
+	inline uint32_t GetRefCount() const noexcept;
 
-	static void operator delete[](void*) noexcept;
-
-	static void operator delete (void* pvMem, const char* pcSourceFile, int32_t i32SourceLine, const char* pcFunction) noexcept;
-
-	static void operator delete[](void* pvMem, const char* pcSourceFile, int32_t i32SourceLine, const char* pcFunction) noexcept;
-
-#else
-
-	static void* operator new (size_t stSize) noexcept;
-
-	static void* operator new[](size_t stSize) noexcept;
-
-	static void operator delete (void* pvMem) noexcept;
-
-	static void operator delete[](void* pvMem) noexcept;
-
-#endif
-
-};
-
-template <class _Ty>
-class VeSingleton : public VeMemObject
-{
-public:
-	VeSingleton() noexcept
-	{
-		assert(!ms_pSingleton);
-		ms_pSingleton = static_cast<_Ty*>(this);
-	}
-
-	virtual ~VeSingleton() noexcept
-	{
-		assert(ms_pSingleton);
-		ms_pSingleton = nullptr;
-	}
-
-	static bool IsAvailable() noexcept
-	{
-		return ms_pSingleton ? true : false;
-	}
-
-	template<class... _Types>
-	static void Create(_Types... pak) noexcept
-	{
-		VE_NEW T(pak...);
-	}
-
-	static void Destory() noexcept
-	{
-		VE_SAFE_DELETE(ms_pSingleton);
-	}
-
-	static _Ty& GetSingleton() noexcept
-	{
-		assert(ms_pSingleton);
-		return (*ms_pSingleton);
-	}
-
-	static _Ty* GetSingletonPtr() noexcept
-	{
-		return ms_pSingleton;
-	}
+	inline static uint32_t GetTotalObjectCount() noexcept;
 
 protected:
-	static _Ty* ms_pSingleton;
+	void DeleteThis() noexcept;
+
+private:
+	uint32_t m_u32RefCount = 0;
+	static uint32_t ms_u32Objects;
 
 };
 
-template<class _Ty> _Ty* VeSingleton<_Ty>::ms_pSingleton = nullptr;
+namespace vtd
+{
+	template <class _Ty>
+	struct intrusive_ref_obj
+	{
+		static_assert(std::is_base_of<VeRefObject, typename std::remove_cv<_Ty>::type>::value, "wrong type");
+
+		static void inc(_Ty* ptr) noexcept
+		{
+			if (ptr) ptr->IncRefCount();
+		}
+
+		static void dec(_Ty* ptr) noexcept
+		{
+			if (ptr) ptr->DecRefCount();
+		}
+	};
+
+	template <class _Ty>
+	struct intrusive_custom_obj
+	{
+		static_assert(std::is_class<_Ty>::value, "wrong type");
+
+		static void inc(_Ty*) noexcept
+		{
+
+		}
+
+		static void dec(_Ty* ptr) noexcept
+		{
+			if (ptr) delete ptr;
+		}
+	};
+
+	template <class _Ty>
+	struct intrusive_obj : std::conditional<std::is_base_of<VeRefObject, typename std::remove_cv<_Ty>::type>::value,
+		intrusive_ref_obj<_Ty>, intrusive_custom_obj<_Ty> >::type
+	{
+
+
+	};
+}
+
+#define VeSmartPointer(classname)										\
+	class classname;													\
+	typedef vtd::intrusive_ptr<classname> classname##Ptr
+
+#include "VeRefObject.inl"

@@ -177,7 +177,3 @@ namespace vtd
 
 	template<class _Ty> const intrusive_ptr<_Ty> intrusive_ptr<_Ty>::_null = nullptr;
 }
-
-#define vtd_intrusive_ptr(classname)									\
-	class classname;													\
-	typedef vtd::intrusive_ptr<classname> classname##_ptr
