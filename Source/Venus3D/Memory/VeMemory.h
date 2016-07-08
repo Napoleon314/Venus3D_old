@@ -47,9 +47,15 @@ inline void* aligned_malloc(size_t _Size, size_t _Alignment) noexcept
 #	ifdef BUILD_PLATFORM_WIN
 	return _aligned_malloc(_Size, _Alignment);
 #	else
-	void* _Pointer(nullptr);
-	posix_memalign(&_Pointer, _Alignment, _Size);
-	return _Pointer;
+	void* _Pointer;
+	if (VE_SUCCEEDED(posix_memalign(&_Pointer, _Alignment, _Size)))
+	{
+		return _Pointer
+	}
+	else
+	{
+		return nullptr;
+	}
 #	endif
 }
 
