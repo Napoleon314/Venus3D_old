@@ -50,7 +50,7 @@ inline void* aligned_malloc(size_t _Size, size_t _Alignment) noexcept
 	void* _Pointer;
 	if (VE_SUCCEEDED(posix_memalign(&_Pointer, _Alignment, _Size)))
 	{
-		return _Pointer
+		return _Pointer;
 	}
 	else
 	{
