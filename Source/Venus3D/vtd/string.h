@@ -355,8 +355,55 @@ namespace vtd
 		typedef ptrdiff_t difference_type;
 		typedef pointer string_handle;
 
-	public:
+		string() noexcept = default;		
 
+		string(const char* str) noexcept
+		{
+			holder = add_string(str);
+		}
+
+		string(const char* str, size_t len) noexcept
+		{
+			holder = add_string(str, (uint32_t)len);
+		}
+
+		string(const string& copy) noexcept
+		{
+			if (copy.holder)
+			{
+				inc_refcount(copy.holder);
+				holder = copy.holder;
+			}			
+		}
+
+		string(string&& move) noexcept
+		{
+			holder = move.holder;
+			move.holder = nullptr;
+		}
+
+		~string() noexcept
+		{
+			dec_refcount(holder);
+		}
+
+		operator const const_pointer() const noexcept
+		{
+			return holder;
+		}
+
+		static void clear() noexcept
+		{
+			for (auto& vec : hash_array)
+			{
+				vec.clear();
+			}
+		}
+	
+	protected:
+		string_handle holder = nullptr;
+
+	private:
 		static const string_handle add_string(const_pointer str) noexcept
 		{
 			if (!str) return nullptr;
@@ -376,8 +423,8 @@ namespace vtd
 			else
 			{
 				uint32_t alloc_len = uint32_t((len + 1) * sizeof(value_type)) + 8;
-				alloc_len = (alloc_len + 3) & (~3);
-				void* mem = malloc(alloc_len);
+				alloc_len = (alloc_len + 7) & (~7);
+				void* mem = VeMalloc(alloc_len);
 				handle = (string_handle)((uint8_t*)mem + 8);
 				((uint16_t*)mem)[0] = 2;
 				((uint16_t*)mem)[1] = uint16_t(len);
@@ -449,7 +496,7 @@ namespace vtd
 					if ((--mem[0]) == 0)
 					{
 						assert(!get_refcount(handle));
-						free(get_real_start(handle));
+						VeFree(get_real_start(handle));
 						if (i < (str_array.size() - 1))
 						{
 							str_array[i] = str_array.back();
@@ -465,7 +512,7 @@ namespace vtd
 		static pointer get_real_start(const string_handle& handle) noexcept
 		{
 			assert(handle);
-			return (uint8_t*)handle - 8;
+			return (pointer)((uint8_t*)handle - 8);
 		}
 
 		static uint32_t hash_func(const_pointer str, uint32_t len) noexcept
@@ -551,6 +598,10 @@ namespace vtd
 		static spin_lock lock;
 
 	};
+
+	template<class _Ty> size_t string<_Ty>::str_num = 0;
+	template<class _Ty> vector<_Ty*> string<_Ty>::hash_array[VTD_STR_TAB_MASK + 1];
+	template<class _Ty> spin_lock string<_Ty>::lock;
 
 #ifdef VTD_STR_TAB_MASK
 #	undef VTD_STR_TAB_MASK

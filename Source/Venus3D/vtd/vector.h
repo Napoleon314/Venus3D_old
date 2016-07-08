@@ -161,6 +161,18 @@ namespace vtd
 			_Move.max_size = 0;
 		}
 
+		~vector() noexcept
+		{
+			clear();
+			if (buffer)
+			{
+				_Mani::deallocate(buffer, max_size);
+				buffer = nullptr;
+			}
+			used_size = 0;
+			max_size = 0;
+		}
+
 		vector& operator = (const vector& _Copy) noexcept
 		{
 			assign(_Copy.begin(), _Copy.end());
@@ -418,8 +430,6 @@ namespace vtd
 		}
 
 	private:
-		
-
 		pointer buffer = nullptr;
 		size_type used_size = 0;
 		size_type max_size = 0;

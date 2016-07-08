@@ -60,13 +60,19 @@ int main(/*int argc, char * argv[]*/)
 #ifdef _XM_ARM_NEON_INTRINSICS_
     printf("NEON MATH\n");
 #endif
-	A* a1 = VE_NEW A();
+	//A* a1 = VE_NEW A();
 	
-	VE_DELETE(a1);
+	//VE_DELETE(a1);
 
-	A* a2 = VE_NEW A[10];
+	//A* a2 = VE_NEW A[10];
 
-	VE_DELETE_ARRAY(a2);
+	//VE_DELETE_ARRAY(a2);
 
+	using namespace vtd;
+
+	
+	string<char> ch("test");
+	string<char> ch2("test");
+	
 	return 0;
 }

@@ -31,7 +31,7 @@
 #pragma once
 
 #ifdef VE_DEBUG
-#	define VE_MEM_TRACK
+//#	define VE_MEM_TRACK
 #endif
 
 #ifndef VE_SHIPPING
