@@ -64,44 +64,6 @@ int main(/*int argc, char * argv[]*/)
 #ifdef _XM_ARM_NEON_INTRINSICS_
     printf("NEON MATH\n");
 #endif
-	//A* a1 = VE_NEW A();
 	
-	//VE_DELETE(a1);
-
-	//A* a2 = VE_NEW A[10];
-
-	//VE_DELETE_ARRAY(a2);
-
-	using namespace vtd;
-	
-	string ch = u8"Œ“√«test";
-	string ch2;
-	//u32string ch2(U"test");
-
-	//std::string a;
-	//a.length()
-
-	intrusive_node<int> n1;
-	n1._Content = 1;
-	intrusive_node<int> n2;
-	n2._Content = 2;
-	intrusive_node<int> n3;
-	n3._Content = 3;
-
-	intrusive_list<int> li;
-	li.attach_back(n1);
-	li.attach_back(n2);
-	li.attach_back(n3);
-
-	vector<int> v;
-	v.push_back(5);
-	v.push_back(6);
-	v.push_back(7);
-	v.shrink_to_fit();
-
-	stack<int> s;
-	s.push(0);
-	s.push(1);
-
 	return 0;
 }
