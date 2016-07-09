@@ -84,7 +84,6 @@ namespace vtd
 
 	};
 
-
 }
 
 #ifdef VTD_QUEUE_MASK
