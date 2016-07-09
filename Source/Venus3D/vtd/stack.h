@@ -36,27 +36,35 @@ namespace vtd
 	class stack
 	{
 	public:
+		typedef _Ty value_type;
+		typedef value_type* pointer;
+		typedef const value_type* const_pointer;
+		typedef value_type& reference;
+		typedef const value_type& const_reference;
+		typedef size_t size_type;
+		typedef ptrdiff_t difference_type;
+
 		stack() noexcept = default;
 
-		void push(_Ty _Element) noexcept
+		void push(const value_type& _Val) noexcept
 		{
 			assert(_Pointer < _Num);
-			_Stack[_Pointer++] = _Element;
+			_Stack[_Pointer++] = _Val;
 		}
 
-		_Ty pop() noexcept
+		value_type pop() noexcept
 		{
 			assert(_Pointer > 0);
 			return _Stack[--_Pointer];
 		}
 
-		_Ty& top() noexcept
+		value_type& top() noexcept
 		{
 			assert(_Pointer > 0);
 			return _Stack[_Pointer - 1];
 		}
 
-		size_t size() noexcept
+		size_type size() noexcept
 		{
 			return _Pointer;
 		}
@@ -67,8 +75,8 @@ namespace vtd
 		}
 
 	private:
-		_Ty _Stack[_Num];
-		size_t _Pointer = 0;
+		value_type _Stack[_Num];
+		size_type _Pointer = 0;
 
 	};
 }

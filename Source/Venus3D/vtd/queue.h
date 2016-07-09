@@ -3,9 +3,9 @@
 //  The MIT License (MIT)
 //  Copyright (c) 2016 Albert D Yang
 // -------------------------------------------------------------------------
-//  Module:      PowerTest
-//  File name:   Main.cpp
-//  Created:     2016/07/01 by Albert
+//  Module:      Venus3D
+//  File name:   queue.h
+//  Created:     2016/07/10 by Albert
 //  Description:
 // -------------------------------------------------------------------------
 //  Permission is hereby granted, free of charge, to any person obtaining a
@@ -28,51 +28,65 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-#ifdef BUILD_PLATFORM_WIN
-#	include <vld.h>
+#pragma once
+
+#include <atomic>
+
+#ifndef VTD_QUEUE_MASK
+#	define VTD_QUEUE_MASK (0x7FF)
 #endif
-#include <Venus3D.h>
 
-#include <vector>
-
-#include <string>
-
-class A : public VeMemObject
+namespace vtd
 {
-public:
-	int x, y;
-};
+	template <class _Ty, _Ty _Default, size_t _Mask = VTD_QUEUE_MASK>
+	class queue
+	{
+	public:
+		typedef _Ty value_type;
+		typedef value_type* pointer;
+		typedef uint64_t size_type;
 
-int main(/*int argc, char * argv[]*/)
-{
-#ifdef __SSE2__
-	printf("SSE2\n");
-#endif //
+		queue() noexcept = default;
 
-#ifdef __AVX__
-	printf("AVX\n");
-#endif //
+		~queue() noexcept = default;
 
-#ifdef __AVX2__
-	printf("AVX2\n");
-#endif //
-    
-#ifdef __ARM_NEON__
-    printf("NEON\n");
-#endif
-    
-#ifdef _XM_ARM_NEON_INTRINSICS_
-    printf("NEON MATH\n");
-#endif
+		void push(value_type _Val) noexcept
+		{
+			size_type hpos = _Head.fetch_add(1, std::memory_order_relaxed);
+			buffer[hpos & _Mask] = _Val;
+		}
 
-	vtd::queue<int, 0> q;
+		value_type pop() noexcept
+		{
+			size_type h, t;
+			do
+			{
+				h = _Head.load(std::memory_order_relaxed);
+				t = _Tail.load(std::memory_order_relaxed);
+				if (t >= h)
+				{
+					return _Default;
+				}
+			} while (!_Tail.compare_exchange_weak(t, t + 1, std::memory_order_relaxed));
+			return buffer[t & _Mask];
+		}
 
-	q.push(10);
-	q.push(11);
+	private:
+		static constexpr size_type _Max = _Mask + 1;
 
-	int res = q.pop();
-	res = q.pop();
-	res = q.pop();
-	
-	return 0;
+		queue(const queue&) = delete;
+		queue(queue&&) = delete;
+		queue& operator = (const queue&) = delete;
+
+		std::atomic<size_type> _Head = 0;
+		std::atomic<size_type> _Tail = 0;
+		value_type buffer[_Max];
+
+	};
+
+
 }
+
+#ifdef VTD_QUEUE_MASK
+#	undef VTD_QUEUE_MASK
+#endif

@@ -164,8 +164,6 @@
 #	define _Analysis_assume_(expr)
 #endif
 
-#include <assert.h>
-
 #ifndef _XM_NO_ROUNDF_
 #ifdef _MSC_VER
 #include <yvals.h>
