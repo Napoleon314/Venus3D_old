@@ -74,7 +74,7 @@ int main(/*int argc, char * argv[]*/)
 
 	using namespace vtd;
 	
-	string ch = u8"ÎÒÃÇtest";
+	string ch = u8"æˆ‘ä»¬test";
 	string ch2;
 	//u32string ch2(U"test");
 
