@@ -496,7 +496,7 @@ namespace vtd
 
 			const_pointer my_str = holder;
 			uint32_t other_len = (uint32_t)strlen(str);
-			for (uint32_t idx = 0; idx < GetLength(); idx++)
+			for (uint32_t idx = 0; idx < length(); idx++)
 			{
 				if (strnicmp(&my_str[idx], str, other_len) == 0)
 					return true;
@@ -726,13 +726,13 @@ namespace vtd
 		}
 	
 		static size_t str_num;
-		static vector<string_handle> hash_array[VTD_STR_TAB_MASK + 1];
+        static vector<typename _Alloc::pointer> hash_array[VTD_STR_TAB_MASK + 1];
 		static spin_lock lock;
 
 	};
 
 	template<class _Ty, class _Alloc> size_t basic_string<_Ty, _Alloc>::str_num = 0;
-	template<class _Ty, class _Alloc> vector<_Ty*> basic_string<_Ty, _Alloc>::hash_array[VTD_STR_TAB_MASK + 1];
+	template<class _Ty, class _Alloc> vector<typename _Alloc::pointer> basic_string<_Ty, _Alloc>::hash_array[VTD_STR_TAB_MASK + 1];
 	template<class _Ty, class _Alloc> spin_lock basic_string<_Ty, _Alloc>::lock;
 
 	template <class _Ty, class _Alloc>
