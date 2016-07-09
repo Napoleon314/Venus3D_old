@@ -43,7 +43,7 @@ vtd::intrusive_list<VePixelFormat*> VePixelFormat::ms_kList;
 //--------------------------------------------------------------------------
 VePixelFormat::VePixelFormat()
 {
-	m_kNode.m_Content = this;
+	m_kNode._Content = this;
 }
 //--------------------------------------------------------------------------
 bool VePixelFormat::Init(uint32_t u32PixelFormat) noexcept

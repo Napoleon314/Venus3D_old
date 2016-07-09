@@ -3,9 +3,9 @@
 //  The MIT License (MIT)
 //  Copyright (c) 2016 Albert D Yang
 // -------------------------------------------------------------------------
-//  Module:      PowerTest
-//  File name:   Main.cpp
-//  Created:     2016/07/01 by Albert
+//  Module:      vtd
+//  File name:   stack.h
+//  Created:     2016/07/10 by Albert
 //  Description:
 // -------------------------------------------------------------------------
 //  Permission is hereby granted, free of charge, to any person obtaining a
@@ -28,80 +28,47 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-#ifdef BUILD_PLATFORM_WIN
-#	include <vld.h>
-#endif
-#include <Venus3D.h>
+#pragma once
 
-#include <vector>
-
-#include <string>
-
-class A : public VeMemObject
+namespace vtd
 {
-public:
-	int x, y;
-};
+	template<class _Ty, size_t _Num = 32>
+	class stack
+	{
+	public:
+		stack() noexcept = default;
 
-int main(/*int argc, char * argv[]*/)
-{
-#ifdef __SSE2__
-	printf("SSE2\n");
-#endif //
+		void push(_Ty _Element) noexcept
+		{
+			assert(_Pointer < _Num);
+			_Stack[_Pointer++] = _Element;
+		}
 
-#ifdef __AVX__
-	printf("AVX\n");
-#endif //
+		_Ty pop() noexcept
+		{
+			assert(_Pointer > 0);
+			return _Stack[--_Pointer];
+		}
 
-#ifdef __AVX2__
-	printf("AVX2\n");
-#endif //
-    
-#ifdef __ARM_NEON__
-    printf("NEON\n");
-#endif
-    
-#ifdef _XM_ARM_NEON_INTRINSICS_
-    printf("NEON MATH\n");
-#endif
-	//A* a1 = VE_NEW A();
-	
-	//VE_DELETE(a1);
+		_Ty& top() noexcept
+		{
+			assert(_Pointer > 0);
+			return _Stack[_Pointer - 1];
+		}
 
-	//A* a2 = VE_NEW A[10];
+		size_t size() noexcept
+		{
+			return _Pointer;
+		}
 
-	//VE_DELETE_ARRAY(a2);
+		bool empty() noexcept
+		{
+			return size() == 0;
+		}
 
-	using namespace vtd;
-	
-	u32string ch = U"Œ“√«test";
-	u32string ch2;
-	//u32string ch2(U"test");
+	private:
+		_Ty _Stack[_Num];
+		size_t _Pointer = 0;
 
-	//std::string a;
-	//a.length()
-
-	intrusive_node<int> n1;
-	n1._Content = 1;
-	intrusive_node<int> n2;
-	n2._Content = 2;
-	intrusive_node<int> n3;
-	n3._Content = 3;
-
-	intrusive_list<int> li;
-	li.attach_back(n1);
-	li.attach_back(n2);
-	li.attach_back(n3);
-
-	vector<int> v;
-	v.push_back(5);
-	v.push_back(6);
-	v.push_back(7);
-	v.shrink_to_fit();
-
-	stack<int> s;
-	s.push(0);
-	s.push(1);
-
-	return 0;
+	};
 }

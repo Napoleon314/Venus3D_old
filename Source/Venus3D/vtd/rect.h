@@ -30,7 +30,6 @@
 
 #pragma once
 
-#include <assert.h>
 #include "point.h"
 
 namespace vtd

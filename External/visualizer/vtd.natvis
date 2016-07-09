@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+	
+	<Type Name="vtd::basic_string&lt;char,*&gt;">
+		<DisplayString Condition="holder == 0">{{empty}}</DisplayString>
+		<DisplayString Condition="holder != 0">{holder,s8}</DisplayString>
+		<StringView Condition="holder != 0">holder,s8</StringView>
+		<Expand>
+			<Item Condition="holder != 0" Name="[ref]">(*(unsigned short*)((char*)(holder)-8))-1</Item>
+			<Item Condition="holder != 0" Name="[len]">*(unsigned short*)((char*)(holder)-6)</Item>
+			<Item Condition="holder != 0" Name="[hash]">*(unsigned int*)((char*)(holder)-4)</Item>
+			<ArrayItems Condition="holder != 0">
+				<Size>*(unsigned short*)((char*)(holder)-6)</Size>
+				<ValuePointer>holder</ValuePointer>
+			</ArrayItems>
+		</Expand>
+  </Type>
+  
+  <Type Name="vtd::basic_string&lt;wchar_t,*&gt;">
+		<AlternativeType Name="vtd::basic_string&lt;unsigned short,*&gt;" />
+		<AlternativeType Name="vtd::basic_string&lt;char16_t,*&gt;" />
+		<DisplayString Condition="holder == 0">{{empty}}</DisplayString>
+		<DisplayString Condition="holder != 0">{holder,su}</DisplayString>
+		<StringView Condition="holder != 0">holder,su</StringView>
+		<Expand>
+			<Item Condition="holder != 0" Name="[ref]">(*(unsigned short*)((char*)(holder)-8))-1</Item>
+			<Item Condition="holder != 0" Name="[len]">*(unsigned short*)((char*)(holder)-6)</Item>
+			<Item Condition="holder != 0" Name="[hash]">*(unsigned int*)((char*)(holder)-4)</Item>
+			<ArrayItems Condition="holder != 0">
+				<Size>*(unsigned short*)((char*)(holder)-6)</Size>
+				<ValuePointer>holder</ValuePointer>
+			</ArrayItems>
+		</Expand>
+  </Type>
+  
+	<Type Name="vtd::basic_string&lt;char32_t,*&gt;">
+		<DisplayString Condition="holder == 0">{{empty}}</DisplayString>
+		<DisplayString Condition="holder != 0">{holder,s32}</DisplayString>
+		<StringView Condition="holder != 0">holder,s32</StringView>
+		<Expand>
+			<Item Condition="holder != 0" Name="[ref]">(*(unsigned short*)((char*)(holder)-8))-1</Item>
+			<Item Condition="holder != 0" Name="[len]">*(unsigned short*)((char*)(holder)-6)</Item>
+			<Item Condition="holder != 0" Name="[hash]">*(unsigned int*)((char*)(holder)-4)</Item>
+			<ArrayItems Condition="holder != 0">
+				<Size>*(unsigned short*)((char*)(holder)-6)</Size>
+				<ValuePointer>holder</ValuePointer>
+			</ArrayItems>
+		</Expand>
+  </Type>
+  
+  <Type Name="vtd::intrusive_ptr&lt;*&gt;">
+		<DisplayString Condition="naked_ptr == 0">ptr{{nullptr}}</DisplayString>
+		<DisplayString Condition="naked_ptr != 0">ptr{*naked_ptr}</DisplayString>
+		<Expand>
+			<Item Condition="naked_ptr != 0" Name="[ptr]">naked_ptr</Item>
+			<Item Condition="naked_ptr != 0" Name="[ref]">naked_ptr->m_stRefCount</Item>
+		</Expand>
+	</Type>
+	
+	<Type Name="vtd::intrusive_node&lt;*&gt;">
+		<DisplayString>{_Content}</DisplayString>
+		<Expand>
+			<Item Name="[content]">_Content</Item>
+			<Item Condition="_Pre != 0" Name="[pre]">_Pre</Item>
+			<Item Condition="_Next != 0" Name="[next]">_Next</Item>
+			<Item Condition="_Parent != 0" Name="[list]">_Parent</Item>
+		</Expand>
+  </Type>
+	
+	<Type Name="vtd::intrusive_list&lt;*&gt;">
+		<DisplayString>{{ size={_Size} }}</DisplayString>
+		<Expand>			
+			<LinkedListItems>
+				<Size>_Size</Size>
+				<HeadPointer>_Head</HeadPointer>
+				<NextPointer>_Next</NextPointer>
+				<ValueNode>_Content</ValueNode>
+			</LinkedListItems>
+			<Item Name="[head]">_Head</Item>
+			<Item Name="[tail]">_Tail</Item>
+			<Item Name="[iter]">_InnerIter</Item>
+		</Expand>
+  </Type>
+  
+  <Type Name="vtd::vector&lt;*&gt;">
+      <DisplayString>{{ size={used_size} }}</DisplayString>
+      <Expand>
+          <Item Name="[capacity]" ExcludeView="simple">max_size</Item>
+          <ArrayItems>
+              <Size>used_size</Size>
+              <ValuePointer>buffer</ValuePointer>
+          </ArrayItems>
+      </Expand>
+  </Type>
+
+</AutoVisualizer>

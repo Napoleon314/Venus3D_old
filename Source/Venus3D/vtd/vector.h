@@ -32,7 +32,6 @@
 
 #include "utility.h"
 #include "allocator.h"
-#include <assert.h>
 
 namespace vtd
 {
@@ -198,20 +197,21 @@ namespace vtd
 
 		void shrink_to_fit() noexcept
 		{
-			if (max_size > used_size)
+			if (used_size)
 			{
-				if (used_size)
+				size_type _Count = ((used_size + 0xF) >> 4) << 4;
+				if (_Count != max_size)
 				{
-					buffer = _Alloc::allocate(used_size, buffer);
-				}
-				else
-				{
-					_Alloc::deallocate(buffer, max_size);
-				}
-				max_size = used_size;
+					buffer = _Alloc::allocate(_Count, buffer);
+					max_size = _Count;
+				}				
+			}
+			else
+			{
+				_Alloc::deallocate(buffer);
+				max_size = 0;
 			}
 		}
-
 
 		iterator begin() noexcept
 		{

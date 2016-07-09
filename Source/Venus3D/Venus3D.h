@@ -349,6 +349,7 @@
 #include "vtd/rtti.h"
 #include "vtd/thread.h"
 #include "vtd/vector.h"
+#include "vtd/stack.h"
 #include "vtd/intrusive_list.h"
 #include "vtd/intrusive_ptr.h"
 #include "vtd/string.h"

@@ -154,22 +154,22 @@ namespace vtd
 
 		reference content() noexcept
 		{
-			return m_Content;
+			return _Content;
 		}
 
 		const_reference content() const noexcept
 		{
-			return m_Content;
+			return _Content;
 		}
 
 		pointer content_ptr() noexcept
 		{
-			return &m_Content;
+			return &_Content;
 		}
 
 		const_pointer content_ptr() const noexcept
 		{
-			return &m_Content;
+			return &_Content;
 		}
 
 		reference pre_content(reference value) noexcept
@@ -192,7 +192,7 @@ namespace vtd
 			return _Next ? _Next->m_Content : value;
 		}
 
-		value_type m_Content;
+		value_type _Content;
 
 	private:
 		intrusive_node(const _Node&) = delete;

@@ -32,7 +32,6 @@
 
 #include "utility.h"
 #include "allocator.h"
-#include <assert.h>
 
 namespace vtd
 {
@@ -336,6 +335,10 @@ namespace vtd
 #	define VTD_STR_TAB_MASK (0x7FF)
 #endif
 
+#ifndef VTD_STR_LOCK
+#	define VTD_STR_LOCK(lock) std::lock_guard<spin_lock> l(lock);
+#endif
+
 	template <class _Ty,
 		class _Alloc = allocator<_Ty> >
 	class basic_string
@@ -575,6 +578,7 @@ namespace vtd
 
 		static size_t get_max_bucket_size() noexcept
 		{
+			VTD_STR_LOCK(lock);
 			size_t res = 0;
 			for (auto& vec : hash_array)
 			{
@@ -585,6 +589,7 @@ namespace vtd
 
 		static const string_handle find_string(const_pointer str, uint32_t len, uint32_t hash) noexcept
 		{
+			VTD_STR_LOCK(lock);
 			auto& str_array = hash_array[hash & VTD_STR_TAB_MASK];
 			for (auto s : str_array)
 			{
@@ -600,13 +605,15 @@ namespace vtd
 		static void insert_string(const string_handle& handle, uint32_t hash) noexcept
 		{
 			assert(handle && validate(handle));
+			VTD_STR_LOCK(lock);
 			hash_array[hash & VTD_STR_TAB_MASK].push_back(handle);
 			++str_num;
 		}
 
 		static void remove_string(const string_handle& handle, uint32_t hash) noexcept
 		{
-			const_pointer s = get_string(handle);			
+			const_pointer s = get_string(handle);
+			VTD_STR_LOCK(lock);
 			auto& str_array = hash_array[hash & VTD_STR_TAB_MASK];
 			for (size_t i(0); i < str_array.size(); ++i)
 			{
@@ -664,6 +671,7 @@ namespace vtd
 				assert(validate(handle));
 				uint16_t* mem = (uint16_t*)get_real_start(handle);
 				assert(mem[0] < UINT16_MAX);
+				VTD_STR_LOCK(lock);
 				++mem[0];
 			}
 		}
@@ -675,7 +683,10 @@ namespace vtd
 				assert(validate(handle));
 				uint16_t* mem = (uint16_t*)get_real_start(handle);
 				uint32_t hash = get_hash_value(handle);
-				if ((--mem[0]) > 1) return;
+				{
+					VTD_STR_LOCK(lock);
+					if ((--mem[0]) > 1) return;
+				}
 				remove_string(handle, hash);
 			}
 		}
@@ -740,6 +751,10 @@ namespace vtd
 	typedef basic_string<wchar_t> wstring;	
 	typedef basic_string<char16_t> u16string;
 	typedef basic_string<char32_t> u32string;
+
+#ifdef VTD_STR_LOCK
+#	undef VTD_STR_LOCK
+#endif
 
 #ifdef VTD_STR_TAB_MASK
 #	undef VTD_STR_TAB_MASK
