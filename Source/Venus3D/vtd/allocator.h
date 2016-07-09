@@ -3,9 +3,9 @@
 //  The MIT License (MIT)
 //  Copyright (c) 2016 Albert D Yang
 // -------------------------------------------------------------------------
-//  Module:      Memory
-//  File name:   VeRefObject.h
-//  Created:     2016/07/08 by Albert
+//  Module:      vtd
+//  File name:   allocator.h
+//  Created:     2016/07/09 by Albert
 //  Description:
 // -------------------------------------------------------------------------
 //  Permission is hereby granted, free of charge, to any person obtaining a
@@ -30,78 +30,89 @@
 
 #pragma once
 
-class VENUS_API VeRefObject : public VeMemObject
-{
-	VeNoCopy(VeRefObject);
-public:
-	VeRefObject() noexcept;
-
-	virtual ~VeRefObject() noexcept;
-
-	void IncRefCount() noexcept;
-
-	void DecRefCount() noexcept;
-
-	inline size_t GetRefCount() const noexcept;
-
-	inline static size_t GetTotalObjectCount() noexcept;
-
-protected:
-	void DeleteThis() noexcept;
-
-private:
-	size_t m_stRefCount = 0;
-	static size_t ms_stObjects;
-
-};
+#ifdef __APPLE__
+#   include <stdlib.h>
+#else
+#   include <malloc.h>
+#endif
+#include <string.h>
+#include <type_traits>
 
 namespace vtd
 {
-	template <class _Ty>
-	struct intrusive_ref_obj
+	template<class _Ty>
+	class allocator
 	{
-		static_assert(std::is_base_of<VeRefObject, typename std::remove_cv<_Ty>::type>::value, "wrong type");
+	public:
+		typedef _Ty value_type;
+		typedef value_type* pointer;
+		typedef const value_type* const_pointer;
+		typedef value_type& reference;
+		typedef const value_type& const_reference;
+		typedef size_t size_type;
+		typedef ptrdiff_t difference_type;
 
-		static void inc(_Ty* ptr) noexcept
+		struct _Shell
 		{
-			if (ptr) ptr->IncRefCount();
+			value_type data;
+		};
+
+		template<class _Other>
+		struct rebind
+		{
+			typedef allocator<_Other> other;
+		};
+
+		static void memory_copy(pointer _Dst, const_pointer _Src, size_type _Count) noexcept
+		{
+			memcpy(_Dst, _Src, _Count * sizeof(value_type));
 		}
 
-		static void dec(_Ty* ptr) noexcept
+		static pointer address(reference _Val) noexcept
 		{
-			if (ptr) ptr->DecRefCount();
-		}
-	};
-
-	template <class _Ty>
-	struct intrusive_custom_obj
-	{
-		static_assert(std::is_class<_Ty>::value, "wrong type");
-
-		static void inc(_Ty*) noexcept
-		{
-
+			return &_Val;
 		}
 
-		static void dec(_Ty* ptr) noexcept
+		static const_pointer address(const_reference _Val) noexcept
 		{
-			if (ptr) delete ptr;
+			return &_Val;
 		}
-	};
 
-	template <class _Ty>
-	struct intrusive_obj : std::conditional<std::is_base_of<VeRefObject, typename std::remove_cv<_Ty>::type>::value,
-		intrusive_ref_obj<_Ty>, intrusive_custom_obj<_Ty> >::type
-	{
+		static void deallocate(pointer _Ptr) noexcept
+		{
+			free(_Ptr);
+		}
 
+		static pointer allocate(size_type _Count) noexcept
+		{
+			return (pointer)malloc(_Count * sizeof(value_type));
+		}
+
+		static pointer allocate(size_type _Count, pointer _Ptr) noexcept
+		{
+			return (pointer)realloc(_Ptr, _Count * sizeof(value_type));
+		}
+
+		template<class... _Types>
+		static void construct(value_type *_Ptr, _Types&&... _Args) noexcept
+		{
+			::new ((void *)_Ptr) value_type(std::forward<_Types>(_Args)...);
+		}
+
+		static void destroy(pointer _Ptr) noexcept
+		{
+			((_Shell*)_Ptr)->~_Shell();
+			_Ptr = nullptr;
+		}
+
+		static size_t max_size() noexcept
+		{
+			return ((size_t)(-1) / sizeof(value_type));
+		}
+
+	private:
+		allocator() noexcept = delete;
+		~allocator() noexcept = delete;
 
 	};
 }
-
-#define VeSmartPointer(classname)										\
-	class classname;													\
-	typedef vtd::intrusive_ptr<classname> classname##Ptr
-
-VeSmartPointer(VeRefObject);
-
-#include "VeRefObject.inl"

@@ -31,13 +31,8 @@
 #pragma once
 
 #include "utility.h"
-#ifdef __APPLE__
-#   include <stdlib.h>
-#else
-#   include <malloc.h>
-#endif
-#include <string.h>
-#include <string>
+#include "allocator.h"
+#include <assert.h>
 
 namespace vtd
 {
@@ -341,28 +336,30 @@ namespace vtd
 #	define VTD_STR_TAB_MASK (0x7FF)
 #endif
 
-	template <class _Ty>
+	template <class _Ty,
+		class _Alloc = allocator<_Ty> >
 	class basic_string
 	{
 		static_assert(is_char<_Ty>::value, "_Ty has to be a kind of char");
 	public:
-		typedef _Ty value_type;
-		typedef value_type* pointer;
-		typedef const value_type* const_pointer;
-		typedef value_type& reference;
-		typedef const value_type& const_reference;
-		typedef size_t size_type;
-		typedef ptrdiff_t difference_type;
+		typedef typename _Alloc::value_type value_type;
+		typedef typename _Alloc::pointer pointer;
+		typedef typename _Alloc::const_pointer const_pointer;
+		typedef typename _Alloc::reference reference;
+		typedef typename _Alloc::const_reference const_reference;
+		typedef typename _Alloc::size_type size_type;
+		typedef typename _Alloc::difference_type difference_type;
 		typedef pointer string_handle;
+		
 
 		basic_string() noexcept = default;		
 
-		basic_string(const char* str) noexcept
+		basic_string(const_pointer str) noexcept
 		{
 			holder = add_string(str);
 		}
 
-		basic_string(const char* str, size_t len) noexcept
+		basic_string(const_pointer str, size_t len) noexcept
 		{
 			holder = add_string(str, (uint32_t)len);
 		}
@@ -373,7 +370,7 @@ namespace vtd
 			{
 				inc_refcount(copy.holder);
 				holder = copy.holder;
-			}			
+			}
 		}
 
 		basic_string(basic_string&& move) noexcept
@@ -387,19 +384,143 @@ namespace vtd
 			dec_refcount(holder);
 		}
 
-		operator const const_pointer() const noexcept
+		operator const_pointer() const noexcept
 		{
 			return holder;
 		}
 
-		static void clear() noexcept
+		const_pointer c_str() const noexcept
 		{
-			for (auto& vec : hash_array)
-			{
-				vec.clear();
-			}
+			return holder;
 		}
-	
+
+		bool exists() const noexcept
+		{
+			return holder ? true : false;
+		}
+
+		basic_string& operator = (const basic_string& copy)
+		{
+			if (holder != copy.holder)
+			{
+				string_handle new_holder = copy.holder;
+				inc_refcount(new_holder);
+				dec_refcount(holder);
+				holder = new_holder;
+			}
+			return *this;
+		}
+
+		basic_string& operator = (basic_string&& move) noexcept
+		{
+			holder = move.holder;
+			move.holder = nullptr;
+			return *this;
+		}
+
+		basic_string& operator = (const_pointer str) noexcept
+		{
+			if (holder != str)
+			{
+				string_handle old_holder = holder;
+				holder = add_string(str);
+				dec_refcount(old_holder);
+			}
+			return *this;
+		}
+
+		size_type length() const noexcept
+		{
+			return (size_type)get_length(holder);
+		}
+
+		size_type refcount() const noexcept
+		{
+			return (size_type)get_refcount(holder);
+		}
+
+		size_type hash_code() const noexcept
+		{
+			return (size_type)get_hash_value(holder);
+		}
+
+		bool equals(const_pointer str) const noexcept
+		{
+			if (holder == str)
+				return true;
+
+			if (str == nullptr || holder == nullptr)
+				return false;
+
+			return strcmp(holder, str) == 0;
+		}
+
+		bool equals_no_case(const_pointer str) const noexcept
+		{
+			if (holder == str)
+				return true;
+
+			if (str == nullptr || holder == nullptr)
+				return false;
+
+			return stricmp(holder, str) == 0;
+		}
+
+		bool contains(const_pointer str) const noexcept
+		{
+			if (holder == str && str != nullptr)
+				return true;
+
+			if (str == nullptr || holder == nullptr
+				|| str[0] == '\0' || holder[0] == '\0')
+			{
+				return false;
+			}
+
+			return strstr(holder, str) != nullptr;
+		}
+
+		bool contains_no_case(const_pointer str) const noexcept
+		{
+			if (holder == str && str != nullptr)
+				return true;
+
+			if (str == nullptr || holder == nullptr
+				|| str[0] == '\0' || holder[0] == '\0')
+			{
+				return false;
+			}
+
+			const_pointer my_str = holder;
+			uint32_t other_len = (uint32_t)strlen(str);
+			for (uint32_t idx = 0; idx < GetLength(); idx++)
+			{
+				if (strnicmp(&my_str[idx], str, other_len) == 0)
+					return true;
+			}
+			return false;
+		}
+
+		bool operator == (const basic_string& s) const noexcept
+		{
+			return equals(s);
+		}
+
+		bool operator != (const basic_string& s) const noexcept
+		{
+			return !equals(s);
+		}
+
+		bool operator == (const_pointer s) const noexcept
+		{
+			return equals(s);
+		}
+
+		bool operator != (const_pointer s) const noexcept
+		{
+			return !equals(s);
+		}
+
 	protected:
 		string_handle holder = nullptr;
 
@@ -424,12 +545,12 @@ namespace vtd
 			{
 				uint32_t alloc_len = uint32_t((len + 1) * sizeof(value_type)) + 8;
 				alloc_len = (alloc_len + 7) & (~7);
-				void* mem = malloc(alloc_len);
+				void* mem = _Alloc::allocate(alloc_len);
 				handle = (string_handle)((uint8_t*)mem + 8);
 				((uint16_t*)mem)[0] = 2;
 				((uint16_t*)mem)[1] = uint16_t(len);
 				((uint32_t*)mem)[1] = hash;
-				memcpy(handle, str, len * sizeof(value_type));
+				_Alloc::memory_copy(handle, str, len);
 				handle[len] = 0;
 				insert_string(handle, hash);
 			}
@@ -496,7 +617,7 @@ namespace vtd
 					if ((--mem[0]) == 0)
 					{
 						assert(!get_refcount(handle));
-						free(get_real_start(handle));
+						_Alloc::deallocate(get_real_start(handle));
 						if (i < (str_array.size() - 1))
 						{
 							str_array[i] = str_array.back();
@@ -599,9 +720,21 @@ namespace vtd
 
 	};
 
-	template<class _Ty> size_t basic_string<_Ty>::str_num = 0;
-	template<class _Ty> vector<_Ty*> basic_string<_Ty>::hash_array[VTD_STR_TAB_MASK + 1];
-	template<class _Ty> spin_lock basic_string<_Ty>::lock;
+	template<class _Ty, class _Alloc> size_t basic_string<_Ty, _Alloc>::str_num = 0;
+	template<class _Ty, class _Alloc> vector<_Ty*> basic_string<_Ty, _Alloc>::hash_array[VTD_STR_TAB_MASK + 1];
+	template<class _Ty, class _Alloc> spin_lock basic_string<_Ty, _Alloc>::lock;
+
+	template <class _Ty, class _Alloc>
+	bool operator == (typename _Alloc::const_pointer s1, const basic_string<_Ty, _Alloc>& s2) noexcept
+	{
+		return s2 == s1;
+	}
+
+	template <class _Ty, class _Alloc>
+	bool operator != (typename _Alloc::const_pointer s1, const basic_string<_Ty, _Alloc>& s2) noexcept
+	{
+		return s2 != s1;
+	}
 
 	typedef basic_string<char> string;
 	typedef basic_string<wchar_t> wstring;	

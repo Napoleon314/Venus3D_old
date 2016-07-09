@@ -186,6 +186,7 @@
 #	pragma warning(disable: 4251) // STL classes are not dllexport.
 #	pragma warning(disable: 4275) // Derived from non dllexport classes.
 #	pragma warning(disable: 4334)
+#	pragma warning(disable: 4706)
 #endif
 
 #ifndef _CRT_SECURE_NO_DEPRECATE

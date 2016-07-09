@@ -31,105 +31,23 @@
 #pragma once
 
 #include "utility.h"
+#include "allocator.h"
 #include <assert.h>
-#ifdef __APPLE__
-#   include <stdlib.h>
-#else
-#   include <malloc.h>
-#endif
-#include <string.h>
-#include <type_traits>
 
 namespace vtd
 {
-	template<class _Ty>
-	class manipulator
-	{
-	public:
-		typedef _Ty value_type;
-		typedef value_type* pointer;
-		typedef const value_type* const_pointer;
-		typedef value_type& reference;
-		typedef const value_type& const_reference;
-		typedef size_t size_type;
-		typedef ptrdiff_t difference_type;
-
-		struct _Shell
-		{
-			value_type data;
-		};
-
-		template<class _Other>
-		struct rebind
-		{
-			typedef manipulator<_Other> other;
-		};
-
-		static void memory_copy(pointer _Dst, const_pointer _Src, size_type _Count) noexcept
-		{
-            memcpy(_Dst, _Src, _Count * sizeof(value_type));
-		}
-
-		static pointer address(reference _Val) noexcept
-		{
-			return &_Val;
-		}
-
-		static const_pointer address(const_reference _Val) noexcept
-		{
-			return &_Val;
-		}
-
-		static void deallocate(pointer _Ptr, size_type) noexcept
-		{
-			free(_Ptr);
-		}
-
-		static pointer allocate(size_type _Count) noexcept
-		{
-			return (pointer)malloc(_Count * sizeof(value_type));
-		}
-
-		static pointer allocate(size_type _Count, pointer _Ptr) noexcept
-		{
-			return (pointer)realloc(_Ptr, _Count * sizeof(value_type));
-		}
-
-		template<class... _Types>
-		static void construct(value_type *_Ptr, _Types&&... _Args) noexcept
-		{
-			::new ((void *)_Ptr) value_type(std::forward<_Types>(_Args)...);
-		}
-
-		static void destroy(pointer _Ptr) noexcept
-		{
-			((_Shell*)_Ptr)->~_Shell();
-			_Ptr = nullptr;
-		}
-
-		static size_t max_size() noexcept
-		{
-			return ((size_t)(-1) / sizeof(value_type));
-		}
-
-	private:
-		manipulator() noexcept = delete;
-		~manipulator() noexcept = delete;
-
-	};
-
 	template<class _Ty,
-		class _Mani = manipulator<_Ty> >
+		class _Alloc = allocator<_Ty> >
 		class vector
 	{
 	public:
-		typedef typename _Mani::value_type value_type;
-		typedef typename _Mani::pointer pointer;
-		typedef typename _Mani::const_pointer const_pointer;
-		typedef typename _Mani::reference reference;
-		typedef typename _Mani::const_reference const_reference;
-		typedef typename _Mani::size_type size_type;
-		typedef typename _Mani::difference_type difference_type;
+		typedef typename _Alloc::value_type value_type;
+		typedef typename _Alloc::pointer pointer;
+		typedef typename _Alloc::const_pointer const_pointer;
+		typedef typename _Alloc::reference reference;
+		typedef typename _Alloc::const_reference const_reference;
+		typedef typename _Alloc::size_type size_type;
+		typedef typename _Alloc::difference_type difference_type;
 
 		typedef pointer iterator;
 		typedef const_pointer const_iterator;
@@ -166,7 +84,7 @@ namespace vtd
 			clear();
 			if (buffer)
 			{
-				_Mani::deallocate(buffer, max_size);
+				_Alloc::deallocate(buffer);
 				buffer = nullptr;
 			}
 			used_size = 0;
@@ -202,11 +120,11 @@ namespace vtd
 			{
 				if (buffer)
 				{
-					buffer = _Mani::allocate(_Count, buffer);
+					buffer = _Alloc::allocate(_Count, buffer);
 				}
 				else
 				{
-					buffer = _Mani::allocate(_Count);
+					buffer = _Alloc::allocate(_Count);
 				}
 
 				max_size = _Count;
@@ -224,14 +142,14 @@ namespace vtd
 
 				for (size_type i(used_size); i < _Newsize; ++i)
 				{
-					_Mani::construct(buffer + i);
+					_Alloc::construct(buffer + i);
 				}
 			}
 			else if (_Newsize < used_size)
 			{
 				for (size_type i(_Newsize); i < used_size; ++i)
 				{
-					_Mani::destroy(buffer + i);
+					_Alloc::destroy(buffer + i);
 				}
 			}
 
@@ -249,14 +167,14 @@ namespace vtd
 
 				for (size_type i(used_size); i < _Newsize; ++i)
 				{
-					_Mani::construct(buffer + i, _Val);
+					_Alloc::construct(buffer + i, _Val);
 				}
 			}
 			else if (_Newsize < used_size)
 			{
 				for (size_type i(_Newsize); i < used_size; ++i)
 				{
-					_Mani::destroy(buffer + i);
+					_Alloc::destroy(buffer + i);
 				}
 			}
 
@@ -284,11 +202,11 @@ namespace vtd
 			{
 				if (used_size)
 				{
-					buffer = _Mani::allocate(used_size, buffer);
+					buffer = _Alloc::allocate(used_size, buffer);
 				}
 				else
 				{
-					_Mani::deallocate(buffer, max_size);
+					_Alloc::deallocate(buffer, max_size);
 				}
 				max_size = used_size;
 			}
@@ -376,7 +294,7 @@ namespace vtd
 		{
 			difference_type diff = max(itLast - itStart, 0);
 			resize(diff);
-			_Mani::memory_copy(buffer, itStart, (size_type)diff);
+			_Alloc::memory_copy(buffer, itStart, (size_type)diff);
 		}
 
 		void push_back(const value_type& _Val) noexcept

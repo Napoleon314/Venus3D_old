@@ -31,16 +31,16 @@
 #include "stdafx.h"
 
 //--------------------------------------------------------------------------
-uint32_t VeRefObject::ms_u32Objects(0);
+size_t VeRefObject::ms_stObjects(0);
 //--------------------------------------------------------------------------
 VeRefObject::VeRefObject() noexcept
 {
-	++ms_u32Objects;
+	++ms_stObjects;
 }
 //--------------------------------------------------------------------------
 VeRefObject::~VeRefObject() noexcept
 {
-	--ms_u32Objects;
+	--ms_stObjects;
 }
 //--------------------------------------------------------------------------
 void VeRefObject::DeleteThis() noexcept
@@ -50,12 +50,12 @@ void VeRefObject::DeleteThis() noexcept
 //--------------------------------------------------------------------------
 void VeRefObject::IncRefCount() noexcept
 {
-	++m_u32RefCount;
+	++m_stRefCount;
 }
 //--------------------------------------------------------------------------
 void VeRefObject::DecRefCount() noexcept
 {
-	if (!(--m_u32RefCount))
+	if (!(--m_stRefCount))
 	{
 		DeleteThis();
 	}

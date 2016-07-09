@@ -29,13 +29,13 @@
 ////////////////////////////////////////////////////////////////////////////
 
 //--------------------------------------------------------------------------
-inline uint32_t VeRefObject::GetRefCount() const noexcept
+inline size_t VeRefObject::GetRefCount() const noexcept
 {
-	return m_u32RefCount;
+	return m_stRefCount;
 }
 //--------------------------------------------------------------------------
-inline uint32_t VeRefObject::GetTotalObjectCount() noexcept
+inline size_t VeRefObject::GetTotalObjectCount() noexcept
 {
-	return ms_u32Objects;
+	return ms_stObjects;
 }
 //--------------------------------------------------------------------------

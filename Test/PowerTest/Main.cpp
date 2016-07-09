@@ -33,6 +33,10 @@
 #endif
 #include <Venus3D.h>
 
+#include <vector>
+
+#include <string>
+
 class A : public VeMemObject
 {
 public:
@@ -69,10 +73,12 @@ int main(/*int argc, char * argv[]*/)
 	//VE_DELETE_ARRAY(a2);
 
 	using namespace vtd;
+	
+	u32string ch = U"test";
+	u32string ch2(U"test");
 
-	
-	string ch("test");
-	string ch2("test");
-	
+	std::string a;
+	a.length()
+
 	return 0;
 }
