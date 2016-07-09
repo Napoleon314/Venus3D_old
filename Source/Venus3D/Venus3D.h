@@ -294,6 +294,10 @@
 #include <thread>
 #include <mutex>
 
+#define VE_TRUE (1)
+#define VE_FALSE (0)
+#define VE_BOOL uint32_t
+
 #define VE_MASK(location) (uint32_t(0x01<<(location)))
 #define VE_MASK_HAS_ANY(flag,mask) (((flag)&(mask))!=0)
 #define VE_MASK_HAS_ALL(flag,mask) (((flag)&(mask))==(mask))
@@ -363,5 +367,6 @@
 
 #include "Video/VePixel.h"
 #include "Video/VeSurface.h"
+#include "Video/VeWindow.h"
 
 VENUS_API void Test() noexcept;

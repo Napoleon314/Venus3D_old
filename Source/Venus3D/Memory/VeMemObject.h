@@ -94,13 +94,13 @@ public:
 		VE_SAFE_DELETE(ms_pSingleton);
 	}
 
-	static _Ty& GetSingleton() noexcept
+	static _Ty& Ref() noexcept
 	{
 		assert(ms_pSingleton);
 		return (*ms_pSingleton);
 	}
 
-	static _Ty* GetSingletonPtr() noexcept
+	static _Ty* Ptr() noexcept
 	{
 		return ms_pSingleton;
 	}

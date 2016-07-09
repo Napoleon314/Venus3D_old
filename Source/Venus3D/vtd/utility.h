@@ -107,4 +107,16 @@ namespace vtd
 		return detail::comparer<_This, _Rest...>::min(val, pak...);
 	}
 
+	template <class _Class, class _Member>
+	inline _Class* member_cast(_Member _Class::*offset, const _Member* child) noexcept
+	{
+		return (_Class*)(void*)((size_t)(child)-(size_t)(&((*(const _Class*)0).*offset)));
+	}
+
+	template <class _Base, class _Der>
+	inline ptrdiff_t base_offset() noexcept
+	{
+		return (ptrdiff_t)(void*)static_cast<_Base*>(((_Der*)1)) - 1;
+	}
+
 }

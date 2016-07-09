@@ -93,5 +93,16 @@
           </ArrayItems>
       </Expand>
   </Type>
+  
+  <Type Name="vtd::stack&lt;*,*&gt;">
+		<DisplayString>{{ size={_Pointer} }}</DisplayString>
+		<Expand>
+			<Item Name="[capacity]" ExcludeView="simple">sizeof(_Stack)/sizeof(*_Stack)</Item>
+			<ArrayItems>
+				<Size>_Pointer</Size>
+				<ValuePointer>_Stack</ValuePointer>
+			</ArrayItems>
+		</Expand>
+  </Type>
 
 </AutoVisualizer>
