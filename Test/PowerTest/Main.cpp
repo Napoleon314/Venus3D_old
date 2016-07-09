@@ -74,8 +74,8 @@ int main(/*int argc, char * argv[]*/)
 
 	using namespace vtd;
 	
-	u32string ch = U"我们test";
-	u32string ch2;
+	string ch = u8"我们test";
+	string ch2;
 	//u32string ch2(U"test");
 
 	//std::string a;
