@@ -3,9 +3,9 @@
 //  The MIT License (MIT)
 //  Copyright (c) 2016 Albert D Yang
 // -------------------------------------------------------------------------
-//  Module:      PowerTest
-//  File name:   Main.cpp
-//  Created:     2016/07/01 by Albert
+//  Module:      Venus3D
+//  File name:   VeThread.inl
+//  Created:     2016/07/11 by Albert
 //  Description:
 // -------------------------------------------------------------------------
 //  Permission is hereby granted, free of charge, to any person obtaining a
@@ -28,41 +28,9 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-#ifdef BUILD_PLATFORM_WIN
-#	include <vld.h>
-#endif
-#include <Venus3D.h>
-
-int main(/*int argc, char * argv[]*/)
+//--------------------------------------------------------------------------
+inline bool VeThread::IsRunning() noexcept
 {
-	int s = 0;
-	VeThread t1;
-	t1.StartEntry([&]() noexcept
-	{
-		while (true)
-		{
-			if (s)
-			{
-				printf("after\n");
-			}
-			else
-			{
-				printf("before\n");
-			}
-		}
-	});
-
-	std::this_thread::sleep_for(std::chrono::seconds(3));
-
-	t1.Suspend();
-	
-	std::this_thread::sleep_for(std::chrono::seconds(3));
-
-	s = 1;
-
-	t1.Resume();
-
-	t1.Join();
-	
-	return 0;
+	return m_u32State.load(std::memory_order_relaxed) == 1;
 }
+//--------------------------------------------------------------------------

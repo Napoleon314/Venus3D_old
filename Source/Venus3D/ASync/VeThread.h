@@ -3,9 +3,9 @@
 //  The MIT License (MIT)
 //  Copyright (c) 2016 Albert D Yang
 // -------------------------------------------------------------------------
-//  Module:      PowerTest
-//  File name:   Main.cpp
-//  Created:     2016/07/01 by Albert
+//  Module:      ASync
+//  File name:   VeThread.h
+//  Created:     2016/07/11 by Albert
 //  Description:
 // -------------------------------------------------------------------------
 //  Permission is hereby granted, free of charge, to any person obtaining a
@@ -28,41 +28,89 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-#ifdef BUILD_PLATFORM_WIN
-#	include <vld.h>
-#endif
-#include <Venus3D.h>
+#pragma once
 
-int main(/*int argc, char * argv[]*/)
+class VENUS_API VeThread : public VeRefObject
 {
-	int s = 0;
-	VeThread t1;
-	t1.StartEntry([&]() noexcept
+	VeNoCopy(VeThread);
+	VeNoMove(VeThread);
+public:
+	class Event
 	{
-		while (true)
+		VeNoCopy(Event);
+		VeNoMove(Event);
+	public:
+		Event() noexcept
 		{
-			if (s)
+
+		}
+
+		~Event() noexcept
+		{
+
+		}
+
+		void Wait() noexcept
+		{
+			std::unique_lock<std::mutex> kLock(m_kMutex);
+			while (m_i32Count <= 0)
 			{
-				printf("after\n");
-			}
-			else
-			{
-				printf("before\n");
+				m_kCondition.wait(kLock);
 			}
 		}
-	});
 
-	std::this_thread::sleep_for(std::chrono::seconds(3));
+		void Set(int32_t i32Step = 1) noexcept
+		{
+			std::lock_guard<std::mutex> kLock(m_kMutex);
+			m_i32Count += i32Step;
+			m_kCondition.notify_all();
+		}
 
-	t1.Suspend();
-	
-	std::this_thread::sleep_for(std::chrono::seconds(3));
+		void Reset(int32_t i32Count = 1) noexcept
+		{
+			assert(i32Count > 0);
+			std::lock_guard<std::mutex> kLock(m_kMutex);
+			m_i32Count = 1 - i32Count;
+		}
 
-	s = 1;
+	private:
+		std::mutex m_kMutex;
+		std::condition_variable m_kCondition;
+		int32_t m_i32Count = 0;
 
-	t1.Resume();
+	};
 
-	t1.Join();
-	
-	return 0;
-}
+	typedef std::function<void()> Entry;
+
+	VeThread() noexcept;
+
+	VeThread(const std::function<void()>& kEntry) noexcept;
+
+	virtual ~VeThread() noexcept;
+
+	inline bool IsRunning() noexcept;
+
+	void Start() noexcept;
+
+	void StartEntry(const std::function<void()>& kEntry) noexcept;
+
+	void SetEntry(const std::function<void()>& kEntry) noexcept;
+
+	void Join() noexcept;
+
+	void Suspend() noexcept;
+
+	void Resume() noexcept;
+
+private:
+	void Callback() noexcept;
+
+	Entry m_kEntry;
+	std::thread m_kCore;
+	Event m_kLoop;
+	Event m_kJoin;
+	std::atomic_uint m_u32State;
+
+};
+
+#include "VeThread.inl"

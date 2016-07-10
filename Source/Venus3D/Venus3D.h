@@ -244,6 +244,7 @@
 #	include <dirent.h>
 #	include <unistd.h>
 #	include <sys/stat.h>
+#	include <pthread.h>
 #	define VE_CALLBACK
 #endif
 #ifdef BUILD_PLATFORM_LINUX
@@ -318,6 +319,10 @@
 	cls(const cls&) = delete;\
 	cls& operator= (const cls&) = delete
 
+#define VeNoMove(cls) \
+	cls(cls&&) = delete;\
+	cls& operator= (cls&&) = delete
+
 #if defined(BUILD_ARCH_ARM)
 #	if defined(__ARM_NEON) && BUILD_INTRINSICS_LEVEL > 0
 #		define _XM_ARM_NEON_INTRINSICS_
@@ -365,6 +370,8 @@
 #include "Memory/VeMemObject.h"
 #include "Memory/VeRefObject.h"
 #include "Memory/VeBlob.h"
+
+#include "ASync/VeThread.h"
 
 #include "Video/VePixel.h"
 #include "Video/VeSurface.h"
