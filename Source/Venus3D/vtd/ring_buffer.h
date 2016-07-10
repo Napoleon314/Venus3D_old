@@ -4,7 +4,7 @@
 //  Copyright (c) 2016 Albert D Yang
 // -------------------------------------------------------------------------
 //  Module:      Venus3D
-//  File name:   queue.h
+//  File name:   ring_buffer.h
 //  Created:     2016/07/10 by Albert
 //  Description:
 // -------------------------------------------------------------------------
@@ -39,16 +39,20 @@
 namespace vtd
 {
 	template <class _Ty, _Ty _Default, size_t _Mask = VTD_QUEUE_MASK>
-	class queue
+	class ring_buffer
 	{
 	public:
 		typedef _Ty value_type;
 		typedef value_type* pointer;
 		typedef uint64_t size_type;
 
-		queue() noexcept = default;
+		ring_buffer() noexcept
+		{
+			_Head.store(0);
+			_Tail.store(0);
+		}
 
-		~queue() noexcept = default;
+		~ring_buffer() noexcept = default;
 
 		void push(value_type _Val) noexcept
 		{
@@ -74,12 +78,12 @@ namespace vtd
 	private:
 		static constexpr size_type _Max = _Mask + 1;
 
-		queue(const queue&) = delete;
-		queue(queue&&) = delete;
-		queue& operator = (const queue&) = delete;
+		ring_buffer(const ring_buffer&) = delete;
+		ring_buffer(ring_buffer&&) = delete;
+		ring_buffer& operator = (const ring_buffer&) = delete;
 
-		std::atomic<size_type> _Head = 0;
-		std::atomic<size_type> _Tail = 0;
+		std::atomic<size_type> _Head;
+		std::atomic<size_type> _Tail;
 		value_type buffer[_Max];
 
 	};

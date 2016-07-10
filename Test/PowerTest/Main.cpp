@@ -65,7 +65,7 @@ int main(/*int argc, char * argv[]*/)
     printf("NEON MATH\n");
 #endif
 
-	vtd::queue<int, 0> q;
+	vtd::ring_buffer<int, 0> q;
 
 	q.push(10);
 	q.push(11);
