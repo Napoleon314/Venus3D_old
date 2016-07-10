@@ -291,7 +291,14 @@ inline HALF XMConvertFloatToHalf
 #else
 	uint32_t Result;
 
-	uint32_t IValue = reinterpret_cast<uint32_t *>(&Value)[0];
+	union
+	{
+		uint32_t u32;
+		float f32;
+	} v;
+	v.f32 = Value;
+
+	uint32_t IValue = v.u32;
 	uint32_t Sign = (IValue & 0x80000000U) >> 16U;
 	IValue = IValue & 0x7FFFFFFFU;      // Hack off the sign
 
