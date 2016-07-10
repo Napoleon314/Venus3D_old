@@ -73,6 +73,7 @@ int main(/*int argc, char * argv[]*/)
 	int res = q.pop();
 	res = q.pop();
 	res = q.pop();
+	printf("%d\n", res);
 	
 	return 0;
 }
