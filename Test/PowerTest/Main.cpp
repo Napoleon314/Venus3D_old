@@ -35,19 +35,20 @@
 
 int main(/*int argc, char * argv[]*/)
 {
+	int a = 0;
 	int s = 0;
 	VeThread t1;
 	t1.StartEntry([&]() noexcept
-	{
+	{	
 		while (true)
 		{
 			if (s)
 			{
-				printf("after\n");
+				printf("after: %d\n", ++a);
 			}
 			else
 			{
-				printf("before\n");
+				printf("before: %d\n", ++a);
 			}
 		}
 	});
