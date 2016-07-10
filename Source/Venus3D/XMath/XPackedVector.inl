@@ -58,11 +58,17 @@ inline float XMConvertHalfToFloat
 		Exponent = (uint32_t)-112;
 	}
 
-	uint32_t Result = ((Value & 0x8000) << 16) | // Sign
+	union
+	{
+		uint32_t ri;
+		float rf;
+	} u;
+
+	u.ri = ((Value & 0x8000) << 16) | // Sign
 		((Exponent + 112) << 23) | // Exponent
 		(Mantissa << 13);          // Mantissa
 
-	return reinterpret_cast<float*>(&Result)[0];
+	return u.rf;//*((float*)(void*)(&Result));
 #endif // !_XM_F16C_INTRINSICS_
 }
 
