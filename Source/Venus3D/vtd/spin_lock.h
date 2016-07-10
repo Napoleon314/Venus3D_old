@@ -4,7 +4,7 @@
 //  Copyright (c) 2016 Albert D Yang
 // -------------------------------------------------------------------------
 //  Module:      vtd
-//  File name:   thread.h
+//  File name:   spin_lock.h
 //  Created:     2016/07/06 by Albert
 //  Description:
 // -------------------------------------------------------------------------

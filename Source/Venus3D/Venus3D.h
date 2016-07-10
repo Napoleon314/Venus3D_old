@@ -351,10 +351,10 @@
 #include "XMath/XCollision.h"
 
 #include "vtd/rtti.h"
-#include "vtd/thread.h"
 #include "vtd/vector.h"
 #include "vtd/stack.h"
 #include "vtd/ring_buffer.h"
+#include "vtd/spin_lock.h"
 #include "vtd/intrusive_list.h"
 #include "vtd/intrusive_ptr.h"
 #include "vtd/string.h"

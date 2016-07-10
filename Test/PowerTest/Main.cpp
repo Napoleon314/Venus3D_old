@@ -74,6 +74,9 @@ int main(/*int argc, char * argv[]*/)
 	res = q.pop();
 	res = q.pop();
 	printf("%d\n", res);
+
+
+
 	
 	return 0;
 }
