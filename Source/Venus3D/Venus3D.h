@@ -294,6 +294,7 @@
 #include <atomic>
 #include <thread>
 #include <mutex>
+#include <condition_variable>
 
 #define VE_TRUE (1)
 #define VE_FALSE (0)
