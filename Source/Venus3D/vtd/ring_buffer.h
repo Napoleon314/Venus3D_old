@@ -48,6 +48,9 @@ namespace vtd
 
 		ring_buffer() noexcept
 		{
+#if defined(DEBUG) | defined(_DEBUG)
+			_Size.store(0);
+#endif
 			_Cursor.store(0);
 			_Head.store(0);			
 			_Tail.store(0);
@@ -57,6 +60,9 @@ namespace vtd
 
 		void push(value_type _Val) noexcept
 		{
+#if defined(DEBUG) | defined(_DEBUG)
+			assert(_Size.fetch_add(1, std::memory_order_acquire) < _Max);
+#endif
 			size_type cur = _Cursor.fetch_add(1, std::memory_order_acquire);
 			buffer[cur & _Mask] = _Val;
 			_Head.fetch_add(1, std::memory_order_release);
@@ -74,7 +80,13 @@ namespace vtd
 					return _Default;
 				}
 			} while (!_Tail.compare_exchange_weak(t, t + 1, std::memory_order_relaxed));
+#if defined(DEBUG) | defined(_DEBUG)
+			value_type res = buffer[t & _Mask];
+			assert(_Size.fetch_sub(1, std::memory_order_release) > 0);
+			return res;
+#else
 			return buffer[t & _Mask];
+#endif
 		}
 
 	private:
@@ -84,6 +96,9 @@ namespace vtd
 		ring_buffer(ring_buffer&&) = delete;
 		ring_buffer& operator = (const ring_buffer&) = delete;
 
+#if defined(DEBUG) | defined(_DEBUG)
+		std::atomic<size_type> _Size;
+#endif
 		std::atomic<size_type> _Cursor;
 		std::atomic<size_type> _Head;
 		std::atomic<size_type> _Tail;
