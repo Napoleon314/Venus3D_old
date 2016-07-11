@@ -221,7 +221,7 @@ private:
 	{
 		event m_kEvent;
 		event m_kEventLoop;
-		volatile ThisPointer m_pkThis;
+		std::atomic<VeThread*> m_pkThis;
 	};	
 	
 	Entry m_kEntry;

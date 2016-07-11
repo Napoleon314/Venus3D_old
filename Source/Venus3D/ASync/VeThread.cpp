@@ -256,20 +256,29 @@ VeThread::~VeThread() noexcept
 		;
 	m_pkParams->m_pkThis = nullptr;
 	m_pkParams->m_kEventLoop.set();
+	VeJoinThread(m_hThread);
 	m_pkParams = nullptr;
 }
 //--------------------------------------------------------------------------
 VeThreadCallbackResult VeThread::Callback(void* pvParam) noexcept
 {
 	ThreadParams* pkParams = (ThreadParams*)pvParam;
-	do
+	while (true)
 	{
-		pkParams->m_kEventLoop.wait();
-		pkParams->m_pkThis->m_kEntry();
-		pkParams->m_pkThis->m_u32State.store(0, std::memory_order_relaxed);
-		pkParams->m_kEventLoop.reset();
-		pkParams->m_kEvent.set();
-	} while (pkParams->m_pkThis);
+		VeThread* pkThis = pkParams->m_pkThis.load(std::memory_order_relaxed);
+		if (pkThis)
+		{
+			pkParams->m_kEventLoop.wait();
+			pkThis->m_kEntry();
+			pkThis->m_u32State.store(0, std::memory_order_relaxed);
+			pkParams->m_kEventLoop.reset();
+			pkParams->m_kEvent.set();
+		}
+		else
+		{
+			break;
+		}		
+	}
 	VE_DELETE(pkParams);
 	return 0;
 }
