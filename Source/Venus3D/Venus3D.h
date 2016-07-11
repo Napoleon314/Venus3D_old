@@ -296,6 +296,14 @@
 #include <mutex>
 #include <condition_variable>
 
+#ifdef VE_DEBUG
+#	define assert_eq(e,c) assert(e == c)
+#	define assert_lt(e,c) assert(e < c)
+#else
+#	define assert_eq(e,c) e
+#	define assert_lt(e,c) e
+#endif
+
 #define VE_TRUE (1)
 #define VE_FALSE (0)
 #define VE_BOOL uint32_t

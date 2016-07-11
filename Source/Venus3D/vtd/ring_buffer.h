@@ -48,7 +48,8 @@ namespace vtd
 
 		ring_buffer() noexcept
 		{
-			_Head.store(0);
+			_Cursor.store(0);
+			_Head.store(0);			
 			_Tail.store(0);
 		}
 
@@ -56,8 +57,9 @@ namespace vtd
 
 		void push(value_type _Val) noexcept
 		{
-			size_type hpos = _Head.fetch_add(1, std::memory_order_relaxed);
-			buffer[hpos & _Mask] = _Val;
+			size_type cur = _Cursor.fetch_add(1, std::memory_order_acquire);
+			buffer[cur & _Mask] = _Val;
+			_Head.fetch_add(1, std::memory_order_release);
 		}
 
 		value_type pop() noexcept
@@ -82,6 +84,7 @@ namespace vtd
 		ring_buffer(ring_buffer&&) = delete;
 		ring_buffer& operator = (const ring_buffer&) = delete;
 
+		std::atomic<size_type> _Cursor;
 		std::atomic<size_type> _Head;
 		std::atomic<size_type> _Tail;
 		value_type buffer[_Max];
