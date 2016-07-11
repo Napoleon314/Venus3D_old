@@ -89,24 +89,59 @@ void VeThread::Join() noexcept
 	m_kJoin.Wait();
 }
 //--------------------------------------------------------------------------
+#ifndef BUILD_PLATFORM_WIN
+//--------------------------------------------------------------------------
+#define RESUME_SIG SIGUSR2
+#define SUSPEND_SIG SIGUSR1
+//--------------------------------------------------------------------------
+static sigset_t wait_mask;
+static __thread int suspended;
+//--------------------------------------------------------------------------
+void resume_handler(int) noexcept
+{
+    suspended = 0;
+}
+//--------------------------------------------------------------------------
+void suspend_handler(int) noexcept
+{
+    if (suspended) return;
+    suspended = 1;
+    do sigsuspend(&wait_mask); while (suspended);
+}
+//--------------------------------------------------------------------------
+#endif
+//--------------------------------------------------------------------------
 void VeThread::Suspend() noexcept
 {
 #	ifdef BUILD_PLATFORM_WIN
-	SuspendThread(m_kCore.native_handle());
+    SuspendThread(m_kCore.native_handle());
+#   else
+    pthread_kill(m_kCore.native_handle(), SUSPEND_SIG);
 #	endif
 }
-
+//--------------------------------------------------------------------------
 void VeThread::Resume() noexcept
 {
 #	ifdef BUILD_PLATFORM_WIN
-	ResumeThread(m_kCore.native_handle());
+    ResumeThread(m_kCore.native_handle());
+#   else
+    pthread_kill(m_kCore.native_handle(), RESUME_SIG);
 #	endif
 }
 //--------------------------------------------------------------------------
 void VeThread::Init()
 {
 #	ifndef BUILD_PLATFORM_WIN
-	
+    struct sigaction sa;
+    sigfillset(&wait_mask);
+    sigdelset(&wait_mask, SUSPEND_SIG);
+    sigdelset(&wait_mask, RESUME_SIG);
+    sigfillset(&sa.sa_mask);
+    sa.sa_flags = 0;
+    sa.sa_handler = resume_handler;
+    sigaction(RESUME_SIG, &sa, nullptr);
+    sa.sa_handler = suspend_handler;
+    sigaction(SUSPEND_SIG, &sa, nullptr);
 #	endif
 }
 //--------------------------------------------------------------------------
