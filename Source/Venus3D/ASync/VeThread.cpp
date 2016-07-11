@@ -31,6 +31,155 @@
 #include "stdafx.h"
 
 //--------------------------------------------------------------------------
+VeThreadHandle VeCreateThread(VeThreadCallback pfuncThreadProc,
+	void* pvParam, uint32_t u32Priority, size_t stStackSize)
+{
+#ifdef  BUILD_PLATFORM_WIN
+	VeThreadHandle hRes = (VeThreadHandle)_beginthreadex(NULL,
+		(unsigned int)stStackSize, pfuncThreadProc, pvParam, 0, NULL);
+	SetThreadPriority(hRes, u32Priority);
+	return hRes;
+#else
+	VeThreadHandle hThread(0);
+	pthread_attr_t kAttr;
+	pthread_attr_init(&kAttr);
+	sched_param kParam;
+	pthread_attr_getschedparam(&kAttr, &kParam);
+	kParam.sched_priority = u32Priority;
+	pthread_attr_setschedparam(&kAttr, &kParam);
+	pthread_attr_setstacksize(&kAttr, stStackSize ? stStackSize : 4096);
+	pthread_create(&hThread, &kAttr, pfuncThreadProc, pvParam);
+	return hThread;
+#endif
+}
+//--------------------------------------------------------------------------
+bool VeJoinThread(VeThreadHandle hThread)
+{
+#ifdef  BUILD_PLATFORM_WIN
+	return WaitForSingleObject(hThread, UINT32_MAX) == WAIT_OBJECT_0;
+#else
+	return hThread ? VE_SUCCEEDED(pthread_join(hThread, NULL)) : true;
+#endif
+}
+//--------------------------------------------------------------------------
+bool VeIsThreadActive(VeThreadHandle hThread)
+{
+#ifdef  BUILD_PLATFORM_WIN
+	DWORD dwCode(0);
+	return (GetExitCodeThread(hThread, &dwCode) && dwCode == STILL_ACTIVE);
+#else
+	return hThread ? (pthread_kill(hThread, 0) != ESRCH) : false;
+#endif
+}
+//--------------------------------------------------------------------------
+VeThreadID VeGetLocalThread()
+{
+#ifdef  BUILD_PLATFORM_WIN
+	return GetCurrentThreadId();
+#else
+	return pthread_self();
+#endif
+}
+//--------------------------------------------------------------------------
+void VeSleep(uint32_t u32Millisecond)
+{
+#ifdef  BUILD_PLATFORM_WIN
+	Sleep(u32Millisecond);
+#else
+	timespec kTimeSpec;
+	kTimeSpec.tv_sec = u32Millisecond / 1000;
+	kTimeSpec.tv_nsec = (u32Millisecond % 1000) * 1000000;
+	nanosleep(&kTimeSpec, 0);
+#endif
+}
+//--------------------------------------------------------------------------
+bool VeThreadEventInit(VeThreadEvent* phEvent, bool bInitState)
+{
+#ifdef  BUILD_PLATFORM_WIN
+	return ((*phEvent = CreateEvent(NULL, FALSE, bInitState, NULL)) != NULL);
+#else
+	phEvent->m_u32State = bInitState;
+	pthread_mutex_init(&phEvent->m_kMutex, NULL);
+	return pthread_cond_init(&phEvent->m_kCond, NULL) == 0;
+#endif
+}
+//--------------------------------------------------------------------------
+void VeThreadEventTerm(VeThreadEvent* phEvent)
+{
+#ifdef  BUILD_PLATFORM_WIN
+	if (*phEvent) CloseHandle(*phEvent);
+	*phEvent = NULL;
+#else
+	pthread_mutex_destroy(&phEvent->m_kMutex);
+	pthread_cond_destroy(&phEvent->m_kCond);
+#endif
+}
+//--------------------------------------------------------------------------
+void VeThreadEventWait(VeThreadEvent* phEvent)
+{
+#ifdef  BUILD_PLATFORM_WIN
+	WaitForSingleObject(*phEvent, INFINITE);
+#else
+	if (phEvent->m_u32State == 0)
+	{
+		pthread_mutex_lock(&phEvent->m_kMutex);
+		pthread_cond_wait(&phEvent->m_kCond, &phEvent->m_kMutex);
+		pthread_mutex_unlock(&phEvent->m_kMutex);
+	}
+#endif
+}
+//--------------------------------------------------------------------------
+void VeThreadEventWait(VeThreadEvent* phEvent, uint32_t u32Milliseconds)
+{
+#ifdef  BUILD_PLATFORM_WIN
+	WaitForSingleObject(*phEvent, u32Milliseconds);
+#else
+	if (phEvent->m_u32State == 0)
+	{
+		timeval kNow;
+		timespec kOutTime;
+		gettimeofday(&kNow, NULL);
+		kOutTime.tv_sec = kNow.tv_sec + u32Milliseconds / 1000;
+		kOutTime.tv_nsec = kNow.tv_usec * 1000
+			+ (u32Milliseconds % 1000) * 1000000;
+		pthread_mutex_lock(&phEvent->m_kMutex);
+		pthread_cond_timedwait(&phEvent->m_kCond,
+			&phEvent->m_kMutex, &kOutTime);
+		pthread_mutex_unlock(&phEvent->m_kMutex);
+	}
+#endif
+}
+//--------------------------------------------------------------------------
+void VeThreadEventSet(VeThreadEvent* phEvent)
+{
+#ifdef  BUILD_PLATFORM_WIN
+	SetEvent(*phEvent);
+#else
+	if (phEvent->m_u32State == 0)
+	{
+		pthread_mutex_lock(&phEvent->m_kMutex);
+		phEvent->m_u32State = 1;
+		pthread_cond_broadcast(&phEvent->m_kCond);
+		pthread_mutex_unlock(&phEvent->m_kMutex);
+	}
+#endif
+}
+//--------------------------------------------------------------------------
+void VeThreadEventReset(VeThreadEvent* phEvent)
+{
+#ifdef  BUILD_PLATFORM_WIN
+	ResetEvent(*phEvent);
+#else
+	if (phEvent->m_u32State == 1)
+	{
+		pthread_mutex_lock(&phEvent->m_kMutex);
+		phEvent->m_u32State = 0;
+		pthread_mutex_unlock(&phEvent->m_kMutex);
+	}
+#endif
+}
+
+//--------------------------------------------------------------------------
 VeThread::VeThread() noexcept
 {
 	m_u32State.store(0, std::memory_order_relaxed);

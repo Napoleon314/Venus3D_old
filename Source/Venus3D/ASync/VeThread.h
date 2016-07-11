@@ -30,6 +30,87 @@
 
 #pragma once
 
+#ifdef BUILD_PLATFORM_WIN
+
+typedef CRITICAL_SECTION VeThreadMutex;
+typedef HANDLE VeThreadEvent;
+typedef HANDLE VeThreadHandle;
+typedef DWORD VeThreadID;
+typedef unsigned int VeThreadCallbackResult;
+
+#define VeThreadMutexInit(x) InitializeCriticalSection(&x)
+#define VeThreadMutexTerm(x) DeleteCriticalSection(&x)
+#define VeThreadMutexLock(x) EnterCriticalSection(&x)
+#define VeThreadMutexUnlock(x) LeaveCriticalSection(&x)
+
+#define VE_THREAD_PRIORITY_IDLE THREAD_BASE_PRIORITY_IDLE
+#define VE_THREAD_PRIORITY_LOWEST THREAD_PRIORITY_LOWEST
+#define VE_THREAD_PRIORITY_BELOW_NORMAL THREAD_PRIORITY_BELOW_NORMAL
+#define VE_THREAD_PRIORITY_NORMAL THREAD_PRIORITY_NORMAL
+#define VE_THREAD_PRIORITY_ABOVE_NORMAL THREAD_PRIORITY_ABOVE_NORMAL
+#define VE_THREAD_PRIORITY_HIGHEST THREAD_PRIORITY_HIGHEST
+#define VE_THREAD_PRIORITY_TIME_CRITICAL THREAD_PRIORITY_TIME_CRITICAL
+
+#else
+
+typedef pthread_mutex_t VeThreadMutex;
+typedef struct
+{
+	pthread_cond_t m_kCond;
+	pthread_mutex_t m_kMutex;
+	VeUInt32 m_u32State;
+} VeThreadEvent;
+typedef pthread_t VeThreadHandle;
+typedef pthread_t VeThreadID;
+typedef void* VeThreadCallbackResult;
+
+#define VeThreadMutexInit(x) pthread_mutex_init(&x, NULL)
+#define VeThreadMutexTerm(x) pthread_mutex_destroy(&x)
+#define VeThreadMutexLock(x) pthread_mutex_lock(&x)
+#define VeThreadMutexUnlock(x) pthread_mutex_unlock(&x)
+
+#define VE_THREAD_PRIORITY_IDLE 1
+#define VE_THREAD_PRIORITY_LOWEST 16
+#define VE_THREAD_PRIORITY_BELOW_NORMAL 24
+#define VE_THREAD_PRIORITY_NORMAL 32
+#define VE_THREAD_PRIORITY_ABOVE_NORMAL 40
+#define VE_THREAD_PRIORITY_HIGHEST 48
+#define VE_THREAD_PRIORITY_TIME_CRITICAL 100
+
+#endif
+
+enum VeThreadResult
+{
+	VE_THREAD_WAIT_SUCCEED,
+	VE_THREAD_WAIT_TIMEOUT,
+	VE_THREAD_WAIT_ABANDON,
+	VE_THREAD_WAIT_FAILED
+};
+
+typedef VeThreadCallbackResult(VE_CALLBACK * VeThreadCallback)(void* pvParam);
+
+VENUS_API VeThreadHandle VeCreateThread(VeThreadCallback pfuncThreadProc, void* pvParam, uint32_t u32Priority = VE_THREAD_PRIORITY_NORMAL, size_t stStackSize = 32768);
+
+VENUS_API bool VeJoinThread(VeThreadHandle hThread);
+
+VENUS_API bool VeIsThreadActive(VeThreadHandle hThread);
+
+VENUS_API VeThreadID VeGetLocalThread();
+
+VENUS_API void VeSleep(uint32_t u32Millisecond);
+
+VENUS_API bool VeThreadEventInit(VeThreadEvent* phEvent, bool bInitState = false);
+
+VENUS_API void VeThreadEventTerm(VeThreadEvent* phEvent);
+
+VENUS_API void VeThreadEventWait(VeThreadEvent* phEvent);
+
+VENUS_API void VeThreadEventWait(VeThreadEvent* phEvent, uint32_t u32Milliseconds);
+
+VENUS_API void VeThreadEventSet(VeThreadEvent* phEvent);
+
+VENUS_API void VeThreadEventReset(VeThreadEvent* phEvent);
+
 class VENUS_API VeThread : public VeRefObject
 {
 	VeNoCopy(VeThread);
