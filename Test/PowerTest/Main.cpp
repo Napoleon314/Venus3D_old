@@ -55,17 +55,17 @@ int main(/*int argc, char * argv[]*/)
 		}
 	});
 
-	std::this_thread::sleep_for(std::chrono::seconds(3));
+	//std::this_thread::sleep_for(std::chrono::seconds(3));
 
-	t1.Suspend();
+	//t1.Suspend();
 	
-	std::this_thread::sleep_for(std::chrono::seconds(3));
+	//std::this_thread::sleep_for(std::chrono::seconds(3));
 
-	s = 1;
+	//s = 1;
 
-	t1.Resume();
+	//t1.Resume();
 
-	t1.Join();
+	//t1.Join();
 
 	VeThread::Term();
 	
