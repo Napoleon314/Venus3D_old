@@ -193,8 +193,6 @@ public:
 
 	};
 
-	typedef std::function<void()> Entry;
-
 	VeThread(uint32_t u32Priority = VE_THREAD_PRIORITY_NORMAL, size_t stStackSize = 32768) noexcept;
 
 	virtual ~VeThread() noexcept;
