@@ -65,7 +65,7 @@ int main(/*int argc, char * argv[]*/)
 
 	//t1.Resume();
 
-	//t1.Join();
+	t1.Join();
 
 	VeThread::Term();
 	
