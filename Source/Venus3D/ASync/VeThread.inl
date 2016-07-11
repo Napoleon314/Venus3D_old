@@ -73,13 +73,3 @@ inline void VeThread::Resume() noexcept
 	VeResumeThread(m_hThread);
 }
 //--------------------------------------------------------------------------
-inline void VeThread::Init()
-{
-	VeThreadInit();
-}
-//--------------------------------------------------------------------------
-inline void VeThread::Term()
-{
-	VeThreadTerm();
-}
-//--------------------------------------------------------------------------

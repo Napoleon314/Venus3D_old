@@ -3,9 +3,9 @@
 //  The MIT License (MIT)
 //  Copyright (c) 2016 Albert D Yang
 // -------------------------------------------------------------------------
-//  Module:      PowerTest
-//  File name:   Main.cpp
-//  Created:     2016/07/01 by Albert
+//  Module:      ASync
+//  File name:   VeCoroutine.h
+//  Created:     2016/07/11 by Albert
 //  Description:
 // -------------------------------------------------------------------------
 //  Permission is hereby granted, free of charge, to any person obtaining a
@@ -28,17 +28,29 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-#ifdef BUILD_PLATFORM_WIN
-#	include <vld.h>
-#endif
-#include <Venus3D.h>
+#pragma once
 
-#include <setjmp.h>
+VeSmartPointer(VeCoroutine);
 
-
-int main(/*int argc, char * argv[]*/)
+class VENUS_API VeCoroutine : public VeRefObject
 {
-	
-	
-	return 0;
-}
+public:
+	enum Status
+	{
+		STATUS_SUSPENDED,
+		STATUS_RUNNING,
+		STATUS_DEAD,
+	};
+
+	template <class _Func>
+	static VeCoroutinePtr Create(std::function<_Func>&& func) noexcept;
+
+
+protected:
+	Status m_eStatus = STATUS_SUSPENDED;
+
+	//static thread_local VeCoroutinePtr ms_spRunning_thread;
+
+};
+
+#include "VeCoroutine.inl"

@@ -383,6 +383,7 @@
 #include "Memory/VeBlob.h"
 
 #include "ASync/VeThread.h"
+#include "ASync/VeCoroutine.h"
 
 #include "Video/VePixel.h"
 #include "Video/VeSurface.h"

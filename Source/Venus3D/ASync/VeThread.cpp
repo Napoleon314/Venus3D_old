@@ -219,7 +219,7 @@ void VeThreadEventReset(VeThreadEvent* phEvent) noexcept
 #endif
 }
 //--------------------------------------------------------------------------
-void VeThreadInit()
+void VeThreadInitForSuspend() noexcept
 {
 #	ifndef BUILD_PLATFORM_WIN
 	struct sigaction sa;
@@ -233,11 +233,6 @@ void VeThreadInit()
 	sa.sa_handler = suspend_handler;
 	sigaction(SUSPEND_SIG, &sa, nullptr);
 #	endif
-}
-//--------------------------------------------------------------------------
-void VeThreadTerm()
-{
-
 }
 //--------------------------------------------------------------------------
 VeThread::VeThread(uint32_t u32Priority, size_t stStackSize) noexcept

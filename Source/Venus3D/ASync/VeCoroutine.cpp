@@ -3,9 +3,9 @@
 //  The MIT License (MIT)
 //  Copyright (c) 2016 Albert D Yang
 // -------------------------------------------------------------------------
-//  Module:      PowerTest
-//  File name:   Main.cpp
-//  Created:     2016/07/01 by Albert
+//  Module:      ASync
+//  File name:   VeCoroutine.cpp
+//  Created:     2016/07/11 by Albert
 //  Description:
 // -------------------------------------------------------------------------
 //  Permission is hereby granted, free of charge, to any person obtaining a
@@ -28,17 +28,5 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-#ifdef BUILD_PLATFORM_WIN
-#	include <vld.h>
-#endif
-#include <Venus3D.h>
+#include "stdafx.h"
 
-#include <setjmp.h>
-
-
-int main(/*int argc, char * argv[]*/)
-{
-	
-	
-	return 0;
-}

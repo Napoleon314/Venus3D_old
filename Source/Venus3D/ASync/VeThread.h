@@ -115,9 +115,7 @@ VENUS_API void VeThreadEventSet(VeThreadEvent* phEvent) noexcept;
 
 VENUS_API void VeThreadEventReset(VeThreadEvent* phEvent) noexcept;
 
-VENUS_API void VeThreadInit();
-
-VENUS_API void VeThreadTerm();
+VENUS_API void VeThreadInitForSuspend() noexcept;
 
 class VENUS_API VeThread : public VeRefObject
 {
@@ -208,10 +206,6 @@ public:
 	inline void Suspend() noexcept;
 
 	inline void Resume() noexcept;
-
-	inline static void Init();
-
-	inline static void Term();
 
 private:
 	typedef VeThread* ThisPointer;
