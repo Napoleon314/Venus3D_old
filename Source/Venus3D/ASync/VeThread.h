@@ -199,11 +199,9 @@ public:
 
 	inline bool IsRunning() noexcept;
 
-	inline void SetEntry(const std::function<void()>& kEntry) noexcept;
+	inline void Start(const std::function<void()>& kEntry) noexcept;
 
-	inline void Start() noexcept;
-
-	inline void StartEntry(const std::function<void()>& kEntry) noexcept;
+	inline void Restart() noexcept;
 
 	inline void Join() noexcept;
 

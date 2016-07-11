@@ -40,9 +40,9 @@ int main(/*int argc, char * argv[]*/)
 	int a = 0;
 	int s = 0;
 	VeThread t1;
-	t1.StartEntry([&]() noexcept
+	t1.Start([&]() noexcept
 	{	
-		while (true)
+		while (a < 30000)
 		{
 			if (s)
 			{

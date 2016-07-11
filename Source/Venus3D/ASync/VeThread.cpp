@@ -262,22 +262,15 @@ VeThread::~VeThread() noexcept
 VeThreadCallbackResult VeThread::Callback(void* pvParam) noexcept
 {
 	ThreadParams* pkParams = (ThreadParams*)pvParam;
-	pkParams->m_kEventLoop.wait();
-	while (pkParams->m_pkThis)
+	do
 	{
-		pkParams->m_pkThis->m_kEntry();
-		{
-			std::lock_guard<vtd::spin_lock> lock(pkParams->m_pkThis->m_kLock);
-			pkParams->m_pkThis->m_u32State.fetch_sub(1, std::memory_order_relaxed);
-			pkParams->m_kEventLoop.reset();
-			pkParams->m_kEvent.set();
-		}
 		pkParams->m_kEventLoop.wait();
-	}
+		pkParams->m_pkThis->m_kEntry();
+		pkParams->m_pkThis->m_u32State.store(0, std::memory_order_relaxed);
+		pkParams->m_kEventLoop.reset();
+		pkParams->m_kEvent.set();
+	} while (pkParams->m_pkThis);
 	VE_DELETE(pkParams);
 	return 0;
 }
 //--------------------------------------------------------------------------
-
-
-
