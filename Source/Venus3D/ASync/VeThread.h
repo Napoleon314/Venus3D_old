@@ -58,7 +58,7 @@ typedef struct
 {
 	pthread_cond_t m_kCond;
 	pthread_mutex_t m_kMutex;
-	VeUInt32 m_u32State;
+	uint32_t m_u32State;
 } VeThreadEvent;
 typedef pthread_t VeThreadHandle;
 typedef pthread_t VeThreadID;
