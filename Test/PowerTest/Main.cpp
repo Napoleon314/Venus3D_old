@@ -35,6 +35,8 @@
 
 int main(/*int argc, char * argv[]*/)
 {
+	VeThread::Init();
+
 	int a = 0;
 	int s = 0;
 	VeThread t1;
@@ -64,6 +66,8 @@ int main(/*int argc, char * argv[]*/)
 	t1.Resume();
 
 	t1.Join();
+
+	VeThread::Term();
 	
 	return 0;
 }

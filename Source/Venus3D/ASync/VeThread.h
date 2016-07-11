@@ -102,6 +102,10 @@ public:
 
 	void Resume() noexcept;
 
+	static void Init();
+
+	static void Term();
+
 private:
 	void Callback() noexcept;
 

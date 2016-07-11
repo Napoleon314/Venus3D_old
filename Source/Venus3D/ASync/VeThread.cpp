@@ -102,7 +102,20 @@ void VeThread::Resume() noexcept
 	ResumeThread(m_kCore.native_handle());
 #	endif
 }
-
+//--------------------------------------------------------------------------
+void VeThread::Init()
+{
+#	ifndef BUILD_PLATFORM_WIN
+	
+#	endif
+}
+//--------------------------------------------------------------------------
+void VeThread::Term()
+{
+#	ifndef BUILD_PLATFORM_WIN
+	
+#	endif
+}
 //--------------------------------------------------------------------------
 void VeThread::Callback() noexcept
 {
