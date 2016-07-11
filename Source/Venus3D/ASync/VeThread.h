@@ -89,113 +89,152 @@ enum VeThreadResult
 
 typedef VeThreadCallbackResult(VE_CALLBACK * VeThreadCallback)(void* pvParam);
 
-VENUS_API VeThreadHandle VeCreateThread(VeThreadCallback pfuncThreadProc, void* pvParam, uint32_t u32Priority = VE_THREAD_PRIORITY_NORMAL, size_t stStackSize = 32768);
+VENUS_API VeThreadHandle VeCreateThread(VeThreadCallback pfuncThreadProc, void* pvParam, uint32_t u32Priority = VE_THREAD_PRIORITY_NORMAL, size_t stStackSize = 32768) noexcept;
 
-VENUS_API bool VeJoinThread(VeThreadHandle hThread);
+VENUS_API bool VeJoinThread(VeThreadHandle hThread) noexcept;
 
-VENUS_API bool VeIsThreadActive(VeThreadHandle hThread);
+VENUS_API void VeSuspendThread(VeThreadHandle hThread) noexcept;
 
-VENUS_API VeThreadID VeGetLocalThread();
+VENUS_API void VeResumeThread(VeThreadHandle hThread) noexcept;
 
-VENUS_API void VeSleep(uint32_t u32Millisecond);
+VENUS_API bool VeIsThreadActive(VeThreadHandle hThread) noexcept;
 
-VENUS_API bool VeThreadEventInit(VeThreadEvent* phEvent, bool bInitState = false);
+VENUS_API VeThreadID VeGetLocalThread() noexcept;
 
-VENUS_API void VeThreadEventTerm(VeThreadEvent* phEvent);
+VENUS_API void VeSleep(uint32_t u32Millisecond) noexcept;
 
-VENUS_API void VeThreadEventWait(VeThreadEvent* phEvent);
+VENUS_API bool VeThreadEventInit(VeThreadEvent* phEvent, bool bInitState = false) noexcept;
 
-VENUS_API void VeThreadEventWait(VeThreadEvent* phEvent, uint32_t u32Milliseconds);
+VENUS_API void VeThreadEventTerm(VeThreadEvent* phEvent) noexcept;
 
-VENUS_API void VeThreadEventSet(VeThreadEvent* phEvent);
+VENUS_API void VeThreadEventWait(VeThreadEvent* phEvent) noexcept;
 
-VENUS_API void VeThreadEventReset(VeThreadEvent* phEvent);
+VENUS_API void VeThreadEventWait(VeThreadEvent* phEvent, uint32_t u32Milliseconds) noexcept;
+
+VENUS_API void VeThreadEventSet(VeThreadEvent* phEvent) noexcept;
+
+VENUS_API void VeThreadEventReset(VeThreadEvent* phEvent) noexcept;
+
+VENUS_API void VeThreadInit();
+
+VENUS_API void VeThreadTerm();
 
 class VENUS_API VeThread : public VeRefObject
 {
 	VeNoCopy(VeThread);
 	VeNoMove(VeThread);
 public:
-	class Event
+	class mutex
 	{
-		VeNoCopy(Event);
-		VeNoMove(Event);
+		VeNoCopy(mutex);
+		VeNoMove(mutex);
 	public:
-		Event() noexcept
+		mutex() noexcept
 		{
-
+			VeThreadMutexInit(m_hMutex);
 		}
 
-		~Event() noexcept
+		~mutex() noexcept
 		{
-
+			VeThreadMutexTerm(m_hMutex);
 		}
 
-		void Wait() noexcept
+		void lock() noexcept
 		{
-			std::unique_lock<std::mutex> kLock(m_kMutex);
-			while (m_i32Count <= 0)
-			{
-				m_kCondition.wait(kLock);
-			}
+			VeThreadMutexLock(m_hMutex);
 		}
 
-		void Set(int32_t i32Step = 1) noexcept
+		void unlock() noexcept
 		{
-			std::lock_guard<std::mutex> kLock(m_kMutex);
-			m_i32Count += i32Step;
-			m_kCondition.notify_all();
-		}
-
-		void Reset(int32_t i32Count = 1) noexcept
-		{
-			assert(i32Count > 0);
-			std::lock_guard<std::mutex> kLock(m_kMutex);
-			m_i32Count = 1 - i32Count;
+			VeThreadMutexUnlock(m_hMutex);
 		}
 
 	private:
-		std::mutex m_kMutex;
-		std::condition_variable m_kCondition;
-		int32_t m_i32Count = 0;
+		VeThreadMutex m_hMutex;
+	};
+
+	class event
+	{
+		VeNoCopy(event);
+		VeNoMove(event);
+	public:
+		event() noexcept
+		{
+			VeThreadEventInit(&m_kEvent, false);
+		}
+
+		~event() noexcept
+		{
+			VeThreadEventTerm(&m_kEvent);
+		}
+
+		void wait() noexcept
+		{
+			VeThreadEventWait(&m_kEvent);
+		}
+
+		void wait(uint32_t _Milliseconds) noexcept
+		{
+			VeThreadEventWait(&m_kEvent, _Milliseconds);
+		}
+
+		void set() noexcept
+		{
+			VeThreadEventSet(&m_kEvent);
+		}
+
+		void reset() noexcept
+		{
+			VeThreadEventReset(&m_kEvent);
+		}
+
+	private:
+		VeThreadEvent m_kEvent;
 
 	};
 
 	typedef std::function<void()> Entry;
 
-	VeThread() noexcept;
-
-	VeThread(const std::function<void()>& kEntry) noexcept;
+	VeThread(uint32_t u32Priority = VE_THREAD_PRIORITY_NORMAL, size_t stStackSize = 32768) noexcept;
 
 	virtual ~VeThread() noexcept;
 
 	inline bool IsRunning() noexcept;
 
-	void Start() noexcept;
+	inline void SetEntry(const std::function<void()>& kEntry) noexcept;
 
-	void StartEntry(const std::function<void()>& kEntry) noexcept;
+	inline void Start() noexcept;
 
-	void SetEntry(const std::function<void()>& kEntry) noexcept;
+	inline void StartEntry(const std::function<void()>& kEntry) noexcept;
 
-	void Join() noexcept;
+	inline void Join() noexcept;
 
-	void Suspend() noexcept;
+	inline void Suspend() noexcept;
 
-	void Resume() noexcept;
+	inline void Resume() noexcept;
 
-	static void Init();
+	inline static void Init();
 
-	static void Term();
+	inline static void Term();
 
 private:
-	void Callback() noexcept;
+	typedef VeThread* ThisPointer;
+	typedef std::function<void()> Entry;
 
+	struct ThreadParams : VeMemObject
+	{
+		event m_kEvent;
+		event m_kEventLoop;
+		volatile ThisPointer m_pkThis;
+	};	
+	
 	Entry m_kEntry;
-	std::thread m_kCore;
-	Event m_kLoop;
-	Event m_kJoin;
-	std::atomic_uint m_u32State;
+	VeThreadHandle m_hThread;
+	std::atomic<uint32_t> m_u32State;
+	ThreadParams* m_pkParams;
+	vtd::spin_lock m_kLock;
 
+	static VeThreadCallbackResult VE_CALLBACK Callback(void* pvParam) noexcept;
 };
 
 #include "VeThread.inl"

@@ -34,3 +34,57 @@ inline bool VeThread::IsRunning() noexcept
 	return m_u32State.load(std::memory_order_relaxed) == 1;
 }
 //--------------------------------------------------------------------------
+inline void VeThread::SetEntry(const std::function<void()>& kEntry) noexcept
+{
+	if (m_u32State.load(std::memory_order_relaxed) == 0)
+	{
+		m_kEntry = kEntry;
+	}
+}
+//--------------------------------------------------------------------------
+inline void VeThread::Start() noexcept
+{
+	uint32_t u32Stop(0);
+	if (m_u32State.compare_exchange_weak(u32Stop, 1u, std::memory_order_relaxed))
+	{
+		m_pkParams->m_kEventLoop.set();
+		m_pkParams->m_kEvent.reset();
+	}
+}
+//--------------------------------------------------------------------------
+void VeThread::StartEntry(const std::function<void()>& kEntry) noexcept
+{
+	uint32_t u32Stop(0);
+	if (m_u32State.compare_exchange_weak(u32Stop, 1u, std::memory_order_relaxed))
+	{
+		m_kEntry = kEntry;
+		m_pkParams->m_kEventLoop.set();
+		m_pkParams->m_kEvent.reset();
+	}
+}
+//--------------------------------------------------------------------------
+inline void VeThread::Join() noexcept
+{
+	m_pkParams->m_kEvent.wait();
+}
+//--------------------------------------------------------------------------
+inline void VeThread::Suspend() noexcept
+{
+	VeSuspendThread(m_hThread);
+}
+//--------------------------------------------------------------------------
+inline void VeThread::Resume() noexcept
+{
+	VeResumeThread(m_hThread);
+}
+//--------------------------------------------------------------------------
+inline void VeThread::Init()
+{
+	VeThreadInit();
+}
+//--------------------------------------------------------------------------
+inline void VeThread::Term()
+{
+	VeThreadTerm();
+}
+//--------------------------------------------------------------------------

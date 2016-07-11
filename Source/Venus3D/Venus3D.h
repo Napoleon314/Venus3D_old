@@ -298,9 +298,11 @@
 
 #ifdef VE_DEBUG
 #	define assert_eq(e,c) assert(e == c)
+#	define assert_neq(e,c) assert(e != c)
 #	define assert_lt(e,c) assert(e < c)
 #else
 #	define assert_eq(e,c) e
+#	define assert_neq(e,c) e
 #	define assert_lt(e,c) e
 #endif
 

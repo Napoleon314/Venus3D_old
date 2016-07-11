@@ -32,7 +32,7 @@
 
 //--------------------------------------------------------------------------
 VeThreadHandle VeCreateThread(VeThreadCallback pfuncThreadProc,
-	void* pvParam, uint32_t u32Priority, size_t stStackSize)
+	void* pvParam, uint32_t u32Priority, size_t stStackSize) noexcept
 {
 #ifdef  BUILD_PLATFORM_WIN
 	VeThreadHandle hRes = (VeThreadHandle)_beginthreadex(NULL,
@@ -53,7 +53,7 @@ VeThreadHandle VeCreateThread(VeThreadCallback pfuncThreadProc,
 #endif
 }
 //--------------------------------------------------------------------------
-bool VeJoinThread(VeThreadHandle hThread)
+bool VeJoinThread(VeThreadHandle hThread) noexcept
 {
 #ifdef  BUILD_PLATFORM_WIN
 	return WaitForSingleObject(hThread, UINT32_MAX) == WAIT_OBJECT_0;
@@ -62,7 +62,47 @@ bool VeJoinThread(VeThreadHandle hThread)
 #endif
 }
 //--------------------------------------------------------------------------
-bool VeIsThreadActive(VeThreadHandle hThread)
+#ifndef BUILD_PLATFORM_WIN
+//--------------------------------------------------------------------------
+#define RESUME_SIG SIGUSR2
+#define SUSPEND_SIG SIGUSR1
+//--------------------------------------------------------------------------
+static sigset_t wait_mask;
+static __thread int suspended;
+//--------------------------------------------------------------------------
+void resume_handler(int) noexcept
+{
+	suspended = 0;
+}
+//--------------------------------------------------------------------------
+void suspend_handler(int) noexcept
+{
+	if (suspended) return;
+	suspended = 1;
+	do sigsuspend(&wait_mask); while (suspended);
+}
+//--------------------------------------------------------------------------
+#endif
+//--------------------------------------------------------------------------
+void VeSuspendThread(VeThreadHandle hThread) noexcept
+{
+#	ifdef BUILD_PLATFORM_WIN
+	assert_neq(SuspendThread(hThread), -1);
+#   else
+	assert_eq(pthread_kill(hThread, SUSPEND_SIG), 0);
+#	endif
+}
+//--------------------------------------------------------------------------
+void VeResumeThread(VeThreadHandle hThread) noexcept
+{
+#	ifdef BUILD_PLATFORM_WIN
+	assert_neq(ResumeThread(hThread), -1);
+#   else
+	assert_eq(pthread_kill(hThread, RESUME_SIG), 0);
+#	endif
+}
+//--------------------------------------------------------------------------
+bool VeIsThreadActive(VeThreadHandle hThread) noexcept
 {
 #ifdef  BUILD_PLATFORM_WIN
 	DWORD dwCode(0);
@@ -72,7 +112,7 @@ bool VeIsThreadActive(VeThreadHandle hThread)
 #endif
 }
 //--------------------------------------------------------------------------
-VeThreadID VeGetLocalThread()
+VeThreadID VeGetLocalThread() noexcept
 {
 #ifdef  BUILD_PLATFORM_WIN
 	return GetCurrentThreadId();
@@ -81,7 +121,7 @@ VeThreadID VeGetLocalThread()
 #endif
 }
 //--------------------------------------------------------------------------
-void VeSleep(uint32_t u32Millisecond)
+void VeSleep(uint32_t u32Millisecond) noexcept
 {
 #ifdef  BUILD_PLATFORM_WIN
 	Sleep(u32Millisecond);
@@ -93,7 +133,7 @@ void VeSleep(uint32_t u32Millisecond)
 #endif
 }
 //--------------------------------------------------------------------------
-bool VeThreadEventInit(VeThreadEvent* phEvent, bool bInitState)
+bool VeThreadEventInit(VeThreadEvent* phEvent, bool bInitState) noexcept
 {
 #ifdef  BUILD_PLATFORM_WIN
 	return ((*phEvent = CreateEvent(NULL, FALSE, bInitState, NULL)) != NULL);
@@ -104,7 +144,7 @@ bool VeThreadEventInit(VeThreadEvent* phEvent, bool bInitState)
 #endif
 }
 //--------------------------------------------------------------------------
-void VeThreadEventTerm(VeThreadEvent* phEvent)
+void VeThreadEventTerm(VeThreadEvent* phEvent) noexcept
 {
 #ifdef  BUILD_PLATFORM_WIN
 	if (*phEvent) CloseHandle(*phEvent);
@@ -115,7 +155,7 @@ void VeThreadEventTerm(VeThreadEvent* phEvent)
 #endif
 }
 //--------------------------------------------------------------------------
-void VeThreadEventWait(VeThreadEvent* phEvent)
+void VeThreadEventWait(VeThreadEvent* phEvent) noexcept
 {
 #ifdef  BUILD_PLATFORM_WIN
 	WaitForSingleObject(*phEvent, INFINITE);
@@ -129,7 +169,7 @@ void VeThreadEventWait(VeThreadEvent* phEvent)
 #endif
 }
 //--------------------------------------------------------------------------
-void VeThreadEventWait(VeThreadEvent* phEvent, uint32_t u32Milliseconds)
+void VeThreadEventWait(VeThreadEvent* phEvent, uint32_t u32Milliseconds) noexcept
 {
 #ifdef  BUILD_PLATFORM_WIN
 	WaitForSingleObject(*phEvent, u32Milliseconds);
@@ -150,7 +190,7 @@ void VeThreadEventWait(VeThreadEvent* phEvent, uint32_t u32Milliseconds)
 #endif
 }
 //--------------------------------------------------------------------------
-void VeThreadEventSet(VeThreadEvent* phEvent)
+void VeThreadEventSet(VeThreadEvent* phEvent) noexcept
 {
 #ifdef  BUILD_PLATFORM_WIN
 	SetEvent(*phEvent);
@@ -165,7 +205,7 @@ void VeThreadEventSet(VeThreadEvent* phEvent)
 #endif
 }
 //--------------------------------------------------------------------------
-void VeThreadEventReset(VeThreadEvent* phEvent)
+void VeThreadEventReset(VeThreadEvent* phEvent) noexcept
 {
 #ifdef  BUILD_PLATFORM_WIN
 	ResetEvent(*phEvent);
@@ -178,141 +218,66 @@ void VeThreadEventReset(VeThreadEvent* phEvent)
 	}
 #endif
 }
-
 //--------------------------------------------------------------------------
-VeThread::VeThread() noexcept
+void VeThreadInit()
 {
-	m_u32State.store(0, std::memory_order_relaxed);
-	m_kJoin.Set();
-	m_kCore = std::thread([this]() noexcept
-	{
-		Callback();
-	});
+#	ifndef BUILD_PLATFORM_WIN
+	struct sigaction sa;
+	sigfillset(&wait_mask);
+	sigdelset(&wait_mask, SUSPEND_SIG);
+	sigdelset(&wait_mask, RESUME_SIG);
+	sigfillset(&sa.sa_mask);
+	sa.sa_flags = 0;
+	sa.sa_handler = resume_handler;
+	sigaction(RESUME_SIG, &sa, nullptr);
+	sa.sa_handler = suspend_handler;
+	sigaction(SUSPEND_SIG, &sa, nullptr);
+#	endif
 }
 //--------------------------------------------------------------------------
-VeThread::VeThread(const std::function<void()>& kEntry) noexcept
+void VeThreadTerm()
 {
-	SetEntry(kEntry);
+
+}
+//--------------------------------------------------------------------------
+VeThread::VeThread(uint32_t u32Priority, size_t stStackSize) noexcept
+{
+	m_u32State.store(0, std::memory_order_relaxed);
+	m_pkParams = VE_NEW ThreadParams();
+	m_pkParams->m_kEvent.set();
+	m_pkParams->m_pkThis = this;
+	m_hThread = VeCreateThread(Callback, m_pkParams, u32Priority, stStackSize);
+	assert(m_hThread);
 }
 //--------------------------------------------------------------------------
 VeThread::~VeThread() noexcept
 {
 	while (IsRunning())
 		;
-	m_u32State.store(2, std::memory_order_relaxed);
-	m_kLoop.Set();
-	m_kCore.join();
+	m_pkParams->m_pkThis = nullptr;
+	m_pkParams->m_kEventLoop.set();
+	m_pkParams = nullptr;
 }
 //--------------------------------------------------------------------------
-void VeThread::Start() noexcept
+VeThreadCallbackResult VeThread::Callback(void* pvParam) noexcept
 {
-	uint32_t u32Stop(0);
-	if (m_u32State.compare_exchange_weak(u32Stop, 1u, std::memory_order_relaxed))
+	ThreadParams* pkParams = (ThreadParams*)pvParam;
+	pkParams->m_kEventLoop.wait();
+	while (pkParams->m_pkThis)
 	{
-		m_kLoop.Set();
-		m_kJoin.Reset();
-	}
-}
-//--------------------------------------------------------------------------
-void VeThread::StartEntry(const std::function<void()>& kEntry) noexcept
-{
-	uint32_t u32Stop(0);
-	if (m_u32State.compare_exchange_weak(u32Stop, 1u, std::memory_order_relaxed))
-	{
-		m_kEntry = kEntry;
-		m_kLoop.Set();
-		m_kJoin.Reset();
-	}
-}
-//--------------------------------------------------------------------------
-void VeThread::SetEntry(const std::function<void()>& kEntry) noexcept
-{
-	if (m_u32State.load(std::memory_order_relaxed) == 0)
-	{
-		m_kEntry = kEntry;
-	}
-}
-//--------------------------------------------------------------------------
-void VeThread::Join() noexcept
-{
-	m_kJoin.Wait();
-}
-//--------------------------------------------------------------------------
-#ifndef BUILD_PLATFORM_WIN
-//--------------------------------------------------------------------------
-#define RESUME_SIG SIGUSR2
-#define SUSPEND_SIG SIGUSR1
-//--------------------------------------------------------------------------
-static sigset_t wait_mask;
-static __thread int suspended;
-//--------------------------------------------------------------------------
-void resume_handler(int) noexcept
-{
-    suspended = 0;
-}
-//--------------------------------------------------------------------------
-void suspend_handler(int) noexcept
-{
-    if (suspended) return;
-    suspended = 1;
-    do sigsuspend(&wait_mask); while (suspended);
-}
-//--------------------------------------------------------------------------
-#endif
-//--------------------------------------------------------------------------
-void VeThread::Suspend() noexcept
-{
-#	ifdef BUILD_PLATFORM_WIN
-    SuspendThread(m_kCore.native_handle());
-#   else
-    pthread_kill(m_kCore.native_handle(), SUSPEND_SIG);
-#	endif
-}
-//--------------------------------------------------------------------------
-void VeThread::Resume() noexcept
-{
-#	ifdef BUILD_PLATFORM_WIN
-    ResumeThread(m_kCore.native_handle());
-#   else
-    pthread_kill(m_kCore.native_handle(), RESUME_SIG);
-#	endif
-}
-//--------------------------------------------------------------------------
-void VeThread::Init()
-{
-#	ifndef BUILD_PLATFORM_WIN
-    struct sigaction sa;
-    sigfillset(&wait_mask);
-    sigdelset(&wait_mask, SUSPEND_SIG);
-    sigdelset(&wait_mask, RESUME_SIG);
-    sigfillset(&sa.sa_mask);
-    sa.sa_flags = 0;
-    sa.sa_handler = resume_handler;
-    sigaction(RESUME_SIG, &sa, nullptr);
-    sa.sa_handler = suspend_handler;
-    sigaction(SUSPEND_SIG, &sa, nullptr);
-#	endif
-}
-//--------------------------------------------------------------------------
-void VeThread::Term()
-{
-#	ifndef BUILD_PLATFORM_WIN
-	
-#	endif
-}
-//--------------------------------------------------------------------------
-void VeThread::Callback() noexcept
-{
-	do
-	{
-		m_kLoop.Wait();
-		if (m_u32State.load(std::memory_order_relaxed) == 1)
+		pkParams->m_pkThis->m_kEntry();
 		{
-			m_kEntry();
-			m_u32State.store(0, std::memory_order_relaxed);
-			m_kLoop.Reset();
-			m_kJoin.Set();
+			std::lock_guard<vtd::spin_lock> lock(pkParams->m_pkThis->m_kLock);
+			pkParams->m_pkThis->m_u32State.fetch_sub(1, std::memory_order_relaxed);
+			pkParams->m_kEventLoop.reset();
+			pkParams->m_kEvent.set();
 		}
-	} while (m_u32State.load(std::memory_order_relaxed) < 2);
+		pkParams->m_kEventLoop.wait();
+	}
+	VE_DELETE(pkParams);
+	return 0;
 }
 //--------------------------------------------------------------------------
+
+
+
