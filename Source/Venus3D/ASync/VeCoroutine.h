@@ -52,7 +52,7 @@ public:
 	typedef LPFIBER_START_ROUTINE Entry;
 #endif
 
-public:
+protected:
 	friend class VeCoroutineEnv;
 
 	VeCoroutineBase() noexcept : m_u32StackSize(0) {}
