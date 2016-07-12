@@ -50,6 +50,8 @@ class VENUS_API VeCoroutineBase : public VeRefObject
 public:
 #ifdef BUILD_PLATFORM_WIN
 	typedef LPFIBER_START_ROUTINE Entry;
+#else
+    typedef void (*Entry)(uint32_t, uint32_t);
 #endif
 
 protected:
@@ -105,11 +107,15 @@ class VeCoroutine : public VeCoroutineBase
 {
 #ifdef BUILD_PLATFORM_WIN
 	static void WINAPI CoreEntry(void* pvCoroutine) noexcept
-	{
+    {
+#else
+    static void CoreEntry(uint32_t low32, uint32_t hi32) noexcept
+    {
+        void* pvCoroutine = (void*)((uintptr_t)low32 | ((uintptr_t)hi32 << 32));
+#endif
 		((VeCoroutine*)pvCoroutine)->RunEntry();
 		VeCoroutineEnv::GetCurrent()->Close();
 	}
-#endif
 public:
 	VeCoroutine(std::function<_Ret(VeCoroutine&, _Param)> kEntry,
 		uint32_t u32Stack = VE_CO_DEFAULT_STACK) noexcept
@@ -152,12 +158,16 @@ template <>
 class VeCoroutine<void, void> : public VeCoroutineBase
 {
 #ifdef BUILD_PLATFORM_WIN
-	static void WINAPI CoreEntry(void* pvCoroutine) noexcept
-	{
+    static void WINAPI CoreEntry(void* pvCoroutine) noexcept
+    {
+#else
+    static void CoreEntry(uint32_t low32, uint32_t hi32) noexcept
+    {
+        void* pvCoroutine = (void*)((uintptr_t)low32 | ((uintptr_t)hi32 << 32));
+#endif
 		((VeCoroutine*)pvCoroutine)->RunEntry();
 		VeCoroutineEnv::GetCurrent()->Close();
 	}
-#endif
 public:
 	VeCoroutine(std::function<void(VeCoroutine&)> kEntry,
 		uint32_t u32Stack = VE_CO_DEFAULT_STACK) noexcept
@@ -199,12 +209,16 @@ template <class _Param>
 class VeCoroutine<_Param, void> : public VeCoroutineBase
 {
 #ifdef BUILD_PLATFORM_WIN
-	static void WINAPI CoreEntry(void* pvCoroutine) noexcept
-	{
+    static void WINAPI CoreEntry(void* pvCoroutine) noexcept
+    {
+#else
+    static void CoreEntry(uint32_t low32, uint32_t hi32) noexcept
+    {
+        void* pvCoroutine = (void*)((uintptr_t)low32 | ((uintptr_t)hi32 << 32));
+#endif
 		((VeCoroutine*)pvCoroutine)->RunEntry();
 		VeCoroutineEnv::GetCurrent()->Close();
 	}
-#endif
 public:
 	VeCoroutine(std::function<void(VeCoroutine&, _Param)> kEntry,
 		uint32_t u32Stack = VE_CO_DEFAULT_STACK) noexcept
@@ -232,7 +246,7 @@ public:
 private:
 	void RunEntry() noexcept
 	{
-		m_ReturnSpace = m_kUserEntry(*this, m_ParamSpace);
+		m_kUserEntry(*this, m_ParamSpace);
 	}
 
 	std::function<void(VeCoroutine&, _Param)> m_kUserEntry;
@@ -244,12 +258,16 @@ template <class _Ret>
 class VeCoroutine<void, _Ret> : public VeCoroutineBase
 {
 #ifdef BUILD_PLATFORM_WIN
-	static void WINAPI CoreEntry(void* pvCoroutine) noexcept
-	{
+    static void WINAPI CoreEntry(void* pvCoroutine) noexcept
+    {
+#else
+    static void CoreEntry(uint32_t low32, uint32_t hi32) noexcept
+    {
+        void* pvCoroutine = (void*)((uintptr_t)low32 | ((uintptr_t)hi32 << 32));
+#endif
 		((VeCoroutine*)pvCoroutine)->RunEntry();
 		VeCoroutineEnv::GetCurrent()->Close();
 	}
-#endif
 public:
 	VeCoroutine(std::function<_Ret(VeCoroutine&)> kEntry,
 		uint32_t u32Stack = VE_CO_DEFAULT_STACK) noexcept
@@ -277,7 +295,7 @@ public:
 private:
 	void RunEntry() noexcept
 	{
-		m_ReturnSpace = m_kUserEntry(*this, m_ParamSpace);
+		m_ReturnSpace = m_kUserEntry(*this);
 	}
 
 	std::function<_Ret(VeCoroutine&)> m_kUserEntry;
