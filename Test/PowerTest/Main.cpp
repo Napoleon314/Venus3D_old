@@ -38,7 +38,7 @@
 
 int main(/*int argc, char * argv[]*/)
 {
-	VeCoroutinePtr spCor1 = VeCreateCoroutine(
+	auto spCor1 = VeCreateCoroutine(
 		[](VeCoroutine<>& co) noexcept
 	{
 		printf("ABC\n");
@@ -46,24 +46,24 @@ int main(/*int argc, char * argv[]*/)
 		printf("DEF\n");
 	});
 
-	VeCoroutinePtr spCor2 = VeCreateCoroutine(
+	auto spCor2 = VeCreateCoroutine(
 		[spCor1](VeCoroutine<>& co) noexcept
 	{
 		printf("abc\n");
 		co.yield();
 		printf("def\n");
 		co.yield();
-		spCor1->Resume();
+		spCor1->resume();
 		co.yield();
-		spCor1->Resume();
+		spCor1->resume();
 	});
 	printf("Resume1\n");
-	spCor2->Resume();
+	spCor2->resume();
 	printf("Resume2\n");
-	spCor2->Resume();
+	spCor2->resume();
 	printf("Resume3\n");
-	spCor2->Resume();
+	spCor2->resume();
 	printf("Resume4\n");
-	spCor2->Resume();
+	spCor2->resume();
 	return 0;
 }

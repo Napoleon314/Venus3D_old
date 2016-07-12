@@ -52,9 +52,7 @@ public:
 	typedef LPFIBER_START_ROUTINE Entry;
 #endif
 
-	void Resume() noexcept;
-
-public:
+protected:
 	friend class VeCoroutineEnv;
 
 	VeCoroutineBase() noexcept : m_u32StackSize(0) {}
@@ -62,6 +60,8 @@ public:
 	VeCoroutineBase(Entry pfuncEntry, uint32_t u32Stack = VE_CO_DEFAULT_STACK) noexcept;
 
 	~VeCoroutineBase() noexcept;
+
+	void Resume() noexcept;
 
 	void Push() noexcept;
 
@@ -262,16 +262,14 @@ private:
 
 };
 
-typedef vtd::intrusive_ptr<VeCoroutineBase> VeCoroutinePtr;
-
 template <class _Param, class _Ret>
-VeCoroutinePtr VeCreateCoroutine(std::function<_Ret(VeCoroutine<_Param, _Ret>&, _Param)> funcEntry) noexcept
+vtd::intrusive_ptr<VeCoroutine<_Param, _Ret>> VeCreateCoroutine(std::function<_Ret(VeCoroutine<_Param, _Ret>&, _Param)> funcEntry) noexcept
 {
 	return VE_NEW VeCoroutine<_Param, _Ret>(funcEntry);
 }
 
 
-VeCoroutinePtr VeCreateCoroutine(std::function<void(VeCoroutine<>&)> funcEntry) noexcept
+vtd::intrusive_ptr<VeCoroutine<>> VeCreateCoroutine(std::function<void(VeCoroutine<>&)> funcEntry) noexcept
 {
 	return VE_NEW VeCoroutine<>(funcEntry);
 }
