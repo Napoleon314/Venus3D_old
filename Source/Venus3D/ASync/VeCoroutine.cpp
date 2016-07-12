@@ -37,6 +37,9 @@ VeCoroutineBase::VeCoroutineBase(Entry pfuncEntry,
 	uint32_t u32Stack) noexcept
 	: m_u32StackSize(u32Stack ? u32Stack : VE_CO_DEFAULT_STACK)
 {
+#ifndef BUILD_PLATFORM_WIN
+	m_pvStack = VeAlignedMalloc(m_u32StackSize, 64);
+#endif
 	Restart(pfuncEntry);
 }
 //--------------------------------------------------------------------------
@@ -48,22 +51,52 @@ VeCoroutineBase::~VeCoroutineBase() noexcept
 		DeleteFiber(m_hFiber);
 		m_hFiber = NULL;
 	}
+#else
+	if (m_pvStack)
+	{
+		VeAlignedFree(m_pvStack);
+		m_pvStack = nullptr;
+	}
 #endif
 }
 //--------------------------------------------------------------------------
 void VeCoroutineBase::Push() noexcept
 {
+#ifdef BUILD_PLATFORM_WIN
 	m_eStatus = VE_CO_RUNNING;
 	m_spPrevious = m_spEnv->m_spRunning;
 	m_spEnv->m_spRunning = this;
-#ifdef BUILD_PLATFORM_WIN
 	SwitchToFiber(m_hFiber);
+	VeCoroutineEnv* pkEnv = m_spEnv;
 	if (m_eStatus == VE_CO_DEAD)
 	{
 		DeleteFiber(m_hFiber);
 		m_hFiber = NULL;
+		m_spEnv = nullptr;
 	}
+	pkEnv->m_spReturnFrom = nullptr;
+#else
+	if (m_eStatus == VE_CO_READY)
+	{
+		getcontext(&m_kContext);
+		m_kContext.uc_stack.ss_sp = m_pvStack;
+		m_kContext.uc_stack.ss_size = m_u32StackSize;
+		m_kContext.uc_link = nullptr;
+		uintptr_t ptr = (uintptr_t)this;
+		makecontext(&m_kContext, (void(*)(void))m_pfuncEntry, 2, (uint32_t)ptr, (uint32_t)(ptr >> 32));
+	}
+	m_eStatus = VE_CO_RUNNING;
+	m_spPrevious = m_spEnv->m_spRunning;
+	m_spEnv->m_spRunning = this;
+	swapcontext(&m_spPrevious->m_kContext, &m_kContext);
+	VeCoroutineEnv* pkEnv = m_spEnv;
+	if (m_eStatus == VE_CO_DEAD)
+	{
+		m_spEnv = nullptr;
+	}
+	pkEnv->m_spReturnFrom = nullptr;
 #endif
+	
 }
 //--------------------------------------------------------------------------
 void VeCoroutineBase::Resume() noexcept
@@ -88,9 +121,13 @@ void VeCoroutineBase::Resume() noexcept
 //--------------------------------------------------------------------------
 void VeCoroutineBase::Restart(Entry pfuncEntry) noexcept
 {
+	assert(m_eStatus == VE_CO_DEAD);
 #ifdef BUILD_PLATFORM_WIN
-    assert(m_eStatus == VE_CO_DEAD && !m_hFiber);
+    assert(!m_hFiber);
 	m_hFiber = CreateFiber((SIZE_T)m_u32StackSize, pfuncEntry, this);
+#else
+	assert(m_pvStack);
+	m_pfuncEntry = pfuncEntry;
 #endif
 	m_eStatus = VE_CO_READY;
     pfuncEntry = nullptr;
@@ -111,14 +148,14 @@ void VeCoroutineEnv::Suspend() noexcept
 	assert(m_spRunning);
 	if (m_spRunning->m_spPrevious)
 	{
-		{
-			VeCoroutineBasePtr spTop = m_spRunning;
-			m_spRunning = spTop->m_spPrevious;
-			spTop->m_spPrevious = nullptr;
-			spTop->m_eStatus = VE_CO_SUSPENDED;
-		}
+		m_spReturnFrom = m_spRunning;
+		m_spRunning = m_spReturnFrom->m_spPrevious;
+		m_spReturnFrom->m_spPrevious = nullptr;
+		m_spReturnFrom->m_eStatus = VE_CO_SUSPENDED;
 #ifdef BUILD_PLATFORM_WIN
 		SwitchToFiber(m_spRunning->m_hFiber);
+#else
+		swapcontext(&m_spReturnFrom->m_kContext, &m_spRunning->m_kContext);
 #endif
 	}
 }
@@ -128,14 +165,14 @@ void VeCoroutineEnv::Close() noexcept
 	assert(m_spRunning);
 	if (m_spRunning->m_spPrevious)
 	{
-		{
-			VeCoroutineBasePtr spTop = m_spRunning;
-			m_spRunning = spTop->m_spPrevious;
-			spTop->m_spPrevious = nullptr;
-			spTop->m_eStatus = VE_CO_DEAD;
-		}
+		m_spReturnFrom = m_spRunning;
+		m_spRunning = m_spReturnFrom->m_spPrevious;
+		m_spReturnFrom->m_spPrevious = nullptr;
+		m_spReturnFrom->m_eStatus = VE_CO_DEAD;
 #ifdef BUILD_PLATFORM_WIN
 		SwitchToFiber(m_spRunning->m_hFiber);
+#else
+		swapcontext(&m_spReturnFrom->m_kContext, &m_spRunning->m_kContext);
 #endif
 	}
 }
