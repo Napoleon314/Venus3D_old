@@ -31,7 +31,7 @@
 #include "stdafx.h"
 
 //--------------------------------------------------------------------------
-static thread_local VeCoroutineEnv* ms_spEnv_local;
+static __thread VeCoroutineEnv* ms_spEnv_local;
 //--------------------------------------------------------------------------
 VeCoroutineBase::VeCoroutineBase(Entry pfuncEntry,
 	uint32_t u32Stack) noexcept
@@ -42,11 +42,13 @@ VeCoroutineBase::VeCoroutineBase(Entry pfuncEntry,
 //--------------------------------------------------------------------------
 VeCoroutineBase::~VeCoroutineBase() noexcept
 {
+#ifdef BUILD_PLATFORM_WIN
 	if (m_hFiber)
 	{
 		DeleteFiber(m_hFiber);
 		m_hFiber = NULL;
 	}
+#endif
 }
 //--------------------------------------------------------------------------
 void VeCoroutineBase::Push() noexcept
@@ -56,12 +58,12 @@ void VeCoroutineBase::Push() noexcept
 	m_spEnv->m_spRunning = this;
 #ifdef BUILD_PLATFORM_WIN
 	SwitchToFiber(m_hFiber);
-#endif
 	if (m_eStatus == VE_CO_DEAD)
 	{
 		DeleteFiber(m_hFiber);
 		m_hFiber = NULL;
 	}
+#endif
 }
 //--------------------------------------------------------------------------
 void VeCoroutineBase::Resume() noexcept
@@ -86,11 +88,12 @@ void VeCoroutineBase::Resume() noexcept
 //--------------------------------------------------------------------------
 void VeCoroutineBase::Restart(Entry pfuncEntry) noexcept
 {
-	assert(m_eStatus == VE_CO_DEAD && !m_hFiber);
 #ifdef BUILD_PLATFORM_WIN
+    assert(m_eStatus == VE_CO_DEAD && !m_hFiber);
 	m_hFiber = CreateFiber((SIZE_T)m_u32StackSize, pfuncEntry, this);
 #endif
 	m_eStatus = VE_CO_READY;
+    pfuncEntry = nullptr;
 }
 //--------------------------------------------------------------------------
 VeCoroutineEnv::VeCoroutineEnv() noexcept
