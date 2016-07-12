@@ -7,16 +7,17 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		6501FB761D33C58600BCF300 /* VeThread.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6501FB411D33C58600BCF300 /* VeThread.cpp */; };
-		6501FB771D33C58600BCF300 /* VeBlob.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6501FB451D33C58600BCF300 /* VeBlob.cpp */; };
-		6501FB781D33C58600BCF300 /* VeMemObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6501FB481D33C58600BCF300 /* VeMemObject.cpp */; };
-		6501FB791D33C58600BCF300 /* VeMemory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6501FB4A1D33C58600BCF300 /* VeMemory.cpp */; };
-		6501FB7A1D33C58600BCF300 /* VeRefObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6501FB4D1D33C58600BCF300 /* VeRefObject.cpp */; };
-		6501FB7B1D33C58600BCF300 /* stdafx.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6501FB501D33C58600BCF300 /* stdafx.cpp */; };
-		6501FB7C1D33C58600BCF300 /* Venus3D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6501FB521D33C58600BCF300 /* Venus3D.cpp */; };
-		6501FB7D1D33C58600BCF300 /* VePixel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6501FB551D33C58600BCF300 /* VePixel.cpp */; };
-		6501FB7E1D33C58600BCF300 /* VeSurface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6501FB581D33C58600BCF300 /* VeSurface.cpp */; };
-		6501FB7F1D33C58600BCF300 /* VeWindow.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6501FB5B1D33C58600BCF300 /* VeWindow.cpp */; };
+		6501FBBB1D35577C00BCF300 /* VeCoroutine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6501FB831D35577C00BCF300 /* VeCoroutine.cpp */; };
+		6501FBBC1D35577C00BCF300 /* VeThread.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6501FB861D35577C00BCF300 /* VeThread.cpp */; };
+		6501FBBD1D35577C00BCF300 /* VeBlob.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6501FB8A1D35577C00BCF300 /* VeBlob.cpp */; };
+		6501FBBE1D35577C00BCF300 /* VeMemObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6501FB8D1D35577C00BCF300 /* VeMemObject.cpp */; };
+		6501FBBF1D35577C00BCF300 /* VeMemory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6501FB8F1D35577C00BCF300 /* VeMemory.cpp */; };
+		6501FBC01D35577C00BCF300 /* VeRefObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6501FB921D35577C00BCF300 /* VeRefObject.cpp */; };
+		6501FBC11D35577C00BCF300 /* stdafx.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6501FB951D35577C00BCF300 /* stdafx.cpp */; };
+		6501FBC21D35577C00BCF300 /* Venus3D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6501FB971D35577C00BCF300 /* Venus3D.cpp */; };
+		6501FBC31D35577C00BCF300 /* VePixel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6501FB9A1D35577C00BCF300 /* VePixel.cpp */; };
+		6501FBC41D35577C00BCF300 /* VeSurface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6501FB9D1D35577C00BCF300 /* VeSurface.cpp */; };
+		6501FBC51D35577C00BCF300 /* VeWindow.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6501FBA01D35577C00BCF300 /* VeWindow.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -32,55 +33,58 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		6501FB411D33C58600BCF300 /* VeThread.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VeThread.cpp; sourceTree = "<group>"; };
-		6501FB421D33C58600BCF300 /* VeThread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VeThread.h; sourceTree = "<group>"; };
-		6501FB431D33C58600BCF300 /* VeThread.inl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = VeThread.inl; sourceTree = "<group>"; };
-		6501FB451D33C58600BCF300 /* VeBlob.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VeBlob.cpp; sourceTree = "<group>"; };
-		6501FB461D33C58600BCF300 /* VeBlob.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VeBlob.h; sourceTree = "<group>"; };
-		6501FB471D33C58600BCF300 /* VeBlob.inl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = VeBlob.inl; sourceTree = "<group>"; };
-		6501FB481D33C58600BCF300 /* VeMemObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VeMemObject.cpp; sourceTree = "<group>"; };
-		6501FB491D33C58600BCF300 /* VeMemObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VeMemObject.h; sourceTree = "<group>"; };
-		6501FB4A1D33C58600BCF300 /* VeMemory.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VeMemory.cpp; sourceTree = "<group>"; };
-		6501FB4B1D33C58600BCF300 /* VeMemory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VeMemory.h; sourceTree = "<group>"; };
-		6501FB4C1D33C58600BCF300 /* VeMemory.inl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = VeMemory.inl; sourceTree = "<group>"; };
-		6501FB4D1D33C58600BCF300 /* VeRefObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VeRefObject.cpp; sourceTree = "<group>"; };
-		6501FB4E1D33C58600BCF300 /* VeRefObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VeRefObject.h; sourceTree = "<group>"; };
-		6501FB4F1D33C58600BCF300 /* VeRefObject.inl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = VeRefObject.inl; sourceTree = "<group>"; };
-		6501FB501D33C58600BCF300 /* stdafx.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = stdafx.cpp; sourceTree = "<group>"; };
-		6501FB511D33C58600BCF300 /* stdafx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stdafx.h; sourceTree = "<group>"; };
-		6501FB521D33C58600BCF300 /* Venus3D.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Venus3D.cpp; sourceTree = "<group>"; };
-		6501FB531D33C58600BCF300 /* Venus3D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Venus3D.h; sourceTree = "<group>"; };
-		6501FB551D33C58600BCF300 /* VePixel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VePixel.cpp; sourceTree = "<group>"; };
-		6501FB561D33C58600BCF300 /* VePixel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VePixel.h; sourceTree = "<group>"; };
-		6501FB571D33C58600BCF300 /* VePixel.inl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = VePixel.inl; sourceTree = "<group>"; };
-		6501FB581D33C58600BCF300 /* VeSurface.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VeSurface.cpp; sourceTree = "<group>"; };
-		6501FB591D33C58600BCF300 /* VeSurface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VeSurface.h; sourceTree = "<group>"; };
-		6501FB5A1D33C58600BCF300 /* VeSurface.inl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = VeSurface.inl; sourceTree = "<group>"; };
-		6501FB5B1D33C58600BCF300 /* VeWindow.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VeWindow.cpp; sourceTree = "<group>"; };
-		6501FB5C1D33C58600BCF300 /* VeWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VeWindow.h; sourceTree = "<group>"; };
-		6501FB5D1D33C58600BCF300 /* VeWindow.inl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = VeWindow.inl; sourceTree = "<group>"; };
-		6501FB5F1D33C58600BCF300 /* allocator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = allocator.h; sourceTree = "<group>"; };
-		6501FB601D33C58600BCF300 /* intrusive_list.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = intrusive_list.h; sourceTree = "<group>"; };
-		6501FB611D33C58600BCF300 /* intrusive_ptr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = intrusive_ptr.h; sourceTree = "<group>"; };
-		6501FB621D33C58600BCF300 /* point.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = point.h; sourceTree = "<group>"; };
-		6501FB631D33C58600BCF300 /* rect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rect.h; sourceTree = "<group>"; };
-		6501FB641D33C58600BCF300 /* ring_buffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ring_buffer.h; sourceTree = "<group>"; };
-		6501FB651D33C58600BCF300 /* rtti.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rtti.h; sourceTree = "<group>"; };
-		6501FB661D33C58600BCF300 /* spin_lock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = spin_lock.h; sourceTree = "<group>"; };
-		6501FB671D33C58600BCF300 /* stack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stack.h; sourceTree = "<group>"; };
-		6501FB681D33C58600BCF300 /* string.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = string.h; sourceTree = "<group>"; };
-		6501FB691D33C58600BCF300 /* utility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = utility.h; sourceTree = "<group>"; };
-		6501FB6A1D33C58600BCF300 /* vector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vector.h; sourceTree = "<group>"; };
-		6501FB6C1D33C58600BCF300 /* XCollision.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XCollision.h; sourceTree = "<group>"; };
-		6501FB6D1D33C58600BCF300 /* XCollision.inl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = XCollision.inl; sourceTree = "<group>"; };
-		6501FB6E1D33C58600BCF300 /* XColors.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XColors.h; sourceTree = "<group>"; };
-		6501FB6F1D33C58600BCF300 /* XMath.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XMath.h; sourceTree = "<group>"; };
-		6501FB701D33C58600BCF300 /* XMathConvert.inl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = XMathConvert.inl; sourceTree = "<group>"; };
-		6501FB711D33C58600BCF300 /* XMathMatrix.inl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = XMathMatrix.inl; sourceTree = "<group>"; };
-		6501FB721D33C58600BCF300 /* XMathMisc.inl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = XMathMisc.inl; sourceTree = "<group>"; };
-		6501FB731D33C58600BCF300 /* XMathVector.inl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = XMathVector.inl; sourceTree = "<group>"; };
-		6501FB741D33C58600BCF300 /* XPackedVector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XPackedVector.h; sourceTree = "<group>"; };
-		6501FB751D33C58600BCF300 /* XPackedVector.inl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = XPackedVector.inl; sourceTree = "<group>"; };
+		6501FB831D35577C00BCF300 /* VeCoroutine.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VeCoroutine.cpp; sourceTree = "<group>"; };
+		6501FB841D35577C00BCF300 /* VeCoroutine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VeCoroutine.h; sourceTree = "<group>"; };
+		6501FB851D35577C00BCF300 /* VeCoroutine.inl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = VeCoroutine.inl; sourceTree = "<group>"; };
+		6501FB861D35577C00BCF300 /* VeThread.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VeThread.cpp; sourceTree = "<group>"; };
+		6501FB871D35577C00BCF300 /* VeThread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VeThread.h; sourceTree = "<group>"; };
+		6501FB881D35577C00BCF300 /* VeThread.inl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = VeThread.inl; sourceTree = "<group>"; };
+		6501FB8A1D35577C00BCF300 /* VeBlob.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VeBlob.cpp; sourceTree = "<group>"; };
+		6501FB8B1D35577C00BCF300 /* VeBlob.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VeBlob.h; sourceTree = "<group>"; };
+		6501FB8C1D35577C00BCF300 /* VeBlob.inl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = VeBlob.inl; sourceTree = "<group>"; };
+		6501FB8D1D35577C00BCF300 /* VeMemObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VeMemObject.cpp; sourceTree = "<group>"; };
+		6501FB8E1D35577C00BCF300 /* VeMemObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VeMemObject.h; sourceTree = "<group>"; };
+		6501FB8F1D35577C00BCF300 /* VeMemory.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VeMemory.cpp; sourceTree = "<group>"; };
+		6501FB901D35577C00BCF300 /* VeMemory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VeMemory.h; sourceTree = "<group>"; };
+		6501FB911D35577C00BCF300 /* VeMemory.inl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = VeMemory.inl; sourceTree = "<group>"; };
+		6501FB921D35577C00BCF300 /* VeRefObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VeRefObject.cpp; sourceTree = "<group>"; };
+		6501FB931D35577C00BCF300 /* VeRefObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VeRefObject.h; sourceTree = "<group>"; };
+		6501FB941D35577C00BCF300 /* VeRefObject.inl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = VeRefObject.inl; sourceTree = "<group>"; };
+		6501FB951D35577C00BCF300 /* stdafx.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = stdafx.cpp; sourceTree = "<group>"; };
+		6501FB961D35577C00BCF300 /* stdafx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stdafx.h; sourceTree = "<group>"; };
+		6501FB971D35577C00BCF300 /* Venus3D.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Venus3D.cpp; sourceTree = "<group>"; };
+		6501FB981D35577C00BCF300 /* Venus3D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Venus3D.h; sourceTree = "<group>"; };
+		6501FB9A1D35577C00BCF300 /* VePixel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VePixel.cpp; sourceTree = "<group>"; };
+		6501FB9B1D35577C00BCF300 /* VePixel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VePixel.h; sourceTree = "<group>"; };
+		6501FB9C1D35577C00BCF300 /* VePixel.inl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = VePixel.inl; sourceTree = "<group>"; };
+		6501FB9D1D35577C00BCF300 /* VeSurface.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VeSurface.cpp; sourceTree = "<group>"; };
+		6501FB9E1D35577C00BCF300 /* VeSurface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VeSurface.h; sourceTree = "<group>"; };
+		6501FB9F1D35577C00BCF300 /* VeSurface.inl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = VeSurface.inl; sourceTree = "<group>"; };
+		6501FBA01D35577C00BCF300 /* VeWindow.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VeWindow.cpp; sourceTree = "<group>"; };
+		6501FBA11D35577C00BCF300 /* VeWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VeWindow.h; sourceTree = "<group>"; };
+		6501FBA21D35577C00BCF300 /* VeWindow.inl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = VeWindow.inl; sourceTree = "<group>"; };
+		6501FBA41D35577C00BCF300 /* allocator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = allocator.h; sourceTree = "<group>"; };
+		6501FBA51D35577C00BCF300 /* intrusive_list.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = intrusive_list.h; sourceTree = "<group>"; };
+		6501FBA61D35577C00BCF300 /* intrusive_ptr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = intrusive_ptr.h; sourceTree = "<group>"; };
+		6501FBA71D35577C00BCF300 /* point.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = point.h; sourceTree = "<group>"; };
+		6501FBA81D35577C00BCF300 /* rect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rect.h; sourceTree = "<group>"; };
+		6501FBA91D35577C00BCF300 /* ring_buffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ring_buffer.h; sourceTree = "<group>"; };
+		6501FBAA1D35577C00BCF300 /* rtti.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rtti.h; sourceTree = "<group>"; };
+		6501FBAB1D35577C00BCF300 /* spin_lock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = spin_lock.h; sourceTree = "<group>"; };
+		6501FBAC1D35577C00BCF300 /* stack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stack.h; sourceTree = "<group>"; };
+		6501FBAD1D35577C00BCF300 /* string.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = string.h; sourceTree = "<group>"; };
+		6501FBAE1D35577C00BCF300 /* utility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = utility.h; sourceTree = "<group>"; };
+		6501FBAF1D35577C00BCF300 /* vector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vector.h; sourceTree = "<group>"; };
+		6501FBB11D35577C00BCF300 /* XCollision.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XCollision.h; sourceTree = "<group>"; };
+		6501FBB21D35577C00BCF300 /* XCollision.inl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = XCollision.inl; sourceTree = "<group>"; };
+		6501FBB31D35577C00BCF300 /* XColors.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XColors.h; sourceTree = "<group>"; };
+		6501FBB41D35577C00BCF300 /* XMath.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XMath.h; sourceTree = "<group>"; };
+		6501FBB51D35577C00BCF300 /* XMathConvert.inl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = XMathConvert.inl; sourceTree = "<group>"; };
+		6501FBB61D35577C00BCF300 /* XMathMatrix.inl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = XMathMatrix.inl; sourceTree = "<group>"; };
+		6501FBB71D35577C00BCF300 /* XMathMisc.inl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = XMathMisc.inl; sourceTree = "<group>"; };
+		6501FBB81D35577C00BCF300 /* XMathVector.inl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = XMathVector.inl; sourceTree = "<group>"; };
+		6501FBB91D35577C00BCF300 /* XPackedVector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XPackedVector.h; sourceTree = "<group>"; };
+		6501FBBA1D35577C00BCF300 /* XPackedVector.inl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = XPackedVector.inl; sourceTree = "<group>"; };
 		654B54E31D28354200F03505 /* libVenus3D.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libVenus3D.a; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -95,99 +99,102 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		6501FB3F1D33C58600BCF300 /* Venus3D */ = {
+		6501FB811D35577C00BCF300 /* Venus3D */ = {
 			isa = PBXGroup;
 			children = (
-				6501FB401D33C58600BCF300 /* ASync */,
-				6501FB441D33C58600BCF300 /* Memory */,
-				6501FB501D33C58600BCF300 /* stdafx.cpp */,
-				6501FB511D33C58600BCF300 /* stdafx.h */,
-				6501FB521D33C58600BCF300 /* Venus3D.cpp */,
-				6501FB531D33C58600BCF300 /* Venus3D.h */,
-				6501FB541D33C58600BCF300 /* Video */,
-				6501FB5E1D33C58600BCF300 /* vtd */,
-				6501FB6B1D33C58600BCF300 /* XMath */,
+				6501FB821D35577C00BCF300 /* ASync */,
+				6501FB891D35577C00BCF300 /* Memory */,
+				6501FB951D35577C00BCF300 /* stdafx.cpp */,
+				6501FB961D35577C00BCF300 /* stdafx.h */,
+				6501FB971D35577C00BCF300 /* Venus3D.cpp */,
+				6501FB981D35577C00BCF300 /* Venus3D.h */,
+				6501FB991D35577C00BCF300 /* Video */,
+				6501FBA31D35577C00BCF300 /* vtd */,
+				6501FBB01D35577C00BCF300 /* XMath */,
 			);
 			name = Venus3D;
 			path = ../../Source/Venus3D;
 			sourceTree = "<group>";
 		};
-		6501FB401D33C58600BCF300 /* ASync */ = {
+		6501FB821D35577C00BCF300 /* ASync */ = {
 			isa = PBXGroup;
 			children = (
-				6501FB411D33C58600BCF300 /* VeThread.cpp */,
-				6501FB421D33C58600BCF300 /* VeThread.h */,
-				6501FB431D33C58600BCF300 /* VeThread.inl */,
+				6501FB831D35577C00BCF300 /* VeCoroutine.cpp */,
+				6501FB841D35577C00BCF300 /* VeCoroutine.h */,
+				6501FB851D35577C00BCF300 /* VeCoroutine.inl */,
+				6501FB861D35577C00BCF300 /* VeThread.cpp */,
+				6501FB871D35577C00BCF300 /* VeThread.h */,
+				6501FB881D35577C00BCF300 /* VeThread.inl */,
 			);
 			path = ASync;
 			sourceTree = "<group>";
 		};
-		6501FB441D33C58600BCF300 /* Memory */ = {
+		6501FB891D35577C00BCF300 /* Memory */ = {
 			isa = PBXGroup;
 			children = (
-				6501FB451D33C58600BCF300 /* VeBlob.cpp */,
-				6501FB461D33C58600BCF300 /* VeBlob.h */,
-				6501FB471D33C58600BCF300 /* VeBlob.inl */,
-				6501FB481D33C58600BCF300 /* VeMemObject.cpp */,
-				6501FB491D33C58600BCF300 /* VeMemObject.h */,
-				6501FB4A1D33C58600BCF300 /* VeMemory.cpp */,
-				6501FB4B1D33C58600BCF300 /* VeMemory.h */,
-				6501FB4C1D33C58600BCF300 /* VeMemory.inl */,
-				6501FB4D1D33C58600BCF300 /* VeRefObject.cpp */,
-				6501FB4E1D33C58600BCF300 /* VeRefObject.h */,
-				6501FB4F1D33C58600BCF300 /* VeRefObject.inl */,
+				6501FB8A1D35577C00BCF300 /* VeBlob.cpp */,
+				6501FB8B1D35577C00BCF300 /* VeBlob.h */,
+				6501FB8C1D35577C00BCF300 /* VeBlob.inl */,
+				6501FB8D1D35577C00BCF300 /* VeMemObject.cpp */,
+				6501FB8E1D35577C00BCF300 /* VeMemObject.h */,
+				6501FB8F1D35577C00BCF300 /* VeMemory.cpp */,
+				6501FB901D35577C00BCF300 /* VeMemory.h */,
+				6501FB911D35577C00BCF300 /* VeMemory.inl */,
+				6501FB921D35577C00BCF300 /* VeRefObject.cpp */,
+				6501FB931D35577C00BCF300 /* VeRefObject.h */,
+				6501FB941D35577C00BCF300 /* VeRefObject.inl */,
 			);
 			path = Memory;
 			sourceTree = "<group>";
 		};
-		6501FB541D33C58600BCF300 /* Video */ = {
+		6501FB991D35577C00BCF300 /* Video */ = {
 			isa = PBXGroup;
 			children = (
-				6501FB551D33C58600BCF300 /* VePixel.cpp */,
-				6501FB561D33C58600BCF300 /* VePixel.h */,
-				6501FB571D33C58600BCF300 /* VePixel.inl */,
-				6501FB581D33C58600BCF300 /* VeSurface.cpp */,
-				6501FB591D33C58600BCF300 /* VeSurface.h */,
-				6501FB5A1D33C58600BCF300 /* VeSurface.inl */,
-				6501FB5B1D33C58600BCF300 /* VeWindow.cpp */,
-				6501FB5C1D33C58600BCF300 /* VeWindow.h */,
-				6501FB5D1D33C58600BCF300 /* VeWindow.inl */,
+				6501FB9A1D35577C00BCF300 /* VePixel.cpp */,
+				6501FB9B1D35577C00BCF300 /* VePixel.h */,
+				6501FB9C1D35577C00BCF300 /* VePixel.inl */,
+				6501FB9D1D35577C00BCF300 /* VeSurface.cpp */,
+				6501FB9E1D35577C00BCF300 /* VeSurface.h */,
+				6501FB9F1D35577C00BCF300 /* VeSurface.inl */,
+				6501FBA01D35577C00BCF300 /* VeWindow.cpp */,
+				6501FBA11D35577C00BCF300 /* VeWindow.h */,
+				6501FBA21D35577C00BCF300 /* VeWindow.inl */,
 			);
 			path = Video;
 			sourceTree = "<group>";
 		};
-		6501FB5E1D33C58600BCF300 /* vtd */ = {
+		6501FBA31D35577C00BCF300 /* vtd */ = {
 			isa = PBXGroup;
 			children = (
-				6501FB5F1D33C58600BCF300 /* allocator.h */,
-				6501FB601D33C58600BCF300 /* intrusive_list.h */,
-				6501FB611D33C58600BCF300 /* intrusive_ptr.h */,
-				6501FB621D33C58600BCF300 /* point.h */,
-				6501FB631D33C58600BCF300 /* rect.h */,
-				6501FB641D33C58600BCF300 /* ring_buffer.h */,
-				6501FB651D33C58600BCF300 /* rtti.h */,
-				6501FB661D33C58600BCF300 /* spin_lock.h */,
-				6501FB671D33C58600BCF300 /* stack.h */,
-				6501FB681D33C58600BCF300 /* string.h */,
-				6501FB691D33C58600BCF300 /* utility.h */,
-				6501FB6A1D33C58600BCF300 /* vector.h */,
+				6501FBA41D35577C00BCF300 /* allocator.h */,
+				6501FBA51D35577C00BCF300 /* intrusive_list.h */,
+				6501FBA61D35577C00BCF300 /* intrusive_ptr.h */,
+				6501FBA71D35577C00BCF300 /* point.h */,
+				6501FBA81D35577C00BCF300 /* rect.h */,
+				6501FBA91D35577C00BCF300 /* ring_buffer.h */,
+				6501FBAA1D35577C00BCF300 /* rtti.h */,
+				6501FBAB1D35577C00BCF300 /* spin_lock.h */,
+				6501FBAC1D35577C00BCF300 /* stack.h */,
+				6501FBAD1D35577C00BCF300 /* string.h */,
+				6501FBAE1D35577C00BCF300 /* utility.h */,
+				6501FBAF1D35577C00BCF300 /* vector.h */,
 			);
 			path = vtd;
 			sourceTree = "<group>";
 		};
-		6501FB6B1D33C58600BCF300 /* XMath */ = {
+		6501FBB01D35577C00BCF300 /* XMath */ = {
 			isa = PBXGroup;
 			children = (
-				6501FB6C1D33C58600BCF300 /* XCollision.h */,
-				6501FB6D1D33C58600BCF300 /* XCollision.inl */,
-				6501FB6E1D33C58600BCF300 /* XColors.h */,
-				6501FB6F1D33C58600BCF300 /* XMath.h */,
-				6501FB701D33C58600BCF300 /* XMathConvert.inl */,
-				6501FB711D33C58600BCF300 /* XMathMatrix.inl */,
-				6501FB721D33C58600BCF300 /* XMathMisc.inl */,
-				6501FB731D33C58600BCF300 /* XMathVector.inl */,
-				6501FB741D33C58600BCF300 /* XPackedVector.h */,
-				6501FB751D33C58600BCF300 /* XPackedVector.inl */,
+				6501FBB11D35577C00BCF300 /* XCollision.h */,
+				6501FBB21D35577C00BCF300 /* XCollision.inl */,
+				6501FBB31D35577C00BCF300 /* XColors.h */,
+				6501FBB41D35577C00BCF300 /* XMath.h */,
+				6501FBB51D35577C00BCF300 /* XMathConvert.inl */,
+				6501FBB61D35577C00BCF300 /* XMathMatrix.inl */,
+				6501FBB71D35577C00BCF300 /* XMathMisc.inl */,
+				6501FBB81D35577C00BCF300 /* XMathVector.inl */,
+				6501FBB91D35577C00BCF300 /* XPackedVector.h */,
+				6501FBBA1D35577C00BCF300 /* XPackedVector.inl */,
 			);
 			path = XMath;
 			sourceTree = "<group>";
@@ -195,7 +202,7 @@
 		654B54DA1D28354200F03505 = {
 			isa = PBXGroup;
 			children = (
-				6501FB3F1D33C58600BCF300 /* Venus3D */,
+				6501FB811D35577C00BCF300 /* Venus3D */,
 				654B54E41D28354200F03505 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -264,16 +271,17 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6501FB7A1D33C58600BCF300 /* VeRefObject.cpp in Sources */,
-				6501FB7D1D33C58600BCF300 /* VePixel.cpp in Sources */,
-				6501FB761D33C58600BCF300 /* VeThread.cpp in Sources */,
-				6501FB791D33C58600BCF300 /* VeMemory.cpp in Sources */,
-				6501FB7B1D33C58600BCF300 /* stdafx.cpp in Sources */,
-				6501FB781D33C58600BCF300 /* VeMemObject.cpp in Sources */,
-				6501FB7F1D33C58600BCF300 /* VeWindow.cpp in Sources */,
-				6501FB7E1D33C58600BCF300 /* VeSurface.cpp in Sources */,
-				6501FB771D33C58600BCF300 /* VeBlob.cpp in Sources */,
-				6501FB7C1D33C58600BCF300 /* Venus3D.cpp in Sources */,
+				6501FBBC1D35577C00BCF300 /* VeThread.cpp in Sources */,
+				6501FBBF1D35577C00BCF300 /* VeMemory.cpp in Sources */,
+				6501FBBE1D35577C00BCF300 /* VeMemObject.cpp in Sources */,
+				6501FBBB1D35577C00BCF300 /* VeCoroutine.cpp in Sources */,
+				6501FBC51D35577C00BCF300 /* VeWindow.cpp in Sources */,
+				6501FBC41D35577C00BCF300 /* VeSurface.cpp in Sources */,
+				6501FBC21D35577C00BCF300 /* Venus3D.cpp in Sources */,
+				6501FBBD1D35577C00BCF300 /* VeBlob.cpp in Sources */,
+				6501FBC11D35577C00BCF300 /* stdafx.cpp in Sources */,
+				6501FBC01D35577C00BCF300 /* VeRefObject.cpp in Sources */,
+				6501FBC31D35577C00BCF300 /* VePixel.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

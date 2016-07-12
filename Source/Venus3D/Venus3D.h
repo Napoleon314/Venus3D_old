@@ -245,7 +245,12 @@
 #	include <unistd.h>
 #	include <sys/stat.h>
 #	include <pthread.h>
-#	include <sys/ucontext.h>
+#   if __APPLE__ && __MACH__
+#       define _XOPEN_SOURCE
+#       include <ucontext.h>
+#   else
+#       include <ucontext.h>
+#   endif
 #	define VE_CALLBACK
 #endif
 #ifdef BUILD_PLATFORM_LINUX
