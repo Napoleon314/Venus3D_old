@@ -269,7 +269,7 @@ vtd::intrusive_ptr<VeCoroutine<_Param, _Ret>> VeCreateCoroutine(std::function<_R
 }
 
 
-vtd::intrusive_ptr<VeCoroutine<>> VeCreateCoroutine(std::function<void(VeCoroutine<>&)> funcEntry) noexcept
+inline vtd::intrusive_ptr<VeCoroutine<>> VeCreateCoroutine(std::function<void(VeCoroutine<>&)> funcEntry) noexcept
 {
 	return VE_NEW VeCoroutine<>(funcEntry);
 }
