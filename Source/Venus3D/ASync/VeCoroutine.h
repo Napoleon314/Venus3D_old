@@ -61,9 +61,9 @@ protected:
 
 	~VeCoroutineBase() noexcept;
 
-	void Resume() noexcept;
-
 	void Push() noexcept;
+
+	void Resume() noexcept;
 
 	const uint32_t m_u32StackSize;
 	VeCoroutineStatus m_eStatus = VE_CO_READY;
