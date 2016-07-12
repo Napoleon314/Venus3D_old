@@ -31,7 +31,7 @@
 #include "stdafx.h"
 
 //--------------------------------------------------------------------------
-static __thread VeCoroutineEnv* ms_spEnv_local;
+static thread_local VeCoroutineEnvPtr ms_spEnv_local;
 //--------------------------------------------------------------------------
 VeCoroutineBase::VeCoroutineBase(Entry pfuncEntry,
 	uint32_t u32Stack) noexcept
