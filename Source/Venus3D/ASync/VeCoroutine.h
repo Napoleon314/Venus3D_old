@@ -91,7 +91,7 @@ public:
 
 	void Close() noexcept;
 
-	static const VeCoroutineEnvPtr& GetCurrent() noexcept;
+	static VeCoroutineEnv* GetCurrent() noexcept;
 
 private:
 	friend class VeCoroutineBase;

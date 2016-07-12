@@ -31,7 +31,7 @@
 #include "stdafx.h"
 
 //--------------------------------------------------------------------------
-static thread_local VeCoroutineEnvPtr ms_spEnv_local;
+static thread_local VeCoroutineEnv* ms_spEnv_local;
 //--------------------------------------------------------------------------
 VeCoroutineBase::VeCoroutineBase(Entry pfuncEntry,
 	uint32_t u32Stack) noexcept
@@ -137,7 +137,7 @@ void VeCoroutineEnv::Close() noexcept
 	}
 }
 //--------------------------------------------------------------------------
-const VeCoroutineEnvPtr& VeCoroutineEnv::GetCurrent() noexcept
+VeCoroutineEnv* VeCoroutineEnv::GetCurrent() noexcept
 {
 	return ms_spEnv_local;
 }
