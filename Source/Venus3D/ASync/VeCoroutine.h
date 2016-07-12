@@ -30,27 +30,250 @@
 
 #pragma once
 
-VeSmartPointer(VeCoroutine);
+#define VE_CO_DEFAULT_STACK (32 * 1024)
 
-class VENUS_API VeCoroutine : public VeRefObject
+enum VeCoroutineStatus
 {
+	VE_CO_READY,
+	VE_CO_SUSPENDED,
+	VE_CO_RUNNING,
+	VE_CO_DEAD
+};
+
+VeSmartPointer(VeCoroutineBase);
+VeSmartPointer(VeCoroutineEnv);
+
+class VENUS_API VeCoroutineBase : public VeRefObject
+{
+	VeNoCopy(VeCoroutineBase);
+	VeNoMove(VeCoroutineBase);
 public:
-	enum Status
-	{
-		STATUS_SUSPENDED,
-		STATUS_RUNNING,
-		STATUS_DEAD,
-	};
+#ifdef BUILD_PLATFORM_WIN
+	typedef LPFIBER_START_ROUTINE Entry;
+#endif
 
-	template <class _Func>
-	static VeCoroutinePtr Create(std::function<_Func>&& func) noexcept;
+	void Resume() noexcept;
 
+public:
+	friend class VeCoroutineEnv;
 
-protected:
-	Status m_eStatus = STATUS_SUSPENDED;
+	VeCoroutineBase() noexcept : m_u32StackSize(0) {}
 
-	//static thread_local VeCoroutinePtr ms_spRunning_thread;
+	VeCoroutineBase(Entry pfuncEntry, uint32_t u32Stack = VE_CO_DEFAULT_STACK) noexcept;
+
+	~VeCoroutineBase() noexcept;
+
+	void Push() noexcept;
+
+	const uint32_t m_u32StackSize;
+	VeCoroutineStatus m_eStatus = VE_CO_READY;
+#ifdef BUILD_PLATFORM_WIN
+	HANDLE m_hFiber = nullptr;
+#else
+	void* m_pvStack = nullptr;
+	ucontext_t m_kContext;
+#endif
+	VeCoroutineEnvPtr m_spEnv;
+	VeCoroutineBasePtr m_spPrevious;
+	
+};
+
+class VENUS_API VeCoroutineEnv : public VeRefObject
+{
+	VeNoCopy(VeCoroutineEnv);
+	VeNoMove(VeCoroutineEnv);
+public:
+	void Suspend() noexcept;
+
+	void Close() noexcept;
+
+	static const VeCoroutineEnvPtr& GetCurrent() noexcept;
+
+private:
+	friend class VeCoroutineBase;
+	VeCoroutineEnv() noexcept;
+
+	VeCoroutineBasePtr m_spMain;
+	VeCoroutineBasePtr m_spRunning;
 
 };
+
+template <class _Param = void, class _Ret = void>
+class VeCoroutine : public VeCoroutineBase
+{
+#ifdef BUILD_PLATFORM_WIN
+	static void WINAPI CoreEntry(void* pvCoroutine) noexcept
+	{
+		((VeCoroutine*)pvCoroutine)->RunEntry();
+		VeCoroutineEnv::GetCurrent()->Close();
+	}
+#endif
+public:
+	VeCoroutine(std::function<_Ret(VeCoroutine&, _Param)> kEntry,
+		uint32_t u32Stack = VE_CO_DEFAULT_STACK) noexcept
+		: VeCoroutineBase(&CoreEntry, u32Stack), m_kUserEntry(kEntry)
+	{
+
+	}
+
+	_Ret resume(_Param pin) noexcept
+	{
+		m_ParamSpace = pin;
+		VeCoroutineBase::Resume();
+		return m_ReturnSpace;
+	}
+
+	_Param yield(_Ret rin) noexcept
+	{
+		m_ReturnSpace = rin;
+		VeCoroutineEnv::GetCurrent()->Suspend();
+		return m_ParamSpace;
+	}
+
+private:
+	void RunEntry() noexcept
+	{
+		m_ReturnSpace = m_kUserEntry(*this, m_ParamSpace);
+	}
+
+	std::function<_Ret(VeCoroutine&,_Param)> m_kUserEntry;
+	_Param m_ParamSpace;
+	_Ret m_ReturnSpace;
+
+};
+
+template <>
+class VeCoroutine<void, void> : public VeCoroutineBase
+{
+#ifdef BUILD_PLATFORM_WIN
+	static void WINAPI CoreEntry(void* pvCoroutine) noexcept
+	{
+		((VeCoroutine*)pvCoroutine)->RunEntry();
+		VeCoroutineEnv::GetCurrent()->Close();
+	}
+#endif
+public:
+	VeCoroutine(std::function<void(VeCoroutine&)> kEntry,
+		uint32_t u32Stack = VE_CO_DEFAULT_STACK) noexcept
+		: VeCoroutineBase(&CoreEntry, u32Stack), m_kUserEntry(kEntry)
+	{
+
+	}
+
+	void resume() noexcept
+	{
+		VeCoroutineBase::Resume();
+	}
+
+	void yield() noexcept
+	{
+		VeCoroutineEnv::GetCurrent()->Suspend();
+	}
+
+private:
+	void RunEntry() noexcept
+	{
+		m_kUserEntry(*this);
+	}
+
+	std::function<void(VeCoroutine&)> m_kUserEntry;
+
+};
+
+template <class _Param>
+class VeCoroutine<_Param, void> : public VeCoroutineBase
+{
+#ifdef BUILD_PLATFORM_WIN
+	static void WINAPI CoreEntry(void* pvCoroutine) noexcept
+	{
+		((VeCoroutine*)pvCoroutine)->RunEntry();
+		VeCoroutineEnv::GetCurrent()->Close();
+	}
+#endif
+public:
+	VeCoroutine(std::function<void(VeCoroutine&, _Param)> kEntry,
+		uint32_t u32Stack = VE_CO_DEFAULT_STACK) noexcept
+		: VeCoroutineBase(&CoreEntry, u32Stack), m_kUserEntry(kEntry)
+	{
+
+	}
+
+	void resume(_Param pin) noexcept
+	{
+		m_ParamSpace = pin;
+		VeCoroutineBase::Resume();
+	}
+
+	_Param yield() noexcept
+	{
+		VeCoroutineEnv::GetCurrent()->Suspend();
+		return m_ParamSpace;
+	}
+
+private:
+	void RunEntry() noexcept
+	{
+		m_ReturnSpace = m_kUserEntry(*this, m_ParamSpace);
+	}
+
+	std::function<void(VeCoroutine&, _Param)> m_kUserEntry;
+	_Param m_ParamSpace;
+
+};
+
+template <class _Ret>
+class VeCoroutine<void, _Ret> : public VeCoroutineBase
+{
+#ifdef BUILD_PLATFORM_WIN
+	static void WINAPI CoreEntry(void* pvCoroutine) noexcept
+	{
+		((VeCoroutine*)pvCoroutine)->RunEntry();
+		VeCoroutineEnv::GetCurrent()->Close();
+	}
+#endif
+public:
+	VeCoroutine(std::function<_Ret(VeCoroutine&)> kEntry,
+		uint32_t u32Stack = VE_CO_DEFAULT_STACK) noexcept
+		: VeCoroutineBase(&CoreEntry, u32Stack), m_kUserEntry(kEntry)
+	{
+
+	}
+
+	_Ret resume() noexcept
+	{
+		VeCoroutineBase::Resume();
+		return m_ReturnSpace;
+	}
+
+	void yield(_Ret rin) noexcept
+	{
+		m_ReturnSpace = rin;
+		VeCoroutineEnv::GetCurrent()->Suspend();
+	}
+
+private:
+	void RunEntry() noexcept
+	{
+		m_ReturnSpace = m_kUserEntry(*this, m_ParamSpace);
+	}
+
+	std::function<_Ret(VeCoroutine&)> m_kUserEntry;
+	_Ret m_ReturnSpace;
+
+};
+
+typedef vtd::intrusive_ptr<VeCoroutineBase> VeCoroutinePtr;
+
+template <class _Param, class _Ret>
+VeCoroutinePtr VeCreateCoroutine(std::function<_Ret(VeCoroutine<_Param, _Ret>&, _Param)> funcEntry) noexcept
+{
+	return VE_NEW VeCoroutine<_Param, _Ret>(funcEntry);
+}
+
+
+VeCoroutinePtr VeCreateCoroutine(std::function<void(VeCoroutine<>&)> funcEntry) noexcept
+{
+	return VE_NEW VeCoroutine<>(funcEntry);
+}
 
 #include "VeCoroutine.inl"
