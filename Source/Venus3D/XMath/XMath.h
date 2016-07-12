@@ -102,6 +102,9 @@
 // C4514/4820: Off by default noise
 #include <math.h>
 #include <float.h>
+#ifndef assert
+#	include <assert.h>
+#endif
 #ifndef __APPLE__
 #	include <malloc.h>
 #endif

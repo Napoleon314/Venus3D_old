@@ -52,21 +52,23 @@ public:
 	typedef LPFIBER_START_ROUTINE Entry;
 #endif
 
-protected:
+public:
 	friend class VeCoroutineEnv;
 
 	VeCoroutineBase() noexcept : m_u32StackSize(0) {}
 
 	VeCoroutineBase(Entry pfuncEntry, uint32_t u32Stack = VE_CO_DEFAULT_STACK) noexcept;
 
-	~VeCoroutineBase() noexcept;
+	virtual ~VeCoroutineBase() noexcept;
 
 	void Push() noexcept;
 
 	void Resume() noexcept;
 
+	void Restart(Entry pfuncEntry) noexcept;
+
 	const uint32_t m_u32StackSize;
-	VeCoroutineStatus m_eStatus = VE_CO_READY;
+	VeCoroutineStatus m_eStatus = VE_CO_DEAD;
 #ifdef BUILD_PLATFORM_WIN
 	HANDLE m_hFiber = nullptr;
 #else
@@ -119,6 +121,10 @@ public:
 	_Ret resume(_Param pin) noexcept
 	{
 		m_ParamSpace = pin;
+		if (m_eStatus == VE_CO_DEAD)
+		{
+			VeCoroutineBase::Restart(&CoreEntry);
+		}
 		VeCoroutineBase::Resume();
 		return m_ReturnSpace;
 	}
@@ -160,8 +166,17 @@ public:
 
 	}
 
+	virtual ~VeCoroutine() noexcept
+	{
+
+	}
+
 	void resume() noexcept
 	{
+		if (m_eStatus == VE_CO_DEAD)
+		{
+			VeCoroutineBase::Restart(&CoreEntry);
+		}
 		VeCoroutineBase::Resume();
 	}
 
@@ -201,6 +216,10 @@ public:
 	void resume(_Param pin) noexcept
 	{
 		m_ParamSpace = pin;
+		if (m_eStatus == VE_CO_DEAD)
+		{
+			VeCoroutineBase::Restart(&CoreEntry);
+		}
 		VeCoroutineBase::Resume();
 	}
 
@@ -241,6 +260,10 @@ public:
 
 	_Ret resume() noexcept
 	{
+		if (m_eStatus == VE_CO_DEAD)
+		{
+			VeCoroutineBase::Restart(&CoreEntry);
+		}
 		VeCoroutineBase::Resume();
 		return m_ReturnSpace;
 	}

@@ -37,14 +37,16 @@ VeCoroutineBase::VeCoroutineBase(Entry pfuncEntry,
 	uint32_t u32Stack) noexcept
 	: m_u32StackSize(u32Stack ? u32Stack : VE_CO_DEFAULT_STACK)
 {
-#ifdef BUILD_PLATFORM_WIN
-	m_hFiber = CreateFiber((SIZE_T)m_u32StackSize, pfuncEntry, this);
-#endif
+	Restart(pfuncEntry);
 }
 //--------------------------------------------------------------------------
 VeCoroutineBase::~VeCoroutineBase() noexcept
 {
-
+	if (m_hFiber)
+	{
+		DeleteFiber(m_hFiber);
+		m_hFiber = NULL;
+	}
 }
 //--------------------------------------------------------------------------
 void VeCoroutineBase::Push() noexcept
@@ -55,6 +57,11 @@ void VeCoroutineBase::Push() noexcept
 #ifdef BUILD_PLATFORM_WIN
 	SwitchToFiber(m_hFiber);
 #endif
+	if (m_eStatus == VE_CO_DEAD)
+	{
+		DeleteFiber(m_hFiber);
+		m_hFiber = NULL;
+	}
 }
 //--------------------------------------------------------------------------
 void VeCoroutineBase::Resume() noexcept
@@ -77,6 +84,15 @@ void VeCoroutineBase::Resume() noexcept
 	}
 }
 //--------------------------------------------------------------------------
+void VeCoroutineBase::Restart(Entry pfuncEntry) noexcept
+{
+	assert(m_eStatus == VE_CO_DEAD && !m_hFiber);
+#ifdef BUILD_PLATFORM_WIN
+	m_hFiber = CreateFiber((SIZE_T)m_u32StackSize, pfuncEntry, this);
+#endif
+	m_eStatus = VE_CO_READY;
+}
+//--------------------------------------------------------------------------
 VeCoroutineEnv::VeCoroutineEnv() noexcept
 {
 	m_spMain = VE_NEW VeCoroutineBase();
@@ -92,10 +108,12 @@ void VeCoroutineEnv::Suspend() noexcept
 	assert(m_spRunning);
 	if (m_spRunning->m_spPrevious)
 	{
-		VeCoroutineBasePtr spTop = m_spRunning;
-		m_spRunning = spTop->m_spPrevious;
-		spTop->m_spPrevious = nullptr;
-		spTop->m_eStatus = VE_CO_SUSPENDED;
+		{
+			VeCoroutineBasePtr spTop = m_spRunning;
+			m_spRunning = spTop->m_spPrevious;
+			spTop->m_spPrevious = nullptr;
+			spTop->m_eStatus = VE_CO_SUSPENDED;
+		}
 #ifdef BUILD_PLATFORM_WIN
 		SwitchToFiber(m_spRunning->m_hFiber);
 #endif
@@ -107,10 +125,12 @@ void VeCoroutineEnv::Close() noexcept
 	assert(m_spRunning);
 	if (m_spRunning->m_spPrevious)
 	{
-		VeCoroutineBasePtr spTop = m_spRunning;
-		m_spRunning = spTop->m_spPrevious;
-		spTop->m_spPrevious = nullptr;
-		spTop->m_eStatus = VE_CO_DEAD;
+		{
+			VeCoroutineBasePtr spTop = m_spRunning;
+			m_spRunning = spTop->m_spPrevious;
+			spTop->m_spPrevious = nullptr;
+			spTop->m_eStatus = VE_CO_DEAD;
+		}
 #ifdef BUILD_PLATFORM_WIN
 		SwitchToFiber(m_spRunning->m_hFiber);
 #endif

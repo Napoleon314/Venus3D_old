@@ -245,6 +245,7 @@
 #	include <unistd.h>
 #	include <sys/stat.h>
 #	include <pthread.h>
+#	include <sys/ucontext.h>
 #	define VE_CALLBACK
 #endif
 #ifdef BUILD_PLATFORM_LINUX
