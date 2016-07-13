@@ -377,11 +377,13 @@
 #include "vtd/stack.h"
 #include "vtd/ring_buffer.h"
 #include "vtd/spin_lock.h"
+#include "vtd/thread.h"
 #include "vtd/intrusive_list.h"
 #include "vtd/intrusive_ptr.h"
 #include "vtd/string.h"
 #include "vtd/point.h"
 #include "vtd/rect.h"
+#include "vtd/coroutine.h"
 
 #include "Memory/VeMemory.h"
 #include "Memory/VeMemObject.h"
