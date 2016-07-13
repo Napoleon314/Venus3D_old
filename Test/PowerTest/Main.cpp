@@ -67,5 +67,10 @@ int main(/*int argc, char * argv[]*/)
 		spCor2->resume();
 	}
 
+	vtd::thread t([]()
+	{
+		printf("Thread");
+	});
+
 	return 0;
 }
