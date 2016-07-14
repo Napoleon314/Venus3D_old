@@ -72,3 +72,38 @@ void VeLog::Output(Type eType, const char* pcTag,
 	}
 }
 //--------------------------------------------------------------------------
+void VeLog::ConsoleOutput(Type eType, const char* pcTag,
+	const char* pcText) noexcept
+{
+#if defined(BUILD_PLATFORM_ANDROID)
+	const android_LogPriority aeLogTypeMap[VeLog::TYPE_MAX] =
+	{
+		ANDROID_LOG_DEBUG,
+		ANDROID_LOG_INFO,
+		ANDROID_LOG_WARN,
+		ANDROID_LOG_ERROR
+	};
+	__android_log_print(aeLogTypeMap[eType], pcTag, "%s", pcText);
+#else
+	const char* s_apcLogTypeNames[VeLog::TYPE_MAX] =
+	{
+		"DEBUG",
+		"INFO",
+		"WARN",
+		"ERROR"
+	};
+#	if defined(BUILD_PLATFORM_WIN)
+	char acLogBuffer[VE_MAX_LOG_MESSAGE + 64];
+	VeSprintf(acLogBuffer, "%s,%s: %s\n", s_apcLogTypeNames[eType], pcTag, pcText);
+	static vtd::spin_lock lock;
+	{
+		std::lock_guard<vtd::spin_lock> l(lock);
+		OutputDebugStringA(acLogBuffer);
+		printf(acLogBuffer);
+	}
+#	else
+	printf("%s,%s: %s\n", s_apcLogTypeNames[eType], pcTag, pcText);
+#	endif
+#endif
+}
+//--------------------------------------------------------------------------

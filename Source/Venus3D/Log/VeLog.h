@@ -124,6 +124,9 @@ public:
 		Output(eType, pcTag, acBuffer);
 	}
 
+	static void ConsoleOutput(VeLog::Type eType, const char* pcTag,
+		const char* pcText) noexcept;
+
 private:
 	void Output(Type eType, const char* pcTag, const char* pcContent) noexcept;
 
