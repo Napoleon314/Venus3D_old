@@ -31,11 +31,11 @@
 #pragma once
 
 #ifdef VE_DEBUG
-//#	define VE_MEM_TRACK
+#	define VE_MEM_TRACK
 #endif
 
 #ifndef VE_SHIPPING
-//#	define VE_MEM_DEBUG
+#	define VE_MEM_DEBUG
 #endif
 
 #ifndef BUILD_PLATFORM_APPLE
@@ -70,7 +70,7 @@ inline void aligned_free(void* _Block) noexcept
 
 #ifdef VE_MEM_DEBUG
 
-VENUS_API void _VeMemoryExit() noexcept;
+VENUS_API void _VeMemoryExit(size_t stRest, size_t stRestAligned) noexcept;
 
 VENUS_API void* _VeMalloc(size_t stSizeInBytes, const char* pcSourceFile, int32_t iSourceLine, const char* pcFunction) noexcept;
 
@@ -96,9 +96,11 @@ VENUS_API void _VeAlignedFree(void* pvMemory, const char* pcSourceFile, int32_t 
 
 #define VE_NEW new(__FILE__, __LINE__, __FUNCTION__)
 
-#define VE_DELETE(p) std::remove_pointer<decltype(p)>::type::operator delete (p, __FILE__, __LINE__, __FUNCTION__)
+#define VE_DELETE(p) VeMemObject::PushDeleteCallParams(__FILE__, __LINE__, __FUNCTION__); delete p; VeMemObject::PopDeleteCallParams()
 
-#define VE_DELETE_ARRAY(p) std::remove_pointer<decltype(p)>::type::operator delete[] (p, __FILE__, __LINE__, __FUNCTION__)
+#define VE_DELETE_ARRAY(p) VeMemObject::PushDeleteCallParams(__FILE__, __LINE__, __FUNCTION__); delete [] p; VeMemObject::PopDeleteCallParams()
+
+#define VeMemoryExit(r,ra) _VeMemoryExit(r,ra)
 
 #else
 
@@ -128,7 +130,7 @@ inline void _VeAlignedFree(void* pvMemory) noexcept;
 
 #define VE_DELETE delete
 
-#define VE_DELETE_ARRAY delete []
+#define VE_DELETE_ARRAY VE_DELETE []
 
 #endif
 

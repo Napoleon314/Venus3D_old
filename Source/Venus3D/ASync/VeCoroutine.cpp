@@ -31,7 +31,7 @@
 #include "stdafx.h"
 
 //--------------------------------------------------------------------------
-static thread_local VeCoroutineEnvPtr ms_spEnv_local;
+static thread_local std::unique_ptr<VeCoroutineEnv> ms_upEnv_local;
 //--------------------------------------------------------------------------
 VeCoroutineBase::VeCoroutineBase(Entry pfuncEntry,
 	uint32_t u32Stack) noexcept
@@ -64,15 +64,15 @@ void VeCoroutineBase::Push() noexcept
 {
 #ifdef BUILD_PLATFORM_WIN
 	m_eStatus = VE_CO_RUNNING;
-	m_spPrevious = m_spEnv->m_spRunning;
-	m_spEnv->m_spRunning = this;
+	m_spPrevious = m_pkEnv->m_spRunning;
+	m_pkEnv->m_spRunning = this;
 	SwitchToFiber(m_hFiber);
-	VeCoroutineEnv* pkEnv = m_spEnv;
+	VeCoroutineEnv* pkEnv = m_pkEnv;
 	if (m_eStatus == VE_CO_DEAD)
 	{
 		DeleteFiber(m_hFiber);
 		m_hFiber = NULL;
-		m_spEnv = nullptr;
+		m_pkEnv = nullptr;
 	}
 	pkEnv->m_spReturnFrom = nullptr;
 #else
@@ -86,13 +86,13 @@ void VeCoroutineBase::Push() noexcept
 		makecontext(&m_kContext, (void(*)(void))m_pfuncEntry, 2, (uint32_t)ptr, (uint32_t)(ptr >> 32));
 	}
 	m_eStatus = VE_CO_RUNNING;
-	m_spPrevious = m_spEnv->m_spRunning;
-	m_spEnv->m_spRunning = this;
+	m_spPrevious = m_pkEnv->m_spRunning;
+	m_pkEnv->m_spRunning = this;
 	swapcontext(&m_spPrevious->m_kContext, &m_kContext);
-	VeCoroutineEnv* pkEnv = m_spEnv;
+	VeCoroutineEnv* pkEnv = m_pkEnv;
 	if (m_eStatus == VE_CO_DEAD)
 	{
-		m_spEnv = nullptr;
+		m_pkEnv = nullptr;
 	}
 	pkEnv->m_spReturnFrom = nullptr;
 #endif
@@ -103,16 +103,16 @@ void VeCoroutineBase::Resume() noexcept
 {
 	if (m_eStatus == VE_CO_READY || m_eStatus == VE_CO_SUSPENDED)
 	{
-		if (!ms_spEnv_local)
+		if (!ms_upEnv_local)
 		{
-			ms_spEnv_local = VE_NEW VeCoroutineEnv();
+			ms_upEnv_local.reset(new VeCoroutineEnv());
 		}
-		assert(ms_spEnv_local);
-		if (!m_spEnv)
+		assert(ms_upEnv_local);
+		if (!m_pkEnv)
 		{
-			m_spEnv = ms_spEnv_local;
+			m_pkEnv = ms_upEnv_local.get();
 		}
-		if (m_spEnv == ms_spEnv_local && !m_spPrevious)
+		if (m_pkEnv == ms_upEnv_local.get() && !m_spPrevious)
 		{
 			Push();
 		}
@@ -142,6 +142,25 @@ VeCoroutineEnv::VeCoroutineEnv() noexcept
 #endif
 	m_spRunning = m_spMain;
 }
+//--------------------------------------------------------------------------
+#ifdef VE_MEM_DEBUG
+static auto s_idMainThread = std::this_thread::get_id();
+//--------------------------------------------------------------------------
+VeCoroutineEnv::~VeCoroutineEnv() noexcept
+{
+	if (s_idMainThread == std::this_thread::get_id())
+	{
+		m_spRunning = nullptr;
+		m_spReturnFrom = nullptr;
+		_VeMemoryExit(1, 0);
+	}
+}
+#else
+VeCoroutineEnv::~VeCoroutineEnv() noexcept
+{
+	
+}
+#endif
 //--------------------------------------------------------------------------
 void VeCoroutineEnv::Suspend() noexcept
 {
@@ -179,6 +198,6 @@ void VeCoroutineEnv::Close() noexcept
 //--------------------------------------------------------------------------
 VeCoroutineEnv* VeCoroutineEnv::GetCurrent() noexcept
 {
-	return ms_spEnv_local;
+	return ms_upEnv_local.get();
 }
 //--------------------------------------------------------------------------

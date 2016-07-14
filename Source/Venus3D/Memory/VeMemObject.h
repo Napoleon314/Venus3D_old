@@ -48,6 +48,10 @@ public:
 
 	static void operator delete[](void* pvMem, const char* pcSourceFile, int32_t i32SourceLine, const char* pcFunction) noexcept;
 
+	static void PushDeleteCallParams(const char* pcSourceFile, int32_t i32SourceLine, const char* pcFunction) noexcept;
+
+	static void PopDeleteCallParams() noexcept;
+
 #else
 
 	static void* operator new (size_t stSize) noexcept;

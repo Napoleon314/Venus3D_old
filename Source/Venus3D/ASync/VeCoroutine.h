@@ -41,7 +41,6 @@ enum VeCoroutineStatus
 };
 
 VeSmartPointer(VeCoroutineBase);
-VeSmartPointer(VeCoroutineEnv);
 
 class VENUS_API VeCoroutineBase : public VeRefObject
 {
@@ -78,16 +77,20 @@ protected:
 	void* m_pvStack = nullptr;
 	Entry m_pfuncEntry = nullptr;
 #endif
-	VeCoroutineEnvPtr m_spEnv;
+	VeCoroutineEnv* m_pkEnv;
 	VeCoroutineBasePtr m_spPrevious;
 	
 };
 
-class VENUS_API VeCoroutineEnv : public VeRefObject
+
+
+class VENUS_API VeCoroutineEnv
 {
 	VeNoCopy(VeCoroutineEnv);
 	VeNoMove(VeCoroutineEnv);
 public:
+	~VeCoroutineEnv() noexcept;
+
 	void Suspend() noexcept;
 
 	void Close() noexcept;

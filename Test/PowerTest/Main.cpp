@@ -35,37 +35,40 @@
 
 int main(/*int argc, char * argv[]*/)
 {
+	Venus3D::Create("PowerTest");
+
 	{
 		auto spCor1 = VeCreateCoroutine(
 			[](VeCoroutine<>& co) noexcept
 		{
-			printf("ABC\n");
+			VeDebugOutput("ABC");
 			co.yield();
-			printf("DEF\n");
+			VeDebugOutput("DEF");
 		});
 
 		auto spCor2 = VeCreateCoroutine(
 			[&](VeCoroutine<>& co) noexcept
 		{
-			printf("abc\n");
+			VeDebugOutput("abc");
 			co.yield();
-			printf("def\n");
+			VeDebugOutput("def");
 			co.yield();
 			spCor1->resume();
 			co.yield();
 			spCor1->resume();
 		});
-		printf("Resume1\n");
+		VeDebugOutput("Resume1");
 		spCor2->resume();
-		printf("Resume2\n");
+		VeDebugOutput("Resume2");
 		spCor2->resume();
-		printf("Resume3\n");
+		VeDebugOutput("Resume3");
 		spCor2->resume();
-		printf("Resume4\n");
+		VeDebugOutput("Resume4");
 		spCor2->resume();
-		printf("Resume5\n");
+		VeDebugOutput("Resume5");
 		spCor2->resume();
 	}
 
+	Venus3D::Destory();
 	return 0;
 }

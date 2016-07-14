@@ -3,9 +3,9 @@
 //  The MIT License (MIT)
 //  Copyright (c) 2016 Albert D Yang
 // -------------------------------------------------------------------------
-//  Module:      Memory
-//  File name:   VeRefObject.cpp
-//  Created:     2016/07/08 by Albert
+//  Module:      Log
+//  File name:   VeLog.cpp
+//  Created:     2016/07/14 by Albert
 //  Description:
 // -------------------------------------------------------------------------
 //  Permission is hereby granted, free of charge, to any person obtaining a
@@ -31,34 +31,44 @@
 #include "stdafx.h"
 
 //--------------------------------------------------------------------------
-std::atomic_size_t VeRefObject::ms_stObjects(0);
-//--------------------------------------------------------------------------
-VeRefObject::VeRefObject() noexcept
+VeLog::VeLog()
 {
-	m_stRefCount.store(0, std::memory_order_release);
-	ms_stObjects.fetch_add(1, std::memory_order_relaxed);
+
 }
 //--------------------------------------------------------------------------
-VeRefObject::~VeRefObject() noexcept
+VeLog::~VeLog()
 {
-	ms_stObjects.fetch_sub(1, std::memory_order_relaxed);
+
+
+
 }
 //--------------------------------------------------------------------------
-void VeRefObject::DeleteThis() noexcept
+void VeLog::LogFormat(Type eType, const char* pcTag,
+	const char* pcFormat, ...) noexcept
 {
-	VE_DELETE(this);
+	va_list kArgs;
+	va_start(kArgs, pcFormat);
+	LogFormat(eType, pcTag, pcFormat, kArgs);
+	va_end(kArgs);
 }
 //--------------------------------------------------------------------------
-void VeRefObject::IncRefCount() noexcept
+void VeLog::LogFormat(Type eType, const char* pcTag,
+	const char* pcFormat, va_list kArgs) noexcept
 {
-	m_stRefCount.fetch_add(1, std::memory_order_acquire);
+	char acBuffer[VE_MAX_LOG_MESSAGE];
+	VeVsprintf(acBuffer, VE_MAX_LOG_MESSAGE, pcFormat, kArgs);
+	Output(eType, pcTag, acBuffer);
 }
 //--------------------------------------------------------------------------
-void VeRefObject::DecRefCount() noexcept
+void VeLog::Output(Type eType, const char* pcTag,
+	const char* pcContent) noexcept
 {
-	if (m_stRefCount.fetch_sub(1, std::memory_order_release) == 1)
+	if (m_funcTarget)
 	{
-		DeleteThis();
+#		ifdef VE_RELEASE
+		if (VeUInt32(eType) < VeUInt32(m_eLevel)) return;
+#		endif
+		m_funcTarget(eType, pcTag, pcContent);
 	}
 }
 //--------------------------------------------------------------------------

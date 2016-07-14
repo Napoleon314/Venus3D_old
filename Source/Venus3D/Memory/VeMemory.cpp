@@ -48,17 +48,17 @@ static vtd::spin_lock s_kLock;
 //--------------------------------------------------------------------------
 #endif
 //--------------------------------------------------------------------------
-static size_t s_stMallocCount(0);
-static size_t s_stAlignedMallocCount(0);
+static std::atomic_size_t s_stMallocCount(0);
+static std::atomic_size_t s_stAlignedMallocCount(0);
 //--------------------------------------------------------------------------
 extern std::vector<void(*)()> g_kClassInitList;
 //--------------------------------------------------------------------------
 extern std::vector<void(*)()> g_kClassTermList;
 //--------------------------------------------------------------------------
-void _VeMemoryExit() noexcept
+void _VeMemoryExit(size_t stRest, size_t stRestAligned) noexcept
 {
-	assert(!s_stMallocCount);
-	assert(!s_stAlignedMallocCount);
+	assert(s_stMallocCount == stRest);
+	assert(s_stAlignedMallocCount == stRestAligned);
 }
 //--------------------------------------------------------------------------
 void* _VeMalloc(size_t stSizeInBytes,

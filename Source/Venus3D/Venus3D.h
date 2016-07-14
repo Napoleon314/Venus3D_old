@@ -187,7 +187,6 @@
 #	pragma warning(disable: 4275) // Derived from non dllexport classes.
 #	pragma warning(disable: 4334)
 #	pragma warning(disable: 4706)
-#	pragma warning(disable: 4611)
 #endif
 
 #ifndef _CRT_SECURE_NO_DEPRECATE
@@ -319,6 +318,7 @@
 #define VE_BOOL uint32_t
 
 #define VE_MASK(location) (uint32_t(0x01<<(location)))
+#define VE_MASK_CLEAR(flag) (flag &= 0)
 #define VE_MASK_HAS_ANY(flag,mask) (((flag)&(mask))!=0)
 #define VE_MASK_HAS_ALL(flag,mask) (((flag)&(mask))==(mask))
 #define VE_MASK_ADD(flag,mask) ((flag)|=(mask))
@@ -329,6 +329,7 @@
 		VE_MASK_DEL(flag,VE_MASK(location));							\
 	else																\
 		VE_MASK_ADD(flag,VE_MASK(location));
+#define VE_MASK_CONDITION(flag, mask, run) if(VE_MASK_HAS_ALL(flag,mask)) run
 
 #define VE_MAKE_FOURCC(ch0, ch1, ch2, ch3)								\
 	((uint32_t)(ch0) | ((uint32_t)(ch1) << 8) |							\
@@ -386,10 +387,14 @@
 #include "vtd/point.h"
 #include "vtd/rect.h"
 
+#include "Memory/VeString.h"
 #include "Memory/VeMemory.h"
 #include "Memory/VeMemObject.h"
 #include "Memory/VeRefObject.h"
 #include "Memory/VeBlob.h"
+
+#include "Log/VeLog.h"
+#include "Log/VeAssert.h"
 
 #include "ASync/VeThread.h"
 #include "ASync/VeCoroutine.h"
@@ -398,4 +403,56 @@
 #include "Video/VeSurface.h"
 #include "Video/VeWindow.h"
 
-VENUS_API void Test() noexcept;
+enum VeInitMask
+{
+	VE_INIT_NONE		= 0x0,
+	VE_INIT_LOG			= 0x1,
+	VE_INIT_MASK		= 0xFFFFFFFF
+};
+
+class VENUS_API Venus3D : public VeSingleton<Venus3D>
+{
+public:
+	Venus3D(const char* pcProcessName, uint32_t u32InitMask = VE_INIT_MASK) noexcept;
+
+	~Venus3D() noexcept;
+
+	void Init(uint32_t u32InitMask);
+
+	void Term();
+
+	void InitLog() noexcept;
+
+	void TermLog() noexcept;
+
+private:
+	vtd::string m_kProcessName;
+	uint32_t m_u32ActiveMask = 0;
+	VeLog m_kLog;
+
+public:
+	VeLog::Pack CORE;
+	VeLog::Pack USER;
+
+};
+
+#define venus3d Venus3D::Ref()
+
+#ifdef VE_DEBUG
+#	define VeCoreDebugOutput venus3d.CORE.D.LogFormat
+#	define VeDebugOutput venus3d.USER.D.LogFormat
+#	define VeCoreLogD venus3d.CORE.D.Log
+#	define VeUserLogD venus3d.USER.D.Log
+#else
+#	define VeCoreDebugOutput(...)
+#	define VeDebugOutput(...)
+#	define VeCoreLogD(...)
+#	define VeUserLogD(...)
+#endif
+
+#define VeCoreLogI venus3d.CORE.I.Log
+#define VeUserLogI venus3d.USER.I.Log
+#define VeCoreLogW venus3d.CORE.W.Log
+#define VeUserLogW venus3d.USER.W.Log
+#define VeCoreLogE venus3d.CORE.E.Log
+#define VeUserLogE venus3d.USER.E.Log

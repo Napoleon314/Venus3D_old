@@ -3,9 +3,9 @@
 //  The MIT License (MIT)
 //  Copyright (c) 2016 Albert D Yang
 // -------------------------------------------------------------------------
-//  Module:      Memory
-//  File name:   VeRefObject.cpp
-//  Created:     2016/07/08 by Albert
+//  Module:      Log
+//  File name:   VeLog.inl
+//  Created:     2016/07/14 by Albert
 //  Description:
 // -------------------------------------------------------------------------
 //  Permission is hereby granted, free of charge, to any person obtaining a
@@ -28,37 +28,19 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-#include "stdafx.h"
-
 //--------------------------------------------------------------------------
-std::atomic_size_t VeRefObject::ms_stObjects(0);
-//--------------------------------------------------------------------------
-VeRefObject::VeRefObject() noexcept
+inline void VeLog::SetLevel(Level eLevel) noexcept
 {
-	m_stRefCount.store(0, std::memory_order_release);
-	ms_stObjects.fetch_add(1, std::memory_order_relaxed);
+	m_eLevel = eLevel;
 }
 //--------------------------------------------------------------------------
-VeRefObject::~VeRefObject() noexcept
+inline VeLog::Level VeLog::GetLevel() const noexcept
 {
-	ms_stObjects.fetch_sub(1, std::memory_order_relaxed);
+	return m_eLevel;
 }
 //--------------------------------------------------------------------------
-void VeRefObject::DeleteThis() noexcept
+inline void VeLog::SetTarget(OutputFunc funcTarget) noexcept
 {
-	VE_DELETE(this);
-}
-//--------------------------------------------------------------------------
-void VeRefObject::IncRefCount() noexcept
-{
-	m_stRefCount.fetch_add(1, std::memory_order_acquire);
-}
-//--------------------------------------------------------------------------
-void VeRefObject::DecRefCount() noexcept
-{
-	if (m_stRefCount.fetch_sub(1, std::memory_order_release) == 1)
-	{
-		DeleteThis();
-	}
+	m_funcTarget = funcTarget;
 }
 //--------------------------------------------------------------------------
