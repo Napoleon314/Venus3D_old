@@ -328,3 +328,5 @@ inline vtd::intrusive_ptr<VeCoroutine<>> VeCreateCoroutine(std::function<void(Ve
 {
 	return VE_NEW VeCoroutine<>(funcEntry);
 }
+
+#include "VeCoroutine.inl"

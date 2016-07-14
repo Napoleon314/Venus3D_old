@@ -31,16 +31,16 @@
 #include "stdafx.h"
 
 //--------------------------------------------------------------------------
-size_t VeRefObject::ms_stObjects(0);
+std::atomic_size_t VeRefObject::ms_stObjects(0);
 //--------------------------------------------------------------------------
 VeRefObject::VeRefObject() noexcept
 {
-	++ms_stObjects;
+	ms_stObjects.fetch_add(1, std::memory_order_relaxed);
 }
 //--------------------------------------------------------------------------
 VeRefObject::~VeRefObject() noexcept
 {
-	--ms_stObjects;
+	ms_stObjects.fetch_sub(1, std::memory_order_relaxed);
 }
 //--------------------------------------------------------------------------
 void VeRefObject::DeleteThis() noexcept
@@ -50,12 +50,12 @@ void VeRefObject::DeleteThis() noexcept
 //--------------------------------------------------------------------------
 void VeRefObject::IncRefCount() noexcept
 {
-	++m_stRefCount;
+	m_stRefCount.fetch_add(1, std::memory_order_acquire);
 }
 //--------------------------------------------------------------------------
 void VeRefObject::DecRefCount() noexcept
 {
-	if (!(--m_stRefCount))
+	if (m_stRefCount.fetch_sub(1, std::memory_order_release) == 1)
 	{
 		DeleteThis();
 	}

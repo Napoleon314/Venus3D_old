@@ -187,6 +187,7 @@
 #	pragma warning(disable: 4275) // Derived from non dllexport classes.
 #	pragma warning(disable: 4334)
 #	pragma warning(disable: 4706)
+#	pragma warning(disable: 4611)
 #endif
 
 #ifndef _CRT_SECURE_NO_DEPRECATE
@@ -286,6 +287,7 @@
 #include <assert.h>
 #include <math.h>
 #include <float.h>
+#include <setjmp.h>
 
 #include <functional>
 #include <tuple>
@@ -383,7 +385,6 @@
 #include "vtd/string.h"
 #include "vtd/point.h"
 #include "vtd/rect.h"
-#include "vtd/coroutine.h"
 
 #include "Memory/VeMemory.h"
 #include "Memory/VeMemObject.h"

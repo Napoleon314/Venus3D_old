@@ -31,11 +31,11 @@
 //--------------------------------------------------------------------------
 inline size_t VeRefObject::GetRefCount() const noexcept
 {
-	return m_stRefCount;
+	return m_stRefCount.load(std::memory_order_relaxed);
 }
 //--------------------------------------------------------------------------
 inline size_t VeRefObject::GetTotalObjectCount() noexcept
 {
-	return ms_stObjects;
+	return ms_stObjects.load(std::memory_order_relaxed);
 }
 //--------------------------------------------------------------------------

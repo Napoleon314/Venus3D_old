@@ -50,8 +50,8 @@ protected:
 	void DeleteThis() noexcept;
 
 private:
-	size_t m_stRefCount = 0;
-	static size_t ms_stObjects;
+	std::atomic_size_t m_stRefCount;
+	static std::atomic_size_t ms_stObjects;
 
 };
 
