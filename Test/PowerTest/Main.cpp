@@ -28,9 +28,6 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-#ifdef BUILD_PLATFORM_WIN
-#	include <vld.h>
-#endif
 #include <Venus3D.h>
 
 int main(/*int argc, char * argv[]*/)
@@ -68,6 +65,8 @@ int main(/*int argc, char * argv[]*/)
 		VeDebugOutput("Resume5");
 		spCor2->resume();
 	}
+
+	venus3d.CORE.I.Log(1, "abc", 7.5f);
 
 	Venus3D::Destory();
 	return 0;
