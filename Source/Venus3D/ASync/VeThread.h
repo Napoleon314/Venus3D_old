@@ -83,13 +83,6 @@ typedef CONDITION_VARIABLE VeConditionVariable;
 #define VeConditionVariableWakeOne(x) pthread_cond_signal(&x)
 #define VeConditionVariableWakeAll(x) pthread_cond_broadcast(&x)
 
-#define VE_THREAD_PRIORITY_IDLE MAX_PRIO-1
-#define VE_THREAD_PRIORITY_LOWEST 16
-#define VE_THREAD_PRIORITY_BELOW_NORMAL 24
-#define VE_THREAD_PRIORITY_NORMAL SCHED_NORMAL
-#define VE_THREAD_PRIORITY_ABOVE_NORMAL 16
-#define VE_THREAD_PRIORITY_HIGHEST 1
-#define VE_THREAD_PRIORITY_TIME_CRITICAL 0
 #define VE_THREAD_PRIORITY_IDLE 99
 #define VE_THREAD_PRIORITY_LOWEST 64
 #define VE_THREAD_PRIORITY_BELOW_NORMAL 40
