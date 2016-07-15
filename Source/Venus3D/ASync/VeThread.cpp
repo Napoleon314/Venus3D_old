@@ -252,9 +252,8 @@ VeThread::VeThread(uint32_t u32Priority, size_t stStackSize) noexcept
 //--------------------------------------------------------------------------
 VeThread::~VeThread() noexcept
 {
-	while (IsRunning())
-		;
-	m_pkParams->m_pkThis = nullptr;
+	uint32_t check(0);
+	while (m_u32State.compare_exchange_weak(check, 2, std::memory_order_relaxed));
 	m_pkParams->m_kEventLoop.set();
 	VeJoinThread(m_hThread);
 	m_pkParams = nullptr;
@@ -263,24 +262,20 @@ VeThread::~VeThread() noexcept
 VeThreadCallbackResult VeThread::Callback(void* pvParam) noexcept
 {
 	ThreadParams* pkParams = (ThreadParams*)pvParam;
+	VeThread* pkClass = pkParams->m_pkThis;
 	while (true)
 	{
-		VeThread* pkThis = pkParams->m_pkThis.load(std::memory_order_relaxed);
-		if (pkThis)
+		pkParams->m_kEventLoop.wait();
+		switch (pkClass->m_u32State.load(std::memory_order_relaxed))
 		{
-			pkParams->m_kEventLoop.wait();
-			if (pkThis->m_kEntry)
-			{
-				pkThis->m_kEntry();
-			}
-			pkThis->m_u32State.store(0, std::memory_order_relaxed);
+		case 1:
+			pkClass->m_pfuncEntry(pkClass->m_pvData);
+			pkClass->m_u32State.store(0, std::memory_order_relaxed);
 			pkParams->m_kEventLoop.reset();
 			pkParams->m_kEvent.set();
+			continue;
 		}
-		else
-		{
-			break;
-		}		
+		break;
 	}
 	VE_DELETE(pkParams);
 	return 0;

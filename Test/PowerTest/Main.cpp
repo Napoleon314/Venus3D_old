@@ -34,7 +34,7 @@ int main(/*int argc, char * argv[]*/)
 {
 	Venus3D::Create("PowerTest");
 
-	/*{
+	{
 		auto spCor1 = VeCreateCoroutine(
 			[](VeCoroutine<>& co) noexcept
 		{
@@ -64,9 +64,7 @@ int main(/*int argc, char * argv[]*/)
 		spCor2->resume();
 		VeDebugOutput("Resume5");
 		spCor2->resume();
-	}*/
-
-	//venus3d.CORE.I.Log(1, "abc", 7.5f);
+	}
 
 	Venus3D::Destory();
 

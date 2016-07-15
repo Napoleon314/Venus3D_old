@@ -190,13 +190,15 @@ public:
 
 	};
 
+	typedef void(*Entry)(void*);
+
 	VeThread(uint32_t u32Priority = VE_THREAD_PRIORITY_NORMAL, size_t stStackSize = 32768) noexcept;
 
 	virtual ~VeThread() noexcept;
 
 	inline bool IsRunning() noexcept;
 
-	inline void Start(const std::function<void()>& kEntry) noexcept;
+	inline void Start(Entry pfuncEntry, void* pvData) noexcept;
 
 	inline void Restart() noexcept;
 
@@ -208,22 +210,22 @@ public:
 
 private:
 	typedef VeThread* ThisPointer;
-	typedef std::function<void()> Entry;
 
 	struct ThreadParams : VeMemObject
 	{
 		event m_kEvent;
 		event m_kEventLoop;
-		std::atomic<VeThread*> m_pkThis;
+		VeThread* m_pkThis;
 	};	
 	
-	Entry m_kEntry;
 	VeThreadHandle m_hThread;
-	std::atomic<uint32_t> m_u32State;
 	ThreadParams* m_pkParams;
-	vtd::spin_lock m_kLock;
-
+	std::atomic<uint32_t> m_u32State;
+	Entry m_pfuncEntry = nullptr;
+	void* m_pvData = nullptr;
+	
 	static VeThreadCallbackResult VE_CALLBACK Callback(void* pvParam) noexcept;
+
 };
 
 #include "VeThread.inl"

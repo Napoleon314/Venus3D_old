@@ -34,12 +34,13 @@ inline bool VeThread::IsRunning() noexcept
 	return m_u32State.load(std::memory_order_relaxed) == 1;
 }
 //--------------------------------------------------------------------------
-void VeThread::Start(const std::function<void()>& kEntry) noexcept
+void VeThread::Start(Entry pfuncEntry, void* pvData) noexcept
 {
 	uint32_t u32Stop(0);
 	if (m_u32State.compare_exchange_weak(u32Stop, 1u, std::memory_order_relaxed))
 	{
-		m_kEntry = kEntry;
+		m_pfuncEntry = pfuncEntry;
+		m_pvData = pvData;
 		m_pkParams->m_kEventLoop.set();
 		m_pkParams->m_kEvent.reset();
 	}
@@ -47,7 +48,7 @@ void VeThread::Start(const std::function<void()>& kEntry) noexcept
 //--------------------------------------------------------------------------
 inline void VeThread::Restart() noexcept
 {
-	if (m_kEntry)
+	if (m_pfuncEntry)
 	{
 		uint32_t u32Stop(0);
 		if (m_u32State.compare_exchange_weak(u32Stop, 1u, std::memory_order_relaxed))
