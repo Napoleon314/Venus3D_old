@@ -102,8 +102,8 @@ private:
 
 	struct signal
 	{
-		VeThreadMutex mutex;
-		VeConditionVariable cond;
+		std::mutex mute;
+		std::condition_variable cond;
 	};
 
 	struct fore_thread
@@ -113,15 +113,12 @@ private:
 		uint32_t cond_val;
 	};
 
-	signal m_akFGLoop;
-	signal m_akFGJoin;
+	signal m_kFGLoop;
+	signal m_kFGJoin;
 	vtd::vector<fore_thread> m_kFGThreads;
 	std::atomic<int32_t> m_i32FGState;
 	std::atomic<int32_t> m_i32FGJoinValue;
 	VeJobPtr m_spParallel;
-
-	VeThread::event m_kLoop;
-	VeThread::event m_kJohn;
 
 };
 

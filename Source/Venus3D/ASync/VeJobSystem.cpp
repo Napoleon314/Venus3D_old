@@ -37,43 +37,42 @@ VeThreadCallbackResult VeJobSystem::FGThreadCallback(void* pvParam) noexcept
 	fore_thread& t = *(fore_thread*)pvParam;
 	while (true)
 	{
-		/*VeThreadMutexLock(s.m_akFGLoop.mutex);
-		while (t.cond_val <= 0)
 		{
-			VeConditionVariableWait(s.m_akFGLoop.cond, s.m_akFGLoop.mutex);
+			std::unique_lock<std::mutex> ul(s.m_kFGLoop.mute);
+			while (t.cond_val <= 0)
+			{
+				s.m_kFGLoop.cond.wait(ul);
+			}
 		}
-		VeThreadMutexUnlock(s.m_akFGLoop.mutex);*/
-
-		s.m_kLoop.wait();
-
 		switch (s.m_i32FGState.load(std::memory_order_relaxed))
 		{
 		case 0:
 			continue;
 		case -1:
-			break;		
+			break;
 		default:
-			/*if (s.m_spParallel)
+			if (s.m_spParallel)
 			{
 				s.m_spParallel->Work(t.index);
-			}*/
-			//t.cond_val = 0;
-			/*if (s.m_i32FGJoinValue.fetch_add(1, std::memory_order_relaxed) ==
-				(s.m_kFGThreads.size() - 1))
+			}
+			else
 			{
-				VeThreadMutexLock(s.m_akFGJoin.mutex);
-				VeConditionVariableWakeAll(s.m_akFGJoin.cond);
-				VeThreadMutexUnlock(s.m_akFGJoin.mutex);
-			}*/
-			s.m_i32FGState.store(0, std::memory_order_relaxed);
-			s.m_kLoop.reset();
-			s.m_kJohn.set();
 
+			}
+			t.cond_val = 0;
+			if (s.m_i32FGJoinValue.fetch_add(1, std::memory_order_relaxed)
+				== (s.m_kFGThreads.size() - 1))
+			{
+				s.m_i32FGState.store(0, std::memory_order_relaxed);
+				{
+					std::lock_guard<std::mutex> l(s.m_kFGJoin.mute);
+					s.m_kFGJoin.cond.notify_all();
+				}
+			}
 			continue;
 		}
 		break;
 	}
-
 	VeCoreLogI("Thread:", t.index, "exited");
 	return 0;
 }
@@ -100,15 +99,14 @@ VeJobSystem::~VeJobSystem() noexcept
 	if (m_kFGThreads.size())
 	{
 		m_i32FGState.store(-1, std::memory_order_relaxed);
-
-		m_kLoop.set();
-		/*VeThreadMutexLock(m_akFGLoop.mutex);
-		for (auto& t : m_kFGThreads)
 		{
-			t.cond_val = 1;
+			std::lock_guard<std::mutex> l(m_kFGLoop.mute);
+			for (auto& t : m_kFGThreads)
+			{
+				t.cond_val = 1;
+			}
+			m_kFGLoop.cond.notify_all();
 		}
-		VeConditionVariableWakeAll(m_akFGLoop.cond);
-		VeThreadMutexUnlock(m_akFGLoop.mutex);*/
 		for (auto& t : m_kFGThreads)
 		{
 			VeJoinThread(t.handle);
@@ -124,22 +122,22 @@ void VeJobSystem::ParallelCompute(const VeJobPtr& spJob) noexcept
 	{
 		m_spParallel = spJob;
 
-		//m_i32FGJoinValue.store(0, std::memory_order_relaxed);
-
-		
-
-		/*VeThreadMutexLock(m_akFGLoop.mutex);
-		for (auto& t : m_kFGThreads)
+		m_i32FGJoinValue.store(0, std::memory_order_relaxed);
 		{
-			t.cond_val = 1;
+			std::lock_guard<std::mutex> l(m_kFGLoop.mute);
+			for (auto& t : m_kFGThreads)
+			{
+				t.cond_val = 1;
+			}
+			m_kFGLoop.cond.notify_all();
 		}
-		VeConditionVariableWakeAll(m_akFGLoop.cond);
-		VeThreadMutexUnlock(m_akFGLoop.mutex);*/
-
-		m_kJohn.reset();
-		m_kLoop.set();
-		m_kJohn.wait();
-
+		{
+			std::unique_lock<std::mutex> ul(m_kFGJoin.mute);
+			while (m_i32FGJoinValue.load(std::memory_order_relaxed) < m_kFGThreads.size())
+			{
+				m_kFGJoin.cond.wait(ul);
+			}
+		}
 		
 		m_spParallel = nullptr;
 	}
