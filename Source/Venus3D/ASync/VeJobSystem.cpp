@@ -61,7 +61,7 @@ VeThreadCallbackResult VeJobSystem::FGThreadCallback(void* pvParam) noexcept
 			}
 			t.cond_val = 0;
 			if (s.m_i32FGJoinValue.fetch_add(1, std::memory_order_relaxed)
-				== (s.m_kFGThreads.size() - 1))
+				== int32_t(s.m_kFGThreads.size() - 1))
 			{
 				s.m_i32FGState.store(0, std::memory_order_relaxed);
 				{
@@ -133,7 +133,7 @@ void VeJobSystem::ParallelCompute(const VeJobPtr& spJob) noexcept
 		}
 		{
 			std::unique_lock<std::mutex> ul(m_kFGJoin.mute);
-			while (m_i32FGJoinValue.load(std::memory_order_relaxed) < m_kFGThreads.size())
+			while (m_i32FGJoinValue.load(std::memory_order_relaxed) < int32_t(m_kFGThreads.size()))
 			{
 				m_kFGJoin.cond.wait(ul);
 			}
