@@ -59,10 +59,10 @@ char* VeStrncpy(char* pcDest, size_t stDestSize,
 	return pcDest;
 #else // #if _MSC_VER >= 1400
 	assert(pcDest != 0 && stDestSize != 0);
-	assert(stCount < stDestSize || stCount == VE_SIZET_MAX);
+	assert(stCount < stDestSize || stCount == size_t(-1));
 	if (stCount >= stDestSize)
 	{
-		if (stCount != VE_SIZET_MAX)
+		if (stCount != size_t(-1))
 		{
 			pcDest[0] = 0;
 			return pcDest;

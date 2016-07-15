@@ -55,11 +55,18 @@ extern std::vector<void(*)()> g_kClassInitList;
 //--------------------------------------------------------------------------
 extern std::vector<void(*)()> g_kClassTermList;
 //--------------------------------------------------------------------------
+#ifdef VE_DEBUG
 void _VeMemoryExit(size_t stRest, size_t stRestAligned) noexcept
 {
 	assert(s_stMallocCount == stRest);
 	assert(s_stAlignedMallocCount == stRestAligned);
 }
+#else
+void _VeMemoryExit(size_t, size_t) noexcept
+{
+	
+}
+#endif
 //--------------------------------------------------------------------------
 void* _VeMalloc(size_t stSizeInBytes,
 #ifdef VE_MEM_TRACK
