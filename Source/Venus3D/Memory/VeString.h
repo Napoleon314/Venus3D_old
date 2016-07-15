@@ -52,14 +52,14 @@ VENUS_API int32_t VeVsnprintf(char* pcDest, size_t stDestSize,
 template <size_t s>
 char* VeStrcpy(char(&pcDest)[s], const char* pcSrc) noexcept
 {
-	return VeStrcpy(pcDest, size, pcSrc);
+	return VeStrcpy(pcDest, s, pcSrc);
 }
 
 template<size_t s>
 char* VeStrncpy(char(&pcDest)[s], const char* pcSrc,
 	size_t stCount) noexcept
 {
-	return VeStrncpy(pcDest, size, pcSrc, stCount);
+	return VeStrncpy(pcDest, s, pcSrc, stCount);
 }
 
 template<size_t s>

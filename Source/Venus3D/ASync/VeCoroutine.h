@@ -41,6 +41,7 @@ enum VeCoroutineStatus
 };
 
 VeSmartPointer(VeCoroutineBase);
+class VeCoroutineEnv;
 
 class VENUS_API VeCoroutineBase : public VeRefObject
 {

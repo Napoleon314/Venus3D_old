@@ -66,7 +66,7 @@ void VeLog::Output(Type eType, const char* pcTag,
 	if (m_funcTarget)
 	{
 #		ifdef VE_RELEASE
-		if (VeUInt32(eType) < VeUInt32(m_eLevel)) return;
+		if (uint32_t(eType) < uint32_t(m_eLevel)) return;
 #		endif
 		m_funcTarget(eType, pcTag, pcContent);
 	}
