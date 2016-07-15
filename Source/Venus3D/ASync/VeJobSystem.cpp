@@ -121,25 +121,28 @@ void VeJobSystem::ParallelCompute(const VeJobPtr& spJob) noexcept
 	if (m_i32FGState.compare_exchange_weak(check, 1, std::memory_order_relaxed))
 	{
 		m_spParallel = spJob;
-
-		m_i32FGJoinValue.store(0, std::memory_order_relaxed);
-		{
-			std::lock_guard<std::mutex> l(m_kFGLoop.mute);
-			for (auto& t : m_kFGThreads)
-			{
-				t.cond_val = 1;
-			}
-			m_kFGLoop.cond.notify_all();
-		}
-		{
-			std::unique_lock<std::mutex> ul(m_kFGJoin.mute);
-			while (m_i32FGJoinValue.load(std::memory_order_relaxed) < int32_t(m_kFGThreads.size()))
-			{
-				m_kFGJoin.cond.wait(ul);
-			}
-		}
-		
+		RunForeground();
 		m_spParallel = nullptr;
+	}
+}
+//--------------------------------------------------------------------------
+void VeJobSystem::RunForeground() noexcept
+{
+	m_i32FGJoinValue.store(0, std::memory_order_relaxed);
+	{
+		std::lock_guard<std::mutex> l(m_kFGLoop.mute);
+		for (auto& t : m_kFGThreads)
+		{
+			t.cond_val = 1;
+		}
+		m_kFGLoop.cond.notify_all();
+	}
+	{
+		std::unique_lock<std::mutex> ul(m_kFGJoin.mute);
+		while (m_i32FGJoinValue.load(std::memory_order_relaxed) < int32_t(m_kFGThreads.size()))
+		{
+			m_kFGJoin.cond.wait(ul);
+		}
 	}
 }
 //--------------------------------------------------------------------------

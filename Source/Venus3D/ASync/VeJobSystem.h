@@ -100,6 +100,8 @@ private:
 	static VeThreadCallbackResult VE_CALLBACK FGThreadCallback(
 		void* pvParam) noexcept;
 
+	void RunForeground() noexcept;
+
 	struct signal
 	{
 		std::mutex mute;
