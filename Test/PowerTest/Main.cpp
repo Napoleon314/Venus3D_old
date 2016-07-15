@@ -34,7 +34,7 @@ int main(/*int argc, char * argv[]*/)
 {
 	Venus3D::Create("PowerTest");
 
-	std::atomic<int32_t> counter(0);
+	/*std::atomic<int32_t> counter(0);
 
 	job_system.ParallelCompute([&counter]() noexcept
 	{
@@ -43,7 +43,7 @@ int main(/*int argc, char * argv[]*/)
 		{
 			VeUserLogI("counter:", c);
 		}
-	});
+	});*/
 
 	Venus3D::Destory();
 

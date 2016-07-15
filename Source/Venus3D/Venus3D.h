@@ -431,13 +431,10 @@ public:
 
 	void TermJob() noexcept;
 
-	VeJobSystem& GetJobSystem() noexcept;
-
 private:
 	vtd::string m_kProcessName;
 	uint32_t m_u32ActiveMask = 0;
 	VeLog m_kLog;
-	VeJobSystem m_kJob;
 
 public:
 	VeLog::Pack CORE;
@@ -446,7 +443,7 @@ public:
 };
 
 #define venus3d Venus3D::Ref()
-#define job_system Venus3D::Ref().GetJobSystem()
+#define job_system VeJobSystem::Ref()
 
 #ifdef VE_DEBUG
 #	define VeCoreDebugOutput venus3d.CORE.D.LogFormat

@@ -31,74 +31,94 @@
 #include "stdafx.h"
 
 //--------------------------------------------------------------------------
-VeJobSystem::~VeJobSystem() noexcept
+struct FGThreadParam : public VeMemObject
 {
-	Term();
+	FGThreadParam(uint32_t idx) noexcept
+		: m_u32Index(idx)
+	{
+		m_u32Signal.store(0, std::memory_order_relaxed);
+	}
+
+	uint32_t m_u32Index;
+	std::atomic<uint32_t> m_u32Signal;
+};
+//--------------------------------------------------------------------------
+VeThreadCallbackResult VeJobSystem::FGThreadCallback(void* pvParam) noexcept
+{
+	VeJobSystem* pkSystem = VeJobSystem::Ptr();
+	FGThreadParam* pkParam = (FGThreadParam*)pvParam;
+
+	while (true)
+	{
+		pkSystem->m_akFGLoop.wait(0);
+		switch (pkSystem->m_i32FGState.load(std::memory_order_relaxed))
+		{
+		case 2:
+			break;
+		case 1:
+
+
+		default:
+			continue;
+		}
+		break;
+	}
+
+	VeCoreLogI("Thread:", pkParam->m_u32Index, "exited");
+
+	VE_DELETE(pkParam);
+	return 0;
 }
 //--------------------------------------------------------------------------
-void VeJobSystem::Init(size_t stFGNum, size_t stBGNum) noexcept
+VeJobSystem::VeJobSystem(size_t stFGNum, size_t) noexcept
 {
-	Term();
 	if (stFGNum)
 	{
-		m_pkFGThreads = VeAlloc(VeThread, stFGNum);
-		for (size_t i(0); i < stFGNum; ++i)
+		m_i32FGState.store(0, std::memory_order_relaxed);
+		m_kFGThreads.resize(stFGNum);
+		for (size_t i(0); i < m_kFGThreads.size(); ++i)
 		{
-			vtd::allocator<VeThread>::construct(m_pkFGThreads + i, VE_JOB_FG_PRIORITY);
+			m_kFGThreads[i] = VeCreateThread(&FGThreadCallback,
+				VE_NEW FGThreadParam((uint32_t)i), VE_JOB_FG_PRIORITY,
+				VE_JOB_FG_STACK_SIZE);
 		}
-		m_stNumFGThreads = stFGNum;
+		
 	}
-	if (stBGNum)
+	
+}
+//--------------------------------------------------------------------------
+VeJobSystem::~VeJobSystem() noexcept
+{
+	if (m_kFGThreads.size())
 	{
-		m_pkBGThreads = VeAlloc(VeThread, stBGNum);
-		for (size_t i(0); i < stBGNum; ++i)
+		m_i32FGState.store(2, std::memory_order_relaxed);
+		m_akFGLoop.set_all(1);
+		for (auto& hThread : m_kFGThreads)
 		{
-			vtd::allocator<VeThread>::construct(m_pkBGThreads + i, VE_JOB_BG_PRIORITY);
+			VeJoinThread(hThread);
 		}
-		m_stNumBGThreads = stBGNum;
 	}
 }
 //--------------------------------------------------------------------------
-void VeJobSystem::Term() noexcept
+void VeJobSystem::ParallelCompute(const VeJobPtr&) noexcept
 {
-	if (m_pkFGThreads)
-	{
-		for (size_t i(0); i < m_stNumFGThreads; ++i)
-		{
-			vtd::allocator<VeThread>::destroy(m_pkFGThreads + i);
-		}
-		VeFree(m_pkFGThreads);
-		m_pkFGThreads = nullptr;
-		m_stNumFGThreads = 0;
-	}
-	if (m_stNumBGThreads)
-	{
-		for (size_t i(0); i < m_stNumBGThreads; ++i)
-		{
-			vtd::allocator<VeThread>::destroy(m_pkBGThreads + i);
-		}
-		VeFree(m_pkBGThreads);
-		m_pkBGThreads = nullptr;
-		m_stNumBGThreads = 0;
-	}
+	
 }
 //--------------------------------------------------------------------------
-void VeJobSystem::ParallelCompute(const VeJobPtr& spJob) noexcept
+void VeJobSystem::ParallelCompute(void*) noexcept
 {
-	assert(spJob && spJob->GetType() == VeJob::TYPE_PARALLEL_COMPUTE);
-	for (size_t i(0); i < m_stNumFGThreads; ++i)
-	{
-		assert(!m_pkFGThreads[i].IsRunning());
-		m_pkFGThreads[i].Start(&VeJobSystem::ParallelCompute, spJob.p());
-	}
-	for (size_t i(0); i < m_stNumFGThreads; ++i)
-	{
-		m_pkFGThreads[i].Join();
-	}
+	
 }
 //--------------------------------------------------------------------------
-void VeJobSystem::ParallelCompute(void* pvJob) noexcept
+VeJobSystem::signal::signal() noexcept
 {
-	((VeJob*)pvJob)->Work();
+	VeThreadMutexInit(_Mutex);
+	VeConditionVariableInit(_Condition);
+}
+//--------------------------------------------------------------------------
+VeJobSystem::signal::~signal() noexcept
+{
+	VeConditionVariableTerm(_Condition);
+	VeThreadMutexTerm(_Mutex);
 }
 //--------------------------------------------------------------------------

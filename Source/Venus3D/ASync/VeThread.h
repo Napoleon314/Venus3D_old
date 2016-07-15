@@ -39,16 +39,16 @@ typedef DWORD VeThreadID;
 typedef unsigned int VeThreadCallbackResult;
 typedef CONDITION_VARIABLE VeConditionVariable;
 
-#define VeThreadMutexInit(x) InitializeCriticalSection(&x)
-#define VeThreadMutexTerm(x) DeleteCriticalSection(&x)
-#define VeThreadMutexLock(x) EnterCriticalSection(&x)
-#define VeThreadMutexUnlock(x) LeaveCriticalSection(&x)
+#define VeThreadMutexInit(x) InitializeCriticalSection(&(x))
+#define VeThreadMutexTerm(x) DeleteCriticalSection(&(x))
+#define VeThreadMutexLock(x) EnterCriticalSection(&(x))
+#define VeThreadMutexUnlock(x) LeaveCriticalSection(&(x))
 
-#define VeConditionVariableInit(x) InitializeConditionVariable(&x)
+#define VeConditionVariableInit(x) InitializeConditionVariable(&(x))
 #define VeConditionVariableTerm(x)
-#define VeConditionVariableWait(x,m) SleepConditionVariableCS(&x,&m,INFINITE)
-#define VeConditionVariableWakeOne(x) WakeConditionVariable(&x)
-#define VeConditionVariableWakeAll(x) WakeAllConditionVariable(&x)
+#define VeConditionVariableWait(x,m) SleepConditionVariableCS(&(x),&(m),INFINITE)
+#define VeConditionVariableWakeOne(x) WakeConditionVariable(&(x))
+#define VeConditionVariableWakeAll(x) WakeAllConditionVariable(&(x))
 
 #define VE_THREAD_PRIORITY_IDLE THREAD_BASE_PRIORITY_IDLE
 #define VE_THREAD_PRIORITY_LOWEST THREAD_PRIORITY_LOWEST
@@ -72,16 +72,16 @@ typedef pthread_t VeThreadID;
 typedef void* VeThreadCallbackResult;
 typedef CONDITION_VARIABLE VeConditionVariable;
 
-#define VeThreadMutexInit(x) pthread_mutex_init(&x, NULL)
-#define VeThreadMutexTerm(x) pthread_mutex_destroy(&x)
-#define VeThreadMutexLock(x) pthread_mutex_lock(&x)
-#define VeThreadMutexUnlock(x) pthread_mutex_unlock(&x)
+#define VeThreadMutexInit(x) pthread_mutex_init(&(x), NULL)
+#define VeThreadMutexTerm(x) pthread_mutex_destroy(&(x))
+#define VeThreadMutexLock(x) pthread_mutex_lock(&(x))
+#define VeThreadMutexUnlock(x) pthread_mutex_unlock(&(x))
 
-#define VeConditionVariableInit(x) pthread_cond_init(&x, NULL)
-#define VeConditionVariableTerm(x) pthread_cond_destroy(&x)
-#define VeConditionVariableWait(x,m) pthread_cond_wait(&x,&m)
-#define VeConditionVariableWakeOne(x) pthread_cond_signal(&x)
-#define VeConditionVariableWakeAll(x) pthread_cond_broadcast(&x)
+#define VeConditionVariableInit(x) pthread_cond_init(&(x), NULL)
+#define VeConditionVariableTerm(x) pthread_cond_destroy(&(x))
+#define VeConditionVariableWait(x,m) pthread_cond_wait(&(x),&(m))
+#define VeConditionVariableWakeOne(x) pthread_cond_signal(&(x))
+#define VeConditionVariableWakeAll(x) pthread_cond_broadcast(&(x))
 
 #define VE_THREAD_PRIORITY_IDLE 99
 #define VE_THREAD_PRIORITY_LOWEST 64

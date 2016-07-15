@@ -71,16 +71,11 @@ void Venus3D::TermLog() noexcept
 void Venus3D::InitJob() noexcept
 {
 	uint32_t u32CPUNum = VeThreadHardwareConcurrency();
-	m_kJob.Init(u32CPUNum, u32CPUNum >> 1);
+	VeJobSystem::Create(u32CPUNum, vtd::max(u32CPUNum >> 1, 1));
 }
 //--------------------------------------------------------------------------
 void Venus3D::TermJob() noexcept
 {
-	m_kJob.Term();
-}
-//--------------------------------------------------------------------------
-VeJobSystem& Venus3D::GetJobSystem() noexcept
-{
-	return m_kJob;
+	VeJobSystem::Destory();
 }
 //--------------------------------------------------------------------------

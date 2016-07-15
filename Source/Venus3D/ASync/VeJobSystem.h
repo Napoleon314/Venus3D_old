@@ -31,17 +31,19 @@
 #pragma once
 
 #define VE_JOB_FG_PRIORITY VE_THREAD_PRIORITY_HIGHEST
+#define VE_JOB_FG_STACK_SIZE 32768
+
 #define VE_JOB_BG_PRIORITY VE_THREAD_PRIORITY_BELOW_NORMAL
+#define VE_JOB_BG_STACK_SIZE 32768
 
 class VeJob : public VeRefObject
 {
 public:
 	enum Type
 	{
-		TYPE_FOREGROUND,
-		TYPE_FOREGROUND_YIELDABLE,
-		TYPE_BACKGROUND,
-		TYPE_BACKGROUND_YIELDABLE,
+		TYPE_IMMEDIATE,
+		TYPE_YIELDABLE,
+		TYPE_YIELDABLE_2X_STACK,
 		TYPE_PARALLEL_COMPUTE,
 		TYPE_MAX
 	};
@@ -78,32 +80,52 @@ private:
 
 };
 
-class VENUS_API VeJobSystem : public VeMemObject
+class VENUS_API VeJobSystem : public VeSingleton<VeJobSystem>
 {
 public:
-	VeJobSystem() noexcept = default;
+	VeJobSystem(size_t stFGNum, size_t stBGNum) noexcept;
 
 	~VeJobSystem() noexcept;
 
-	void Init(size_t stFGNum, size_t stBGNum) noexcept;
-
-	void Term() noexcept;
+	
 
 	void ParallelCompute(const VeJobPtr& spJob) noexcept;
 
-	void ParallelCompute(const std::function<void()>& _Fx) noexcept
+	/*void ParallelCompute(const std::function<void()>& _Fx) noexcept
 	{
 		VeJobPtr spJob = VE_NEW VeJobFunc(VeJob::TYPE_PARALLEL_COMPUTE, _Fx);
 		ParallelCompute(spJob);
-	}
+	}*/
 
-protected:
+private:
+	static VeThreadCallbackResult VE_CALLBACK FGThreadCallback(
+		void* pvParam) noexcept;
+
 	static void ParallelCompute(void* pvJob) noexcept;
 
-	size_t m_stNumFGThreads = 0;
-	VeThread* m_pkFGThreads = nullptr;
-	size_t m_stNumBGThreads = 0;
-	VeThread* m_pkBGThreads = nullptr;
+	class signal
+	{
+	public:
+		signal() noexcept;
+
+		~signal() noexcept;
+
+		inline void wait(int32_t n) noexcept;
+
+		inline void set_one(int32_t n) noexcept;
+
+		inline void set_all(int32_t n) noexcept;
+
+	private:
+		VeThreadMutex _Mutex;
+		VeConditionVariable _Condition;
+		int32_t _Count = 0;
+	};
+
+	signal m_akFGLoop;
+	signal m_akFGJoin;
+	vtd::vector<VeThreadHandle> m_kFGThreads;
+	std::atomic<int32_t> m_i32FGState;
 
 };
 
