@@ -70,7 +70,7 @@ typedef struct
 typedef pthread_t VeThreadHandle;
 typedef pthread_t VeThreadID;
 typedef void* VeThreadCallbackResult;
-typedef CONDITION_VARIABLE VeConditionVariable;
+typedef pthread_cond_t VeConditionVariable;
 
 #define VeThreadMutexInit(x) pthread_mutex_init(&(x), NULL)
 #define VeThreadMutexTerm(x) pthread_mutex_destroy(&(x))
