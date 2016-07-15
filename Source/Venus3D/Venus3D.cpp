@@ -47,11 +47,13 @@ Venus3D::~Venus3D() noexcept
 void Venus3D::Init(uint32_t u32InitMask)
 {
 	VE_MASK_CONDITION(u32InitMask, VE_INIT_LOG, InitLog());
+	VE_MASK_CONDITION(u32InitMask, VE_INIT_JOB, InitJob());
 	VE_MASK_ADD(m_u32ActiveMask, u32InitMask);
 }
 //--------------------------------------------------------------------------
 void Venus3D::Term()
 {
+	VE_MASK_CONDITION(m_u32ActiveMask, VE_INIT_JOB, TermJob());
 	VE_MASK_CONDITION(m_u32ActiveMask, VE_INIT_LOG, TermLog());
 	VE_MASK_CLEAR(m_u32ActiveMask);
 }
@@ -64,5 +66,16 @@ void Venus3D::InitLog() noexcept
 void Venus3D::TermLog() noexcept
 {
 	m_kLog.SetTarget(nullptr);
+}
+//--------------------------------------------------------------------------
+void Venus3D::InitJob() noexcept
+{
+	uint32_t u32CPUNum = VeThreadHardwareConcurrency();
+	m_kJob.Init(u32CPUNum, u32CPUNum >> 1);
+}
+//--------------------------------------------------------------------------
+void Venus3D::TermJob() noexcept
+{
+	m_kJob.Term();
 }
 //--------------------------------------------------------------------------

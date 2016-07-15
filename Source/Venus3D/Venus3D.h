@@ -398,6 +398,7 @@
 
 #include "ASync/VeThread.h"
 #include "ASync/VeCoroutine.h"
+#include "ASync/VeJobSystem.h"
 
 #include "Video/VePixel.h"
 #include "Video/VeSurface.h"
@@ -407,6 +408,7 @@ enum VeInitMask
 {
 	VE_INIT_NONE		= 0x0,
 	VE_INIT_LOG			= 0x1,
+	VE_INIT_JOB			= 0x2,
 	VE_INIT_MASK		= 0xFFFFFFFF
 };
 
@@ -425,10 +427,15 @@ public:
 
 	void TermLog() noexcept;
 
+	void InitJob() noexcept;
+
+	void TermJob() noexcept;
+
 private:
 	vtd::string m_kProcessName;
 	uint32_t m_u32ActiveMask = 0;
 	VeLog m_kLog;
+	VeJobSystem m_kJob;
 
 public:
 	VeLog::Pack CORE;

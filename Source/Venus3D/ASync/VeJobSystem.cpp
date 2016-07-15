@@ -3,9 +3,9 @@
 //  The MIT License (MIT)
 //  Copyright (c) 2016 Albert D Yang
 // -------------------------------------------------------------------------
-//  Module:      PowerTest
-//  File name:   Main.cpp
-//  Created:     2016/07/01 by Albert
+//  Module:      Venus3D
+//  File name:   VeJobSystem.cpp
+//  Created:     2016/07/15 by Albert
 //  Description:
 // -------------------------------------------------------------------------
 //  Permission is hereby granted, free of charge, to any person obtaining a
@@ -28,47 +28,58 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-#include <Venus3D.h>
+#include "stdafx.h"
 
-int main(/*int argc, char * argv[]*/)
+//--------------------------------------------------------------------------
+VeJobSystem::~VeJobSystem() noexcept
 {
-	Venus3D::Create("PowerTest");
-
-	/*{
-		auto spCor1 = VeCreateCoroutine(
-			[](VeCoroutine<>& co) noexcept
-		{
-			VeDebugOutput("ABC");
-			co.yield();
-			VeDebugOutput("DEF");
-		});
-
-		auto spCor2 = VeCreateCoroutine(
-			[&](VeCoroutine<>& co) noexcept
-		{
-			VeDebugOutput("abc");
-			co.yield();
-			VeDebugOutput("def");
-			co.yield();
-			spCor1->resume();
-			co.yield();
-			spCor1->resume();
-		});
-		VeDebugOutput("Resume1");
-		spCor2->resume();
-		VeDebugOutput("Resume2");
-		spCor2->resume();
-		VeDebugOutput("Resume3");
-		spCor2->resume();
-		VeDebugOutput("Resume4");
-		spCor2->resume();
-		VeDebugOutput("Resume5");
-		spCor2->resume();
-	}*/
-
-	//venus3d.CORE.I.Log(1, "abc", 7.5f);
-
-	Venus3D::Destory();
-
-	return 0;
+	Term();
 }
+//--------------------------------------------------------------------------
+void VeJobSystem::Init(size_t stFGNum, size_t stBGNum)
+{
+	Term();
+	if (stFGNum)
+	{
+		m_pkFGThreads = VeAlloc(VeThread, stFGNum);
+		for (size_t i(0); i < stFGNum; ++i)
+		{
+			vtd::allocator<VeThread>::construct(m_pkFGThreads + i, VE_JOB_FG_PRIORITY);
+		}
+		m_stNumFGThreads = stFGNum;
+	}
+	if (stBGNum)
+	{
+		m_pkBGThreads = VeAlloc(VeThread, stBGNum);
+		for (size_t i(0); i < stBGNum; ++i)
+		{
+			vtd::allocator<VeThread>::construct(m_pkBGThreads + i, VE_JOB_BG_PRIORITY);
+		}
+		m_stNumBGThreads = stBGNum;
+	}
+}
+//--------------------------------------------------------------------------
+void VeJobSystem::Term()
+{
+	if (m_pkFGThreads)
+	{
+		for (size_t i(0); i < m_stNumFGThreads; ++i)
+		{
+			vtd::allocator<VeThread>::destroy(m_pkFGThreads + i);
+		}
+		VeFree(m_pkFGThreads);
+		m_pkFGThreads = nullptr;
+		m_stNumFGThreads = 0;
+	}
+	if (m_stNumBGThreads)
+	{
+		for (size_t i(0); i < m_stNumBGThreads; ++i)
+		{
+			vtd::allocator<VeThread>::destroy(m_pkBGThreads + i);
+		}
+		VeFree(m_pkBGThreads);
+		m_pkBGThreads = nullptr;
+		m_stNumBGThreads = 0;
+	}
+}
+//--------------------------------------------------------------------------

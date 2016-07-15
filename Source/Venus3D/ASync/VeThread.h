@@ -69,13 +69,13 @@ typedef void* VeThreadCallbackResult;
 #define VeThreadMutexLock(x) pthread_mutex_lock(&x)
 #define VeThreadMutexUnlock(x) pthread_mutex_unlock(&x)
 
-#define VE_THREAD_PRIORITY_IDLE 1
+#define VE_THREAD_PRIORITY_IDLE MAX_PRIO-1
 #define VE_THREAD_PRIORITY_LOWEST 16
 #define VE_THREAD_PRIORITY_BELOW_NORMAL 24
-#define VE_THREAD_PRIORITY_NORMAL 32
-#define VE_THREAD_PRIORITY_ABOVE_NORMAL 40
-#define VE_THREAD_PRIORITY_HIGHEST 48
-#define VE_THREAD_PRIORITY_TIME_CRITICAL 100
+#define VE_THREAD_PRIORITY_NORMAL SCHED_NORMAL
+#define VE_THREAD_PRIORITY_ABOVE_NORMAL 16
+#define VE_THREAD_PRIORITY_HIGHEST 1
+#define VE_THREAD_PRIORITY_TIME_CRITICAL 0
 
 #endif
 
@@ -117,15 +117,15 @@ VENUS_API void VeThreadEventReset(VeThreadEvent* phEvent) noexcept;
 
 VENUS_API void VeThreadInitForSuspend() noexcept;
 
-class VENUS_API VeThread : public VeRefObject
+VENUS_API uint32_t VeThreadHardwareConcurrency() noexcept;
+
+class VENUS_API VeThread : public VeMemObject
 {
 	VeNoCopy(VeThread);
-	VeNoMove(VeThread);
 public:
 	class mutex
 	{
 		VeNoCopy(mutex);
-		VeNoMove(mutex);
 	public:
 		mutex() noexcept
 		{
@@ -154,7 +154,6 @@ public:
 	class event
 	{
 		VeNoCopy(event);
-		VeNoMove(event);
 	public:
 		event() noexcept
 		{

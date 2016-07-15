@@ -3,9 +3,9 @@
 //  The MIT License (MIT)
 //  Copyright (c) 2016 Albert D Yang
 // -------------------------------------------------------------------------
-//  Module:      PowerTest
-//  File name:   Main.cpp
-//  Created:     2016/07/01 by Albert
+//  Module:      ASync
+//  File name:   VeJobSystem.inl
+//  Created:     2016/07/15 by Albert
 //  Description:
 // -------------------------------------------------------------------------
 //  Permission is hereby granted, free of charge, to any person obtaining a
@@ -28,47 +28,4 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-#include <Venus3D.h>
 
-int main(/*int argc, char * argv[]*/)
-{
-	Venus3D::Create("PowerTest");
-
-	/*{
-		auto spCor1 = VeCreateCoroutine(
-			[](VeCoroutine<>& co) noexcept
-		{
-			VeDebugOutput("ABC");
-			co.yield();
-			VeDebugOutput("DEF");
-		});
-
-		auto spCor2 = VeCreateCoroutine(
-			[&](VeCoroutine<>& co) noexcept
-		{
-			VeDebugOutput("abc");
-			co.yield();
-			VeDebugOutput("def");
-			co.yield();
-			spCor1->resume();
-			co.yield();
-			spCor1->resume();
-		});
-		VeDebugOutput("Resume1");
-		spCor2->resume();
-		VeDebugOutput("Resume2");
-		spCor2->resume();
-		VeDebugOutput("Resume3");
-		spCor2->resume();
-		VeDebugOutput("Resume4");
-		spCor2->resume();
-		VeDebugOutput("Resume5");
-		spCor2->resume();
-	}*/
-
-	//venus3d.CORE.I.Log(1, "abc", 7.5f);
-
-	Venus3D::Destory();
-
-	return 0;
-}

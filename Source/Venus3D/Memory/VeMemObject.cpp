@@ -40,45 +40,17 @@ struct VeDeleteCallParams
 	const char* m_pcFunction;
 };
 //--------------------------------------------------------------------------
-static vtd::vector<VeDeleteCallParams> s_kDeleteCallParamsStack;
-//--------------------------------------------------------------------------
-static std::thread::id s_kDeleteThreadID;
-//--------------------------------------------------------------------------
-static vtd::spin_lock s_kDeleteLock;
+static thread_local vtd::vector<VeDeleteCallParams> s_kDeleteCallParamsStack;
 //--------------------------------------------------------------------------
 void VeMemObject::PushDeleteCallParams(const char* pcSourceFile,
 	int32_t i32SourceLine, const char* pcFunction) noexcept
 {
-	if (s_kDeleteThreadID == std::thread::id())
-	{
-		assert(s_kDeleteCallParamsStack.empty());
-		s_kDeleteLock.lock();
-		s_kDeleteThreadID = std::this_thread::get_id();
-	}
-	else if (s_kDeleteThreadID != std::this_thread::get_id())
-	{
-		s_kDeleteLock.lock();
-		assert(s_kDeleteCallParamsStack.empty());
-		assert(s_kDeleteThreadID == std::thread::id());
-		s_kDeleteThreadID = std::this_thread::get_id();
-	}
-	else
-	{
-		assert(s_kDeleteCallParamsStack.size());
-	}
-	VeDeleteCallParams kCurrent = { pcSourceFile, i32SourceLine, pcFunction };
-	s_kDeleteCallParamsStack.push_back(kCurrent);
+	s_kDeleteCallParamsStack.push_back({ pcSourceFile, i32SourceLine, pcFunction });
 }
 //--------------------------------------------------------------------------
 void VeMemObject::PopDeleteCallParams() noexcept
 {
-	assert(s_kDeleteThreadID == std::this_thread::get_id());
 	s_kDeleteCallParamsStack.pop_back();
-	if (s_kDeleteCallParamsStack.empty())
-	{
-		s_kDeleteThreadID = std::thread::id();
-		s_kDeleteLock.unlock();
-	}
 }
 //--------------------------------------------------------------------------
 void* VeMemObject::operator new(size_t stSize, const char* pcSourceFile,

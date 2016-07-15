@@ -3,9 +3,9 @@
 //  The MIT License (MIT)
 //  Copyright (c) 2016 Albert D Yang
 // -------------------------------------------------------------------------
-//  Module:      PowerTest
-//  File name:   Main.cpp
-//  Created:     2016/07/01 by Albert
+//  Module:      ASync
+//  File name:   VeJobSystem.h
+//  Created:     2016/07/15 by Albert
 //  Description:
 // -------------------------------------------------------------------------
 //  Permission is hereby granted, free of charge, to any person obtaining a
@@ -28,47 +28,28 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-#include <Venus3D.h>
+#pragma once
 
-int main(/*int argc, char * argv[]*/)
+#define VE_JOB_FG_PRIORITY VE_THREAD_PRIORITY_HIGHEST
+#define VE_JOB_BG_PRIORITY VE_THREAD_PRIORITY_BELOW_NORMAL
+
+class VENUS_API VeJobSystem : public VeMemObject
 {
-	Venus3D::Create("PowerTest");
+public:
+	VeJobSystem() noexcept = default;
 
-	/*{
-		auto spCor1 = VeCreateCoroutine(
-			[](VeCoroutine<>& co) noexcept
-		{
-			VeDebugOutput("ABC");
-			co.yield();
-			VeDebugOutput("DEF");
-		});
+	~VeJobSystem() noexcept;
 
-		auto spCor2 = VeCreateCoroutine(
-			[&](VeCoroutine<>& co) noexcept
-		{
-			VeDebugOutput("abc");
-			co.yield();
-			VeDebugOutput("def");
-			co.yield();
-			spCor1->resume();
-			co.yield();
-			spCor1->resume();
-		});
-		VeDebugOutput("Resume1");
-		spCor2->resume();
-		VeDebugOutput("Resume2");
-		spCor2->resume();
-		VeDebugOutput("Resume3");
-		spCor2->resume();
-		VeDebugOutput("Resume4");
-		spCor2->resume();
-		VeDebugOutput("Resume5");
-		spCor2->resume();
-	}*/
+	void Init(size_t stFGNum, size_t stBGNum);
 
-	//venus3d.CORE.I.Log(1, "abc", 7.5f);
+	void Term();
 
-	Venus3D::Destory();
+protected:
+	size_t m_stNumFGThreads = 0;
+	size_t m_stNumBGThreads = 0;
+	VeThread* m_pkFGThreads = nullptr;
+	VeThread* m_pkBGThreads = nullptr;
 
-	return 0;
-}
+};
+
+#include "VeJobSystem.inl"

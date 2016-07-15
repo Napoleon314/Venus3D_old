@@ -67,11 +67,11 @@ this condition isn't constant. And looks like an owl's face! */
 
 enum VeAssertState
 {
-	assertION_RETRY,  /**< Retry the assert immediately. */
-	assertION_BREAK,  /**< Make the debugger trigger a breakpoint. */
-	assertION_ABORT,  /**< Terminate the program. */
-	assertION_IGNORE,  /**< Ignore the assert. */
-	assertION_ALWAYS_IGNORE  /**< Ignore the assert from now on. */
+	VE_ASSERTION_RETRY,
+	VE_ASSERTION_BREAK,
+	VE_ASSERTION_ABORT,
+	VE_ASSERTION_IGNORE,
+	VE_ASSERTION_ALWAYS_IGNORE
 };
 
 struct VeAssertData
@@ -87,17 +87,17 @@ struct VeAssertData
 
 #if (SDL_ASSERT_LEVEL > 0)
 
-/* Never call this directly. Use the SDL_assert* macros. */
+
 VENUS_API VeAssertState VeReportAssertion(VeAssertData* data,
 	const char *func, const char *file, int line) noexcept;
+
 #if defined(__clang__)
 #if __has_feature(attribute_analyzer_noreturn)
-	/* this tells Clang's static analysis that we're a custom assert function,
-	and that the analyzer should assume the condition was always true past this
-	SDL_assert test. */
-	__attribute__((analyzer_noreturn))
+__attribute__((analyzer_noreturn))
+#endif
 #endif
 #endif
 
+typedef VeAssertState (*VeAssertionHandler)(
+	const VeAssertData* data, void* userdata);
 
-#endif

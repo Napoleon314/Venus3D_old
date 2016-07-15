@@ -235,6 +235,11 @@ void VeThreadInitForSuspend() noexcept
 #	endif
 }
 //--------------------------------------------------------------------------
+uint32_t VeThreadHardwareConcurrency() noexcept
+{
+	return std::thread::hardware_concurrency();
+}
+//--------------------------------------------------------------------------
 VeThread::VeThread(uint32_t u32Priority, size_t stStackSize) noexcept
 {
 	m_u32State.store(0, std::memory_order_relaxed);
@@ -264,7 +269,10 @@ VeThreadCallbackResult VeThread::Callback(void* pvParam) noexcept
 		if (pkThis)
 		{
 			pkParams->m_kEventLoop.wait();
-			pkThis->m_kEntry();
+			if (pkThis->m_kEntry)
+			{
+				pkThis->m_kEntry();
+			}
 			pkThis->m_u32State.store(0, std::memory_order_relaxed);
 			pkParams->m_kEventLoop.reset();
 			pkParams->m_kEvent.set();
