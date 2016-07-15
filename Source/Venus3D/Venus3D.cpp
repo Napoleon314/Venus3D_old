@@ -71,7 +71,7 @@ void Venus3D::TermLog() noexcept
 void Venus3D::InitJob() noexcept
 {
 	uint32_t u32CPUNum = VeThreadHardwareConcurrency();
-	VeJobSystem::Create(u32CPUNum, vtd::max(u32CPUNum >> 1, 1));
+	VeJobSystem::Create(1, vtd::max(u32CPUNum >> 1, 1));
 }
 //--------------------------------------------------------------------------
 void Venus3D::TermJob() noexcept

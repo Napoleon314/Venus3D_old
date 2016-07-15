@@ -91,17 +91,14 @@ public:
 
 	void ParallelCompute(const VeJobPtr& spJob) noexcept;
 
-	/*void ParallelCompute(const std::function<void()>& _Fx) noexcept
+	void ParallelCompute(const std::function<void(uint32_t)>& _Fx) noexcept
 	{
-		VeJobPtr spJob = VE_NEW VeJobFunc(VeJob::TYPE_PARALLEL_COMPUTE, _Fx);
-		ParallelCompute(spJob);
-	}*/
+		ParallelCompute(VE_NEW VeJobFunc(VeJob::TYPE_PARALLEL_COMPUTE, _Fx));
+	}
 
 private:
 	static VeThreadCallbackResult VE_CALLBACK FGThreadCallback(
 		void* pvParam) noexcept;
-
-	static void ParallelCompute(void* pvJob) noexcept;
 
 	struct signal
 	{
@@ -120,7 +117,11 @@ private:
 	signal m_akFGJoin;
 	vtd::vector<fore_thread> m_kFGThreads;
 	std::atomic<int32_t> m_i32FGState;
+	std::atomic<int32_t> m_i32FGJoinValue;
 	VeJobPtr m_spParallel;
+
+	VeThread::event m_kLoop;
+	VeThread::event m_kJohn;
 
 };
 

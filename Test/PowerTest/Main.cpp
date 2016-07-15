@@ -34,16 +34,16 @@ int main(/*int argc, char * argv[]*/)
 {
 	Venus3D::Create("PowerTest");
 
-	/*std::atomic<int32_t> counter(0);
+	std::atomic<int32_t> counter(0);
 
-	job_system.ParallelCompute([&counter]() noexcept
+	job_system.ParallelCompute([&counter](int32_t idx) noexcept
 	{
 		int32_t c;
 		while((c = counter.fetch_add(1, std::memory_order_relaxed)) <= 20)
 		{
-			VeUserLogI("counter:", c);
+			VeUserLogI("thread:", idx, c);
 		}
-	});*/
+	});
 
 	Venus3D::Destory();
 
