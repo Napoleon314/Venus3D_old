@@ -36,7 +36,7 @@ VeJobSystem::~VeJobSystem() noexcept
 	Term();
 }
 //--------------------------------------------------------------------------
-void VeJobSystem::Init(size_t stFGNum, size_t stBGNum)
+void VeJobSystem::Init(size_t stFGNum, size_t stBGNum) noexcept
 {
 	Term();
 	if (stFGNum)
@@ -59,7 +59,7 @@ void VeJobSystem::Init(size_t stFGNum, size_t stBGNum)
 	}
 }
 //--------------------------------------------------------------------------
-void VeJobSystem::Term()
+void VeJobSystem::Term() noexcept
 {
 	if (m_pkFGThreads)
 	{
@@ -81,5 +81,24 @@ void VeJobSystem::Term()
 		m_pkBGThreads = nullptr;
 		m_stNumBGThreads = 0;
 	}
+}
+//--------------------------------------------------------------------------
+void VeJobSystem::ParallelCompute(const VeJobPtr& spJob) noexcept
+{
+	assert(spJob && spJob->GetType() == VeJob::TYPE_PARALLEL_COMPUTE);
+	for (size_t i(0); i < m_stNumFGThreads; ++i)
+	{
+		assert(!m_pkFGThreads[i].IsRunning());
+		m_pkFGThreads[i].Start(&VeJobSystem::ParallelCompute, spJob.p());
+	}
+	for (size_t i(0); i < m_stNumFGThreads; ++i)
+	{
+		m_pkFGThreads[i].Join();
+	}
+}
+//--------------------------------------------------------------------------
+void VeJobSystem::ParallelCompute(void* pvJob) noexcept
+{
+	((VeJob*)pvJob)->Work();
 }
 //--------------------------------------------------------------------------

@@ -33,6 +33,51 @@
 #define VE_JOB_FG_PRIORITY VE_THREAD_PRIORITY_HIGHEST
 #define VE_JOB_BG_PRIORITY VE_THREAD_PRIORITY_BELOW_NORMAL
 
+class VeJob : public VeRefObject
+{
+public:
+	enum Type
+	{
+		TYPE_FOREGROUND,
+		TYPE_FOREGROUND_YIELDABLE,
+		TYPE_BACKGROUND,
+		TYPE_BACKGROUND_YIELDABLE,
+		TYPE_PARALLEL_COMPUTE,
+		TYPE_MAX
+	};
+
+	VeJob(Type eType) noexcept : m_eType(eType) {}
+
+	Type GetType() noexcept
+	{
+		return m_eType;
+	}
+
+	virtual void Work() noexcept = 0;
+
+private:
+	const Type m_eType;
+
+};
+
+VeSmartPointer(VeJob);
+
+class VeJobFunc : public VeJob
+{
+public:
+	VeJobFunc(Type eType, const std::function<void()>& _Fx) noexcept
+		: VeJob(eType), m_kWork(_Fx) {}
+
+	virtual void Work() noexcept
+	{
+		m_kWork();
+	}
+
+private:
+	std::function<void()> m_kWork;
+
+};
+
 class VENUS_API VeJobSystem : public VeMemObject
 {
 public:
@@ -40,14 +85,24 @@ public:
 
 	~VeJobSystem() noexcept;
 
-	void Init(size_t stFGNum, size_t stBGNum);
+	void Init(size_t stFGNum, size_t stBGNum) noexcept;
 
-	void Term();
+	void Term() noexcept;
+
+	void ParallelCompute(const VeJobPtr& spJob) noexcept;
+
+	void ParallelCompute(const std::function<void()>& _Fx) noexcept
+	{
+		VeJobPtr spJob = VE_NEW VeJobFunc(VeJob::TYPE_PARALLEL_COMPUTE, _Fx);
+		ParallelCompute(spJob);
+	}
 
 protected:
+	static void ParallelCompute(void* pvJob) noexcept;
+
 	size_t m_stNumFGThreads = 0;
-	size_t m_stNumBGThreads = 0;
 	VeThread* m_pkFGThreads = nullptr;
+	size_t m_stNumBGThreads = 0;
 	VeThread* m_pkBGThreads = nullptr;
 
 };

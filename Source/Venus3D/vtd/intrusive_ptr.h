@@ -141,32 +141,17 @@ namespace vtd
 			return (naked_ptr != ptr.naked_ptr);
 		}
 
-		_Ty* p() noexcept
+		_Ty* p() const noexcept
 		{
 			return naked_ptr;
 		}
 
-		const _Ty* p() const noexcept
-		{
-			return naked_ptr;
-		}
-
-		_Ty& l() noexcept
+		_Ty& l() const noexcept
 		{
 			return *naked_ptr;
 		}
 
-		const _Ty& l() const noexcept
-		{
-			return *naked_ptr;
-		}
-
-		_Ty&& r() noexcept
-		{
-			return std::move(*naked_ptr);
-		}
-
-		const _Ty&& r() const noexcept
+		_Ty&& r() const noexcept
 		{
 			return std::move(*naked_ptr);
 		}

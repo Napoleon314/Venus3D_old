@@ -34,37 +34,16 @@ int main(/*int argc, char * argv[]*/)
 {
 	Venus3D::Create("PowerTest");
 
-	{
-		auto spCor1 = VeCreateCoroutine(
-			[](VeCoroutine<>& co) noexcept
-		{
-			VeDebugOutput("ABC");
-			co.yield();
-			VeDebugOutput("DEF");
-		});
+	std::atomic_int32_t counter(0);
 
-		auto spCor2 = VeCreateCoroutine(
-			[&](VeCoroutine<>& co) noexcept
+	job_system.ParallelCompute([&counter]() noexcept
+	{
+		int32_t c;
+		while((c = counter.fetch_add(1, std::memory_order_relaxed)) <= 100)
 		{
-			VeDebugOutput("abc");
-			co.yield();
-			VeDebugOutput("def");
-			co.yield();
-			spCor1->resume();
-			co.yield();
-			spCor1->resume();
-		});
-		VeDebugOutput("Resume1");
-		spCor2->resume();
-		VeDebugOutput("Resume2");
-		spCor2->resume();
-		VeDebugOutput("Resume3");
-		spCor2->resume();
-		VeDebugOutput("Resume4");
-		spCor2->resume();
-		VeDebugOutput("Resume5");
-		spCor2->resume();
-	}
+			VeUserLogI("counter:", c);
+		}
+	});
 
 	Venus3D::Destory();
 
