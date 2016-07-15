@@ -28,30 +28,3 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-//--------------------------------------------------------------------------
-inline void VeJobSystem::signal::wait(int32_t n) noexcept
-{
-	while (_Count <= n)
-	{
-		VeThreadMutexLock(_Mutex);
-		VeConditionVariableWait(_Condition, _Mutex);
-		VeThreadMutexUnlock(_Mutex);
-	}
-}
-//--------------------------------------------------------------------------
-inline void VeJobSystem::signal::set_one(int32_t n) noexcept
-{
-	VeThreadMutexLock(_Mutex);
-	_Count = n;
-	VeConditionVariableWakeOne(_Condition);
-	VeThreadMutexUnlock(_Mutex);
-}
-//--------------------------------------------------------------------------
-inline void VeJobSystem::signal::set_all(int32_t n) noexcept
-{
-	VeThreadMutexLock(_Mutex);
-	_Count = n;
-	VeConditionVariableWakeAll(_Condition);
-	VeThreadMutexUnlock(_Mutex);
-}
-//--------------------------------------------------------------------------

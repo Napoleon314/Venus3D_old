@@ -31,42 +31,36 @@
 #include "stdafx.h"
 
 //--------------------------------------------------------------------------
-struct FGThreadParam : public VeMemObject
-{
-	FGThreadParam(uint32_t idx) noexcept
-		: m_u32Index(idx)
-	{
-		m_u32Signal.store(0, std::memory_order_relaxed);
-	}
-
-	uint32_t m_u32Index;
-	std::atomic<uint32_t> m_u32Signal;
-};
-//--------------------------------------------------------------------------
 VeThreadCallbackResult VeJobSystem::FGThreadCallback(void* pvParam) noexcept
 {
-	VeJobSystem* pkSystem = VeJobSystem::Ptr();
-	FGThreadParam* pkParam = (FGThreadParam*)pvParam;
-
+	VeJobSystem& s = VeJobSystem::Ref();
+	fore_thread& t = *(fore_thread*)pvParam;
 	while (true)
 	{
-		pkSystem->m_akFGLoop.wait(0);
-		switch (pkSystem->m_i32FGState.load(std::memory_order_relaxed))
+		VeThreadMutexLock(s.m_akFGLoop.mutex);
+		while (t.cond_val <= 0)
 		{
-		case 2:
-			break;
-		case 1:
-
-
+			VeConditionVariableWait(s.m_akFGLoop.cond, s.m_akFGLoop.mutex);
+		}
+		VeThreadMutexUnlock(s.m_akFGLoop.mutex);
+		switch (s.m_i32FGState.load(std::memory_order_relaxed))
+		{
+		case 0:
+			continue;
+		case -1:
+			break;		
 		default:
+			if (s.m_spParallel)
+			{
+				s.m_spParallel->Work(t.index);
+			}
+			t.cond_val = 0;
 			continue;
 		}
 		break;
 	}
 
-	VeCoreLogI("Thread:", pkParam->m_u32Index, "exited");
-
-	VE_DELETE(pkParam);
+	VeCoreLogI("Thread:", t.index, "exited");
 	return 0;
 }
 //--------------------------------------------------------------------------
@@ -78,47 +72,51 @@ VeJobSystem::VeJobSystem(size_t stFGNum, size_t) noexcept
 		m_kFGThreads.resize(stFGNum);
 		for (size_t i(0); i < m_kFGThreads.size(); ++i)
 		{
-			m_kFGThreads[i] = VeCreateThread(&FGThreadCallback,
-				VE_NEW FGThreadParam((uint32_t)i), VE_JOB_FG_PRIORITY,
-				VE_JOB_FG_STACK_SIZE);
+			fore_thread& t = m_kFGThreads[i];
+			t.index = (uint32_t)i;
+			t.cond_val = 0;
+			t.handle = VeCreateThread(&FGThreadCallback,
+				&t, VE_JOB_FG_PRIORITY, VE_JOB_FG_STACK_SIZE);
 		}
-		
 	}
-	
 }
 //--------------------------------------------------------------------------
 VeJobSystem::~VeJobSystem() noexcept
 {
 	if (m_kFGThreads.size())
 	{
-		m_i32FGState.store(2, std::memory_order_relaxed);
-		m_akFGLoop.set_all(1);
-		for (auto& hThread : m_kFGThreads)
+		m_i32FGState.store(-1, std::memory_order_relaxed);
+		VeThreadMutexLock(m_akFGLoop.mutex);
+		for (auto& t : m_kFGThreads)
 		{
-			VeJoinThread(hThread);
+			t.cond_val = 1;
+		}
+		VeConditionVariableWakeAll(m_akFGLoop.cond);
+		VeThreadMutexUnlock(m_akFGLoop.mutex);
+		for (auto& t : m_kFGThreads)
+		{
+			VeJoinThread(t.handle);
 		}
 	}
 }
 //--------------------------------------------------------------------------
-void VeJobSystem::ParallelCompute(const VeJobPtr&) noexcept
+void VeJobSystem::ParallelCompute(const VeJobPtr& spJob) noexcept
 {
-	
+	assert(spJob && spJob->GetType() == VeJob::TYPE_PARALLEL_COMPUTE);
+	int32_t check(0);
+	if (m_i32FGState.compare_exchange_weak(check, 1, std::memory_order_relaxed))
+	{
+		/*m_spParallel = spJob;
+		m_akFGJoin.reset();
+		m_akFGLoop.step_all();
+		m_akFGJoin.wait(m_kFGThreads.size());
+		m_i32FGState.store(0, std::memory_order_relaxed);
+		m_spParallel = nullptr;*/
+	}
 }
 //--------------------------------------------------------------------------
 void VeJobSystem::ParallelCompute(void*) noexcept
 {
 	
-}
-//--------------------------------------------------------------------------
-VeJobSystem::signal::signal() noexcept
-{
-	VeThreadMutexInit(_Mutex);
-	VeConditionVariableInit(_Condition);
-}
-//--------------------------------------------------------------------------
-VeJobSystem::signal::~signal() noexcept
-{
-	VeConditionVariableTerm(_Condition);
-	VeThreadMutexTerm(_Mutex);
 }
 //--------------------------------------------------------------------------

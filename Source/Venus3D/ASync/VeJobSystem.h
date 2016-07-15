@@ -41,10 +41,10 @@ class VeJob : public VeRefObject
 public:
 	enum Type
 	{
+		TYPE_PARALLEL_COMPUTE,
 		TYPE_IMMEDIATE,
 		TYPE_YIELDABLE,
 		TYPE_YIELDABLE_2X_STACK,
-		TYPE_PARALLEL_COMPUTE,
 		TYPE_MAX
 	};
 
@@ -55,7 +55,7 @@ public:
 		return m_eType;
 	}
 
-	virtual void Work() noexcept = 0;
+	virtual void Work(uint32_t u32Index) noexcept = 0;
 
 private:
 	const Type m_eType;
@@ -67,16 +67,16 @@ VeSmartPointer(VeJob);
 class VeJobFunc : public VeJob
 {
 public:
-	VeJobFunc(Type eType, const std::function<void()>& _Fx) noexcept
+	VeJobFunc(Type eType, const std::function<void(uint32_t)>& _Fx) noexcept
 		: VeJob(eType), m_kWork(_Fx) {}
 
-	virtual void Work() noexcept
+	virtual void Work(uint32_t u32Index) noexcept
 	{
-		m_kWork();
+		m_kWork(u32Index);
 	}
 
 private:
-	std::function<void()> m_kWork;
+	std::function<void(uint32_t)> m_kWork;
 
 };
 
@@ -103,29 +103,24 @@ private:
 
 	static void ParallelCompute(void* pvJob) noexcept;
 
-	class signal
+	struct signal
 	{
-	public:
-		signal() noexcept;
+		VeThreadMutex mutex;
+		VeConditionVariable cond;
+	};
 
-		~signal() noexcept;
-
-		inline void wait(int32_t n) noexcept;
-
-		inline void set_one(int32_t n) noexcept;
-
-		inline void set_all(int32_t n) noexcept;
-
-	private:
-		VeThreadMutex _Mutex;
-		VeConditionVariable _Condition;
-		int32_t _Count = 0;
+	struct fore_thread
+	{
+		VeThreadHandle handle;
+		uint32_t index;
+		uint32_t cond_val;
 	};
 
 	signal m_akFGLoop;
 	signal m_akFGJoin;
-	vtd::vector<VeThreadHandle> m_kFGThreads;
+	vtd::vector<fore_thread> m_kFGThreads;
 	std::atomic<int32_t> m_i32FGState;
+	VeJobPtr m_spParallel;
 
 };
 
