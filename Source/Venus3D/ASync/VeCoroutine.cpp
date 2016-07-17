@@ -126,7 +126,7 @@ void VeCoenvironment::Entry(fcontext_transfer_t trans) noexcept
 	pkDead->m_eState = VeCoroutine::STATE_DEAD;
 	pkEnv->m_pkRunning = pkDead->m_pkPrevious;
 	pkDead->m_pkPrevious = nullptr;
-	jump_fcontext(trans.ctx, pvRes);
+	jump_fcontext(pkEnv->m_pkRunning->m_hContext, pvRes);
 }
 //--------------------------------------------------------------------------
 VeCoenvironment* VeCoenvironment::GetCurrent() noexcept
