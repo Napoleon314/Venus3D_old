@@ -89,9 +89,7 @@ void* VeCoroutine::_resume(void* pvUserData) noexcept
 VeSmartPointer(VeCoenvironment);
 //--------------------------------------------------------------------------
 #ifdef BUILD_PLATFORM_APPLE
-static __thread VeCoenvironment* s_pkCurEnv = nullptr;
-static vtd::spin_lock s_kLock;
-static vtd::vector<VeCoenvironmentPtr> s_kEnvVec;
+static pthread_key_t s_keyCurEnv;
 #else
 static thread_local VeCoenvironmentPtr s_spCurEnv;
 #endif
@@ -142,8 +140,8 @@ VeCoenvironment* VeCoenvironment::GetCurrent() noexcept
 	if (!s_pkCurEnv)
 	{
 		std::lock_guard<vtd::spin_lock> l(s_kLock);
-		s_kEnvVec.push_back(new VeCoenvironment());
-		s_pkCurEnv = s_kEnvVec.back();
+        s_pkCurEnv = new VeCoenvironment();
+		s_kEnvVec.push_back(s_pkCurEnv);
 	}
 	return s_pkCurEnv;
 #else
