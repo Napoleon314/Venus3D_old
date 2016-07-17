@@ -40,17 +40,38 @@ struct VeDeleteCallParams
 	const char* m_pcFunction;
 };
 //--------------------------------------------------------------------------
-static __thread vtd::vector<VeDeleteCallParams> s_kDeleteCallParamsStack;
+#ifdef BUILD_PLATFORM_APPLE
+static __thread vtd::vector<VeDeleteCallParams>* s_pkDeleteStack_tl = nullptr;
+static vtd::spin_lock s_kLock;
+static vtd::vector<vtd::vector<VeDeleteCallParams>> s_kDeleteStackArray;
+#else
+static thread_local vtd::vector<VeDeleteCallParams> s_kDeleteStack;
+#endif
 //--------------------------------------------------------------------------
 void VeMemObject::PushDeleteCallParams(const char* pcSourceFile,
 	int32_t i32SourceLine, const char* pcFunction) noexcept
 {
-	s_kDeleteCallParamsStack.push_back({ pcSourceFile, i32SourceLine, pcFunction });
+#	ifdef BUILD_PLATFORM_APPLE
+	if (!s_pkDeleteStack_tl)
+	{
+		std::lock_guard<vtd::spin_lock> l(s_kLock);
+		s_kDeleteStackArray.resize(s_kDeleteStackArray.size() + 1);
+		s_pkDeleteStack_tl = &(s_kDeleteStackArray.back());
+	}
+	s_pkDeleteStack_tl->push_back({ pcSourceFile, i32SourceLine, pcFunction });
+#	else
+	s_kDeleteStack.push_back({ pcSourceFile, i32SourceLine, pcFunction });
+#	endif
 }
 //--------------------------------------------------------------------------
 void VeMemObject::PopDeleteCallParams() noexcept
 {
-	s_kDeleteCallParamsStack.pop_back();
+#	ifdef BUILD_PLATFORM_APPLE
+	assert(s_pkDeleteStack_tl);
+	s_pkDeleteStack_tl->pop_back();
+#	else
+	s_kDeleteStack.pop_back();
+#	endif
 }
 //--------------------------------------------------------------------------
 void* VeMemObject::operator new(size_t stSize, const char* pcSourceFile,
@@ -67,13 +88,23 @@ int32_t i32SourceLine, const char* pcFunction) noexcept
 //--------------------------------------------------------------------------
 void VeMemObject::operator delete (void* pvMem) noexcept
 {
-	VeDeleteCallParams& kParams = s_kDeleteCallParamsStack.back();
+#	ifdef BUILD_PLATFORM_APPLE
+	assert(s_pkDeleteStack_tl);
+	VeDeleteCallParams& kParams = s_pkDeleteStack_tl->back();
+#	else
+	VeDeleteCallParams& kParams = s_kDeleteStack.back();
+#	endif
 	_VeFree(pvMem, kParams.m_pcSourceFile, kParams.m_i32SourceLine, kParams.m_pcFunction);
 }
 //--------------------------------------------------------------------------
 void VeMemObject::operator delete[](void* pvMem) noexcept
 {
-	VeDeleteCallParams& kParams = s_kDeleteCallParamsStack.back();
+#	ifdef BUILD_PLATFORM_APPLE
+	assert(s_pkDeleteStack_tl);
+	VeDeleteCallParams& kParams = s_pkDeleteStack_tl->back();
+#	else
+	VeDeleteCallParams& kParams = s_kDeleteStack.back();
+#	endif
 	_VeFree(pvMem, kParams.m_pcSourceFile, kParams.m_i32SourceLine, kParams.m_pcFunction);
 }
 //--------------------------------------------------------------------------
