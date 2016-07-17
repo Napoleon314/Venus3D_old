@@ -39,7 +39,7 @@ int main(/*int argc, char * argv[]*/)
 	job_system.ParallelCompute([&counter](int32_t idx) noexcept
 	{
 		int32_t c;
-		while((c = counter.fetch_add(1, std::memory_order_relaxed)) <= 20)
+		while((c = counter.fetch_add(1, std::memory_order_relaxed)) <= 200)
 		{
 			VeUserLogI("thread:", idx, c);
 		}
