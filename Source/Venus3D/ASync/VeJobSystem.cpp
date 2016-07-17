@@ -73,7 +73,6 @@ VeThreadCallbackResult VeJobSystem::FGThreadCallback(void* pvParam) noexcept
 		}
 		break;
 	}
-	VeCoreLogI("Thread:", t.index, "exited");
 	return 0;
 }
 //--------------------------------------------------------------------------

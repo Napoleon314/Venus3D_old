@@ -32,7 +32,72 @@
 
 #ifdef VE_ENABLE_COROUTINE
 
+#define VE_CO_DEFAULT_STACK (32 * 1024)
 
+class VENUS_API VeCoroutine
+{
+	VeNoCopy(VeCoroutine);
+public:
+	enum State
+	{
+		STATE_READY,
+		STATE_SUSPENDED,
+		STATE_RUNNING,
+		STATE_DEAD
+	};
+
+	typedef void* (*Entry)(void*);
+
+	VeCoroutine(size_t stStackSize = VE_CO_DEFAULT_STACK) noexcept;
+
+	~VeCoroutine() noexcept;
+
+	inline State GetState() noexcept;
+
+	void prepare() noexcept;
+
+	void* start(Entry pfuncEntry, void* pvUserData = nullptr) noexcept;
+
+	void* resume(void* pvUserData = nullptr) noexcept;
+
+protected:
+	void* _resume(void* pvUserData) noexcept;
+
+	friend class VeCoenvironment;
+	fcontext_stack_t  m_kStack;
+	fcontext_t m_hContext;
+	VeCoroutine* m_pkPrevious = nullptr;
+	State m_eState;
+
+};
+
+class VENUS_API VeCoenvironment
+{
+	VeNoCopy(VeCoenvironment);
+public:
+	~VeCoenvironment() noexcept;
+	
+	inline static VeCoroutine* GetMain() noexcept;
+
+	inline static VeCoroutine* GetRunning() noexcept;
+
+	inline static bool IsMainRunning() noexcept;
+
+	static void* yield(void* pvUserData) noexcept;
+
+private:
+	static void Entry(fcontext_transfer_t trans) noexcept;
+
+	static VeCoenvironment* GetCurrent() noexcept;
+
+	friend class VeCoroutine;
+	VeCoenvironment() noexcept;
+
+	VeCoroutine* m_pkMain;
+	VeCoroutine* m_pkRunning;
+	VeCoroutine::Entry m_pfuncUserEntry = nullptr;
+
+};
 
 #endif
 

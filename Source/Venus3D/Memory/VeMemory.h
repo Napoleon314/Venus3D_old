@@ -70,7 +70,7 @@ inline void aligned_free(void* _Block) noexcept
 
 #ifdef VE_MEM_DEBUG
 
-VENUS_API void _VeMemoryExit(size_t stRest, size_t stRestAligned) noexcept;
+VENUS_API void _VeMemoryExit(size_t stRest = 0, size_t stRestAligned = 0) noexcept;
 
 VENUS_API void* _VeMalloc(size_t stSizeInBytes, const char* pcSourceFile, int32_t iSourceLine, const char* pcFunction) noexcept;
 
@@ -100,7 +100,7 @@ VENUS_API void _VeAlignedFree(void* pvMemory, const char* pcSourceFile, int32_t 
 
 #define VE_DELETE_ARRAY(p) VeMemObject::PushDeleteCallParams(__FILE__, __LINE__, __FUNCTION__); delete [] p; VeMemObject::PopDeleteCallParams()
 
-#define VeMemoryExit(r,ra) _VeMemoryExit(r,ra)
+#define VeMemoryExit(...) _VeMemoryExit(__VA_ARGS__)
 
 #else
 
@@ -131,6 +131,8 @@ inline void _VeAlignedFree(void* pvMemory) noexcept;
 #define VE_DELETE delete
 
 #define VE_DELETE_ARRAY VE_DELETE []
+
+#define VeMemoryExit(...)
 
 #endif
 

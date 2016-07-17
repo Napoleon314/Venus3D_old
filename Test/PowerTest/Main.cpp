@@ -30,22 +30,26 @@
 
 #include <Venus3D.h>
 
+void* test(void* data) noexcept
+{
+	VeCoreLogI("co", (size_t)data);
+	VeCoreLogI("co", (size_t)VeCoenvironment::yield((void*)1));
+	VeCoreLogI("co", (size_t)VeCoenvironment::yield((void*)2));
+	return (void*)3;
+}
+
 int main(/*int argc, char * argv[]*/)
 {
 	Venus3D::Create("PowerTest");
 
-	std::atomic<int32_t> counter(0);
-
-	job_system.ParallelCompute([&counter](int32_t idx) noexcept
-	{
-		int32_t c;
-		while((c = counter.fetch_add(1, std::memory_order_relaxed)) <= 200)
-		{
-			VeUserLogI("thread:", idx, c);
-		}
-	});
+	VeCoroutine co;
+	co.prepare();
+	VeCoreLogI("main", (size_t)co.start(test, (void*)1));
+	VeCoreLogI("main", (size_t)co.resume((void*)2));
+	VeCoreLogI("main", (size_t)co.resume((void*)3));
 
 	Venus3D::Destory();
+	VeMemoryExit();
 
 	return 0;
 }

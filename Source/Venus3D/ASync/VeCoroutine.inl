@@ -31,8 +31,25 @@
 //--------------------------------------------------------------------------
 #ifdef VE_ENABLE_COROUTINE
 //--------------------------------------------------------------------------
-
-
+inline VeCoroutine::State VeCoroutine::GetState() noexcept
+{
+	return m_eState;
+}
+//--------------------------------------------------------------------------
+inline VeCoroutine* VeCoenvironment::GetMain() noexcept
+{
+	return GetCurrent()->m_pkMain;
+}
+//--------------------------------------------------------------------------
+inline VeCoroutine* VeCoenvironment::GetRunning() noexcept
+{
+	return GetCurrent()->m_pkRunning;
+}
+//--------------------------------------------------------------------------
+inline bool VeCoenvironment::IsMainRunning() noexcept
+{
+	return GetMain() == GetRunning();
+}
 //--------------------------------------------------------------------------
 #endif
 //--------------------------------------------------------------------------

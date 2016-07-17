@@ -33,7 +33,127 @@
 //--------------------------------------------------------------------------
 #ifdef VE_ENABLE_COROUTINE
 //--------------------------------------------------------------------------
-
+VeCoroutine::VeCoroutine(size_t stStackSize) noexcept
+	: m_kStack({nullptr,0}), m_hContext(nullptr), m_eState(STATE_DEAD)
+{
+	if (stStackSize)
+	{
+		m_kStack = create_fcontext_stack(stStackSize);
+	}
+}
+//--------------------------------------------------------------------------
+VeCoroutine::~VeCoroutine() noexcept
+{
+	destroy_fcontext_stack(&m_kStack);
+}
+//--------------------------------------------------------------------------
+void VeCoroutine::prepare() noexcept
+{
+	assert(m_eState == STATE_DEAD && (!m_hContext));
+	m_hContext = make_fcontext(m_kStack.sptr, m_kStack.ssize, &VeCoenvironment::Entry);
+	m_eState = STATE_READY;
+}
+//--------------------------------------------------------------------------
+void* VeCoroutine::start(Entry pfuncEntry, void* pvUserData) noexcept
+{
+	assert(m_eState == STATE_READY);
+	VeCoenvironment::GetCurrent()->m_pfuncUserEntry = pfuncEntry;
+	return _resume(pvUserData);
+}
+//--------------------------------------------------------------------------
+void* VeCoroutine::resume(void* pvUserData) noexcept
+{
+	assert(m_eState == STATE_SUSPENDED);
+	return _resume(pvUserData);
+}
+//--------------------------------------------------------------------------
+void* VeCoroutine::_resume(void* pvUserData) noexcept
+{
+	VeCoenvironment* pkEnv = VeCoenvironment::GetCurrent();
+	m_eState = STATE_RUNNING;
+	m_pkPrevious = pkEnv->m_pkRunning;
+	pkEnv->m_pkRunning = this;
+	fcontext_transfer_t next = jump_fcontext(m_hContext, pvUserData);
+	if (m_eState == STATE_DEAD)
+	{
+		m_hContext = nullptr;
+	}
+	else
+	{
+		assert(m_eState == STATE_SUSPENDED);
+		m_hContext = next.ctx;
+	}
+	return next.data;
+}
+//--------------------------------------------------------------------------
+VeSmartPointer(VeCoenvironment);
+//--------------------------------------------------------------------------
+#ifdef BUILD_PLATFORM_APPLE
+static __thread VeCoenvironment* s_pkCurEnv = nullptr;
+static vtd::spin_lock s_kLock;
+static vtd::vector<VeCoenvironmentPtr> s_kEnvVec;
+#else
+static thread_local VeCoenvironmentPtr s_spCurEnv;
+#endif
+//--------------------------------------------------------------------------
+VeCoenvironment::VeCoenvironment() noexcept
+{
+	m_pkMain = new VeCoroutine();
+	m_pkMain->m_eState = VeCoroutine::STATE_RUNNING;
+	m_pkRunning = m_pkMain;
+}
+//--------------------------------------------------------------------------
+VeCoenvironment::~VeCoenvironment() noexcept
+{
+	assert(m_pkMain && m_pkMain == m_pkRunning);
+	delete m_pkMain;
+	m_pkMain = nullptr;
+	m_pkRunning = nullptr;
+}
+//--------------------------------------------------------------------------
+void* VeCoenvironment::yield(void* pvUserData) noexcept
+{
+	VeCoenvironment* pkEnv = GetCurrent();
+	assert(pkEnv->m_pkRunning != pkEnv->m_pkMain);
+	VeCoroutine* pkSuspended = pkEnv->m_pkRunning;
+	pkSuspended->m_eState = VeCoroutine::STATE_SUSPENDED;
+	pkEnv->m_pkRunning = pkSuspended->m_pkPrevious;
+	pkSuspended->m_pkPrevious = nullptr;
+	fcontext_transfer_t trans = jump_fcontext(pkEnv->m_pkRunning->m_hContext, pvUserData);
+	pkEnv->m_pkRunning->m_pkPrevious->m_hContext = trans.ctx;
+	return trans.data;
+}
+//--------------------------------------------------------------------------
+void VeCoenvironment::Entry(fcontext_transfer_t trans) noexcept
+{
+	VeCoenvironment* pkEnv = GetCurrent();
+	pkEnv->m_pkRunning->m_pkPrevious->m_hContext = trans.ctx;
+	void* pvRes = pkEnv->m_pfuncUserEntry(trans.data);
+	VeCoroutine* pkDead = pkEnv->m_pkRunning;
+	pkDead->m_eState = VeCoroutine::STATE_DEAD;
+	pkEnv->m_pkRunning = pkDead->m_pkPrevious;
+	pkDead->m_pkPrevious = nullptr;
+	jump_fcontext(trans.ctx, pvRes);
+}
+//--------------------------------------------------------------------------
+VeCoenvironment* VeCoenvironment::GetCurrent() noexcept
+{
+#ifdef BUILD_PLATFORM_APPLE
+	if (!s_pkCurEnv)
+	{
+		std::lock_guard<vtd::spin_lock> l(s_kLock);
+		s_kEnvVec.push_back(new VeCoenvironment());
+		s_pkCurEnv = s_kEnvVec.back();
+	}
+	return s_pkCurEnv;
+#else
+	if (!s_spCurEnv)
+	{
+		s_spCurEnv = new VeCoenvironment();
+	}
+	return s_spCurEnv.p();
+#endif
+}
 //--------------------------------------------------------------------------
 #endif
 //--------------------------------------------------------------------------
