@@ -433,6 +433,10 @@ public:
 
 	void Term();
 
+	void InitThreadLocals() noexcept;
+
+	void TermThreadLocals() noexcept;
+
 	void InitLog() noexcept;
 
 	void TermLog() noexcept;

@@ -40,7 +40,6 @@ void* test(void* data) noexcept
 
 int main(/*int argc, char * argv[]*/)
 {
-	VeThread::Init();
 	Venus3D::Create("PowerTest");
 
 	VeCoroutine co;
@@ -50,7 +49,6 @@ int main(/*int argc, char * argv[]*/)
 	VeCoreLogI("main", (int)(size_t)co.resume((void*)3));
 
 	Venus3D::Destory();
-	VeThread::Term();
 	VeMemoryExit();
 
 	return 0;

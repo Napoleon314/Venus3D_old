@@ -91,7 +91,7 @@ private:
 	static VeCoenvironment* GetCurrent() noexcept;
 
 	friend class VeCoroutine;
-	friend class VeThread;
+	friend class Venus3D;
 	VeCoenvironment() noexcept;
 
 	VeCoroutine m_kMain;

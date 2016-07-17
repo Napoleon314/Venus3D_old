@@ -44,8 +44,31 @@ Venus3D::~Venus3D() noexcept
 	Term();
 }
 //--------------------------------------------------------------------------
+#ifdef VE_USE_THREAD_LOCAL
+thread_local VeCoenvironment* g_pkCurEnv = nullptr;
+#else
+#ifdef VE_MEM_DEBUG
+struct VeDeleteCallParams
+{
+	const char* m_pcSourceFile;
+	int32_t m_i32SourceLine;
+	const char* m_pcFunction;
+};
+pthread_key_t g_keyDeleteStack;
+#endif
+pthread_key_t g_keyCurEnv;
+#endif
+
+//--------------------------------------------------------------------------
 void Venus3D::Init(uint32_t u32InitMask)
 {
+#	ifndef VE_USE_THREAD_LOCAL
+#	ifdef VE_MEM_DEBUG
+	assert_eq(pthread_key_create(&g_keyDeleteStack, nullptr), 0);
+#	endif
+	assert_eq(pthread_key_create(&g_keyCurEnv, nullptr), 0);
+#	endif
+	InitThreadLocals();
 	VE_MASK_CONDITION(u32InitMask, VE_INIT_LOG, InitLog());
 	VE_MASK_CONDITION(u32InitMask, VE_INIT_JOB, InitJob());
 	VE_MASK_ADD(m_u32ActiveMask, u32InitMask);
@@ -56,6 +79,37 @@ void Venus3D::Term()
 	VE_MASK_CONDITION(m_u32ActiveMask, VE_INIT_JOB, TermJob());
 	VE_MASK_CONDITION(m_u32ActiveMask, VE_INIT_LOG, TermLog());
 	VE_MASK_CLEAR(m_u32ActiveMask);
+	TermThreadLocals();
+#	ifndef VE_USE_THREAD_LOCAL
+	assert_eq(pthread_key_delete(g_keyCurEnv), 0);
+#	ifdef VE_MEM_DEBUG
+	assert_eq(pthread_key_delete(g_keyDeleteStack), 0);
+#	endif
+#	endif
+}
+//--------------------------------------------------------------------------
+void Venus3D::InitThreadLocals() noexcept
+{
+#	ifdef VE_USE_THREAD_LOCAL
+	g_pkCurEnv = VE_NEW VeCoenvironment();
+#	else
+#	ifdef VE_MEM_DEBUG
+	assert_eq(pthread_setspecific(g_keyDeleteStack, new vtd::vector<VeDeleteCallParams>()), 0);
+#	endif
+	assert_eq(pthread_setspecific(g_keyCurEnv, VE_NEW VeCoenvironment()), 0);
+#	endif
+}
+//--------------------------------------------------------------------------
+void Venus3D::TermThreadLocals() noexcept
+{
+#	ifdef VE_USE_THREAD_LOCAL
+	VE_SAFE_DELETE(g_pkCurEnv);
+#	else
+	VE_DELETE((VeCoenvironment*)pthread_getspecific(g_keyCurEnv));
+#	ifdef VE_MEM_DEBUG
+	delete (vtd::vector<VeDeleteCallParams>*)pthread_getspecific(g_keyDeleteStack);
+#	endif
+#	endif
 }
 //--------------------------------------------------------------------------
 void Venus3D::InitLog() noexcept
