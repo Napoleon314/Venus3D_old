@@ -46,7 +46,6 @@ Venus3D::~Venus3D() noexcept
 //--------------------------------------------------------------------------
 void Venus3D::Init(uint32_t u32InitMask)
 {
-	VeThread::Init();
 	VE_MASK_CONDITION(u32InitMask, VE_INIT_LOG, InitLog());
 	VE_MASK_CONDITION(u32InitMask, VE_INIT_JOB, InitJob());
 	VE_MASK_ADD(m_u32ActiveMask, u32InitMask);
@@ -57,7 +56,6 @@ void Venus3D::Term()
 	VE_MASK_CONDITION(m_u32ActiveMask, VE_INIT_JOB, TermJob());
 	VE_MASK_CONDITION(m_u32ActiveMask, VE_INIT_LOG, TermLog());
 	VE_MASK_CLEAR(m_u32ActiveMask);
-	VeThread::Term();
 }
 //--------------------------------------------------------------------------
 void Venus3D::InitLog() noexcept
