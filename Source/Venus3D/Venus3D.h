@@ -313,6 +313,11 @@
 #	define assert_lt(e,c) e
 #endif
 
+#ifdef BUILD_PLATFORM_PC
+#	define VE_ENABLE_COROUTINE
+#	include <fcontext/fcontext.h>
+#endif
+
 #define VE_TRUE (1)
 #define VE_FALSE (0)
 #define VE_BOOL uint32_t
@@ -398,6 +403,7 @@
 #include "Log/VeAssert.h"
 
 #include "ASync/VeThread.h"
+#include "ASync/VeCoroutine.h"
 #include "ASync/VeJobSystem.h"
 
 #include "Video/VePixel.h"
