@@ -51,9 +51,9 @@ VeThreadCallbackResult VeJobSystem::FGThreadCallback(void* pvParam) noexcept
 		case -1:
 			break;
 		default:
-			if (s.m_spParallel)
+			if (s.m_pkParallel)
 			{
-				s.m_spParallel->Work(t.index);
+				s.m_pkParallel->Work(t.index);
 			}
 			else
 			{
@@ -114,15 +114,15 @@ VeJobSystem::~VeJobSystem() noexcept
 	}
 }
 //--------------------------------------------------------------------------
-void VeJobSystem::ParallelCompute(const VeJobPtr& spJob) noexcept
+void VeJobSystem::ParallelCompute(VeJob* pkJob) noexcept
 {
-	assert(spJob && spJob->GetType() == VeJob::TYPE_PARALLEL_COMPUTE);
+	assert(pkJob && pkJob->GetType() == VeJob::TYPE_PARALLEL_COMPUTE);
 	int32_t check(0);
 	if (m_i32FGState.compare_exchange_weak(check, 1, std::memory_order_relaxed))
 	{
-		m_spParallel = spJob;
+		m_pkParallel = pkJob;
 		RunForeground();
-		m_spParallel = nullptr;
+		m_pkParallel = nullptr;
 	}
 }
 //--------------------------------------------------------------------------

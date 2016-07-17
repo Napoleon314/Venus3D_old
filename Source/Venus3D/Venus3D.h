@@ -379,6 +379,7 @@
 #include "vtd/vector.h"
 #include "vtd/stack.h"
 #include "vtd/ring_buffer.h"
+#include "vtd/obj_pool.h"
 #include "vtd/spin_lock.h"
 #include "vtd/thread.h"
 #include "vtd/intrusive_list.h"

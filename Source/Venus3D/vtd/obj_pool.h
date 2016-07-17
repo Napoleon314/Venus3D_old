@@ -3,9 +3,9 @@
 //  The MIT License (MIT)
 //  Copyright (c) 2016 Albert D Yang
 // -------------------------------------------------------------------------
-//  Module:      ASync
-//  File name:   VeJobSystem.inl
-//  Created:     2016/07/15 by Albert
+//  Module:      vtd
+//  File name:   obj_pool.h
+//  Created:     2016/07/16 by Albert
 //  Description:
 // -------------------------------------------------------------------------
 //  Permission is hereby granted, free of charge, to any person obtaining a
@@ -28,38 +28,86 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-//--------------------------------------------------------------------------
-inline VeJobFunc* VeJobSystem::AcquireJob() noexcept
+#pragma once
+
+#include "ring_buffer.h"
+#include "intrusive_ptr.h"
+
+namespace vtd
 {
-	return m_kJobPool.acquire();
-}
-//--------------------------------------------------------------------------
-inline VeJobFunc* VeJobSystem::AcquireJob(VeJob::Type eType,
-	std::function<void(uint32_t)> funcWork) noexcept
-{
-	VeJobFunc* pkRes = m_kJobPool.acquire();
-	pkRes->Set(eType, std::move(funcWork));
-	return pkRes;
-}
-//--------------------------------------------------------------------------
-inline void VeJobSystem::ReleaseJob(VeJobFunc* pkJob) noexcept
-{
-	m_kJobPool.release(pkJob);
-}
-//--------------------------------------------------------------------------
-inline void VeJobSystem::ConcurrencyWork(VeJob* pkJob) noexcept
-{
-	assert(pkJob);
-	switch (pkJob->GetType() & 0xF0)
+	template <class _Ty, size_t _Num>
+	class obj_pool
 	{
-	case 0:
-		m_kFGJobList.push(pkJob);
-		break;
-	case 1:
-		m_kFGJobList.push(pkJob);
-		break;
-	default:
-		break;
-	}
+	public:
+		obj_pool() noexcept
+		{
+			_Free.store(0, std::memory_order_relaxed);
+		}
+
+		_Ty* acquire() noexcept
+		{
+			size_t i = _Free.fetch_add(1, std::memory_order_relaxed);
+			if (i < _Num)
+			{
+				return _Objs + i;
+			}
+			else
+			{
+				return _Recycle.pop();
+			}
+		}
+
+		void release(_Ty* p) noexcept
+		{
+			assert(size_t(p - _Objs) < _Num);
+			_Recycle.push(p);
+		}
+
+	private:
+		_Ty _Objs[_Num];
+		std::atomic<size_t> _Free;
+		ring_buffer<_Ty*, nullptr, _Num> _Recycle;
+
+	};
+
+	template <class _Ty, size_t _Num>
+	class obj_ptr_pool
+	{
+	public:
+		template<class _Fn, class... _Types>
+		obj_ptr_pool(_Fn, _Types&&... _Args) noexcept
+		{
+			_Free.store(0, std::memory_order_relaxed);
+			for (auto& ptr : _ObjPtrs)
+			{
+				ptr = _Fn(_Args);
+			}
+		}
+
+		_Ty* acquire() noexcept
+		{
+			size_t i = _Free.fetch_add(1, std::memory_order_relaxed);
+			if (i < _Num)
+			{
+				return _Objs[i].p();
+			}
+			else
+			{
+				return _Recycle.pop();
+			}
+		}
+
+		void release(_Ty* p) noexcept
+		{
+			assert(size_t(p - _Objs) < _Num);
+			_Recycle.push(p);
+		}
+
+	private:
+		intrusive_ptr<_Ty> _ObjPtrs[_Num];
+		std::atomic<size_t> _Free;
+		ring_buffer<_Ty*, nullptr, _Num> _Recycle;
+
+	};
+
 }
-//--------------------------------------------------------------------------

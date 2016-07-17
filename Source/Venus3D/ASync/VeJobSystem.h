@@ -36,16 +36,23 @@
 #define VE_JOB_BG_PRIORITY VE_THREAD_PRIORITY_BELOW_NORMAL
 #define VE_JOB_BG_STACK_SIZE 32768
 
-class VeJob : public VeRefObject
+#define VE_JOB_DEP_SIZE 16
+#define VE_JOB_POOL_SIZE 1024
+#define VE_JOB_BUFFER_SIZE 512
+
+class VeJob : public VeMemObject
 {
 public:
 	enum Type
 	{
-		TYPE_PARALLEL_COMPUTE,
-		TYPE_IMMEDIATE,
-		TYPE_YIELDABLE,
-		TYPE_YIELDABLE_2X_STACK,
-		TYPE_MAX
+		TYPE_PARALLEL_COMPUTE			= 0x0,
+		TYPE_FG_IMMEDIATE				= 0x1,
+		TYPE_FG_YIELDABLE				= 0x2,
+		TYPE_FG_YIELDABLE_2X_STACK		= 0x3,
+		TYPE_BG_IMMEDIATE				= 0x11,
+		TYPE_BG_YIELDABLE				= 0x12,
+		TYPE_BG_YIELDABLE_2X_STACK		= 0x13,
+		TYPE_MASK						= 0xFF
 	};
 
 	VeJob(Type eType) noexcept : m_eType(eType) {}
@@ -57,20 +64,26 @@ public:
 
 	virtual void Work(uint32_t u32Index) noexcept = 0;
 
-private:
-	const Type m_eType;
+protected:
+	VeJob() noexcept : m_eType(TYPE_MASK) {};
+
+	Type m_eType;
+	vtd::ring_buffer<VeJob*, nullptr, VE_JOB_DEP_SIZE> m_kDepList;
 
 };
-
-VeSmartPointer(VeJob);
 
 class VeJobFunc : public VeJob
 {
 public:
-	VeJobFunc(Type eType, const std::function<void(uint32_t)>& _Fx) noexcept
-		: VeJob(eType), m_kWork(_Fx) {}
+	VeJobFunc() noexcept = default;
 
-	virtual void Work(uint32_t u32Index) noexcept
+	void Set(Type eType, std::function<void(uint32_t)> funcWork) noexcept
+	{
+		m_eType = eType;
+		m_kWork = std::move(funcWork);
+	}
+
+	virtual void Work(uint32_t u32Index) noexcept override
 	{
 		m_kWork(u32Index);
 	}
@@ -83,17 +96,29 @@ private:
 class VENUS_API VeJobSystem : public VeSingleton<VeJobSystem>
 {
 public:
+	typedef vtd::ring_buffer<VeJob*, nullptr, VE_JOB_BUFFER_SIZE> JobBuffer;
+	//typedef vtd::obj_ptr_pool<>
+
 	VeJobSystem(size_t stFGNum, size_t stBGNum) noexcept;
 
 	~VeJobSystem() noexcept;
 
-	
+	inline VeJobFunc* AcquireJob() noexcept;
 
-	void ParallelCompute(const VeJobPtr& spJob) noexcept;
+	inline VeJobFunc* AcquireJob(VeJob::Type eType,
+		std::function<void(uint32_t)> funcWork) noexcept;
 
-	void ParallelCompute(const std::function<void(uint32_t)>& _Fx) noexcept
+	inline void ReleaseJob(VeJobFunc* pkJob) noexcept;
+
+	inline void ConcurrencyWork(VeJob* pkJob) noexcept;
+
+	void ParallelCompute(VeJob* pkJob) noexcept;
+
+	void ParallelCompute(std::function<void(uint32_t)> _Fx) noexcept
 	{
-		ParallelCompute(VE_NEW VeJobFunc(VeJob::TYPE_PARALLEL_COMPUTE, _Fx));
+		VeJobFunc* pkJob = AcquireJob(VeJob::TYPE_PARALLEL_COMPUTE, std::move(_Fx));
+		ParallelCompute(pkJob);
+		ReleaseJob(pkJob);
 	}
 
 private:
@@ -120,7 +145,13 @@ private:
 	vtd::vector<fore_thread> m_kFGThreads;
 	std::atomic<int32_t> m_i32FGState;
 	std::atomic<int32_t> m_i32FGJoinValue;
-	VeJobPtr m_spParallel;
+	VeJob* m_pkParallel = nullptr;
+
+	vtd::obj_pool<VeJobFunc, VE_JOB_POOL_SIZE> m_kJobPool;
+	JobBuffer m_kFGJobList;
+	JobBuffer m_kFGJobWaitList;
+	JobBuffer m_kBGJobList;
+	JobBuffer m_kBGJobWaitList;
 
 };
 
