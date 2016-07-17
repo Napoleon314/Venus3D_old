@@ -96,9 +96,9 @@ VENUS_API void _VeAlignedFree(void* pvMemory, const char* pcSourceFile, int32_t 
 
 #define VE_NEW new(__FILE__, __LINE__, __FUNCTION__)
 
-#define VE_DELETE(p) VeMemObject::PushDeleteCallParams(__FILE__, __LINE__, __FUNCTION__); delete p; VeMemObject::PopDeleteCallParams()
+#define VE_DELETE(p) VeMemObject::PushDeleteCallParams(__FILE__, __LINE__, __FUNCTION__); delete (p); VeMemObject::PopDeleteCallParams()
 
-#define VE_DELETE_ARRAY(p) VeMemObject::PushDeleteCallParams(__FILE__, __LINE__, __FUNCTION__); delete [] p; VeMemObject::PopDeleteCallParams()
+#define VE_DELETE_ARRAY(p) VeMemObject::PushDeleteCallParams(__FILE__, __LINE__, __FUNCTION__); delete [] (p); VeMemObject::PopDeleteCallParams()
 
 #define VeMemoryExit(...) _VeMemoryExit(__VA_ARGS__)
 

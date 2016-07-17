@@ -38,7 +38,7 @@ inline VeCoroutine::State VeCoroutine::GetState() noexcept
 //--------------------------------------------------------------------------
 inline VeCoroutine* VeCoenvironment::GetMain() noexcept
 {
-	return GetCurrent()->m_pkMain;
+	return &(GetCurrent()->m_kMain);
 }
 //--------------------------------------------------------------------------
 inline VeCoroutine* VeCoenvironment::GetRunning() noexcept

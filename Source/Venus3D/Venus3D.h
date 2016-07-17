@@ -318,6 +318,10 @@
 #	include <fcontext/fcontext.h>
 #endif
 
+#ifndef BUILD_PLATFORM_APPLE
+#	define VE_USE_THREAD_LOCAL
+#endif
+
 #define VE_TRUE (1)
 #define VE_FALSE (0)
 #define VE_BOOL uint32_t

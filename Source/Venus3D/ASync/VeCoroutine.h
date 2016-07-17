@@ -34,7 +34,7 @@
 
 #define VE_CO_DEFAULT_STACK (640 * 1024)
 
-class VENUS_API VeCoroutine
+class VENUS_API VeCoroutine : public VeMemObject
 {
 	VeNoCopy(VeCoroutine);
 public:
@@ -71,7 +71,7 @@ protected:
 
 };
 
-class VENUS_API VeCoenvironment
+class VENUS_API VeCoenvironment : public VeMemObject
 {
 	VeNoCopy(VeCoenvironment);
 public:
@@ -91,9 +91,10 @@ private:
 	static VeCoenvironment* GetCurrent() noexcept;
 
 	friend class VeCoroutine;
+	friend class VeThread;
 	VeCoenvironment() noexcept;
 
-	VeCoroutine* m_pkMain;
+	VeCoroutine m_kMain;
 	VeCoroutine* m_pkRunning;
 	VeCoroutine::Entry m_pfuncUserEntry = nullptr;
 

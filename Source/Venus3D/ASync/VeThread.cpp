@@ -259,8 +259,40 @@ VeThread::~VeThread() noexcept
 	m_pkParams = nullptr;
 }
 //--------------------------------------------------------------------------
+#ifdef VE_USE_THREAD_LOCAL
+thread_local VeCoenvironment* g_pkCurEnv = nullptr;
+#else
+pthread_key_t g_keyDeleteStack;
+pthread_key_t g_keyCurEnv;
+#endif
+//--------------------------------------------------------------------------
+void VeThread::Init() noexcept
+{
+#ifdef VE_USE_THREAD_LOCAL
+	g_pkCurEnv = VE_NEW VeCoenvironment();
+#else
+	assert_eq(pthread_key_create(&g_keyDeleteStack, nullptr), 0);
+	assert_eq(pthread_setspecific(g_keyDeleteStack, new vtd::vector<VeDeleteCallParams>()), 0);
+	assert_eq(pthread_key_create(&g_keyCurEnv, nullptr), 0);
+	assert_eq(pthread_setspecific(g_keyCurEnv, VE_NEW VeCoenvironment()), 0);
+#endif
+}
+//--------------------------------------------------------------------------
+void VeThread::Term() noexcept
+{
+#ifdef VE_USE_THREAD_LOCAL
+	VE_SAFE_DELETE(g_pkCurEnv);
+#else
+	VE_DELETE((VeCoenvironment*)pthread_getspecific(g_keyCurEnv));
+	assert_eq(pthread_key_delete(g_keyCurEnv), 0);
+	delete (vtd::vector<VeDeleteCallParams>*)pthread_getspecific(g_keyDeleteStack);
+	assert_eq(pthread_key_delete(g_keyDeleteStack), 0);
+#endif
+}
+//--------------------------------------------------------------------------
 VeThreadCallbackResult VeThread::Callback(void* pvParam) noexcept
 {
+	VeThread::Init();
 	ThreadParams* pkParams = (ThreadParams*)pvParam;
 	VeThread* pkClass = pkParams->m_pkThis;
 	while (true)
@@ -278,6 +310,7 @@ VeThreadCallbackResult VeThread::Callback(void* pvParam) noexcept
 		break;
 	}
 	VE_DELETE(pkParams);
+	VeThread::Term();
 	return 0;
 }
 //--------------------------------------------------------------------------

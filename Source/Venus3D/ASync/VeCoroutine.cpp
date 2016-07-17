@@ -86,33 +86,28 @@ void* VeCoroutine::_resume(void* pvUserData) noexcept
 	return next.data;
 }
 //--------------------------------------------------------------------------
-VeSmartPointer(VeCoenvironment);
-//--------------------------------------------------------------------------
 #ifdef BUILD_PLATFORM_APPLE
 static pthread_key_t s_keyCurEnv;
 #else
-static thread_local VeCoenvironmentPtr s_spCurEnv;
+extern thread_local VeCoenvironment* g_pkCurEnv;
 #endif
 //--------------------------------------------------------------------------
 VeCoenvironment::VeCoenvironment() noexcept
 {
-	m_pkMain = new VeCoroutine();
-	m_pkMain->m_eState = VeCoroutine::STATE_RUNNING;
-	m_pkRunning = m_pkMain;
+	m_kMain.m_eState = VeCoroutine::STATE_RUNNING;
+	m_pkRunning = &m_kMain;
 }
 //--------------------------------------------------------------------------
 VeCoenvironment::~VeCoenvironment() noexcept
 {
-	assert(m_pkMain && m_pkMain == m_pkRunning);
-	delete m_pkMain;
-	m_pkMain = nullptr;
+	assert(m_pkRunning == &m_kMain);
 	m_pkRunning = nullptr;
 }
 //--------------------------------------------------------------------------
 void* VeCoenvironment::yield(void* pvUserData) noexcept
 {
 	VeCoenvironment* pkEnv = GetCurrent();
-	assert(pkEnv->m_pkRunning != pkEnv->m_pkMain);
+	assert(pkEnv->m_pkRunning != &(pkEnv->m_kMain));
 	VeCoroutine* pkSuspended = pkEnv->m_pkRunning;
 	pkSuspended->m_eState = VeCoroutine::STATE_SUSPENDED;
 	pkEnv->m_pkRunning = pkSuspended->m_pkPrevious;
@@ -137,19 +132,10 @@ void VeCoenvironment::Entry(fcontext_transfer_t trans) noexcept
 VeCoenvironment* VeCoenvironment::GetCurrent() noexcept
 {
 #ifdef BUILD_PLATFORM_APPLE
-	if (!s_pkCurEnv)
-	{
-		std::lock_guard<vtd::spin_lock> l(s_kLock);
-        s_pkCurEnv = new VeCoenvironment();
-		s_kEnvVec.push_back(s_pkCurEnv);
-	}
-	return s_pkCurEnv;
+	return (VeCoenvironment*)pthread_getspecific(g_keyCurEnv);
 #else
-	if (!s_spCurEnv)
-	{
-		s_spCurEnv = new VeCoenvironment();
-	}
-	return s_spCurEnv.p();
+	assert(g_pkCurEnv);
+	return g_pkCurEnv;
 #endif
 }
 //--------------------------------------------------------------------------
