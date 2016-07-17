@@ -70,44 +70,4 @@ namespace vtd
 
 	};
 
-	template <class _Ty, size_t _Num>
-	class obj_ptr_pool
-	{
-	public:
-		template<class _Fn, class... _Types>
-		obj_ptr_pool(_Fn, _Types&&... _Args) noexcept
-		{
-			_Free.store(0, std::memory_order_relaxed);
-			for (auto& ptr : _ObjPtrs)
-			{
-				ptr = _Fn(_Args);
-			}
-		}
-
-		_Ty* acquire() noexcept
-		{
-			size_t i = _Free.fetch_add(1, std::memory_order_relaxed);
-			if (i < _Num)
-			{
-				return _Objs[i].p();
-			}
-			else
-			{
-				return _Recycle.pop();
-			}
-		}
-
-		void release(_Ty* p) noexcept
-		{
-			assert(size_t(p - _Objs) < _Num);
-			_Recycle.push(p);
-		}
-
-	private:
-		intrusive_ptr<_Ty> _ObjPtrs[_Num];
-		std::atomic<size_t> _Free;
-		ring_buffer<_Ty*, nullptr, _Num> _Recycle;
-
-	};
-
 }

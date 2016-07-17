@@ -132,7 +132,6 @@ private:
 
 	Level m_eLevel = LEVEL_STANDARD;
 	OutputFunc m_funcTarget = nullptr;
-	size_t m_stPointer = 0;
 
 };
 

@@ -40,7 +40,7 @@ struct VeDeleteCallParams
 	const char* m_pcFunction;
 };
 //--------------------------------------------------------------------------
-static thread_local vtd::vector<VeDeleteCallParams> s_kDeleteCallParamsStack;
+static __thread vtd::vector<VeDeleteCallParams> s_kDeleteCallParamsStack;
 //--------------------------------------------------------------------------
 void VeMemObject::PushDeleteCallParams(const char* pcSourceFile,
 	int32_t i32SourceLine, const char* pcFunction) noexcept
