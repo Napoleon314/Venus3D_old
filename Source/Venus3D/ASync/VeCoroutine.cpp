@@ -87,7 +87,7 @@ void* VeCoroutine::_resume(void* pvUserData) noexcept
 }
 //--------------------------------------------------------------------------
 #ifdef BUILD_PLATFORM_APPLE
-static pthread_key_t s_keyCurEnv;
+extern pthread_key_t g_keyCurEnv;
 #else
 extern thread_local VeCoenvironment* g_pkCurEnv;
 #endif

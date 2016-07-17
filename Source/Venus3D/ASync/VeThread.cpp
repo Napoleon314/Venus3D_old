@@ -262,7 +262,15 @@ VeThread::~VeThread() noexcept
 #ifdef VE_USE_THREAD_LOCAL
 thread_local VeCoenvironment* g_pkCurEnv = nullptr;
 #else
+#ifdef VE_MEM_DEBUG
+struct VeDeleteCallParams
+{
+    const char* m_pcSourceFile;
+    int32_t m_i32SourceLine;
+    const char* m_pcFunction;
+};
 pthread_key_t g_keyDeleteStack;
+#endif
 pthread_key_t g_keyCurEnv;
 #endif
 //--------------------------------------------------------------------------
@@ -271,8 +279,10 @@ void VeThread::Init() noexcept
 #ifdef VE_USE_THREAD_LOCAL
 	g_pkCurEnv = VE_NEW VeCoenvironment();
 #else
+#ifdef VE_MEM_DEBUG
 	assert_eq(pthread_key_create(&g_keyDeleteStack, nullptr), 0);
 	assert_eq(pthread_setspecific(g_keyDeleteStack, new vtd::vector<VeDeleteCallParams>()), 0);
+#endif
 	assert_eq(pthread_key_create(&g_keyCurEnv, nullptr), 0);
 	assert_eq(pthread_setspecific(g_keyCurEnv, VE_NEW VeCoenvironment()), 0);
 #endif
@@ -285,8 +295,10 @@ void VeThread::Term() noexcept
 #else
 	VE_DELETE((VeCoenvironment*)pthread_getspecific(g_keyCurEnv));
 	assert_eq(pthread_key_delete(g_keyCurEnv), 0);
+#ifdef VE_MEM_DEBUG
 	delete (vtd::vector<VeDeleteCallParams>*)pthread_getspecific(g_keyDeleteStack);
 	assert_eq(pthread_key_delete(g_keyDeleteStack), 0);
+#endif
 #endif
 }
 //--------------------------------------------------------------------------

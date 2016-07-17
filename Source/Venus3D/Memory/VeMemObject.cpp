@@ -50,7 +50,8 @@ void VeMemObject::PushDeleteCallParams(const char* pcSourceFile,
 	int32_t i32SourceLine, const char* pcFunction) noexcept
 {
 #	ifdef BUILD_PLATFORM_APPLE
-	(vtd::vector<VeDeleteCallParams>*)pthread_getspecific(g_keyDeleteStack)->push_back({ pcSourceFile, i32SourceLine, pcFunction });
+    auto& stack = *((vtd::vector<VeDeleteCallParams>*)pthread_getspecific(g_keyDeleteStack));
+    stack.push_back({ pcSourceFile, i32SourceLine, pcFunction });
 #	else
 	s_kDeleteStack.push_back({ pcSourceFile, i32SourceLine, pcFunction });
 #	endif
@@ -59,7 +60,8 @@ void VeMemObject::PushDeleteCallParams(const char* pcSourceFile,
 void VeMemObject::PopDeleteCallParams() noexcept
 {
 #	ifdef BUILD_PLATFORM_APPLE
-	(vtd::vector<VeDeleteCallParams>*)pthread_getspecific(g_keyDeleteStack)->pop_back();
+    auto& stack = *((vtd::vector<VeDeleteCallParams>*)pthread_getspecific(g_keyDeleteStack));
+    stack.pop_back();
 #	else
 	s_kDeleteStack.pop_back();
 #	endif
@@ -80,7 +82,8 @@ int32_t i32SourceLine, const char* pcFunction) noexcept
 void VeMemObject::operator delete (void* pvMem) noexcept
 {
 #	ifdef BUILD_PLATFORM_APPLE
-	VeDeleteCallParams& kParams = (vtd::vector<VeDeleteCallParams>*)pthread_getspecific(g_keyDeleteStack)->back();
+    auto& stack = *((vtd::vector<VeDeleteCallParams>*)pthread_getspecific(g_keyDeleteStack));
+	VeDeleteCallParams& kParams = stack.back();
 #	else
 	VeDeleteCallParams& kParams = s_kDeleteStack.back();
 #	endif
@@ -90,7 +93,8 @@ void VeMemObject::operator delete (void* pvMem) noexcept
 void VeMemObject::operator delete[](void* pvMem) noexcept
 {
 #	ifdef BUILD_PLATFORM_APPLE
-	VeDeleteCallParams& kParams = (vtd::vector<VeDeleteCallParams>*)pthread_getspecific(g_keyDeleteStack)->back();
+    auto& stack = *((vtd::vector<VeDeleteCallParams>*)pthread_getspecific(g_keyDeleteStack));
+	VeDeleteCallParams& kParams = stack.back();
 #	else
 	VeDeleteCallParams& kParams = s_kDeleteStack.back();
 #	endif
