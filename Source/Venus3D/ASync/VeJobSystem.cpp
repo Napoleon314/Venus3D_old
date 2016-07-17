@@ -33,7 +33,7 @@
 //--------------------------------------------------------------------------
 VeThreadCallbackResult VeJobSystem::FGThreadCallback(void* pvParam) noexcept
 {
-	VeThread::Init();
+	//VeThread::Init();
 	VeJobSystem& s = VeJobSystem::Ref();
 	fore_thread& t = *(fore_thread*)pvParam;
 	while (true)
@@ -74,7 +74,7 @@ VeThreadCallbackResult VeJobSystem::FGThreadCallback(void* pvParam) noexcept
 		}
 		break;
 	}
-	VeThread::Term();
+	//VeThread::Term();
 	return 0;
 }
 //--------------------------------------------------------------------------

@@ -32,9 +32,9 @@
 
 void* test(void* data) noexcept
 {
-	VeCoreLogI("co", (size_t)data);
-	VeCoreLogI("co", (size_t)VeCoenvironment::yield((void*)1));
-	VeCoreLogI("co", (size_t)VeCoenvironment::yield((void*)2));
+	VeCoreLogI("co", (int)(size_t)data);
+	VeCoreLogI("co", (int)(size_t)VeCoenvironment::yield((void*)1));
+	VeCoreLogI("co", (int)(size_t)VeCoenvironment::yield((void*)2));
 	return (void*)3;
 }
 
@@ -45,9 +45,9 @@ int main(/*int argc, char * argv[]*/)
 
 	VeCoroutine co;
 	co.prepare();
-	VeCoreLogI("main", (size_t)co.start(test, (void*)1));
-	VeCoreLogI("main", (size_t)co.resume((void*)2));
-	VeCoreLogI("main", (size_t)co.resume((void*)3));
+	VeCoreLogI("main", (int)(size_t)co.start(test, (void*)1));
+	VeCoreLogI("main", (int)(size_t)co.resume((void*)2));
+	VeCoreLogI("main", (int)(size_t)co.resume((void*)3));
 
 	Venus3D::Destory();
 	VeThread::Term();
