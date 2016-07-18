@@ -38,13 +38,17 @@ VeCoroutine::VeCoroutine(size_t stStackSize) noexcept
 {
 	if (stStackSize)
 	{
-		m_kStack = create_fcontext_stack(stStackSize);
+		m_kStack.ssize = (stStackSize + 0xF) & (~0xF);
+		m_kStack.sptr = VeAlignedMalloc(m_kStack.ssize, 16);
+		m_kStack.sptr = (void*)((ptrdiff_t)m_kStack.sptr + m_kStack.ssize);
 	}
 }
 //--------------------------------------------------------------------------
 VeCoroutine::~VeCoroutine() noexcept
 {
-	destroy_fcontext_stack(&m_kStack);
+	assert(m_kStack.sptr);
+	VeAlignedFree((void*)((ptrdiff_t)m_kStack.sptr - m_kStack.ssize));
+	m_kStack = { nullptr, 0 };
 }
 //--------------------------------------------------------------------------
 void VeCoroutine::prepare() noexcept

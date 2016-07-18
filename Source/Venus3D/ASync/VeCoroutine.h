@@ -32,7 +32,7 @@
 
 #ifdef VE_ENABLE_COROUTINE
 
-#define VE_CO_DEFAULT_STACK (640 * 1024)
+#define VE_CO_DEFAULT_STACK (32 * 1024)
 
 class VENUS_API VeCoroutine : public VeMemObject
 {

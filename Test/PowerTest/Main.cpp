@@ -42,11 +42,13 @@ int main(/*int argc, char * argv[]*/)
 {
 	VeInit("PowerTest");
 
-	VeCoroutine co;
-	co.prepare();
-	VeCoreLogI("main", (int)(size_t)co.start(test, (void*)1));
-	VeCoreLogI("main", (int)(size_t)co.resume((void*)2));
-	VeCoreLogI("main", (int)(size_t)co.resume((void*)3));
+	{
+		VeCoroutine co;
+		co.prepare();
+		VeCoreLogI("main", (int)(size_t)co.start(test, (void*)1));
+		VeCoreLogI("main", (int)(size_t)co.resume((void*)2));
+		VeCoreLogI("main", (int)(size_t)co.resume((void*)3));
+	}
 
 	VeTerm();
 
