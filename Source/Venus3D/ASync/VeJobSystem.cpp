@@ -78,7 +78,30 @@ VeThreadCallbackResult VeJobSystem::FGThreadCallback(void* pvParam) noexcept
 	return 0;
 }
 //--------------------------------------------------------------------------
-VeJobSystem::VeJobSystem(size_t stFGNum, size_t) noexcept
+VeThreadCallbackResult VeJobSystem::BGThreadCallback(void* pvParam) noexcept
+{
+	VeThread::InitPerThread();
+	VeJobSystem& s = VeJobSystem::Ref();
+	back_thread& t = *(back_thread*)pvParam;
+	while (true)
+	{
+		s.m_kWaitingThreads.push(&t);
+		s.m_i32BGAvailableNum.fetch_add(1, std::memory_order_relaxed);
+		t.loop.wait();
+		if (s.m_i32BGState.load(std::memory_order_relaxed) == -1)
+		{
+			break;
+		}
+		else
+		{
+			t.loop.reset();
+		}
+	}
+	VeThread::TermPerThread();
+	return 0;
+}
+//--------------------------------------------------------------------------
+VeJobSystem::VeJobSystem(size_t stFGNum, size_t stBGNum) noexcept
 {
 	if (stFGNum)
 	{
@@ -93,13 +116,26 @@ VeJobSystem::VeJobSystem(size_t stFGNum, size_t) noexcept
 				&t, VE_JOB_FG_PRIORITY, VE_JOB_FG_STACK_SIZE);
 		}
 	}
+	if (stBGNum)
+	{
+		assert(stBGNum <= (VE_JOB_BG_BUFFER_MASK + 1));
+		m_i32BGState.store(0, std::memory_order_relaxed);
+		m_i32BGAvailableNum.store(0, std::memory_order_relaxed);
+		m_kBGThreads.resize(stBGNum);
+		for (size_t i(0); i < m_kBGThreads.size(); ++i)
+		{
+			back_thread& t = m_kBGThreads[i];
+			t.handle = VeCreateThread(&BGThreadCallback,
+				&t, VE_JOB_BG_PRIORITY, VE_JOB_BG_STACK_SIZE);
+		}
+	}
 }
 //--------------------------------------------------------------------------
 VeJobSystem::~VeJobSystem() noexcept
 {
+	m_i32FGState.store(-1, std::memory_order_relaxed);
 	if (m_kFGThreads.size())
 	{
-		m_i32FGState.store(-1, std::memory_order_relaxed);
 		{
 			std::lock_guard<std::mutex> l(m_kFGLoop.mute);
 			for (auto& t : m_kFGThreads)
@@ -112,6 +148,13 @@ VeJobSystem::~VeJobSystem() noexcept
 		{
 			VeJoinThread(t.handle);
 		}
+	}
+	while (m_i32BGAvailableNum.load(std::memory_order_relaxed) != m_kBGThreads.size());
+	m_i32BGState.store(-1, std::memory_order_relaxed);
+	for (auto& t : m_kBGThreads)
+	{
+		t.loop.set();
+		VeJoinThread(t.handle);
 	}
 }
 //--------------------------------------------------------------------------

@@ -84,8 +84,8 @@ typedef pthread_cond_t VeConditionVariable;
 #define VeConditionVariableWakeAll(x) pthread_cond_broadcast(&(x))
 
 #define VE_THREAD_PRIORITY_IDLE 99
-#define VE_THREAD_PRIORITY_LOWEST 64
-#define VE_THREAD_PRIORITY_BELOW_NORMAL 40
+#define VE_THREAD_PRIORITY_LOWEST 88
+#define VE_THREAD_PRIORITY_BELOW_NORMAL 64
 #define VE_THREAD_PRIORITY_NORMAL 32
 #define VE_THREAD_PRIORITY_ABOVE_NORMAL 24
 #define VE_THREAD_PRIORITY_HIGHEST 2
@@ -103,7 +103,7 @@ enum VeThreadResult
 
 typedef VeThreadCallbackResult(VE_CALLBACK * VeThreadCallback)(void* pvParam);
 
-VENUS_API VeThreadHandle VeCreateThread(VeThreadCallback pfuncThreadProc, void* pvParam, uint32_t u32Priority = VE_THREAD_PRIORITY_NORMAL, size_t stStackSize = 32768) noexcept;
+VENUS_API VeThreadHandle VeCreateThread(VeThreadCallback pfuncThreadProc, void* pvParam, int32_t i32Priority = VE_THREAD_PRIORITY_NORMAL, size_t stStackSize = 32768) noexcept;
 
 VENUS_API bool VeJoinThread(VeThreadHandle hThread) noexcept;
 
@@ -206,7 +206,7 @@ public:
 
 	typedef void(*Entry)(void*);
 
-	VeThread(uint32_t u32Priority = VE_THREAD_PRIORITY_NORMAL, size_t stStackSize = 32768) noexcept;
+	VeThread(int32_t i32Priority = VE_THREAD_PRIORITY_NORMAL, size_t stStackSize = 32768) noexcept;
 
 	virtual ~VeThread() noexcept;
 

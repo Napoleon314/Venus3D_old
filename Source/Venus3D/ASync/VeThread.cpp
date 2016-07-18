@@ -32,12 +32,12 @@
 
 //--------------------------------------------------------------------------
 VeThreadHandle VeCreateThread(VeThreadCallback pfuncThreadProc,
-	void* pvParam, uint32_t u32Priority, size_t stStackSize) noexcept
+	void* pvParam, int32_t i32Priority, size_t stStackSize) noexcept
 {
 #ifdef  BUILD_PLATFORM_WIN
 	VeThreadHandle hRes = (VeThreadHandle)_beginthreadex(NULL,
 		(unsigned int)stStackSize, pfuncThreadProc, pvParam, 0, NULL);
-	SetThreadPriority(hRes, u32Priority);
+	SetThreadPriority(hRes, i32Priority);
 	return hRes;
 #else
 	VeThreadHandle hThread(0);
@@ -45,7 +45,7 @@ VeThreadHandle VeCreateThread(VeThreadCallback pfuncThreadProc,
 	pthread_attr_init(&kAttr);
 	sched_param kParam;
 	pthread_attr_getschedparam(&kAttr, &kParam);
-	kParam.sched_priority = u32Priority;
+	kParam.sched_priority = i32Priority;
 	pthread_attr_setschedparam(&kAttr, &kParam);
 	pthread_attr_setstacksize(&kAttr, stStackSize ? stStackSize : 4096);
 	pthread_create(&hThread, &kAttr, pfuncThreadProc, pvParam);
@@ -240,13 +240,13 @@ uint32_t VeThreadHardwareConcurrency() noexcept
 	return std::thread::hardware_concurrency();
 }
 //--------------------------------------------------------------------------
-VeThread::VeThread(uint32_t u32Priority, size_t stStackSize) noexcept
+VeThread::VeThread(int32_t i32Priority, size_t stStackSize) noexcept
 {
 	m_u32State.store(0, std::memory_order_relaxed);
 	m_pkParams = VE_NEW ThreadParams();
 	m_pkParams->m_kEvent.set();
 	m_pkParams->m_pkThis = this;
-	m_hThread = VeCreateThread(Callback, m_pkParams, u32Priority, stStackSize);
+	m_hThread = VeCreateThread(Callback, m_pkParams, i32Priority, stStackSize);
 	assert(m_hThread);
 }
 //--------------------------------------------------------------------------

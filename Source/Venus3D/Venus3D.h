@@ -322,6 +322,10 @@
 #	define VE_USE_THREAD_LOCAL
 #endif
 
+#define VE_MAX(a,b) (((a)>(b))?(a):(b))
+#define VE_MIN(a,b) (((a)<(b))?(a):(b))
+#define VE_CLAMP(a,l,h) (((a) < (l)) ? (l) : (((a) > (h)) ? (h) : (a)))
+
 #define VE_TRUE (1)
 #define VE_FALSE (0)
 #define VE_BOOL uint32_t

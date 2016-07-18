@@ -35,6 +35,7 @@
 
 #define VE_JOB_BG_PRIORITY VE_THREAD_PRIORITY_BELOW_NORMAL
 #define VE_JOB_BG_STACK_SIZE 32768
+#define VE_JOB_BG_BUFFER_MASK 0xF
 
 #define VE_JOB_DEP_SIZE 16
 #define VE_JOB_POOL_SIZE 1024
@@ -96,7 +97,6 @@ private:
 class VENUS_API VeJobSystem : public VeSingleton<VeJobSystem>
 {
 public:
-	typedef vtd::ring_buffer<VeJob*, nullptr, VE_JOB_BUFFER_SIZE> JobBuffer;
 	//typedef vtd::obj_ptr_pool<>
 
 	VeJobSystem(size_t stFGNum, size_t stBGNum) noexcept;
@@ -125,6 +125,9 @@ private:
 	static VeThreadCallbackResult VE_CALLBACK FGThreadCallback(
 		void* pvParam) noexcept;
 
+	static VeThreadCallbackResult VE_CALLBACK BGThreadCallback(
+		void* pvParam) noexcept;
+
 	void RunForeground() noexcept;
 
 	struct signal
@@ -140,11 +143,27 @@ private:
 		uint32_t cond_val;
 	};
 
+	struct back_thread
+	{
+		VeThreadHandle handle;
+		VeThread::event loop;
+	};
+
+	typedef vtd::ring_buffer<back_thread*, nullptr, VE_JOB_BG_BUFFER_MASK> BGBuffer;
+	typedef vtd::ring_buffer<VeJob*, nullptr, VE_JOB_BUFFER_SIZE> JobBuffer;
+
+	std::atomic<int32_t> m_i32FGState;
+	std::atomic<int32_t> m_i32FGJoinValue;
 	signal m_kFGLoop;
 	signal m_kFGJoin;
 	vtd::vector<fore_thread> m_kFGThreads;
-	std::atomic<int32_t> m_i32FGState;
-	std::atomic<int32_t> m_i32FGJoinValue;
+
+	std::atomic<int32_t> m_i32BGState;
+	std::atomic<int32_t> m_i32BGAvailableNum;
+	vtd::vector<back_thread> m_kBGThreads;
+	BGBuffer m_kWaitingThreads;
+	
+
 	VeJob* m_pkParallel = nullptr;
 
 	vtd::obj_pool<VeJobFunc, VE_JOB_POOL_SIZE> m_kJobPool;
