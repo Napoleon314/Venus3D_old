@@ -33,7 +33,7 @@
 //--------------------------------------------------------------------------
 VeThreadCallbackResult VeJobSystem::FGThreadCallback(void* pvParam) noexcept
 {
-	Venus3D::Ref().InitThreadLocals();
+	VeThread::InitPerThread();
 	VeJobSystem& s = VeJobSystem::Ref();
 	fore_thread& t = *(fore_thread*)pvParam;
 	while (true)
@@ -74,7 +74,7 @@ VeThreadCallbackResult VeJobSystem::FGThreadCallback(void* pvParam) noexcept
 		}
 		break;
 	}
-	Venus3D::Ref().TermThreadLocals();
+	VeThread::TermPerThread();
 	return 0;
 }
 //--------------------------------------------------------------------------

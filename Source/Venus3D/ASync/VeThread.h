@@ -222,6 +222,14 @@ public:
 
 	inline void Resume() noexcept;
 
+	static void Init() noexcept;
+
+	static void Term() noexcept;
+
+	static void InitPerThread() noexcept;
+
+	static void TermPerThread() noexcept;
+
 private:
 	typedef VeThread* ThisPointer;
 

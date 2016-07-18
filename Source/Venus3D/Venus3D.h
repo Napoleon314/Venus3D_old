@@ -433,10 +433,6 @@ public:
 
 	void Term();
 
-	void InitThreadLocals() noexcept;
-
-	void TermThreadLocals() noexcept;
-
 	void InitLog() noexcept;
 
 	void TermLog() noexcept;
@@ -477,3 +473,17 @@ public:
 #define VeUserLogW venus3d.USER.W.Log
 #define VeCoreLogE venus3d.CORE.E.Log
 #define VeUserLogE venus3d.USER.E.Log
+
+template <class... _Types>
+void VeInit(_Types&&... _Args) noexcept
+{
+	VeThread::Init();
+	Venus3D::Create(_Args...);
+}
+
+inline void VeTerm() noexcept
+{
+	Venus3D::Destory();
+	VeThread::Term();
+	VeMemoryExit();
+}
