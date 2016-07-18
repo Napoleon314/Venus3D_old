@@ -83,7 +83,7 @@ public:
 
 	inline static bool IsMainRunning() noexcept;
 
-	static void* yield(void* pvUserData) noexcept;
+	static void* yield(void* pvUserData = nullptr) noexcept;
 
 private:
 	static void Entry(fcontext_transfer_t trans) noexcept;
