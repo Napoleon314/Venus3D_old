@@ -89,6 +89,13 @@ namespace vtd
 #endif
 		}
 
+		size_type size() noexcept
+		{
+			size_type h = _Head.load(std::memory_order_relaxed);
+			size_type t = _Tail.load(std::memory_order_relaxed);
+			return h - t;
+		}
+
 	private:
 		static constexpr size_type _Max = _Mask + 1;
 

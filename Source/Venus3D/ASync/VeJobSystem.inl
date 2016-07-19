@@ -35,31 +35,16 @@ inline VeJobFunc* VeJobSystem::AcquireJob() noexcept
 }
 //--------------------------------------------------------------------------
 inline VeJobFunc* VeJobSystem::AcquireJob(VeJob::Type eType,
-	std::function<void(uint32_t)> funcWork) noexcept
+	std::function<void(uint32_t)> funcWork,
+	VeJob::Priority ePriority) noexcept
 {
 	VeJobFunc* pkRes = m_kJobPool.acquire();
-	pkRes->Set(eType, std::move(funcWork));
+	pkRes->Set(eType, std::move(funcWork), ePriority);
 	return pkRes;
 }
 //--------------------------------------------------------------------------
 inline void VeJobSystem::ReleaseJob(VeJobFunc* pkJob) noexcept
 {
 	m_kJobPool.release(pkJob);
-}
-//--------------------------------------------------------------------------
-inline void VeJobSystem::ConcurrencyWork(VeJob* pkJob) noexcept
-{
-	assert(pkJob);
-	switch (pkJob->GetType() & 0xF0)
-	{
-	case 0:
-		m_kFGJobList.push(pkJob);
-		break;
-	case 1:
-		m_kFGJobList.push(pkJob);
-		break;
-	default:
-		break;
-	}
 }
 //--------------------------------------------------------------------------

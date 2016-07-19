@@ -39,7 +39,12 @@
 
 #define VE_JOB_DEP_SIZE 16
 #define VE_JOB_POOL_SIZE 1024
-#define VE_JOB_BUFFER_SIZE 512
+#define VE_JOB_BUFFER_SIZE 256
+
+#define VE_JOB_FIBER_STACK (64 * 1024)
+#define VE_JOB_FIBER_POOL_SIZE (128)
+#define VE_JOB_LARGEB_FIBER_STACK (512 * 1024)
+#define VE_JOB_LARGE_FIBER_POOL_SIZE (32)
 
 class VeJob : public VeMemObject
 {
@@ -49,27 +54,47 @@ public:
 		TYPE_PARALLEL_COMPUTE			= 0x0,
 		TYPE_FG_IMMEDIATE				= 0x1,
 		TYPE_FG_YIELDABLE				= 0x2,
-		TYPE_FG_YIELDABLE_2X_STACK		= 0x3,
+		TYPE_FG_YIELDABLE_LARGE_STACK	= 0x3,
 		TYPE_BG_IMMEDIATE				= 0x11,
 		TYPE_BG_YIELDABLE				= 0x12,
-		TYPE_BG_YIELDABLE_2X_STACK		= 0x13,
+		TYPE_BG_YIELDABLE_LARGE_STACK	= 0x13,
 		TYPE_MASK						= 0xFF
 	};
 
-	VeJob(Type eType) noexcept : m_eType(eType) {}
+	enum Priority
+	{
+		PRI_HIGH,
+		PRI_NORMAL,
+		PRI_LOW,
+		PRI_MAX
+	};
+
+	VeJob(Type eType, Priority ePriority) noexcept
+		: m_eType(eType), m_ePriority(ePriority) {}
 
 	Type GetType() noexcept
 	{
 		return m_eType;
 	}
 
+	Priority GetPriority() noexcept
+	{
+		return m_ePriority;
+	}
+
 	virtual void Work(uint32_t u32Index) noexcept = 0;
 
 protected:
+	friend class VeJobSystem;
 	VeJob() noexcept : m_eType(TYPE_MASK) {};
 
 	Type m_eType;
-	vtd::ring_buffer<VeJob*, nullptr, VE_JOB_DEP_SIZE> m_kDepList;
+	Priority m_ePriority;
+
+private:
+	VeCoroutine* m_pkFiber = nullptr;
+	void* m_pvData = nullptr;
+	vtd::ring_buffer<VeJob*, nullptr, VE_JOB_DEP_SIZE> m_kDependences;
 
 };
 
@@ -78,9 +103,11 @@ class VeJobFunc : public VeJob
 public:
 	VeJobFunc() noexcept = default;
 
-	void Set(Type eType, std::function<void(uint32_t)> funcWork) noexcept
+	void Set(Type eType, std::function<void(uint32_t)> funcWork,
+		Priority ePriority = VeJob::PRI_NORMAL) noexcept
 	{
 		m_eType = eType;
+		m_ePriority = ePriority;
 		m_kWork = std::move(funcWork);
 	}
 
@@ -97,8 +124,6 @@ private:
 class VENUS_API VeJobSystem : public VeSingleton<VeJobSystem>
 {
 public:
-	//typedef vtd::obj_ptr_pool<>
-
 	VeJobSystem(size_t stFGNum, size_t stBGNum) noexcept;
 
 	~VeJobSystem() noexcept;
@@ -106,11 +131,10 @@ public:
 	inline VeJobFunc* AcquireJob() noexcept;
 
 	inline VeJobFunc* AcquireJob(VeJob::Type eType,
-		std::function<void(uint32_t)> funcWork) noexcept;
+		std::function<void(uint32_t)> funcWork,
+		VeJob::Priority ePriority = VeJob::PRI_NORMAL) noexcept;
 
 	inline void ReleaseJob(VeJobFunc* pkJob) noexcept;
-
-	inline void ConcurrencyWork(VeJob* pkJob) noexcept;
 
 	void ParallelCompute(VeJob* pkJob) noexcept;
 
@@ -121,6 +145,10 @@ public:
 		ReleaseJob(pkJob);
 	}
 
+	void ProcessForegroundJobs() noexcept;
+
+	void Appointment(VeJob* pkJob, bool bCurrentFrame = false) noexcept;
+
 private:
 	static VeThreadCallbackResult VE_CALLBACK FGThreadCallback(
 		void* pvParam) noexcept;
@@ -129,6 +157,20 @@ private:
 		void* pvParam) noexcept;
 
 	void RunForeground() noexcept;
+
+	void ExecuteForeground(uint32_t u32Index) noexcept;
+
+	VeJob* FetchForeground(size_t stFrame) noexcept;
+
+	void RunBackground() noexcept;
+
+	void ExecuteBackground(uint32_t u32Index) noexcept;
+
+	VeJob* FetchBackground() noexcept;
+
+	void Execute(VeJob* pkJob, uint32_t u32Index) noexcept;
+
+	static void* RunJob(void* pvJob) noexcept;
 
 	struct signal
 	{
@@ -147,11 +189,33 @@ private:
 	{
 		VeThreadHandle handle;
 		VeThread::event loop;
+		uint32_t index;
+	};
+
+	class co_normal : public VeCoroutine
+	{
+	public:
+		co_normal() : VeCoroutine(VE_JOB_FIBER_STACK) {}
+
+	};
+
+	class co_large : public VeCoroutine
+	{
+	public:
+		co_large() : VeCoroutine(VE_JOB_LARGEB_FIBER_STACK) {}
+
 	};
 
 	typedef vtd::ring_buffer<back_thread*, nullptr, VE_JOB_BG_BUFFER_MASK> BGBuffer;
 	typedef vtd::ring_buffer<VeJob*, nullptr, VE_JOB_BUFFER_SIZE> JobBuffer;
 
+	struct job_queue
+	{
+		JobBuffer main;
+		JobBuffer waiting;
+	};
+
+	VeJob* m_pkParallel = nullptr;
 	std::atomic<int32_t> m_i32FGState;
 	std::atomic<int32_t> m_i32FGJoinValue;
 	signal m_kFGLoop;
@@ -162,16 +226,17 @@ private:
 	std::atomic<int32_t> m_i32BGAvailableNum;
 	vtd::vector<back_thread> m_kBGThreads;
 	BGBuffer m_kWaitingThreads;
+
+	job_queue m_akFGQueues[2][VeJob::PRI_MAX];
+	job_queue m_akBGQueues[VeJob::PRI_MAX];
+
+	std::atomic<int32_t> m_i32BGJobNum;
+	std::atomic<uint32_t> m_u32FrameCount;
 	
-
-	VeJob* m_pkParallel = nullptr;
-
 	vtd::obj_pool<VeJobFunc, VE_JOB_POOL_SIZE> m_kJobPool;
-	JobBuffer m_kFGJobList;
-	JobBuffer m_kFGJobWaitList;
-	JobBuffer m_kBGJobList;
-	JobBuffer m_kBGJobWaitList;
-
+	vtd::obj_pool<co_normal, VE_JOB_FIBER_POOL_SIZE> m_kFiberPool;
+	vtd::obj_pool<co_large, VE_JOB_LARGE_FIBER_POOL_SIZE> m_kLargeFiberPool;
+	
 };
 
 #include "VeJobSystem.inl"

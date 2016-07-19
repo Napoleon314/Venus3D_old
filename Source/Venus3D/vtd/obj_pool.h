@@ -44,6 +44,13 @@ namespace vtd
 			_Free.store(0, std::memory_order_relaxed);
 		}
 
+		bool vertify(void* ptr) noexcept
+		{
+			return ((((size_t)ptr) >= ((size_t)(void*)_Objs))
+				&& (((size_t)ptr) < ((size_t)(void*)(_Objs + _Num))))
+				? true : false;
+		}
+
 		_Ty* acquire() noexcept
 		{
 			size_t i = _Free.fetch_add(1, std::memory_order_relaxed);
