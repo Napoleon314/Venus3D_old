@@ -154,7 +154,7 @@ VeJobSystem::~VeJobSystem() noexcept
 			VeJoinThread(t.handle);
 		}
 	}
-	while (m_i32BGAvailableNum.load(std::memory_order_relaxed) != m_kBGThreads.size());
+	while (m_i32BGAvailableNum.load(std::memory_order_relaxed) != ((int32_t)m_kBGThreads.size()));
 	m_i32BGState.store(-1, std::memory_order_relaxed);
 	for (auto& t : m_kBGThreads)
 	{
