@@ -34,6 +34,8 @@ static size_t getPageSize()
     return (size_t)si.dwPageSize;
 }
 
+#if defined(DEBUG) | defined(_DEBUG)
+
 static size_t getMinSize()
 {
     return MIN_STACKSIZE;
@@ -43,6 +45,8 @@ static size_t getMaxSize()
 {
     return  1 * 1024 * 1024 * 1024; /* 1GB */
 }
+
+#endif
 
 static size_t getDefaultSize()
 {
