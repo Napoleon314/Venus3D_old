@@ -87,7 +87,7 @@ public:
 
 	static void* yield(void* pvUserData = nullptr) noexcept;
 
-	static VeCoenvironment* GetCurrent() noexcept;
+	static VeCoenvironment& GetCurrent() noexcept;
 
 private:
 	static void Entry(fcontext_transfer_t trans) noexcept;

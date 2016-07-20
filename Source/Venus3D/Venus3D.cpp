@@ -79,3 +79,8 @@ void Venus3D::TermJob() noexcept
 	VeJobSystem::Destory();
 }
 //--------------------------------------------------------------------------
+VeStackAllocator& Venus3D::GetStackAllocator() noexcept
+{
+	return VeThread::GetThreadLocalSingleton()->m_kAllocator;
+}
+//--------------------------------------------------------------------------

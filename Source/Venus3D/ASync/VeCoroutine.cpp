@@ -61,7 +61,7 @@ void VeCoroutine::prepare() noexcept
 void* VeCoroutine::start(Entry pfuncEntry, void* pvUserData) noexcept
 {
 	assert(m_eState == STATE_READY);
-	VeCoenvironment::GetCurrent()->m_pfuncUserEntry = pfuncEntry;
+	VeCoenvironment::GetCurrent().m_pfuncUserEntry = pfuncEntry;
 	return _resume(pvUserData);
 }
 //--------------------------------------------------------------------------
@@ -73,10 +73,10 @@ void* VeCoroutine::resume(void* pvUserData) noexcept
 //--------------------------------------------------------------------------
 void* VeCoroutine::_resume(void* pvUserData) noexcept
 {
-	VeCoenvironment* pkEnv = VeCoenvironment::GetCurrent();
+	VeCoenvironment& kEnv = VeCoenvironment::GetCurrent();
 	m_eState = STATE_RUNNING;
-	m_pkPrevious = pkEnv->m_pkRunning;
-	pkEnv->m_pkRunning = this;
+	m_pkPrevious = kEnv.m_pkRunning;
+	kEnv.m_pkRunning = this;
 	fcontext_transfer_t next = jump_fcontext(m_hContext, pvUserData);
 	if (m_eState == STATE_DEAD)
 	{
@@ -110,32 +110,32 @@ VeCoenvironment::~VeCoenvironment() noexcept
 //--------------------------------------------------------------------------
 void* VeCoenvironment::yield(void* pvUserData) noexcept
 {
-	VeCoenvironment* pkEnv = GetCurrent();
-	assert(pkEnv->m_pkRunning != &(pkEnv->m_kMain));
-	VeCoroutine* pkSuspended = pkEnv->m_pkRunning;
+	VeCoenvironment& kEnv = GetCurrent();
+	assert(kEnv.m_pkRunning != &(kEnv.m_kMain));
+	VeCoroutine* pkSuspended = kEnv.m_pkRunning;
 	pkSuspended->m_eState = VeCoroutine::STATE_SUSPENDED;
-	pkEnv->m_pkRunning = pkSuspended->m_pkPrevious;
+	kEnv.m_pkRunning = pkSuspended->m_pkPrevious;
 	pkSuspended->m_pkPrevious = nullptr;
-	fcontext_transfer_t trans = jump_fcontext(pkEnv->m_pkRunning->m_hContext, pvUserData);
-	pkEnv->m_pkRunning->m_pkPrevious->m_hContext = trans.ctx;
+	fcontext_transfer_t trans = jump_fcontext(kEnv.m_pkRunning->m_hContext, pvUserData);
+	kEnv.m_pkRunning->m_pkPrevious->m_hContext = trans.ctx;
 	return trans.data;
 }
 //--------------------------------------------------------------------------
 void VeCoenvironment::Entry(fcontext_transfer_t trans) noexcept
 {
-	VeCoenvironment* pkEnv = GetCurrent();
-	pkEnv->m_pkRunning->m_pkPrevious->m_hContext = trans.ctx;
-	void* pvRes = pkEnv->m_pfuncUserEntry(trans.data);
-	VeCoroutine* pkDead = pkEnv->m_pkRunning;
+	VeCoenvironment& kEnv = GetCurrent();
+	kEnv.m_pkRunning->m_pkPrevious->m_hContext = trans.ctx;
+	void* pvRes = kEnv.m_pfuncUserEntry(trans.data);
+	VeCoroutine* pkDead = kEnv.m_pkRunning;
 	pkDead->m_eState = VeCoroutine::STATE_DEAD;
-	pkEnv->m_pkRunning = pkDead->m_pkPrevious;
+	kEnv.m_pkRunning = pkDead->m_pkPrevious;
 	pkDead->m_pkPrevious = nullptr;
-	jump_fcontext(pkEnv->m_pkRunning->m_hContext, pvRes);
+	jump_fcontext(kEnv.m_pkRunning->m_hContext, pvRes);
 }
 //--------------------------------------------------------------------------
-VeCoenvironment* VeCoenvironment::GetCurrent() noexcept
+VeCoenvironment& VeCoenvironment::GetCurrent() noexcept
 {
-	return &(VeThread::GetThreadLocalSingleton()->m_kCoenviron);
+	return VeThread::GetThreadLocalSingleton()->m_kCoenviron;
 }
 //--------------------------------------------------------------------------
 #endif

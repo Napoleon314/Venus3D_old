@@ -422,7 +422,7 @@
 //#include "Event/VeMouse.h"
 //#include "Event/VeEvents.h"
 
-struct VeThreadLocalSingleton : public VeMemObject
+struct VENUS_API VeThreadLocalSingleton : public VeMemObject
 {
 	VeCoenvironment m_kCoenviron;
 	VeStackAllocator m_kAllocator;
@@ -454,6 +454,8 @@ public:
 	void InitJob() noexcept;
 
 	void TermJob() noexcept;
+
+	VeStackAllocator& GetStackAllocator() noexcept;
 
 private:
 	vtd::string m_kProcessName;
