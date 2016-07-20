@@ -238,8 +238,8 @@ namespace venus
 	}
 
 	template<class _Ty, class _Other>
-	inline bool operator!=(const allocator<_Ty>& _Left,
-		const allocator<_Other>& _Right) noexcept
+	inline bool operator!=(const allocator<_Ty>&,
+		const allocator<_Other>&) noexcept
 	{
 		return false;
 	}
@@ -275,7 +275,7 @@ namespace venus
 		}
 
 		template<class _Other>
-		pool_allocator(const pool_allocator<_Other>& kCopy) noexcept
+		pool_allocator(const pool_allocator<_Other>&) noexcept
 		{
 			m_spPool = VePoolAllocator::GetAllocator(sizeof(_Ty));
 			assert(m_spPool && sizeof(_Ty) <= m_spPool->GetUnitSize());
