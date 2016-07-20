@@ -63,6 +63,7 @@ extern "C" {
 */
 extern SDL_API int SDLCALL SDL_Init(Uint32 flags);
 
+
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus
 }
