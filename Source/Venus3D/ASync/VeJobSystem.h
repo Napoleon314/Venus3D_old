@@ -220,11 +220,11 @@ private:
 	std::atomic<int32_t> m_i32FGJoinValue;
 	signal m_kFGLoop;
 	signal m_kFGJoin;
-	vtd::vector<fore_thread> m_kFGThreads;
+	VeVector<fore_thread> m_kFGThreads;
 
 	std::atomic<int32_t> m_i32BGState;
 	std::atomic<int32_t> m_i32BGAvailableNum;
-	vtd::vector<back_thread> m_kBGThreads;
+	VeVector<back_thread> m_kBGThreads;
 	BGBuffer m_kWaitingThreads;
 
 	job_queue m_akFGQueues[2][VeJob::PRI_MAX];

@@ -39,3 +39,30 @@ inline size_t VeStackAllocator::RemainSpace() noexcept
 	return m_stSize - (m_pu8Current - m_pu8Buffer);
 }
 //--------------------------------------------------------------------------
+inline size_t VePoolAllocator::GetUnitSize() const noexcept
+{
+	return m_stUnitSize;
+}
+//--------------------------------------------------------------------------
+inline size_t VePoolAllocator::GetUnitPerChunk() const noexcept
+{
+	return m_stUnitPerChunk;
+}
+//--------------------------------------------------------------------------
+inline size_t VePoolAllocator::GetAlign() const noexcept
+{
+	return m_stAlign;
+}
+//--------------------------------------------------------------------------
+inline void* VePoolAllocator::Allocate() noexcept
+{
+	std::lock_guard<vtd::spin_lock> l(m_kLock);
+	return _Allocate();
+}
+//--------------------------------------------------------------------------
+inline void VePoolAllocator::Deallocate(void* pvMemory) noexcept
+{
+	std::lock_guard<vtd::spin_lock> l(m_kLock);
+	return _Deallocate(pvMemory);
+}
+//--------------------------------------------------------------------------

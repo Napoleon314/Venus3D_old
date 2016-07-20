@@ -42,7 +42,7 @@ struct VeDisplayMode
 struct VeVideoDisplay
 {
 	vtd::string m_kName;
-	vtd::vector<VeDisplayMode> m_kDisplayModes;
+	VeVector<VeDisplayMode> m_kDisplayModes;
 	VeDisplayMode m_kDesktopMode;
 	VeDisplayMode m_kCurrentMode;
 	void* m_pvFullscreenWindow = nullptr;

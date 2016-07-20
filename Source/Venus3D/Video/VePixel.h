@@ -262,7 +262,7 @@ struct VePalette : public VeRefObject
 {
 	VePalette(size_t stNumColors) noexcept;
 
-	vtd::vector<VeRGBA> m_kColors;
+	VeVector<VeRGBA> m_kColors;
 	uint32_t m_u32Version;
 };
 

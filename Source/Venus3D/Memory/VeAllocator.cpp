@@ -61,3 +61,83 @@ void VeStackAllocator::Deallocate() noexcept
 	m_pu8Current -= m_kStack.pop();
 }
 //--------------------------------------------------------------------------
+VePoolAllocator::VePoolAllocator(size_t stUnitSize, size_t stUnitPerChunk,
+	size_t stAlign) noexcept : m_stUnitSize(stUnitSize)
+	, m_stUnitPerChunk(stUnitPerChunk), m_stAlign(stAlign)
+{
+	assert(stUnitSize >= sizeof(size_t) && stUnitSize >= stAlign
+		&& stUnitPerChunk && stAlign);
+	_AddChunk();
+}
+//--------------------------------------------------------------------------
+VePoolAllocator::~VePoolAllocator() noexcept
+{
+#	ifdef VE_MEM_DEBUG
+	assert(!m_u32UnitCount);
+#	endif
+	while (m_pkChunkHead)
+	{
+		Chunk* pkPre = m_pkChunkHead->m_pvPre;
+		VeAlignedFree((void*)(size_t(m_pkChunkHead->m_pvEnd)
+			- m_stUnitSize * m_stUnitPerChunk));
+		VeFree(m_pkChunkHead);
+		m_pkChunkHead = pkPre;
+	}
+}
+//--------------------------------------------------------------------------
+void VePoolAllocator::_AddChunk() noexcept
+{
+#	ifdef VE_MEM_DEBUG
+	++m_u32ChunkCount;
+#	endif
+	Chunk* pkChunk = VeAlloc(Chunk, 1);
+	pkChunk->m_pvFreeStart = VeAlignedMalloc(
+		m_stUnitSize * m_stUnitPerChunk, m_stAlign);
+	pkChunk->m_pvEnd = (void*)(size_t(pkChunk->m_pvFreeStart) +
+		m_stUnitSize * m_stUnitPerChunk);
+	pkChunk->m_pvPre = m_pkChunkHead;
+	m_pkChunkHead = pkChunk;
+}
+//--------------------------------------------------------------------------
+void* VePoolAllocator::_Allocate() noexcept
+{
+	assert(m_pkChunkHead);
+#	ifdef VE_MEM_DEBUG
+	++m_u32UnitCount;
+#	endif
+	while (true)
+	{
+		if (m_pkChunkHead->m_pvFreeStart < m_pkChunkHead->m_pvEnd)
+		{
+			void* pvRes = m_pkChunkHead->m_pvFreeStart;
+			m_pkChunkHead->m_pvFreeStart =
+				(void*)(size_t(m_pkChunkHead->m_pvFreeStart) + m_stUnitSize);
+			return pvRes;
+		}
+
+		if (m_pvFreeHead)
+		{
+			void* pvRes = m_pvFreeHead;
+			m_pvFreeHead = *(void**)m_pvFreeHead;
+			return pvRes;
+		}
+
+		_AddChunk();
+	}
+}
+//--------------------------------------------------------------------------
+void VePoolAllocator::_Deallocate(void* pvMemory) noexcept
+{
+#	ifdef VE_MEM_DEBUG
+	--m_u32UnitCount;
+#	endif
+	*(void**)pvMemory = m_pvFreeHead;
+	m_pvFreeHead = pvMemory;
+}
+//--------------------------------------------------------------------------
+const VePoolAllocatorPtr& VePoolAllocator::GetAllocator(
+	size_t stUnitSize) noexcept
+{
+	return Venus3D::Ref().GetPoolAllocator(stUnitSize);
+}
+//--------------------------------------------------------------------------

@@ -84,3 +84,16 @@ VeStackAllocator& Venus3D::GetStackAllocator() noexcept
 	return VeThread::GetThreadLocalSingleton()->m_kAllocator;
 }
 //--------------------------------------------------------------------------
+const VePoolAllocatorPtr& Venus3D::GetPoolAllocator(
+	size_t stUnitSize) noexcept
+{
+	stUnitSize = (stUnitSize + 0xF) & (~0xF);
+	std::lock_guard<vtd::spin_lock> l(m_kAllocatorLock);
+	VePoolAllocatorPtr& spRes = m_kAllocatorMap[stUnitSize];
+	if (!spRes)
+	{
+		spRes = VE_NEW VePoolAllocator(stUnitSize);
+	}
+	return spRes;
+}
+//--------------------------------------------------------------------------

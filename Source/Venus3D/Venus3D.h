@@ -439,6 +439,10 @@ enum VeInitMask
 class VENUS_API Venus3D : public VeSingleton<Venus3D>
 {
 public:
+	typedef std::map <size_t, VePoolAllocatorPtr, std::less<size_t>,
+		venus::allocator<std::pair<const size_t, VePoolAllocatorPtr>>>
+		PoolAllocatorMap;
+
 	Venus3D(const char* pcProcessName, uint32_t u32InitMask = VE_INIT_MASK) noexcept;
 
 	~Venus3D() noexcept;
@@ -457,10 +461,14 @@ public:
 
 	VeStackAllocator& GetStackAllocator() noexcept;
 
+	const VePoolAllocatorPtr& GetPoolAllocator(size_t stUnitSize) noexcept;
+
 private:
 	vtd::string m_kProcessName;
 	uint32_t m_u32ActiveMask = 0;
 	VeLog m_kLog;
+	PoolAllocatorMap m_kAllocatorMap;
+	vtd::spin_lock m_kAllocatorLock;
 
 public:
 	VeLog::Pack CORE;
