@@ -219,6 +219,11 @@
 #	define BUILD_PLATFORM_APPLE
 #endif
 
+#if defined(BUILD_PLATFORM_PC)
+#	define VE_ENABLE_KEYBOARD
+#	define VE_ENABLE_MOUSE
+#endif
+
 #ifdef BUILD_PLATFORM_WIN
 #	define VE_ENABLE_DIRECTX
 #endif
@@ -325,6 +330,7 @@
 #define VE_MAX(a,b) (((a)>(b))?(a):(b))
 #define VE_MIN(a,b) (((a)<(b))?(a):(b))
 #define VE_CLAMP(a,l,h) (((a) < (l)) ? (l) : (((a) > (h)) ? (h) : (a)))
+#define VE_ABS(x) ((x) < 0 ? -(x) : (x))
 
 #define VE_TRUE (1)
 #define VE_FALSE (0)
@@ -411,16 +417,11 @@
 #include "Log/VeLog.h"
 #include "Log/VeAssert.h"
 
+#include "Time/VeTime.h"
+
 #include "ASync/VeThread.h"
 #include "ASync/VeCoroutine.h"
 #include "ASync/VeJobSystem.h"
-
-#include "Video/VePixel.h"
-#include "Video/VeSurface.h"
-#include "Video/VeWindow.h"
-//#include "Event/VeKeyboard.h"
-//#include "Event/VeMouse.h"
-//#include "Event/VeEvents.h"
 
 struct VENUS_API VeThreadLocalSingleton : public VeMemObject
 {
@@ -463,12 +464,17 @@ public:
 
 	const VePoolAllocatorPtr& GetPoolAllocator(size_t stUnitSize) noexcept;
 
+	inline VeLog& GetLog() noexcept;
+
+	inline VeTime& GetTime() noexcept;
+
 private:
 	vtd::string m_kProcessName;
 	uint32_t m_u32ActiveMask = 0;
-	VeLog m_kLog;
 	PoolAllocatorMap m_kAllocatorMap;
 	vtd::spin_lock m_kAllocatorLock;
+	VeLog m_kLog;
+	VeTime m_kTime;
 
 public:
 	VeLog::Pack CORE;
@@ -511,3 +517,5 @@ inline void VeTerm() noexcept
 	VeThread::Term();
 	VeMemoryExit();
 }
+
+#include "Venus3D.inl"

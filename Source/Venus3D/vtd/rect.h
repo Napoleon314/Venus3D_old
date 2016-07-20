@@ -35,7 +35,7 @@
 namespace vtd
 {
 	template<class _Ty>
-	struct alignas(sizeof(_Ty) ) rect
+	struct alignas(sizeof(_Ty) * 4) rect
 	{
 		enum outcode
 		{
@@ -44,7 +44,6 @@ namespace vtd
 			CODE_LEFT = 4,
 			CODE_RIGHT = 8
 		};
-
 
 		rect() noexcept = default;
 

@@ -95,6 +95,12 @@ namespace vtd
 
 	}
 
+	template<class _Ty>
+	_Ty abs(_Ty x) noexcept
+	{
+		return x < 0 ? (-x) : x;
+	}
+
 	template<class _This, class... _Rest>
 	_This max(_This val, _Rest... pak) noexcept
 	{
