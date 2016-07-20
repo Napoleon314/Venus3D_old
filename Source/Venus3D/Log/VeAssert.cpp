@@ -45,3 +45,10 @@ static void AddAssertionToReport(VeAssertData *data) noexcept
 	}
 }*/
 
+//--------------------------------------------------------------------------
+VeAssertState VeReportAssertion(VeAssertData*, const char *,
+	const char *, int) noexcept
+{
+	return VE_ASSERTION_RETRY;
+}
+//--------------------------------------------------------------------------
