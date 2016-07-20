@@ -35,7 +35,7 @@
 //--------------------------------------------------------------------------
 #include <sys/time.h>
 //--------------------------------------------------------------------------
-void VeTimeOfDay(VeUInt64& u64Time)
+void VeTimeOfDay(uint64_t& u64Time)
 {
 	timeval kTime;
 	gettimeofday(&kTime, nullptr);

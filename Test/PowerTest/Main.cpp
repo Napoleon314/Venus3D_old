@@ -29,6 +29,7 @@
 ////////////////////////////////////////////////////////////////////////////
 
 #include <Venus3D.h>
+#include <SDL.h>
 
 void* test(void* data) noexcept
 {
@@ -49,6 +50,8 @@ int main(/*int argc, char * argv[]*/)
 		VeCoreLogI("main", (int)(size_t)co.resume((void*)2));
 		VeCoreLogI("main", (int)(size_t)co.resume((void*)3));
 	}
+    
+    VeCoreLogI("SDL_Init", SDL_Init(5));
 
 	VeTerm();
 
