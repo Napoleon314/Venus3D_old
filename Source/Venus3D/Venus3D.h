@@ -382,7 +382,7 @@
 #if defined(BUILD_PLATFORM_IOS) || defined(BUILD_PLATFORM_ANDROID)
 #	define _XM_ARM_NEON_NO_ALIGN_
 #endif
-//#define _XM_NO_INTRINSICS_
+
 #include "XMath/XMath.h"
 #include "XMath/XPackedVector.h"
 #include "XMath/XColors.h"
@@ -406,6 +406,7 @@
 #include "Memory/VeMemObject.h"
 #include "Memory/VeRefObject.h"
 #include "Memory/VeBlob.h"
+#include "Memory/VeAllocator.h"
 
 #include "Log/VeLog.h"
 #include "Log/VeAssert.h"
@@ -417,6 +418,15 @@
 #include "Video/VePixel.h"
 #include "Video/VeSurface.h"
 #include "Video/VeWindow.h"
+//#include "Event/VeKeyboard.h"
+//#include "Event/VeMouse.h"
+//#include "Event/VeEvents.h"
+
+struct VeThreadLocalSingleton : public VeMemObject
+{
+	VeCoenvironment m_kCoenviron;
+	VeStackAllocator m_kAllocator;
+};
 
 enum VeInitMask
 {

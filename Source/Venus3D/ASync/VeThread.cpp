@@ -260,7 +260,7 @@ VeThread::~VeThread() noexcept
 }
 //--------------------------------------------------------------------------
 #ifdef VE_USE_THREAD_LOCAL
-thread_local VeCoenvironment* g_pkCurEnv = nullptr;
+static thread_local VeThreadLocalSingleton* s_pkSingleton = nullptr;
 #else
 #ifdef VE_MEM_DEBUG
 struct VeDeleteCallParams
@@ -271,7 +271,7 @@ struct VeDeleteCallParams
 };
 pthread_key_t g_keyDeleteStack;
 #endif
-pthread_key_t g_keyCurEnv;
+static pthread_key_t s_keySingleton;
 #endif
 //--------------------------------------------------------------------------
 void VeThread::Init() noexcept
@@ -280,7 +280,7 @@ void VeThread::Init() noexcept
 #	ifdef VE_MEM_DEBUG
 	assert_eq(pthread_key_create(&g_keyDeleteStack, nullptr), 0);
 #	endif
-	assert_eq(pthread_key_create(&g_keyCurEnv, nullptr), 0);
+	assert_eq(pthread_key_create(&s_keySingleton, nullptr), 0);
 #	endif
 	InitPerThread();
 }
@@ -289,7 +289,7 @@ void VeThread::Term() noexcept
 {
 	TermPerThread();
 #	ifndef VE_USE_THREAD_LOCAL
-	assert_eq(pthread_key_delete(g_keyCurEnv), 0);
+	assert_eq(pthread_key_delete(s_keySingleton), 0);
 #	ifdef VE_MEM_DEBUG
 	assert_eq(pthread_key_delete(g_keyDeleteStack), 0);
 #	endif
@@ -299,25 +299,34 @@ void VeThread::Term() noexcept
 void VeThread::InitPerThread() noexcept
 {
 #	ifdef VE_USE_THREAD_LOCAL
-	g_pkCurEnv = VE_NEW VeCoenvironment();
+	s_pkSingleton = VE_NEW VeThreadLocalSingleton();
 #	else
 #	ifdef VE_MEM_DEBUG
 	assert_eq(pthread_setspecific(g_keyDeleteStack, new vtd::vector<VeDeleteCallParams>()), 0);
 #	endif
-	assert_eq(pthread_setspecific(g_keyCurEnv, VE_NEW VeCoenvironment()), 0);
+	assert_eq(pthread_setspecific(s_keySingleton, VE_NEW VeThreadLocalSingleton()), 0);
 #	endif
 }
 //--------------------------------------------------------------------------
 void VeThread::TermPerThread() noexcept
 {
 #	ifdef VE_USE_THREAD_LOCAL
-	VE_SAFE_DELETE(g_pkCurEnv);
+	VE_SAFE_DELETE(s_pkSingleton);
 #	else
-	VE_DELETE((VeCoenvironment*)pthread_getspecific(g_keyCurEnv));
+	VE_DELETE((VeThreadLocalSingleton*)pthread_getspecific(s_keySingleton));
 #	ifdef VE_MEM_DEBUG
 	delete (vtd::vector<VeDeleteCallParams>*)pthread_getspecific(g_keyDeleteStack);
 #	endif
 #	endif
+}
+//--------------------------------------------------------------------------
+VeThreadLocalSingleton* VeThread::GetThreadLocalSingleton() noexcept
+{
+#	ifdef VE_USE_THREAD_LOCAL
+	return s_pkSingleton;
+#	else
+	return (VeThreadLocalSingleton*)pthread_getspecific(s_keySingleton);
+#	endif 
 }
 //--------------------------------------------------------------------------
 VeThreadCallbackResult VeThread::Callback(void* pvParam) noexcept

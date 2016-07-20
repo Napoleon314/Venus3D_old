@@ -3,9 +3,9 @@
 //  The MIT License (MIT)
 //  Copyright (c) 2016 Albert D Yang
 // -------------------------------------------------------------------------
-//  Module:      ASync
-//  File name:   VeCoroutine.h
-//  Created:     2016/07/11 by Albert
+//  Module:      Memory
+//  File name:   VeAllocator.inl
+//  Created:     2016/07/20 by Albert
 //  Description:
 // -------------------------------------------------------------------------
 //  Permission is hereby granted, free of charge, to any person obtaining a
@@ -28,79 +28,14 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-#pragma once
-
-#ifdef VE_ENABLE_COROUTINE
-
-#define VE_CO_DEFAULT_STACK (32 * 1024)
-
-class VENUS_API VeCoroutine : public VeMemObject
+//--------------------------------------------------------------------------
+inline size_t VeStackAllocator::Space() noexcept
 {
-	VeNoCopy(VeCoroutine);
-public:
-	enum State
-	{
-		STATE_READY,
-		STATE_SUSPENDED,
-		STATE_RUNNING,
-		STATE_DEAD
-	};
-
-	typedef void* (*Entry)(void*);
-
-	VeCoroutine(size_t stStackSize = VE_CO_DEFAULT_STACK) noexcept;
-
-	~VeCoroutine() noexcept;
-
-	inline State GetState() noexcept;
-
-	void prepare() noexcept;
-
-	void* start(Entry pfuncEntry, void* pvUserData = nullptr) noexcept;
-
-	void* resume(void* pvUserData = nullptr) noexcept;
-
-protected:
-	void* _resume(void* pvUserData) noexcept;
-
-	friend class VeCoenvironment;
-	fcontext_stack_t  m_kStack;
-	fcontext_t m_hContext;
-	VeCoroutine* m_pkPrevious = nullptr;
-	State m_eState;
-
-};
-
-class VENUS_API VeCoenvironment : public VeMemObject
+	return m_stSize;
+}
+//--------------------------------------------------------------------------
+inline size_t VeStackAllocator::RemainSpace() noexcept
 {
-	VeNoCopy(VeCoenvironment);
-public:
-	VeCoenvironment() noexcept;
-
-	~VeCoenvironment() noexcept;
-	
-	inline static VeCoroutine* GetMain() noexcept;
-
-	inline static VeCoroutine* GetRunning() noexcept;
-
-	inline static bool IsMainRunning() noexcept;
-
-	static void* yield(void* pvUserData = nullptr) noexcept;
-
-	static VeCoenvironment* GetCurrent() noexcept;
-
-private:
-	static void Entry(fcontext_transfer_t trans) noexcept;
-
-	friend class VeCoroutine;
-	friend class VeThread;
-
-	VeCoroutine m_kMain;
-	VeCoroutine* m_pkRunning;
-	VeCoroutine::Entry m_pfuncUserEntry = nullptr;
-
-};
-
-#endif
-
-#include "VeCoroutine.inl"
+	return m_stSize - (m_pu8Current - m_pu8Buffer);
+}
+//--------------------------------------------------------------------------

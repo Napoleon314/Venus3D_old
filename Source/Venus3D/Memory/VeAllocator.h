@@ -3,9 +3,9 @@
 //  The MIT License (MIT)
 //  Copyright (c) 2016 Albert D Yang
 // -------------------------------------------------------------------------
-//  Module:      ASync
-//  File name:   VeCoroutine.h
-//  Created:     2016/07/11 by Albert
+//  Module:      Memory
+//  File name:   VeAllocator.h
+//  Created:     2016/07/20 by Albert
 //  Description:
 // -------------------------------------------------------------------------
 //  Permission is hereby granted, free of charge, to any person obtaining a
@@ -30,77 +30,30 @@
 
 #pragma once
 
-#ifdef VE_ENABLE_COROUTINE
+#define VE_STACK_ALLOCATOR_DEFAULT_SIZE (128 * 1024)
 
-#define VE_CO_DEFAULT_STACK (32 * 1024)
-
-class VENUS_API VeCoroutine : public VeMemObject
+class VENUS_API VeStackAllocator : public VeMemObject
 {
-	VeNoCopy(VeCoroutine);
+	VeNoCopy(VeStackAllocator);
 public:
-	enum State
-	{
-		STATE_READY,
-		STATE_SUSPENDED,
-		STATE_RUNNING,
-		STATE_DEAD
-	};
+	VeStackAllocator(size_t stSize = VE_STACK_ALLOCATOR_DEFAULT_SIZE) noexcept;
 
-	typedef void* (*Entry)(void*);
+	~VeStackAllocator() noexcept;
 
-	VeCoroutine(size_t stStackSize = VE_CO_DEFAULT_STACK) noexcept;
+	inline size_t Space() noexcept;
 
-	~VeCoroutine() noexcept;
+	inline size_t RemainSpace() noexcept;
 
-	inline State GetState() noexcept;
+	void* Allocate(size_t stSizeInBytes) noexcept;
 
-	void prepare() noexcept;
-
-	void* start(Entry pfuncEntry, void* pvUserData = nullptr) noexcept;
-
-	void* resume(void* pvUserData = nullptr) noexcept;
+	void Deallocate() noexcept;
 
 protected:
-	void* _resume(void* pvUserData) noexcept;
-
-	friend class VeCoenvironment;
-	fcontext_stack_t  m_kStack;
-	fcontext_t m_hContext;
-	VeCoroutine* m_pkPrevious = nullptr;
-	State m_eState;
+	const size_t m_stSize;
+	uint8_t* m_pu8Buffer = nullptr;
+	uint8_t* m_pu8Current = nullptr;
+	vtd::stack<size_t> m_kStack;
 
 };
 
-class VENUS_API VeCoenvironment : public VeMemObject
-{
-	VeNoCopy(VeCoenvironment);
-public:
-	VeCoenvironment() noexcept;
-
-	~VeCoenvironment() noexcept;
-	
-	inline static VeCoroutine* GetMain() noexcept;
-
-	inline static VeCoroutine* GetRunning() noexcept;
-
-	inline static bool IsMainRunning() noexcept;
-
-	static void* yield(void* pvUserData = nullptr) noexcept;
-
-	static VeCoenvironment* GetCurrent() noexcept;
-
-private:
-	static void Entry(fcontext_transfer_t trans) noexcept;
-
-	friend class VeCoroutine;
-	friend class VeThread;
-
-	VeCoroutine m_kMain;
-	VeCoroutine* m_pkRunning;
-	VeCoroutine::Entry m_pfuncUserEntry = nullptr;
-
-};
-
-#endif
-
-#include "VeCoroutine.inl"
+#include "VeAllocator.inl"

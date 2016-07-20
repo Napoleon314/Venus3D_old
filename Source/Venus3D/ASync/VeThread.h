@@ -133,6 +133,8 @@ VENUS_API void VeThreadInitForSuspend() noexcept;
 
 VENUS_API uint32_t VeThreadHardwareConcurrency() noexcept;
 
+struct VeThreadLocalSingleton;
+
 class VENUS_API VeThread : public VeMemObject
 {
 	VeNoCopy(VeThread);
@@ -229,6 +231,8 @@ public:
 	static void InitPerThread() noexcept;
 
 	static void TermPerThread() noexcept;
+
+	static VeThreadLocalSingleton* GetThreadLocalSingleton() noexcept;
 
 private:
 	typedef VeThread* ThisPointer;

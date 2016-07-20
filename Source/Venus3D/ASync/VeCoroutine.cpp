@@ -93,7 +93,7 @@ void* VeCoroutine::_resume(void* pvUserData) noexcept
 #ifdef BUILD_PLATFORM_APPLE
 extern pthread_key_t g_keyCurEnv;
 #else
-extern thread_local VeCoenvironment* g_pkCurEnv;
+extern thread_local VeThreadLocalSingleton* g_pkSingleton;
 #endif
 //--------------------------------------------------------------------------
 VeCoenvironment::VeCoenvironment() noexcept
@@ -135,12 +135,7 @@ void VeCoenvironment::Entry(fcontext_transfer_t trans) noexcept
 //--------------------------------------------------------------------------
 VeCoenvironment* VeCoenvironment::GetCurrent() noexcept
 {
-#ifdef BUILD_PLATFORM_APPLE
-	return (VeCoenvironment*)pthread_getspecific(g_keyCurEnv);
-#else
-	assert(g_pkCurEnv);
-	return g_pkCurEnv;
-#endif
+	return &(VeThread::GetThreadLocalSingleton()->m_kCoenviron);
 }
 //--------------------------------------------------------------------------
 #endif
