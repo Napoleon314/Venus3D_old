@@ -441,6 +441,8 @@ enum VeInitMask
 	VE_INIT_NONE		= 0x0,
 	VE_INIT_LOG			= 0x1,
 	VE_INIT_JOB			= 0x2,
+	VE_INIT_EVENT		= 0x4,
+	VE_INIT_VIDEO		= 0x8,
 	VE_INIT_MASK		= 0xFFFFFFFF
 };
 
@@ -458,14 +460,6 @@ public:
 	void Init(uint32_t u32InitMask);
 
 	void Term();
-
-	void InitLog() noexcept;
-
-	void TermLog() noexcept;
-
-	void InitJob() noexcept;
-
-	void TermJob() noexcept;
 
 	VeStackAllocator& GetStackAllocator() noexcept;
 
@@ -486,6 +480,22 @@ public:
 	inline const VeMousePtr& GetMouse() noexcept;
 
 private:
+	void InitLog() noexcept;
+
+	void TermLog() noexcept;
+
+	void InitJob() noexcept;
+
+	void TermJob() noexcept;
+
+	void InitEvent() noexcept;
+	
+	void TermEvent() noexcept;
+
+	void InitVideo() noexcept;
+
+	void TermVideo() noexcept;
+
 	vtd::string m_kProcessName;
 	uint32_t m_u32ActiveMask = 0;
 	PoolAllocatorMap m_kAllocatorMap;
@@ -493,9 +503,9 @@ private:
 	VeLog m_kLog;
 	VeTime m_kTime;
 	VeEventQueuePtr m_spEventQueue;
-	VeVideoDevicePtr m_spVideoDevice;
 	VeKeyboardPtr m_spKeyboard;
 	VeMousePtr m_spMouse;
+	VeVideoDevicePtr m_spVideoDevice;
 
 public:
 	VeLog::Pack CORE;
