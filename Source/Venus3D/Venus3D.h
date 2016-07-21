@@ -471,6 +471,8 @@ public:
 
 	const VePoolAllocatorPtr& GetPoolAllocator(size_t stUnitSize) noexcept;
 
+	inline const vtd::string& GetPakName() noexcept;
+
 	inline VeLog& GetLog() noexcept;
 
 	inline VeTime& GetTime() noexcept;
@@ -503,6 +505,9 @@ public:
 
 #define venus3d Venus3D::Ref()
 #define job_system VeJobSystem::Ref()
+
+#define VeStackAlloc(t,s) (t*)(Venus3D::Ref().GetStackAllocator().Allocate(sizeof(t)*(s)))
+#define VeStackFree(p) Venus3D::Ref().GetStackAllocator().Deallocate(); (p) = nullptr
 
 #ifdef VE_DEBUG
 #	define VeCoreDebugOutput venus3d.CORE.D.LogFormat
