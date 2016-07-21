@@ -3,8 +3,8 @@
 //  The MIT License (MIT)
 //  Copyright (c) 2016 Albert D Yang
 // -------------------------------------------------------------------------
-//  Module:      Venus3D
-//  File name:   Venus3D.inl
+//  Module:      Event
+//  File name:   VeMouse.inl
 //  Created:     2016/07/20 by Albert
 //  Description:
 // -------------------------------------------------------------------------
@@ -29,33 +29,45 @@
 ////////////////////////////////////////////////////////////////////////////
 
 //--------------------------------------------------------------------------
-inline VeLog& Venus3D::GetLog() noexcept
+inline VeWindowPtr VeMouse::GetFocus() noexcept
 {
-	return m_kLog;
+	return m_pkFocus ? VeWindow::Cast(m_pkFocus) : nullptr;
 }
 //--------------------------------------------------------------------------
-inline VeTime& Venus3D::GetTime() noexcept
+inline uint32_t VeMouse::GetButtonState() noexcept
 {
-	return m_kTime;
+	return m_u32ButtonState;
 }
 //--------------------------------------------------------------------------
-inline const VeEventQueuePtr& Venus3D::GetEventQueue() noexcept
+inline uint32_t VeMouse::GetState(int32_t& x, int32_t& y) noexcept
 {
-	return m_spEventQueue;
+	x = m_i32PosX;
+	y = m_i32PosY;
+	return m_u32ButtonState;
 }
 //--------------------------------------------------------------------------
-inline const VeVideoDevicePtr& Venus3D::GetVideoDevice() noexcept
+inline uint32_t VeMouse::GetRelativeState(
+	int32_t& x, int32_t& y) noexcept
 {
-	return m_spVideoDevice;
+	x = m_i32DeltaX;
+	y = m_i32DeltaY;
+	m_i32DeltaX = 0;
+	m_i32DeltaY = 0;
+	return m_u32ButtonState;
 }
 //--------------------------------------------------------------------------
-inline const VeKeyboardPtr& Venus3D::GetKeyboard() noexcept
+inline bool VeMouse::IsRelativeModeEnable() noexcept
 {
-	return m_spKeyboard;
+	return m_bRelativeMode ? true : false;
 }
 //--------------------------------------------------------------------------
-inline const VeMousePtr& Venus3D::GetMouse() noexcept
+inline VeCursorPtr VeMouse::GetCursor() noexcept
 {
-	return m_spMouse;
+	return m_spCurCursor;
+}
+//--------------------------------------------------------------------------
+inline VeCursorPtr VeMouse::GetDefaultCursor() noexcept
+{
+	return m_spDefCursor;
 }
 //--------------------------------------------------------------------------

@@ -3,9 +3,9 @@
 //  The MIT License (MIT)
 //  Copyright (c) 2016 Albert D Yang
 // -------------------------------------------------------------------------
-//  Module:      Venus3D
-//  File name:   Venus3D.inl
-//  Created:     2016/07/20 by Albert
+//  Module:      Video
+//  File name:   VeSurface.cpp
+//  Created:     2016/07/08 by Albert
 //  Description:
 // -------------------------------------------------------------------------
 //  Permission is hereby granted, free of charge, to any person obtaining a
@@ -28,34 +28,85 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
+#include "stdafx.h"
+
 //--------------------------------------------------------------------------
-inline VeLog& Venus3D::GetLog() noexcept
+VeSurface::VeSurface() noexcept
 {
-	return m_kLog;
+
 }
 //--------------------------------------------------------------------------
-inline VeTime& Venus3D::GetTime() noexcept
+VeSurface::~VeSurface() noexcept
 {
-	return m_kTime;
+
 }
 //--------------------------------------------------------------------------
-inline const VeEventQueuePtr& Venus3D::GetEventQueue() noexcept
+void* VeSurface::GetBuffer() noexcept
 {
-	return m_spEventQueue;
+	assert(m_spPixels);
+	return m_spPixels->GetBuffer();
 }
 //--------------------------------------------------------------------------
-inline const VeVideoDevicePtr& Venus3D::GetVideoDevice() noexcept
+VeSurfacePtr VeSurface::CreateRGBSurface(uint32_t,
+	int32_t i32Width, int32_t i32Height, int32_t i32Depth,
+	uint32_t u32Rmask, uint32_t u32Gmask, uint32_t u32Bmask,
+	uint32_t u32Amask) noexcept
 {
-	return m_spVideoDevice;
+	uint32_t u32Format = VeMasksToPixelFormatEnum(i32Depth, u32Rmask,
+		u32Gmask, u32Bmask, u32Amask);
+	if (u32Format == VE_PIXELFORMAT_UNKNOWN) return nullptr;
+
+	VeSurfacePtr spSurface = VE_NEW VeSurface();
+	assert(spSurface);
+	spSurface->m_spFormat = VePixelFormat::Create(u32Format);
+	if (!spSurface->m_spFormat) return nullptr;
+	
+	spSurface->m_i32Width = i32Width;
+	spSurface->m_i32Height = i32Height;
+	spSurface->m_i32Pitch = spSurface->CalculatePitch();
+
+	if (VE_ISPIXELFORMAT_INDEXED(spSurface->m_spFormat->m_u32Format))
+	{
+		VePalettePtr spPattle = VE_NEW VePalette((1 << spSurface->m_spFormat->m_u8BitsPerPixel));
+		assert(spPattle);
+		if (spPattle->m_kColors.size() == 2)
+		{
+			spPattle->m_kColors[0].r = 0xFF;
+			spPattle->m_kColors[0].g = 0xFF;
+			spPattle->m_kColors[0].b = 0xFF;
+			spPattle->m_kColors[1].r = 0x00;
+			spPattle->m_kColors[1].g = 0x00;
+			spPattle->m_kColors[1].b = 0x00;
+		}
+		spSurface->SetPalette(spPattle);
+	}
+
+	if (spSurface->m_i32Width && spSurface->m_i32Height)
+	{
+		size_t stSize = spSurface->m_i32Height * spSurface->m_i32Pitch;
+		spSurface->m_spPixels = VE_NEW VeBlob(stSize);
+		memset(*spSurface->m_spPixels, 0, stSize);
+	}
+
+	return spSurface;
 }
 //--------------------------------------------------------------------------
-inline const VeKeyboardPtr& Venus3D::GetKeyboard() noexcept
+int32_t VeSurface::CalculatePitch() noexcept
 {
-	return m_spKeyboard;
-}
-//--------------------------------------------------------------------------
-inline const VeMousePtr& Venus3D::GetMouse() noexcept
-{
-	return m_spMouse;
+	int32_t i32Pitch;
+	i32Pitch = m_i32Width * m_spFormat->m_u8BytesPerPixel;
+	switch (m_spFormat->m_u8BitsPerPixel)
+	{
+	case 1:
+		i32Pitch = (i32Pitch + 7) >> 3;
+		break;
+	case 4:
+		i32Pitch = (i32Pitch + 1) >> 1;
+		break;
+	default:
+		break;
+	}
+	i32Pitch = (i32Pitch + 3) & ~3;
+	return (i32Pitch);
 }
 //--------------------------------------------------------------------------

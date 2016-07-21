@@ -3,9 +3,9 @@
 //  The MIT License (MIT)
 //  Copyright (c) 2016 Albert D Yang
 // -------------------------------------------------------------------------
-//  Module:      Venus3D
-//  File name:   Venus3D.inl
-//  Created:     2016/07/20 by Albert
+//  Module:      Video
+//  File name:   VeSurface.h
+//  Created:     2016/07/08 by Albert
 //  Description:
 // -------------------------------------------------------------------------
 //  Permission is hereby granted, free of charge, to any person obtaining a
@@ -28,34 +28,52 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-//--------------------------------------------------------------------------
-inline VeLog& Venus3D::GetLog() noexcept
+#pragma once
+
+#define VE_SWSURFACE       0
+#define VE_PREALLOC        0x00000001
+#define VE_RLEACCEL        0x00000002
+#define VE_DONTFREE        0x00000004
+
+#define VE_MUSTLOCK(S) (((S)->flags & VE_RLEACCEL) != 0)
+
+VeSmartPointer(VeSurface);
+
+class VENUS_API VeSurface : public VeRefObject
 {
-	return m_kLog;
-}
-//--------------------------------------------------------------------------
-inline VeTime& Venus3D::GetTime() noexcept
-{
-	return m_kTime;
-}
-//--------------------------------------------------------------------------
-inline const VeEventQueuePtr& Venus3D::GetEventQueue() noexcept
-{
-	return m_spEventQueue;
-}
-//--------------------------------------------------------------------------
-inline const VeVideoDevicePtr& Venus3D::GetVideoDevice() noexcept
-{
-	return m_spVideoDevice;
-}
-//--------------------------------------------------------------------------
-inline const VeKeyboardPtr& Venus3D::GetKeyboard() noexcept
-{
-	return m_spKeyboard;
-}
-//--------------------------------------------------------------------------
-inline const VeMousePtr& Venus3D::GetMouse() noexcept
-{
-	return m_spMouse;
-}
-//--------------------------------------------------------------------------
+	VeNoCopy(VeSurface);
+public:
+	inline bool SetPalette(const VePalettePtr& spPalette) noexcept;
+
+	inline int32_t GetWidth() noexcept;
+
+	inline int32_t GetHeight() noexcept;
+
+	inline int32_t GetPitch() noexcept;
+
+	inline VePixelFormatPtr GetFormat() noexcept;
+
+	void* GetBuffer() noexcept;
+	
+	static VeSurfacePtr CreateRGBSurface(uint32_t u32Flags,
+		int32_t i32Width, int32_t i32Height, int32_t i32Depth,
+		uint32_t u32Rmask, uint32_t u32Gmask, uint32_t u32Bmask,
+		uint32_t u32Amask) noexcept;
+
+protected:
+	VeSurface() noexcept;
+
+	virtual ~VeSurface() noexcept;
+
+	int32_t CalculatePitch() noexcept;
+
+	uint32_t m_u32Flags = 0;
+	VePixelFormatPtr m_spFormat;
+	int32_t m_i32Width = 0;
+	int32_t m_i32Height = 0;
+	int32_t m_i32Pitch = 0;
+	VeBlobPtr m_spPixels;
+
+};
+
+#include "VeSurface.inl"

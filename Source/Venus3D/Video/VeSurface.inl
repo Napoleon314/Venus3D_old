@@ -3,9 +3,9 @@
 //  The MIT License (MIT)
 //  Copyright (c) 2016 Albert D Yang
 // -------------------------------------------------------------------------
-//  Module:      Venus3D
-//  File name:   Venus3D.inl
-//  Created:     2016/07/20 by Albert
+//  Module:      Video
+//  File name:   VeSurface.inl
+//  Created:     2016/07/08 by Albert
 //  Description:
 // -------------------------------------------------------------------------
 //  Permission is hereby granted, free of charge, to any person obtaining a
@@ -29,33 +29,32 @@
 ////////////////////////////////////////////////////////////////////////////
 
 //--------------------------------------------------------------------------
-inline VeLog& Venus3D::GetLog() noexcept
+inline bool VeSurface::SetPalette(const VePalettePtr& spPalette) noexcept
 {
-	return m_kLog;
+	if (m_spFormat)
+	{
+		return m_spFormat->SetPalette(spPalette);
+	}
+	return false;
 }
 //--------------------------------------------------------------------------
-inline VeTime& Venus3D::GetTime() noexcept
+inline int32_t VeSurface::GetWidth() noexcept
 {
-	return m_kTime;
+	return m_i32Width;
 }
 //--------------------------------------------------------------------------
-inline const VeEventQueuePtr& Venus3D::GetEventQueue() noexcept
+inline int32_t VeSurface::GetHeight() noexcept
 {
-	return m_spEventQueue;
+	return m_i32Height;
 }
 //--------------------------------------------------------------------------
-inline const VeVideoDevicePtr& Venus3D::GetVideoDevice() noexcept
+inline int32_t VeSurface::GetPitch() noexcept
 {
-	return m_spVideoDevice;
+	return m_i32Pitch;
 }
 //--------------------------------------------------------------------------
-inline const VeKeyboardPtr& Venus3D::GetKeyboard() noexcept
+inline VePixelFormatPtr VeSurface::GetFormat() noexcept
 {
-	return m_spKeyboard;
-}
-//--------------------------------------------------------------------------
-inline const VeMousePtr& Venus3D::GetMouse() noexcept
-{
-	return m_spMouse;
+	return m_spFormat;
 }
 //--------------------------------------------------------------------------

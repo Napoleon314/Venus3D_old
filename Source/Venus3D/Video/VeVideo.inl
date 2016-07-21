@@ -3,8 +3,8 @@
 //  The MIT License (MIT)
 //  Copyright (c) 2016 Albert D Yang
 // -------------------------------------------------------------------------
-//  Module:      Venus3D
-//  File name:   Venus3D.inl
+//  Module:      Video
+//  File name:   VeVideo.inl
 //  Created:     2016/07/20 by Albert
 //  Description:
 // -------------------------------------------------------------------------
@@ -29,33 +29,13 @@
 ////////////////////////////////////////////////////////////////////////////
 
 //--------------------------------------------------------------------------
-inline VeLog& Venus3D::GetLog() noexcept
+inline const char* VeVideoDevice::GetDriverName() const noexcept
 {
-	return m_kLog;
+	return m_kName;
 }
 //--------------------------------------------------------------------------
-inline VeTime& Venus3D::GetTime() noexcept
+inline const char* VeVideoDevice::GetDriverDesc() const noexcept
 {
-	return m_kTime;
-}
-//--------------------------------------------------------------------------
-inline const VeEventQueuePtr& Venus3D::GetEventQueue() noexcept
-{
-	return m_spEventQueue;
-}
-//--------------------------------------------------------------------------
-inline const VeVideoDevicePtr& Venus3D::GetVideoDevice() noexcept
-{
-	return m_spVideoDevice;
-}
-//--------------------------------------------------------------------------
-inline const VeKeyboardPtr& Venus3D::GetKeyboard() noexcept
-{
-	return m_spKeyboard;
-}
-//--------------------------------------------------------------------------
-inline const VeMousePtr& Venus3D::GetMouse() noexcept
-{
-	return m_spMouse;
+	return m_kDesc;
 }
 //--------------------------------------------------------------------------

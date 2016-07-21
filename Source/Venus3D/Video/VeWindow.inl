@@ -3,9 +3,9 @@
 //  The MIT License (MIT)
 //  Copyright (c) 2016 Albert D Yang
 // -------------------------------------------------------------------------
-//  Module:      Venus3D
-//  File name:   Venus3D.inl
-//  Created:     2016/07/20 by Albert
+//  Module:      Video
+//  File name:   VeWindow.inl
+//  Created:     2016/07/10 by Albert
 //  Description:
 // -------------------------------------------------------------------------
 //  Permission is hereby granted, free of charge, to any person obtaining a
@@ -29,33 +29,68 @@
 ////////////////////////////////////////////////////////////////////////////
 
 //--------------------------------------------------------------------------
-inline VeLog& Venus3D::GetLog() noexcept
+inline bool VeWindow::IsValid() const noexcept
 {
-	return m_kLog;
+	return m_kData.m_kNode.is_attach();
 }
 //--------------------------------------------------------------------------
-inline VeTime& Venus3D::GetTime() noexcept
+inline uint32_t VeWindow::GetID() const noexcept
 {
-	return m_kTime;
+	return m_kData.m_u32Id;
 }
 //--------------------------------------------------------------------------
-inline const VeEventQueuePtr& Venus3D::GetEventQueue() noexcept
+inline uint32_t VeWindow::GetFlags() const noexcept
 {
-	return m_spEventQueue;
+	return m_kData.m_u32Flags;
 }
 //--------------------------------------------------------------------------
-inline const VeVideoDevicePtr& Venus3D::GetVideoDevice() noexcept
+inline const char* VeWindow::GetTitle() const noexcept
 {
-	return m_spVideoDevice;
+	return m_kData.m_kTitle;
 }
 //--------------------------------------------------------------------------
-inline const VeKeyboardPtr& Venus3D::GetKeyboard() noexcept
+inline int32_t VeWindow::GetPosX() const noexcept
 {
-	return m_spKeyboard;
+	return m_kData.x;
 }
 //--------------------------------------------------------------------------
-inline const VeMousePtr& Venus3D::GetMouse() noexcept
+inline int32_t VeWindow::GetPosY() const noexcept
 {
-	return m_spMouse;
+	return m_kData.y;
+}
+//--------------------------------------------------------------------------
+inline int32_t VeWindow::GetWidth() const noexcept
+{
+	return m_kData.w;
+}
+//--------------------------------------------------------------------------
+inline int32_t VeWindow::GetHeight() const noexcept
+{
+	return m_kData.h;
+}
+//--------------------------------------------------------------------------
+inline int32_t VeWindow::GetMinimumWidth() const noexcept
+{
+	return m_kData.min_w;
+}
+//--------------------------------------------------------------------------
+inline int32_t VeWindow::GetMinimumHeight() const noexcept
+{
+	return m_kData.min_h;
+}
+//--------------------------------------------------------------------------
+inline int32_t VeWindow::GetMaximumWidth() const noexcept
+{
+	return m_kData.max_w;
+}
+//--------------------------------------------------------------------------
+inline int32_t VeWindow::GetMaximumHeight() const noexcept
+{
+	return m_kData.max_h;
+}
+//--------------------------------------------------------------------------
+inline float VeWindow::GetBrightness() const noexcept
+{
+	return m_kData.m_f32Brightness;
 }
 //--------------------------------------------------------------------------

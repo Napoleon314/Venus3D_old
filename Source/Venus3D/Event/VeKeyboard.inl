@@ -3,8 +3,8 @@
 //  The MIT License (MIT)
 //  Copyright (c) 2016 Albert D Yang
 // -------------------------------------------------------------------------
-//  Module:      Venus3D
-//  File name:   Venus3D.inl
+//  Module:      Event
+//  File name:   VeKeyboard.inl
 //  Created:     2016/07/20 by Albert
 //  Description:
 // -------------------------------------------------------------------------
@@ -29,33 +29,18 @@
 ////////////////////////////////////////////////////////////////////////////
 
 //--------------------------------------------------------------------------
-inline VeLog& Venus3D::GetLog() noexcept
+inline VeWindowPtr VeKeyboard::GetFocus() noexcept
 {
-	return m_kLog;
+	return m_pkFocus ? VeWindow::Cast(m_pkFocus) : nullptr;
 }
 //--------------------------------------------------------------------------
-inline VeTime& Venus3D::GetTime() noexcept
+inline const uint8_t* VeKeyboard::GetState() noexcept
 {
-	return m_kTime;
+	return m_au8KeyState;
 }
 //--------------------------------------------------------------------------
-inline const VeEventQueuePtr& Venus3D::GetEventQueue() noexcept
+inline uint16_t VeKeyboard::GetModState() noexcept
 {
-	return m_spEventQueue;
-}
-//--------------------------------------------------------------------------
-inline const VeVideoDevicePtr& Venus3D::GetVideoDevice() noexcept
-{
-	return m_spVideoDevice;
-}
-//--------------------------------------------------------------------------
-inline const VeKeyboardPtr& Venus3D::GetKeyboard() noexcept
-{
-	return m_spKeyboard;
-}
-//--------------------------------------------------------------------------
-inline const VeMousePtr& Venus3D::GetMouse() noexcept
-{
-	return m_spMouse;
+	return m_u16ModState;
 }
 //--------------------------------------------------------------------------
