@@ -1,23 +1,39 @@
 ////////////////////////////////////////////////////////////////////////////
 //
-//  Venus Engine Source File.
-//  Copyright (C), Venus Interactive Entertainment.2012
+//  The MIT License (MIT)
+//  Copyright (c) 2016 Albert D Yang
 // -------------------------------------------------------------------------
-//  Module:      VePower
+//  Module:      System
 //  File name:   VeSharedLib.cpp
-//  Created:     2015/08/05 by Napoleon
-//  Description: 
+//  Created:     2016/07/22 by Albert
+//  Description:
 // -------------------------------------------------------------------------
-//  History:
-//  http://www.venusie.com
+//  Permission is hereby granted, free of charge, to any person obtaining a
+//  copy of this software and associated documentation files (the "Software"),
+//  to deal in the Software without restriction, including without limitation
+//  the rights to use, copy, modify, merge, publish, distribute, sublicense,
+//  and/or sell copies of the Software, and to permit persons to whom the
+//  Software is furnished to do so, subject to the following conditions:
+// -------------------------------------------------------------------------
+//  The above copyright notice and this permission notice shall be included
+//  in all copies or substantial portions of the Software.
+// -------------------------------------------------------------------------
+//  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+//  OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+//  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+//  IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+//  CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+//  TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+//  SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//
 ////////////////////////////////////////////////////////////////////////////
 
-#include "VePowerPch.h"
+#include "stdafx.h"
 
 //--------------------------------------------------------------------------
 #ifdef VE_SHARED_LIB
 //--------------------------------------------------------------------------
-VeSharedLib::VeSharedLib(const VeChar8* pcLibName) noexcept
+VeSharedLib::VeSharedLib(const char* pcLibName) noexcept
 	: m_kName(pcLibName)
 {
 
@@ -29,7 +45,7 @@ VeSharedLib::~VeSharedLib() noexcept
 	{
 		Unload();
 	}
-	VE_ASSERT(!m_hSharedLib);
+	assert(!m_hSharedLib);
 }
 //--------------------------------------------------------------------------
 bool VeSharedLib::Load() noexcept
@@ -45,24 +61,24 @@ void VeSharedLib::Unload() noexcept
 {
 	if (m_hSharedLib)
 	{
-		VE_ASSERT_EQ(VE_SHARED_LIB_UNLOAD(m_hSharedLib), VE_OK);
+		assert_eq(VE_SHARED_LIB_UNLOAD(m_hSharedLib), VE_OK);
 		m_hSharedLib = nullptr;
 	}
 }
 //--------------------------------------------------------------------------
-const VeChar8* VeSharedLib::GetName() noexcept
+const char* VeSharedLib::GetName() noexcept
 {
 	return m_kName;
 }
 //--------------------------------------------------------------------------
-void* VeSharedLib::GetProc(const VeChar8* pcProcName) noexcept
+void* VeSharedLib::GetProc(const char* pcProcName) noexcept
 {
 	return (void*)VE_SHARED_LIB_GET_PROC(m_hSharedLib, pcProcName);
 }
 //--------------------------------------------------------------------------
 #ifdef VE_PLATFORM_OSX
 //--------------------------------------------------------------------------
-CFBundleRef VE_SHARED_LIB_LOAD(const VeChar8* pcName)
+CFBundleRef VE_SHARED_LIB_LOAD(const char* pcName)
 {
 	CFStringRef hName = CFStringCreateWithCString(kCFAllocatorDefault, pcName, kCFStringEncodingASCII);
 	CFURLRef hURL = CFURLCreateWithFileSystemPath(kCFAllocatorDefault, hName, kCFURLPOSIXPathStyle, true);
@@ -73,7 +89,7 @@ CFBundleRef VE_SHARED_LIB_LOAD(const VeChar8* pcName)
 	return hLib;
 }
 //--------------------------------------------------------------------------
-void* VE_SHARED_LIB_GET_PROC(CFBundleRef hLib, const VeChar8* pcProc)
+void* VE_SHARED_LIB_GET_PROC(CFBundleRef hLib, const char* pcProc)
 {
 	CFStringRef hProc = CFStringCreateWithCString(kCFAllocatorDefault, pcProc, kCFStringEncodingASCII);
 	void* pvRet = CFBundleGetFunctionPointerForName(hLib, hProc);

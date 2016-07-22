@@ -235,6 +235,10 @@
 #	define VE_ENABLE_VULKAN
 #endif
 
+#define VE_OK (0)
+#define VE_ELF (-1)
+#define VE_INFINITE (0xFFFFFFFF)
+
 #define VE_SUCCEEDED(hr) ((hr)==0)
 #define VE_FAILED(hr) ((hr)!=0)
 
@@ -457,6 +461,8 @@
 #include "ASync/VeThread.h"
 #include "ASync/VeCoroutine.h"
 #include "ASync/VeJobSystem.h"
+
+#include "System//VeSharedLib.h"
 
 #include "Event/VeTime.h"
 #include "Video/VePixel.h"

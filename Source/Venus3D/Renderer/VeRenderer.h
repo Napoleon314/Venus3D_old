@@ -39,7 +39,7 @@ public:
 
 	virtual ~VeRenderer() noexcept;
 
-	//VeRenderWindowPtr CreateRenderWindow(const VeChar8* pcTitle, VeInt32 x, VeInt32 y,
+	//VeRenderWindowPtr CreateRenderWindow(const char* pcTitle, VeInt32 x, VeInt32 y,
 	//	VeInt32 w, VeInt32 h, VeUInt32 u32Flags) noexcept;
 
 	virtual bool Init() noexcept = 0;
