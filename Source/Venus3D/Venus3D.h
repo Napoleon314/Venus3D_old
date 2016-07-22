@@ -225,7 +225,8 @@
 #endif
 
 #ifdef BUILD_PLATFORM_WIN
-#	define VE_ENABLE_DIRECTX
+#	define VE_ENABLE_D3D11
+#	define VE_ENABLE_D3D12
 #endif
 
 #ifdef BUILD_PLATFORM_APPLE
@@ -407,6 +408,42 @@
 #include "vtd/point.h"
 #include "vtd/rect.h"
 
+#define VeRTTIDecl(classname,...) \
+	public: \
+		static const vtd::rtti::select<classname,##__VA_ARGS__>::type _rtti; \
+		virtual const vtd::rtti::base* get_rtti() const noexcept { return &_rtti; } \
+		bool is_exact_kind_of(const vtd::rtti::base* _Rtti) const noexcept \
+		{ \
+			return (get_rtti() == _Rtti); \
+		} \
+		void* _dynamic_cast(const vtd::rtti::base* _Rtti) const noexcept \
+		{ \
+			auto _Temp = _Rtti->get_path_from(get_rtti()); \
+			if(_Temp == (decltype(_Temp)(-1))) \
+			{ \
+				return nullptr; \
+			} \
+			else \
+			{ \
+				_Temp = (decltype(_Temp))(void*)this + _Temp; \
+				_Temp -= classname::_rtti.get_path_from(get_rtti()); \
+				return (void*)_Temp; \
+			} \
+		} \
+		bool is_kind_of(const vtd::rtti::base* _Rtti) const noexcept \
+		{ \
+			return _dynamic_cast(_Rtti) ? true : false; \
+		}
+
+#define VeRTTIImpl(classname,...) \
+	const vtd::rtti::select<classname,##__VA_ARGS__>::type classname::_rtti(#classname)
+
+#define VeIsExactKindOf vtd::rtti::base::is_exact_kind_of
+
+#define VeIsKindOf vtd::rtti::base::is_kind_of
+
+#define VeDynamicCast vtd::rtti::base::_dynamic_cast
+
 #include "Memory/VeString.h"
 #include "Memory/VeMemory.h"
 #include "Memory/VeMemObject.h"
@@ -429,6 +466,9 @@
 #include "Event/VeMouse.h"
 #include "Event/VeEvent.h"
 #include "Video/VeVideo.h"
+
+#include "Renderer/VeRenderWindow.h"
+#include "Renderer/VeRenderer.h"
 
 struct VENUS_API VeThreadLocalSingleton : public VeMemObject
 {
