@@ -3,9 +3,9 @@
 //  The MIT License (MIT)
 //  Copyright (c) 2016 Albert D Yang
 // -------------------------------------------------------------------------
-//  Module:      PowerTest
-//  File name:   Main.cpp
-//  Created:     2016/07/01 by Albert
+//  Module:      RenderTest
+//  File name:   RenderTest.h
+//  Created:     2016/07/23 by Albert
 //  Description:
 // -------------------------------------------------------------------------
 //  Permission is hereby granted, free of charge, to any person obtaining a
@@ -28,16 +28,13 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-#include <Venus3D.h>
+#pragma once
 
-int main(/*int argc, char * argv[]*/)
+#include <VeApplication.h>
+
+class RenderTest : public VeApplication
 {
-	VeInit("RenderTest");
+public:
+	RenderTest() noexcept;
 
-
-	
-
-	VeTerm();
-
-	return 0;
-}
+};

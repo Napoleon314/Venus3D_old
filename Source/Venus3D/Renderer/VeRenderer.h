@@ -30,11 +30,41 @@
 
 #pragma once
 
+#define VE_RENDER_D3D			(0x0100)
+#define VE_RENDER_KHR			(0x0200)
+#define VE_RENDER_APPLE			(0x0400)
+#define VE_RENDER_MOBILE		(0x0800)
+#define VE_RENDER_NGAPI			(0x1000)
+#define VE_RENDER_API_VER_MASK	(0x00FF)
+
+enum VeRenderAPI
+{
+	VE_RENDER_D3D11		= (0xB0 | VE_RENDER_D3D),
+	VE_RENDER_D3D12		= (0xC0 | VE_RENDER_D3D | VE_RENDER_NGAPI),
+	VE_RENDER_OPENGL	= (VE_RENDER_KHR | VE_RENDER_APPLE),
+	VE_RENDER_GLES3		= (0x30 | VE_RENDER_KHR | VE_RENDER_APPLE | VE_RENDER_MOBILE),
+	VE_RENDER_VULKAN	= (VE_RENDER_KHR | VE_RENDER_MOBILE | VE_RENDER_NGAPI),
+	VE_RENDER_METAL		= (VE_RENDER_APPLE | VE_RENDER_MOBILE | VE_RENDER_NGAPI)
+};
+
+VeSmartPointer(VeRenderer);
+
 class VENUS_API VeRenderer : public VeRefObject
 {
 	VeNoCopy(VeRenderer);
 	VeRTTIDecl(VeRenderer);
 public:
+	enum API
+	{
+		API_NONE = 0x0,
+		API_D3D11 = 0x1,
+		API_D3D12 = 0x2,
+		API_OGL = 0x4,
+		API_OGLES2 = 0x8,
+		API_OGLES3 = 0x10,
+		API_MASK = 0xFF
+	};
+
 	VeRenderer() noexcept;
 
 	virtual ~VeRenderer() noexcept;
@@ -42,12 +72,13 @@ public:
 	//VeRenderWindowPtr CreateRenderWindow(const char* pcTitle, VeInt32 x, VeInt32 y,
 	//	VeInt32 w, VeInt32 h, VeUInt32 u32Flags) noexcept;
 
-	virtual bool Init() noexcept = 0;
+	virtual void Init() = 0;
 
-	virtual void Term() noexcept = 0;
+	virtual void Term() = 0;
 
 	//virtual VeRenderWindowPtr CreateRenderWindow(const VeWindowPtr& spWindow) noexcept = 0;
-
+	
+	static VeRendererPtr Create(VeRenderAPI eAPI) noexcept;
 
 protected:
 	
@@ -55,7 +86,5 @@ protected:
 	
 
 };
-
-VeSmartPointer(VeRenderer);
 
 #include "VeRenderer.inl"

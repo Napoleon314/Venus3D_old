@@ -3,9 +3,9 @@
 //  The MIT License (MIT)
 //  Copyright (c) 2016 Albert D Yang
 // -------------------------------------------------------------------------
-//  Module:      D3D12
-//  File name:   VeRendererD3D12.cpp
-//  Created:     2016/07/22 by Albert
+//  Module:      Framework
+//  File name:   VeApplication.cpp
+//  Created:     2016/07/23 by Albert
 //  Description:
 // -------------------------------------------------------------------------
 //  Permission is hereby granted, free of charge, to any person obtaining a
@@ -29,53 +29,94 @@
 ////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
-#include "VeRendererD3D12.h"
 
 //--------------------------------------------------------------------------
-#ifdef VE_ENABLE_D3D12
-//--------------------------------------------------------------------------
-VeRTTIImpl(VeRendererD3D12);
-//--------------------------------------------------------------------------
-VeRendererD3D12::VeRendererD3D12() noexcept
+VeApplication::VeApplication() noexcept
 {
 
 }
 //--------------------------------------------------------------------------
-VeRendererD3D12::~VeRendererD3D12() noexcept
+VeApplication::~VeApplication() noexcept
 {
-
+	
 }
 //--------------------------------------------------------------------------
-void VeRendererD3D12::Init()
+void VeApplication::Init() noexcept
 {
-	m_spD3D12 = VE_NEW VeSharedLib(LIB_D3D12);
-	if (!m_spD3D12->Load())
+	OnInit();
+}
+//--------------------------------------------------------------------------
+void VeApplication::Term() noexcept
+{
+	OnTerm();
+}
+//--------------------------------------------------------------------------
+void VeApplication::ProcessEvents() noexcept
+{
+	venus3d.GetEventQueue()->PeekEvents(m_kEventCache);
+	for (auto pkEvent : m_kEventCache)
 	{
-		throw "Failed to load " LIB_D3D12 ".";
+		assert(pkEvent->m_u32Type);
+		switch (pkEvent->m_u32Type)
+		{
+		case VE_WINDOWEVENT:
+			if (pkEvent->m_kWindow.m_u8Event == VE_WINDOWEVENT_CLOSE)
+			{
+				if (m_spMainWindow && pkEvent->m_kWindow.m_u32WindowID
+					== m_spMainWindow->GetID())
+				{
+					m_spMainWindow = nullptr;
+				}
+			}
+			else if (pkEvent->m_kWindow.m_u8Event == VE_WINDOWEVENT_MOVED)
+			{
+				VeDebugOutput("Moved: %d, %d, %d",
+					pkEvent->m_kWindow.m_u32TimeStamp,
+					pkEvent->m_kWindow.m_i32Data1,
+					pkEvent->m_kWindow.m_i32Data2);
+			}
+			else if (pkEvent->m_kWindow.m_u8Event == VE_WINDOWEVENT_RESIZED)
+			{
+				VeDebugOutput("Resized: %d, %d, %d",
+					pkEvent->m_kWindow.m_u32TimeStamp,
+					pkEvent->m_kWindow.m_i32Data1,
+					pkEvent->m_kWindow.m_i32Data2);
+			}
+			break;
+		case VE_QUIT:
+			m_bLoop = false;
+			break;
+		default:
+			break;
+		}
 	}
-	m_spDXGI = VE_NEW VeSharedLib(LIB_DXGI);
-	if (!m_spDXGI->Load())
-	{
-		throw "Failed to load " LIB_DXGI ".";
-	}
-	m_spD3DCompiler = VE_NEW VeSharedLib(LIB_D3DCOMPLIER);
-	if (!m_spD3DCompiler->Load())
-	{
-		throw "Failed to load " LIB_D3DCOMPLIER ".";
-	}
+	m_kEventCache.clear();
 }
 //--------------------------------------------------------------------------
-void VeRendererD3D12::Term()
+void VeApplication::Update() noexcept
 {
-	m_spD3D12 = nullptr;
-	m_spDXGI = nullptr;
-	m_spD3DCompiler = nullptr;
+	OnUpdate();
 }
 //--------------------------------------------------------------------------
-VeRendererPtr CreateRendererD3D12() noexcept
+void VeApplication::Render() noexcept
 {
-	return VE_NEW VeRendererD3D12();
+	//m_spMainWindow->Begin();
+	OnRender();	
+	//m_spMainWindow->End();
 }
 //--------------------------------------------------------------------------
-#endif
+void VeApplication::Loop() noexcept
+{
+	while (m_bLoop)
+	{
+		ProcessEvents();
+	}
+}
+//--------------------------------------------------------------------------
+void VeApplication::Go() noexcept
+{
+	Init();
+	Loop();
+	Term();
+}
 //--------------------------------------------------------------------------

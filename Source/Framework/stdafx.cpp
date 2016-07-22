@@ -3,9 +3,9 @@
 //  The MIT License (MIT)
 //  Copyright (c) 2016 Albert D Yang
 // -------------------------------------------------------------------------
-//  Module:      D3D12
-//  File name:   VeRendererD3D12.h
-//  Created:     2016/07/22 by Albert
+//  Module:      Framework
+//  File name:   stdafx.cpp
+//  Created:     2016/07/23 by Albert
 //  Description:
 // -------------------------------------------------------------------------
 //  Permission is hereby granted, free of charge, to any person obtaining a
@@ -28,38 +28,4 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-#pragma once
-
-#ifdef VE_ENABLE_D3D12
-
-#include <d3d12.h>
-#include <dxgi1_4.h>
-#include <d3dcompiler.h>
-
-#define LIB_D3D12 "d3d12.dll"
-#define LIB_DXGI "dxgi.dll"
-#define LIB_D3DCOMPLIER "d3dcompiler_47.dll"
-
-class VeRendererD3D12 : public VeRenderer
-{
-	VeNoCopy(VeRendererD3D12);
-	VeRTTIDecl(VeRendererD3D12);
-public:
-	VeRendererD3D12() noexcept;
-
-	virtual ~VeRendererD3D12() noexcept;
-
-	virtual void Init() override;
-
-	virtual void Term() override;
-
-protected:
-	VeSharedLibPtr m_spD3D12;
-	VeSharedLibPtr m_spDXGI;
-	VeSharedLibPtr m_spD3DCompiler;
-
-};
-
-VeRendererPtr CreateRendererD3D12() noexcept;
-
-#endif
+#include "stdafx.h"

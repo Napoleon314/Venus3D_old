@@ -3,9 +3,9 @@
 //  The MIT License (MIT)
 //  Copyright (c) 2016 Albert D Yang
 // -------------------------------------------------------------------------
-//  Module:      D3D12
-//  File name:   VeRendererD3D12.h
-//  Created:     2016/07/22 by Albert
+//  Module:      Framework
+//  File name:   VeApplication.h
+//  Created:     2016/07/23 by Albert
 //  Description:
 // -------------------------------------------------------------------------
 //  Permission is hereby granted, free of charge, to any person obtaining a
@@ -30,36 +30,44 @@
 
 #pragma once
 
-#ifdef VE_ENABLE_D3D12
+#include <Venus3D.h>
 
-#include <d3d12.h>
-#include <dxgi1_4.h>
-#include <d3dcompiler.h>
-
-#define LIB_D3D12 "d3d12.dll"
-#define LIB_DXGI "dxgi.dll"
-#define LIB_D3DCOMPLIER "d3dcompiler_47.dll"
-
-class VeRendererD3D12 : public VeRenderer
+class VeApplication : public VeRefObject
 {
-	VeNoCopy(VeRendererD3D12);
-	VeRTTIDecl(VeRendererD3D12);
 public:
-	VeRendererD3D12() noexcept;
+	inline const VeRenderWindowPtr& GetWindow() noexcept;
 
-	virtual ~VeRendererD3D12() noexcept;
+	virtual void Init() noexcept;
 
-	virtual void Init() override;
+	virtual void Term() noexcept;	
 
-	virtual void Term() override;
+	virtual void ProcessEvents() noexcept;
+
+	virtual void Update() noexcept;
+
+	virtual void Render() noexcept;
+
+	virtual void Loop() noexcept;
+
+	virtual void Go() noexcept;
+
+	virtual void OnInit() noexcept {}
+
+	virtual void OnTerm() noexcept {}
+
+	virtual void OnUpdate() noexcept {}
+
+	virtual void OnRender() noexcept {}
 
 protected:
-	VeSharedLibPtr m_spD3D12;
-	VeSharedLibPtr m_spDXGI;
-	VeSharedLibPtr m_spD3DCompiler;
+	VeApplication() noexcept;
+
+	virtual ~VeApplication() noexcept;
+
+	VeRenderWindowPtr m_spMainWindow;
+	VeVector<VeEvent*> m_kEventCache;
+	bool m_bLoop = true;
 
 };
 
-VeRendererPtr CreateRendererD3D12() noexcept;
-
-#endif
+#include "VeApplication.inl"
