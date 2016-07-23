@@ -3,9 +3,9 @@
 //  The MIT License (MIT)
 //  Copyright (c) 2016 Albert D Yang
 // -------------------------------------------------------------------------
-//  Module:      SDL
-//  File name:   stdafx.c
-//  Created:     2016/07/21 by Albert
+//  Module:      RenderTest
+//  File name:   Main.cpp
+//  Created:     2016/07/23 by Albert
 //  Description:
 // -------------------------------------------------------------------------
 //  Permission is hereby granted, free of charge, to any person obtaining a
@@ -28,4 +28,13 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-#include "stdafx.h"
+#include "RenderTest.h"
+
+int32_t VeMain() noexcept
+{
+	VeInit("RenderTest");
+	RenderTest app;
+	app.Go();
+	VeTerm();
+	return 0;
+}

@@ -1397,6 +1397,8 @@ bool WindowsVideoDevice::_CreateWindow(VeWindow::Data* pkWindow) noexcept
 		return false;
 	}
 
+	SetCursor(LoadCursor(NULL, IDC_ARROW));
+
 	_PumpEvents();
 
 	if (!SetupWindowData(pkWindow, hwnd, VE_TRUE))

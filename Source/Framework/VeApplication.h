@@ -64,7 +64,8 @@ protected:
 
 	virtual ~VeApplication() noexcept;
 
-	VeRenderWindowPtr m_spMainWindow;
+	VeRendererPtr m_spD3D12;
+	VeRenderWindowPtr m_spD3D12Window;
 	VeVector<VeEvent*> m_kEventCache;
 	bool m_bLoop = true;
 

@@ -49,6 +49,17 @@ extern VeRendererPtr CreateRendererD3D12() noexcept;
 //--------------------------------------------------------------------------
 #endif
 //--------------------------------------------------------------------------
+VeRenderWindowPtr VeRenderer::CreateRenderWindow(const char* pcTitle,
+	int32_t x, int32_t y, int32_t w, int32_t h, int32_t u32Flags) noexcept
+{
+	VeWindowPtr spWindow = VE_NEW VeWindow();
+	spWindow->Create(pcTitle, x, y, w, h, u32Flags);
+	VeRenderWindowPtr spRes = CreateRenderWindow(spWindow);
+	spWindow = nullptr;
+	spRes->m_bNeedDestory = true;
+	return spRes;
+}
+//--------------------------------------------------------------------------
 VeRendererPtr VeRenderer::Create(VeRenderAPI eAPI) noexcept
 {
 	switch (eAPI)

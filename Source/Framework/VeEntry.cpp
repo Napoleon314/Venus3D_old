@@ -30,14 +30,18 @@
 
 #include "stdafx.h"
 
-int main(/*int argc, char * argv[]*/)
+extern int32_t VeMain() noexcept;
+
+#ifdef BUILD_PLATFORM_WIN
+
+int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 {
-	VeInit("RenderTest");
-
-
-
-
-	VeTerm();
-
-	return 0;
+	return VeMain();
 }
+
+#elif defined(BUILD_PLATFORM_ANDROID)
+
+#else
+
+
+#endif

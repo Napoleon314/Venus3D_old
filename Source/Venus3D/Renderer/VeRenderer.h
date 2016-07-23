@@ -69,14 +69,18 @@ public:
 
 	virtual ~VeRenderer() noexcept;
 
-	//VeRenderWindowPtr CreateRenderWindow(const char* pcTitle, VeInt32 x, VeInt32 y,
-	//	VeInt32 w, VeInt32 h, VeUInt32 u32Flags) noexcept;
+	VeRenderWindowPtr CreateRenderWindow(const char* pcTitle,
+		int32_t x, int32_t y, int32_t w, int32_t h, int32_t u32Flags) noexcept;
 
 	virtual void Init() = 0;
 
 	virtual void Term() = 0;
 
-	//virtual VeRenderWindowPtr CreateRenderWindow(const VeWindowPtr& spWindow) noexcept = 0;
+	virtual void BeginSyncCopy() noexcept = 0;
+
+	virtual void EndSyncCopy() noexcept = 0;
+
+	virtual VeRenderWindowPtr CreateRenderWindow(const VeWindowPtr& spWindow) noexcept = 0;
 	
 	static VeRendererPtr Create(VeRenderAPI eAPI) noexcept;
 

@@ -173,11 +173,16 @@ inline void VeRenderWindow::SetGrab(bool bGrabbed) noexcept
 //--------------------------------------------------------------------------
 inline bool VeRenderWindow::IsSync() noexcept
 {
-	return m_bSync;
+	return m_bSync ? true : false;
 }
 //--------------------------------------------------------------------------
 inline void VeRenderWindow::SetSync(bool bEnable) noexcept
 {
-	m_bSync = bEnable;
+	m_bSync = bEnable ? VE_TRUE : VE_FALSE;
+}
+//--------------------------------------------------------------------------
+inline uint64_t VeRenderWindow::GetFrameIndex() noexcept
+{
+	return m_u64FrameIndex;
 }
 //--------------------------------------------------------------------------

@@ -99,6 +99,8 @@ public:
 
 	inline void SetSync(bool bEnable) noexcept;
 
+	inline uint64_t GetFrameIndex() noexcept;
+
 	virtual bool IsValid() noexcept;
 
 	virtual void Begin() noexcept = 0;
@@ -108,8 +110,9 @@ public:
 protected:
 	friend class VeRenderer;
 	VeWindowPtr m_spTargetWindow;
-	bool m_bNeedDestory = false;
-	bool m_bSync = false;
+	VE_BOOL m_bNeedDestory = VE_FALSE;
+	VE_BOOL m_bSync = VE_FALSE;
+	uint64_t m_u64FrameIndex = 0;
 
 };
 

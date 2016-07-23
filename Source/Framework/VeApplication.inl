@@ -31,6 +31,6 @@
 //--------------------------------------------------------------------------
 inline const VeRenderWindowPtr& VeApplication::GetWindow() noexcept
 {
-	return m_spMainWindow;
+	return m_spD3D12Window;
 }
 //--------------------------------------------------------------------------

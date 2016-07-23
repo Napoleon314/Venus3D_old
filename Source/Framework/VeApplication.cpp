@@ -43,12 +43,35 @@ VeApplication::~VeApplication() noexcept
 //--------------------------------------------------------------------------
 void VeApplication::Init() noexcept
 {
+	m_spD3D12 = VeRenderer::Create(VE_RENDER_D3D12);
+	try
+	{
+		m_spD3D12->Init();
+	}
+	catch (const char* pcMsg)
+	{
+		VeCoreLogE(pcMsg);
+		m_spD3D12 = nullptr;
+	}
+
+	m_spD3D12Window = m_spD3D12->CreateRenderWindow("D3D12",
+		VE_WINDOWPOS_CENTERED, VE_WINDOWPOS_CENTERED, 1024, 768, 0);
+
 	OnInit();
 }
 //--------------------------------------------------------------------------
 void VeApplication::Term() noexcept
 {
 	OnTerm();
+	try
+	{
+		m_spD3D12->Term();
+	}
+	catch (const char* pcMsg)
+	{
+		VeCoreLogE(pcMsg);
+	}
+	m_spD3D12 = nullptr;
 }
 //--------------------------------------------------------------------------
 void VeApplication::ProcessEvents() noexcept
@@ -62,10 +85,10 @@ void VeApplication::ProcessEvents() noexcept
 		case VE_WINDOWEVENT:
 			if (pkEvent->m_kWindow.m_u8Event == VE_WINDOWEVENT_CLOSE)
 			{
-				if (m_spMainWindow && pkEvent->m_kWindow.m_u32WindowID
-					== m_spMainWindow->GetID())
+				if (m_spD3D12Window && pkEvent->m_kWindow.m_u32WindowID
+					== m_spD3D12Window->GetID())
 				{
-					m_spMainWindow = nullptr;
+					m_spD3D12Window = nullptr;
 				}
 			}
 			else if (pkEvent->m_kWindow.m_u8Event == VE_WINDOWEVENT_MOVED)
@@ -100,9 +123,9 @@ void VeApplication::Update() noexcept
 //--------------------------------------------------------------------------
 void VeApplication::Render() noexcept
 {
-	//m_spMainWindow->Begin();
+	m_spD3D12Window->Begin();
 	OnRender();	
-	//m_spMainWindow->End();
+	m_spD3D12Window->End();
 }
 //--------------------------------------------------------------------------
 void VeApplication::Loop() noexcept
@@ -110,6 +133,13 @@ void VeApplication::Loop() noexcept
 	while (m_bLoop)
 	{
 		ProcessEvents();
+		if (m_spD3D12Window)
+		{
+			//m_spD3D12->BeginSyncCopy();
+			Update();
+			//m_spD3D12->EndSyncCopy();
+			Render();
+		}
 	}
 }
 //--------------------------------------------------------------------------

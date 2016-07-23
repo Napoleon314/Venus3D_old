@@ -87,7 +87,7 @@ void suspend_handler(int) noexcept
 void VeSuspendThread(VeThreadHandle hThread) noexcept
 {
 #	ifdef BUILD_PLATFORM_WIN
-	assert_neq(SuspendThread(hThread), -1);
+	assert_ne(SuspendThread(hThread), -1);
 #   else
 	assert_eq(pthread_kill(hThread, SUSPEND_SIG), 0);
 #	endif
@@ -96,7 +96,7 @@ void VeSuspendThread(VeThreadHandle hThread) noexcept
 void VeResumeThread(VeThreadHandle hThread) noexcept
 {
 #	ifdef BUILD_PLATFORM_WIN
-	assert_neq(ResumeThread(hThread), -1);
+	assert_ne(ResumeThread(hThread), -1);
 #   else
 	assert_eq(pthread_kill(hThread, RESUME_SIG), 0);
 #	endif

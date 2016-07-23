@@ -187,6 +187,7 @@
 #	pragma warning(disable: 4275) // Derived from non dllexport classes.
 #	pragma warning(disable: 4334)
 #	pragma warning(disable: 4706)
+#	pragma warning(disable: 4702)
 #endif
 
 #ifndef _CRT_SECURE_NO_DEPRECATE
@@ -239,8 +240,8 @@
 #define VE_ELF (-1)
 #define VE_INFINITE (0xFFFFFFFF)
 
-#define VE_SUCCEEDED(hr) ((hr)==0)
-#define VE_FAILED(hr) ((hr)!=0)
+#define VE_SUCCEEDED(hr) ((hr) >= 0)
+#define VE_FAILED(hr) ((hr) < 0)
 
 #ifdef BUILD_PLATFORM_WIN
 #	include <SDKDDKVer.h>
@@ -315,12 +316,14 @@
 
 #ifdef VE_DEBUG
 #	define assert_eq(e,c) assert(e == c)
-#	define assert_neq(e,c) assert(e != c)
+#	define assert_ne(e,c) assert(e != c)
 #	define assert_lt(e,c) assert(e < c)
+#	define assert_ge(e,c) assert(e >= c)
 #else
 #	define assert_eq(e,c) e
-#	define assert_neq(e,c) e
+#	define assert_ne(e,c) e
 #	define assert_lt(e,c) e
+#	define assert_ge(e,c) e
 #endif
 
 #ifdef BUILD_PLATFORM_PC
