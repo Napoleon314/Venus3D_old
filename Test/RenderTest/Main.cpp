@@ -29,12 +29,17 @@
 ////////////////////////////////////////////////////////////////////////////
 
 #include "RenderTest.h"
+#include <SDL.h>
 
 int32_t VeMain() noexcept
 {
-	VeInit("RenderTest");
-	RenderTest app;
-	app.Go();
-	VeTerm();
+	SDL_LogSetPriority(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_INFO);
+
+	/* Initialize SDL */
+	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't initialize SDL: %s\n", SDL_GetError());
+		return (1);
+	}
+	SDL_Quit();
 	return 0;
 }
