@@ -270,7 +270,8 @@
 #	include <signal.h>
 #	include <sys/time.h>
 #	include <ctype.h>
-#include <stdarg.h>
+#	include <stdarg.h>
+#	include <dlfcn.h>
 #endif
 #ifdef BUILD_PLATFORM_ANDROID
 #	include <pthread.h>
