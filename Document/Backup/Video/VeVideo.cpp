@@ -523,21 +523,22 @@ void VeVideoDevice::SetWindowGrab(VeWindow::Data* pkWindow,
 	UpdateWindowGrab(pkWindow);
 }
 //--------------------------------------------------------------------------
-/*void VeVideoDevice::DestroyWindow(VeWindow::Data* pkWindow) noexcept
+void VeVideoDevice::DestroyWindow(VeWindow::Data* pkWindow) noexcept
 {
 	assert(pkWindow && pkWindow->m_kNode.is_attach(m_kWindowList));
 	pkWindow->m_bIsDestorying = VE_TRUE;
 
 	HideWindow(pkWindow);
 
-	if (ve_keyboard_ptr && ve_keyboard_ptr->m_pkFocus == pkWindow)
+	auto spKeyBoard = Venus3D::Ref().GetKeyboard();
+	if (spKeyBoard && spKeyBoard->m_pkFocus == pkWindow)
 	{
-		ve_keyboard_ptr->SetFocus(nullptr);
+		spKeyBoard->SetFocus(nullptr);
 	}
-
-	if (ve_mouse_ptr && ve_mouse_ptr->m_pkFocus == pkWindow)
+	auto spMouse = Venus3D::Ref().GetMouse();
+	if (spMouse && spMouse->m_pkFocus == pkWindow)
 	{
-		ve_mouse_ptr->SetFocus(nullptr);
+		spMouse->SetFocus(nullptr);
 	}
 
 	_DestroyWindow(pkWindow);
@@ -558,7 +559,7 @@ void VeVideoDevice::SetWindowGrab(VeWindow::Data* pkWindow,
 	}
 
 	pkWindow->m_kNode.detach();
-}*/
+}
 //--------------------------------------------------------------------------
 void VeVideoDevice::GetWindowWMInfo(VeWindow::Data* pkWindow,
 	VeSysWMInfo* pkInfo) noexcept
@@ -569,9 +570,9 @@ void VeVideoDevice::GetWindowWMInfo(VeWindow::Data* pkWindow,
 //--------------------------------------------------------------------------
 void VeVideoDevice::PeekEvents(VeVector<VeEvent*>& kOutput) noexcept
 {
-	assert(ve_event_queue_ptr);
+	assert(Venus3D::Ref().GetEventQueue());
 	_PumpEvents();
-	ve_event_queue_ptr->PeekEvents(kOutput);
+	Venus3D::Ref().GetEventQueue()->PeekEvents(kOutput);
 }
 //--------------------------------------------------------------------------
 int32_t VeVideoDevice::GetWindowDisplayIndex(
@@ -623,7 +624,7 @@ int32_t VeVideoDevice::GetWindowDisplayIndex(
 	for (i = 0; i < i32DisplayNum; ++i)
 	{
 		GetDisplayBounds(i, &rect);
-		if (vtd::enclose_points(&center, 1, &rect, nullptr))
+		if (vtd::enclose_points<int32_t>(&center, 1, &rect, nullptr))
 		{
 			return i;
 		}
@@ -670,8 +671,8 @@ int32_t VeVideoDevice::GetIndexOfDisplay(VeVideoDisplay* pkDisplay) noexcept
 	return 0;
 }
 //--------------------------------------------------------------------------
-void VeVideoDevice::UpdateFullscreenMode(VeWindow::Data* pkWindow,
-	VE_BOOL bFullscreen) noexcept
+void VeVideoDevice::UpdateFullscreenMode(VeWindow::Data*,
+	VE_BOOL) noexcept
 {
 	/*VeVideoDisplay* pkDisplay = GetDisplayForWindow(pkWindow);
 
@@ -832,15 +833,15 @@ void VeVideoDevice::SendWindowEvent(VeWindow::Data* pkWindow,
 		break;
 	}
 
-	assert(ve_event_queue_ptr);
-	if (ve_event_queue_ptr->IsEventTypeEnable(VE_WINDOWEVENT))
+	assert(Venus3D::Ref().GetEventQueue());
+	if (Venus3D::Ref().GetEventQueue()->IsEventTypeEnable(VE_WINDOWEVENT))
 	{
 		switch (u8Event)
 		{
 		case VE_WINDOWEVENT_RESIZED:
 		case VE_WINDOWEVENT_SIZE_CHANGED:
 		case VE_WINDOWEVENT_MOVED:
-			ve_event_queue_ptr->FilterEvents([u8Event, pkWindow](VeEvent& kEvent) noexcept
+			Venus3D::Ref().GetEventQueue()->FilterEvents([u8Event, pkWindow](VeEvent& kEvent) noexcept
 			{
 				if (kEvent.m_u32Type == VE_WINDOWEVENT
 					&& kEvent.m_kWindow.m_u8Event == u8Event
@@ -855,7 +856,7 @@ void VeVideoDevice::SendWindowEvent(VeWindow::Data* pkWindow,
 			break;
 		}
 
-		VeEvent* pkEvent = ve_event_queue_ptr->AddEvent();
+		VeEvent* pkEvent = Venus3D::Ref().GetEventQueue()->AddEvent();
 		pkEvent->m_kWindow.m_u32Type = VE_WINDOWEVENT;
 		pkEvent->m_kWindow.m_u32TimeStamp = VeEventQueue::GetTicks();
 		pkEvent->m_kWindow.m_u8Event = u8Event;
@@ -868,7 +869,7 @@ void VeVideoDevice::SendWindowEvent(VeWindow::Data* pkWindow,
 	{
 		if (m_kWindowList.size() == 1)
 		{
-			ve_event_queue_ptr->SendAppEvent(VE_QUIT);
+			Venus3D::Ref().GetEventQueue()->SendAppEvent(VE_QUIT);
 		}
 	}
 }
@@ -909,7 +910,7 @@ void VeVideoDevice::OnWindowEnter(VeWindow::Data* pkWindow) noexcept
 	_OnWindowEnter(pkWindow);
 }
 //--------------------------------------------------------------------------
-void VeVideoDevice::OnWindowLeave(VeWindow::Data* pkWindow) noexcept
+void VeVideoDevice::OnWindowLeave(VeWindow::Data*) noexcept
 {
 
 }
@@ -921,10 +922,10 @@ void VeVideoDevice::OnWindowFocusGained(VeWindow::Data* pkWindow) noexcept
 		_SetWindowGammaRamp(pkWindow, pkWindow->m_pu16Gamma);
 	}
 
-	if (ve_mouse_ptr && ve_mouse_ptr->IsRelativeModeEnable())
+	if (Venus3D::Ref().GetMouse() && Venus3D::Ref().GetMouse()->IsRelativeModeEnable())
 	{
-		ve_mouse_ptr->SetFocus(pkWindow);
-		ve_mouse_ptr->WarpInWindow(pkWindow, pkWindow->w >> 1, pkWindow->h >> 1);
+		Venus3D::Ref().GetMouse()->SetFocus(pkWindow);
+		Venus3D::Ref().GetMouse()->WarpInWindow(pkWindow, pkWindow->w >> 1, pkWindow->h >> 1);
 	}
 
 	UpdateWindowGrab(pkWindow);
@@ -965,7 +966,7 @@ void VeVideoDevice::OnWindowFocusLost(VeWindow::Data* pkWindow) noexcept
 void VeVideoDevice::UpdateWindowGrab(VeWindow::Data* pkWindow) noexcept
 {
 		VE_BOOL bGrabbed;
-		if ((ve_mouse_ptr->IsRelativeModeEnable()
+		if ((Venus3D::Ref().GetMouse()->IsRelativeModeEnable()
 			|| (pkWindow->m_u32Flags & VE_WINDOW_INPUT_GRABBED))
 			&& (pkWindow->m_u32Flags & VE_WINDOW_INPUT_FOCUS))
 		{
@@ -980,16 +981,16 @@ void VeVideoDevice::UpdateWindowGrab(VeWindow::Data* pkWindow) noexcept
 //--------------------------------------------------------------------------
 VeWindow::Data* VeVideoDevice::GetKeyboardFocus() noexcept
 {
-	return ve_keyboard_ptr ? ve_keyboard_ptr->m_pkFocus : nullptr;
+	return Venus3D::Ref().GetKeyboard() ? Venus3D::Ref().GetKeyboard()->m_pkFocus : nullptr;
 }
 //--------------------------------------------------------------------------
 VeWindow::Data* VeVideoDevice::GetMouseFocus() noexcept
 {
-	return ve_mouse_ptr ? ve_mouse_ptr->m_pkFocus : nullptr;
+	return Venus3D::Ref().GetMouse() ? Venus3D::Ref().GetMouse()->m_pkFocus : nullptr;
 }
 //--------------------------------------------------------------------------
 bool VeVideoDevice::_GetWindowGammaRamp(VeWindow::Data* pkWindow,
-	uint16_t* pu16Ramp) noexcept
+	uint16_t*) noexcept
 {
 	for (int32_t i(0); i < 256; ++i)
 	{
@@ -1018,7 +1019,7 @@ void VeVideoDevice::CalculateGammaRamp(float f32Gamma,
 	{
 		for (int32_t i = 0; i < 256; ++i)
 		{
-			pu16Ramp[i] = (i << 8) | i;
+			pu16Ramp[i] = (uint16_t)((i << 8) | i);
 		}
 		return;
 	}

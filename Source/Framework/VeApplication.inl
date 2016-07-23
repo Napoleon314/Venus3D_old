@@ -27,10 +27,3 @@
 //  SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 ////////////////////////////////////////////////////////////////////////////
-
-//--------------------------------------------------------------------------
-inline const VeRenderWindowPtr& VeApplication::GetWindow() noexcept
-{
-	return m_spD3D12Window;
-}
-//--------------------------------------------------------------------------

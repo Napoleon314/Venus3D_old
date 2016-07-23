@@ -466,8 +466,9 @@
 #include "ASync/VeJobSystem.h"
 
 #include "System//VeSharedLib.h"
+#include "System/VeTime.h"
 
-#include "Event/VeTime.h"
+/*#include "Event/VeTime.h"
 #include "Video/VePixel.h"
 #include "Video/VeSurface.h"
 #include "Video/VeWindow.h"
@@ -477,7 +478,7 @@
 #include "Video/VeVideo.h"
 
 #include "Renderer/VeRenderWindow.h"
-#include "Renderer/VeRenderer.h"
+#include "Renderer/VeRenderer.h"*/
 
 struct VENUS_API VeThreadLocalSingleton : public VeMemObject
 {
@@ -520,14 +521,6 @@ public:
 
 	inline VeTime& GetTime() noexcept;
 
-	inline const VeEventQueuePtr& GetEventQueue() noexcept;
-
-	inline const VeVideoDevicePtr& GetVideoDevice() noexcept;
-
-	inline const VeKeyboardPtr& GetKeyboard() noexcept;
-
-	inline const VeMousePtr& GetMouse() noexcept;
-
 private:
 	void InitLog() noexcept;
 
@@ -537,24 +530,12 @@ private:
 
 	void TermJob() noexcept;
 
-	void InitEvent() noexcept;
-	
-	void TermEvent() noexcept;
-
-	void InitVideo() noexcept;
-
-	void TermVideo() noexcept;
-
 	vtd::string m_kProcessName;
 	uint32_t m_u32ActiveMask = 0;
 	PoolAllocatorMap m_kAllocatorMap;
 	vtd::spin_lock m_kAllocatorLock;
 	VeLog m_kLog;
 	VeTime m_kTime;
-	VeEventQueuePtr m_spEventQueue;
-	VeKeyboardPtr m_spKeyboard;
-	VeMousePtr m_spMouse;
-	VeVideoDevicePtr m_spVideoDevice;
 
 public:
 	VeLog::Pack CORE;

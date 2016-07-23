@@ -550,7 +550,7 @@ void VeKeyboard::SetScancodeName(VeScancode eScancode,
 //--------------------------------------------------------------------------
 void VeKeyboard::SetFocus(VeWindow::Data* pkWindow) noexcept
 {
-	//assert(ve_video_ptr);
+	assert(Venus3D::Ref().GetVideoDevice());
 	if (m_pkFocus && !pkWindow)
 	{
 		Reset();
@@ -558,14 +558,14 @@ void VeKeyboard::SetFocus(VeWindow::Data* pkWindow) noexcept
 
 	if (m_pkFocus && m_pkFocus != pkWindow)
 	{
-		//ve_video_ptr->SendWindowEvent(m_pkFocus,
-		//	VE_WINDOWEVENT_FOCUS_LOST, 0, 0);
+		Venus3D::Ref().GetVideoDevice()->SendWindowEvent(m_pkFocus,
+			VE_WINDOWEVENT_FOCUS_LOST, 0, 0);
 
 		/*if (SDL_EventState(SDL_TEXTINPUT, SDL_QUERY)) {
-			SDL_VideoDevice *video = SDL_GetVideoDevice();
-			if (video && video->StopTextInput) {
-				video->StopTextInput(video);
-			}
+		SDL_VideoDevice *video = SDL_GetVideoDevice();
+		if (video && video->StopTextInput) {
+		video->StopTextInput(video);
+		}
 		}*/
 	}
 
@@ -573,14 +573,14 @@ void VeKeyboard::SetFocus(VeWindow::Data* pkWindow) noexcept
 
 	if (m_pkFocus)
 	{
-		//ve_video_ptr->SendWindowEvent(m_pkFocus,
-		//	VE_WINDOWEVENT_FOCUS_GAINED, 0, 0);
+		Venus3D::Ref().GetVideoDevice()->SendWindowEvent(m_pkFocus,
+			VE_WINDOWEVENT_FOCUS_GAINED, 0, 0);
 
 		/*if (SDL_EventState(SDL_TEXTINPUT, SDL_QUERY)) {
-			SDL_VideoDevice *video = SDL_GetVideoDevice();
-			if (video && video->StartTextInput) {
-				video->StartTextInput(video);
-			}
+		SDL_VideoDevice *video = SDL_GetVideoDevice();
+		if (video && video->StartTextInput) {
+		video->StartTextInput(video);
+		}
 		}*/
 	}
 }
@@ -696,10 +696,10 @@ void VeKeyboard::SendKey(uint8_t u8State,
 
 	m_au8KeyState[eScancode] = u8State;
 
-	/*assert(ve_event_queue_ptr);
-	if (ve_event_queue_ptr->IsEventTypeEnable(type))
+	assert(Venus3D::Ref().GetEventQueue());
+	if (Venus3D::Ref().GetEventQueue()->IsEventTypeEnable(type))
 	{
-		VeEvent* pkEvent = ve_event_queue_ptr->AddEvent();
+		VeEvent* pkEvent = Venus3D::Ref().GetEventQueue()->AddEvent();
 		pkEvent->m_kKey.m_u32Type = type;
 		pkEvent->m_kKey.m_u32TimeStamp = VeEventQueue::GetTicks();
 		pkEvent->m_kKey.m_u8State = u8State;
@@ -708,7 +708,7 @@ void VeKeyboard::SendKey(uint8_t u8State,
 		pkEvent->m_kKey.m_kKeysym.m_i32Sym = m_i32KeyMap[eScancode];
 		pkEvent->m_kKey.m_kKeysym.m_u16Mod = modstate;
 		pkEvent->m_kKey.m_u32WindowID = m_pkFocus ? m_pkFocus->m_u32Id : 0;
-	}*/
+	}
 }
 //--------------------------------------------------------------------------
 void VeKeyboard::GetDefaultKeymap(VeKeycode* pkKeymap) noexcept

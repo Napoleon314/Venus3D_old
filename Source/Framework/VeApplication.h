@@ -35,8 +35,6 @@
 class VeApplication : public VeRefObject
 {
 public:
-	inline const VeRenderWindowPtr& GetWindow() noexcept;
-
 	virtual void Init() noexcept;
 
 	virtual void Term() noexcept;	
@@ -64,9 +62,6 @@ protected:
 
 	virtual ~VeApplication() noexcept;
 
-	VeRendererPtr m_spD3D12;
-	VeRenderWindowPtr m_spD3D12Window;
-	VeVector<VeEvent*> m_kEventCache;
 	bool m_bLoop = true;
 
 };

@@ -44,23 +44,3 @@ inline VeTime& Venus3D::GetTime() noexcept
 	return m_kTime;
 }
 //--------------------------------------------------------------------------
-inline const VeEventQueuePtr& Venus3D::GetEventQueue() noexcept
-{
-	return m_spEventQueue;
-}
-//--------------------------------------------------------------------------
-inline const VeVideoDevicePtr& Venus3D::GetVideoDevice() noexcept
-{
-	return m_spVideoDevice;
-}
-//--------------------------------------------------------------------------
-inline const VeKeyboardPtr& Venus3D::GetKeyboard() noexcept
-{
-	return m_spKeyboard;
-}
-//--------------------------------------------------------------------------
-inline const VeMousePtr& Venus3D::GetMouse() noexcept
-{
-	return m_spMouse;
-}
-//--------------------------------------------------------------------------
