@@ -42,12 +42,12 @@
 #	define VE_SHARED_LIB_LOAD(name) dlopen(name, RTLD_LAZY | RTLD_GLOBAL)
 #	define VE_SHARED_LIB_GET_PROC(lib,proc) dlsym(lib,proc)
 #	define VE_SHARED_LIB_UNLOAD(lib) dlclose(lib)
-#elif defined(BUILD_PLATFORM_DARWIN)
+#elif defined(BUILD_PLATFORM_OSX)
 #	define VE_SHARED_LIB CFBundleRef
 #	define VE_SHARED_LIB_NAME(name) (name##".framework")
 	CFBundleRef VE_SHARED_LIB_LOAD(const char* pcName);
 	void* VE_SHARED_LIB_GET_PROC(CFBundleRef hLib, const char* pcProc);
-	VeUInt32 VE_SHARED_LIB_UNLOAD(CFBundleRef hLib);
+	uint32_t VE_SHARED_LIB_UNLOAD(CFBundleRef hLib);
 #endif
 
 #ifdef VE_SHARED_LIB

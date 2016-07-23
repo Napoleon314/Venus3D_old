@@ -76,14 +76,14 @@ void* VeSharedLib::GetProc(const char* pcProcName) noexcept
 	return (void*)VE_SHARED_LIB_GET_PROC(m_hSharedLib, pcProcName);
 }
 //--------------------------------------------------------------------------
-#ifdef VE_PLATFORM_OSX
+#ifdef BUILD_PLATFORM_OSX
 //--------------------------------------------------------------------------
 CFBundleRef VE_SHARED_LIB_LOAD(const char* pcName)
 {
 	CFStringRef hName = CFStringCreateWithCString(kCFAllocatorDefault, pcName, kCFStringEncodingASCII);
 	CFURLRef hURL = CFURLCreateWithFileSystemPath(kCFAllocatorDefault, hName, kCFURLPOSIXPathStyle, true);
 	CFBundleRef hLib = CFBundleCreate(kCFAllocatorDefault, hURL);
-	VE_ASSERT(hLib);
+	assert(hLib);
 	CFRelease(hURL);
 	CFRelease(hName);
 	return hLib;
@@ -97,7 +97,7 @@ void* VE_SHARED_LIB_GET_PROC(CFBundleRef hLib, const char* pcProc)
 	return pvRet;
 }
 //--------------------------------------------------------------------------
-VeUInt32 VE_SHARED_LIB_UNLOAD(CFBundleRef hLib)
+uint32_t VE_SHARED_LIB_UNLOAD(CFBundleRef hLib)
 {
 	CFRelease(hLib);
 	return VE_OK;
