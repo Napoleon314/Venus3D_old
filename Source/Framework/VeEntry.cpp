@@ -43,5 +43,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 #else
 
+int main()
+{
+    return VeMain();
+}
 
 #endif
