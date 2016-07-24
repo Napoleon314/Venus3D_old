@@ -109,10 +109,10 @@ LRESULT WindowsVideo::WindowProc(HWND hwnd, UINT msg, WPARAM wParam,
 {
 	return DefWindowProc(hwnd, msg, wParam, lParam);
 }
-
 //--------------------------------------------------------------------------
-VeVideoPtr CreateWindowsVideo(HINSTANCE hInst) noexcept
+VeVideoPtr CreateWindowsVideo(const VeInitData& kInitData) noexcept
 {
-	return VE_NEW WindowsVideo(hInst ? hInst : GetModuleHandle(NULL));
+	return VE_NEW WindowsVideo(kInitData.m_hInstance
+		? kInitData.m_hInstance : GetModuleHandle(NULL));
 }
 //--------------------------------------------------------------------------

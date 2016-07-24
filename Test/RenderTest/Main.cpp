@@ -30,14 +30,11 @@
 
 #include "RenderTest.h"
 
-int32_t VeEntry() noexcept
+const char* g_pcPakName = "com.venus3d.RenderTest";
+
+int32_t VeEntry(int32_t, char*[]) noexcept
 {
-	VeInit(VeInitData("RenderTest"), VE_INIT_WINDOW);
-	{
-		VE_TRY_CALL(VE_THROW("ABC", "abc"));
-		RenderTest app;
-		app.Go();
-	}
-	VeTerm();
+	RenderTest app;
+	app.Go();
 	return 0;
 }

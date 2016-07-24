@@ -31,12 +31,12 @@
 #include "stdafx.h"
 
 //--------------------------------------------------------------------------
-Venus3D::Venus3D(VeInitData kInitData, uint32_t u32InitMask) noexcept
+Venus3D::Venus3D(const VeInitData& kInitData) noexcept
 	: m_kProcessName(kInitData.m_pcProcessName), CORE("Venus3D", m_kLog)
 	, USER(m_kProcessName, m_kLog)
 
 {
-	Init(kInitData, u32InitMask);
+	Init(kInitData);
 }
 //--------------------------------------------------------------------------
 Venus3D::~Venus3D() noexcept
@@ -44,12 +44,12 @@ Venus3D::~Venus3D() noexcept
 	Term();
 }
 //--------------------------------------------------------------------------
-void Venus3D::Init(VeInitData kInitData, uint32_t u32InitMask)
+void Venus3D::Init(const VeInitData& kInitData)
 {
-	VE_MASK_CONDITION(u32InitMask, VE_INIT_LOG, InitLog());
-	VE_MASK_CONDITION(u32InitMask, VE_INIT_JOB, InitJob());
-	VE_MASK_CONDITION(u32InitMask, VE_INIT_VIDEO, InitVideo(kInitData));
-	VE_MASK_ADD(m_u32ActiveMask, u32InitMask);
+	VE_MASK_CONDITION(kInitData.m_u32InitMask, VE_INIT_LOG, InitLog());
+	VE_MASK_CONDITION(kInitData.m_u32InitMask, VE_INIT_JOB, InitJob());
+	VE_MASK_CONDITION(kInitData.m_u32InitMask, VE_INIT_VIDEO, InitVideo(kInitData));
+	VE_MASK_ADD(m_u32ActiveMask, kInitData.m_u32InitMask);
 }
 //--------------------------------------------------------------------------
 void Venus3D::Term()
@@ -82,19 +82,18 @@ void Venus3D::TermJob() noexcept
 }
 //--------------------------------------------------------------------------
 #ifdef BUILD_PLATFORM_WIN
-extern VeVideoPtr CreateWindowsVideo(HINSTANCE hInst) noexcept;
+extern VeVideoPtr CreateWindowsVideo(const VeInitData& kInitData) noexcept;
 #endif
 //--------------------------------------------------------------------------
-void Venus3D::InitVideo(VeInitData kInitData) noexcept
+void Venus3D::InitVideo(const VeInitData& kInitData) noexcept
 {
 #	ifdef BUILD_PLATFORM_WIN
-	m_spVideo = CreateWindowsVideo(kInitData.m_hAppInst);
+	m_spVideo = CreateWindowsVideo(kInitData);
 #	endif
 	if (m_spVideo)
 	{
 		VE_TRY_CALL(m_spVideo->Init());
 	}
-	kInitData.m_pcProcessName = nullptr;
 }
 //--------------------------------------------------------------------------
 void Venus3D::TermVideo() noexcept

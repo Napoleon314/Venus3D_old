@@ -30,13 +30,33 @@
 
 #include "stdafx.h"
 
-extern int32_t VeEntry() noexcept;
+extern int32_t VeEntry(int32_t argc, char * argv[]) noexcept;
 
 #ifdef BUILD_PLATFORM_WIN
 
-int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
+extern const char* g_pcPakName;
+
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
+	LPSTR lpCmdLine, int nCmdShow)
 {
-	return VeEntry();
+	int32_t i32Exit(0);
+	{
+		int argc(0);
+		char* argv[256];
+		{
+			char* pcContent;
+			char* pcTemp = vtd::strtok(lpCmdLine, " ", &pcContent);
+			while (pcTemp)
+			{
+				argv[argc++] = pcTemp;
+				pcTemp = vtd::strtok<CHAR>(NULL, " ", &pcContent);
+			}
+		}
+		VeInit(VeInitData(g_pcPakName, hInstance, hPrevInstance, nCmdShow, VE_INIT_WINDOW));
+		i32Exit = VeEntry(argc, argv);
+		VeTerm();
+	}
+	return i32Exit;
 }
 
 #elif defined(BUILD_PLATFORM_ANDROID)

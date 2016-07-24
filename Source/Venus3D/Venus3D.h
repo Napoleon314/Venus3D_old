@@ -484,23 +484,33 @@ struct VeInitData
 {
 	const char* m_pcProcessName = nullptr;
 
-	VeInitData(const char* pcName) noexcept
-		: m_pcProcessName(pcName) {}
+	VeInitData(const char* pcName, uint32_t u32InitMask) noexcept
+		: m_pcProcessName(pcName), m_u32InitMask(u32InitMask) {}
 
 #ifdef BUILD_PLATFORM_WIN
 
-	HINSTANCE m_hAppInst = nullptr;
+	HINSTANCE m_hInstance = nullptr;
+	HINSTANCE m_hPrevInstance = nullptr;
+	int32_t m_i32CmdShow = 0;
 
-	VeInitData(const char* pcName, HINSTANCE hInst) noexcept
-		: m_pcProcessName(pcName), m_hAppInst(hInst) {}
+	VeInitData(const char* pcName, HINSTANCE hInstance,
+		HINSTANCE hPrevInstance, int32_t i32Show, uint32_t u32InitMask) noexcept
+		: m_pcProcessName(pcName), m_hInstance(hInstance)
+		, m_hPrevInstance(hPrevInstance), m_i32CmdShow(i32Show)
+		, m_u32InitMask(u32InitMask) {}
 
-	VeInitData(std::initializer_list<std::tuple<const char*, HINSTANCE>> l) noexcept
+	VeInitData(std::initializer_list<std::tuple<const char*,HINSTANCE,HINSTANCE,int32_t,uint32_t>> l) noexcept
 	{
 		m_pcProcessName = std::get<0>(*l.begin());
-		m_hAppInst = std::get<1>(*l.begin());
+		m_hInstance = std::get<1>(*l.begin());
+		m_hPrevInstance = std::get<2>(*l.begin());
+		m_i32CmdShow = std::get<3>(*l.begin());
+		m_u32InitMask = std::get<4>(*l.begin());
 	}
 
 #endif
+
+	uint32_t m_u32InitMask = (uint32_t)VE_INIT_MASK;
 
 };
 
@@ -511,7 +521,7 @@ public:
 		venus::allocator<std::pair<const size_t, VePoolAllocatorPtr>>>
 		PoolAllocatorMap;
 
-	Venus3D(VeInitData kInitData, uint32_t u32InitMask = VE_INIT_MASK) noexcept;
+	Venus3D(const VeInitData& kInitData) noexcept;
 
 	~Venus3D() noexcept;
 
@@ -528,7 +538,7 @@ public:
 	inline const VeVideoPtr& GetVideo() noexcept;
 
 private:
-	void Init(VeInitData kInitData, uint32_t u32InitMask);
+	void Init(const VeInitData& kInitData);
 
 	void Term();
 
@@ -540,7 +550,7 @@ private:
 
 	void TermJob() noexcept;
 
-	void InitVideo(VeInitData kInitData) noexcept;
+	void InitVideo(const VeInitData& kInitData) noexcept;
 
 	void TermVideo() noexcept;
 
@@ -583,11 +593,10 @@ public:
 #define VeCoreLogE venus3d.CORE.E.Log
 #define VeUserLogE venus3d.USER.E.Log
 
-template <class... _Types>
-void VeInit(_Types&&... _Args) noexcept
+inline void VeInit(const VeInitData& kInitData) noexcept
 {
 	VeThread::Init();
-	Venus3D::Create(_Args...);
+	Venus3D::Create(kInitData);
 }
 
 inline void VeTerm() noexcept

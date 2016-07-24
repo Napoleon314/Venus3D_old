@@ -244,7 +244,7 @@ namespace vtd
 		if (_StrStart)
 		{
 			size_t _Len = strlen(_Delimit);
-			_Ty* pcTemp = strstr(_StrStart, _Delimit);
+			_Ty* pcTemp = (_Ty*)strstr(_StrStart, _Delimit);
 			if (pcTemp)
 			{
 				*pcTemp = '\0';
