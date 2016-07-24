@@ -52,10 +52,7 @@ protected:
 	static LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg,
 		WPARAM wParam, LPARAM lParam) noexcept;
 
-	
-
 	HINSTANCE m_hInstance = nullptr;
 	LPWSTR m_wstrClassName = nullptr;
-
 
 };

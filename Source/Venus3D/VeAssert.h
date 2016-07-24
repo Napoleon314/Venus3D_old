@@ -54,7 +54,7 @@ extern void __cdecl __debugbreak(void);
 #define VE_DEBUG_BREAK() abort()
 #endif
 
-enum VeAssertState
+enum VeAbortState
 {
 	VE_AS_RETRY,
 	VE_AS_STOP,
@@ -63,7 +63,7 @@ enum VeAssertState
 	VE_AS_MAX
 };
 
-VENUS_API VeAssertState VeReportAssertion(const char* pcCond,
+VENUS_API VeAbortState VeReportAssertion(const char* pcCond,
 	const char* pcFile, int32_t i32Line, const char* pcFunc) noexcept;
 
 #if defined(__clang__)

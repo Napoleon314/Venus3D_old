@@ -31,7 +31,7 @@
 #include "stdafx.h"
 
 //--------------------------------------------------------------------------
-VeAssertState VeReportAssertion(const char* pcCond, const char* pcFile,
+VeAbortState VeReportAssertion(const char* pcCond, const char* pcFile,
 	int32_t i32Line, const char* pcFunc) noexcept
 {
 	auto& spVideo = Venus3D::Ref().GetVideo();

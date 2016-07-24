@@ -40,3 +40,47 @@ VeException::VeException(const char* pcName, const char* pcDesc,
 	SetTriggerPoint(pcFile, i32Line, pcFunc);
 }
 //--------------------------------------------------------------------------
+VeAbortState VeException::Alert() noexcept
+{
+	auto& spVideo = Venus3D::Ref().GetVideo();
+	if (spVideo)
+	{
+		char acBuffer[VE_MAX_LOG_MESSAGE];
+		VeSprintf(acBuffer,
+			"File: %s\n"
+			"Line: %d\n"
+			"Function: %s\n\n"
+			"Description: %s\n\n"
+			"For information on how your program can cause an assertion failure\n\n"
+			"(Press Retry to debug the application)",
+			m_pcFile, m_i32Line, m_pcFunction, m_kDescription);
+		switch (spVideo->MessageBoxSync(m_kName, acBuffer,
+			VE_MB_ABORTRETRYIGNORE | VE_MB_WARNING))
+		{
+		case VE_MB_IDABORT:
+#			ifdef VE_DEBUG
+			return VE_AS_BREAK;
+#			else
+			return VE_AS_STOP;
+#			endif
+		case VE_MB_IDRETRY:
+			return VE_AS_RETRY;
+		case VE_MB_IDIGNORE:
+			return VE_AS_IGNORE;
+		default:
+			return VE_AS_STOP;
+		};
+	}
+	else
+	{
+		VeCoreLogW("*****************************************************");
+		VeCoreLogW("Exception: ", m_kName);
+		VeCoreLogW("File: ", m_pcFile);
+		VeCoreLogW("Line: ", m_i32Line);
+		VeCoreLogW("Function: ", m_pcFunction);
+		VeCoreLogW("Description: ", m_kDescription);
+		VeCoreLogW("*****************************************************");
+		return VE_AS_IGNORE;
+	}
+}
+//--------------------------------------------------------------------------

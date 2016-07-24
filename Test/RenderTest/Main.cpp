@@ -34,7 +34,7 @@ int32_t VeEntry() noexcept
 {
 	VeInit(VeInitData("RenderTest"), VE_INIT_WINDOW);
 	{
-		VE_ENABLED_ASSERT(0);
+		VE_TRY_CALL(VE_THROW("ABC", "abc"));
 		RenderTest app;
 		app.Go();
 	}
