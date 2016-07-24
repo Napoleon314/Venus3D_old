@@ -46,28 +46,28 @@ VeCoroutine::VeCoroutine(size_t stStackSize) noexcept
 //--------------------------------------------------------------------------
 VeCoroutine::~VeCoroutine() noexcept
 {
-	assert(m_kStack.sptr);
+	VE_ASSERT(m_kStack.sptr);
 	VeAlignedFree((void*)((ptrdiff_t)m_kStack.sptr - m_kStack.ssize));
 	m_kStack = { nullptr, 0 };
 }
 //--------------------------------------------------------------------------
 void VeCoroutine::prepare() noexcept
 {
-	assert(m_eState == STATE_DEAD && (!m_hContext));
+	VE_ASSERT(m_eState == STATE_DEAD && (!m_hContext));
 	m_hContext = make_fcontext(m_kStack.sptr, m_kStack.ssize, &VeCoenvironment::Entry);
 	m_eState = STATE_READY;
 }
 //--------------------------------------------------------------------------
 void* VeCoroutine::start(Entry pfuncEntry, void* pvUserData) noexcept
 {
-	assert(m_eState == STATE_READY);
+	VE_ASSERT(m_eState == STATE_READY);
 	VeCoenvironment::GetCurrent().m_pfuncUserEntry = pfuncEntry;
 	return _resume(pvUserData);
 }
 //--------------------------------------------------------------------------
 void* VeCoroutine::resume(void* pvUserData) noexcept
 {
-	assert(m_eState == STATE_SUSPENDED);
+	VE_ASSERT(m_eState == STATE_SUSPENDED);
 	return _resume(pvUserData);
 }
 //--------------------------------------------------------------------------
@@ -84,7 +84,7 @@ void* VeCoroutine::_resume(void* pvUserData) noexcept
 	}
 	else
 	{
-		assert(m_eState == STATE_SUSPENDED);
+		VE_ASSERT(m_eState == STATE_SUSPENDED);
 		m_hContext = next.ctx;
 	}
 	return next.data;
@@ -104,14 +104,14 @@ VeCoenvironment::VeCoenvironment() noexcept
 //--------------------------------------------------------------------------
 VeCoenvironment::~VeCoenvironment() noexcept
 {
-	assert(m_pkRunning == &m_kMain);
+	VE_ASSERT(m_pkRunning == &m_kMain);
 	m_pkRunning = nullptr;
 }
 //--------------------------------------------------------------------------
 void* VeCoenvironment::yield(void* pvUserData) noexcept
 {
 	VeCoenvironment& kEnv = GetCurrent();
-	assert(kEnv.m_pkRunning != &(kEnv.m_kMain));
+	VE_ASSERT(kEnv.m_pkRunning != &(kEnv.m_kMain));
 	VeCoroutine* pkSuspended = kEnv.m_pkRunning;
 	pkSuspended->m_eState = VeCoroutine::STATE_SUSPENDED;
 	kEnv.m_pkRunning = pkSuspended->m_pkPrevious;

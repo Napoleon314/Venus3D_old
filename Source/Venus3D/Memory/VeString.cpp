@@ -37,9 +37,9 @@ char* VeStrcpy(char* pcDest, size_t stDestSize, const char* pcSrc) noexcept
 	strcpy_s(pcDest, stDestSize, pcSrc);
 	return pcDest;
 #else // #if _MSC_VER >= 1400
-	assert(stDestSize != 0);
+	VE_ASSERT(stDestSize != 0);
 	size_t stSrcLen = vtd::strlen(pcSrc);
-	assert(stDestSize > stSrcLen);
+	VE_ASSERT(stDestSize > stSrcLen);
 	size_t stWrite;
 	if (stDestSize <= stSrcLen) // stDestSize < stSrcLen + 1
 		stWrite = stDestSize;
@@ -58,8 +58,8 @@ char* VeStrncpy(char* pcDest, size_t stDestSize,
 	strncpy_s(pcDest, stDestSize, pcSrc, stCount);
 	return pcDest;
 #else // #if _MSC_VER >= 1400
-	assert(pcDest != 0 && stDestSize != 0);
-	assert(stCount < stDestSize || stCount == size_t(-1));
+	VE_ASSERT(pcDest != 0 && stDestSize != 0);
+	VE_ASSERT(stCount < stDestSize || stCount == size_t(-1));
 	if (stCount >= stDestSize)
 	{
 		if (stCount != size_t(-1))
@@ -113,9 +113,9 @@ int32_t VeVsnprintf(char* pcDest, size_t stDestSize, size_t stCount,
 		return 0;
 	}
 
-	assert(pcDest);
-	assert(stCount < stDestSize || stCount == size_t(-1));
-	assert(pcFormat);
+	VE_ASSERT(pcDest);
+	VE_ASSERT(stCount < stDestSize || stCount == size_t(-1));
+	VE_ASSERT(pcFormat);
 
 	pcDest[0] = 0;
 

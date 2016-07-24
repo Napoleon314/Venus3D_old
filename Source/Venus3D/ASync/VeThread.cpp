@@ -87,18 +87,18 @@ void suspend_handler(int) noexcept
 void VeSuspendThread(VeThreadHandle hThread) noexcept
 {
 #	ifdef BUILD_PLATFORM_WIN
-	assert_ne(SuspendThread(hThread), -1);
+	VE_ASSERT_NE(SuspendThread(hThread), -1);
 #   else
-	assert_eq(pthread_kill(hThread, SUSPEND_SIG), 0);
+	VE_ASSERT_EQ(pthread_kill(hThread, SUSPEND_SIG), 0);
 #	endif
 }
 //--------------------------------------------------------------------------
 void VeResumeThread(VeThreadHandle hThread) noexcept
 {
 #	ifdef BUILD_PLATFORM_WIN
-	assert_ne(ResumeThread(hThread), -1);
+	VE_ASSERT_NE(ResumeThread(hThread), -1);
 #   else
-	assert_eq(pthread_kill(hThread, RESUME_SIG), 0);
+	VE_ASSERT_EQ(pthread_kill(hThread, RESUME_SIG), 0);
 #	endif
 }
 //--------------------------------------------------------------------------
@@ -247,7 +247,7 @@ VeThread::VeThread(int32_t i32Priority, size_t stStackSize) noexcept
 	m_pkParams->m_kEvent.set();
 	m_pkParams->m_pkThis = this;
 	m_hThread = VeCreateThread(Callback, m_pkParams, i32Priority, stStackSize);
-	assert(m_hThread);
+	VE_ASSERT(m_hThread);
 }
 //--------------------------------------------------------------------------
 VeThread::~VeThread() noexcept

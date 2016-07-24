@@ -65,7 +65,7 @@ template<size_t s>
 int32_t VeSprintf(char(&pcDest)[s],
 	const char* pcFormat, ...) noexcept
 {
-	assert(pcFormat);
+	VE_ASSERT(pcFormat);
 	va_list kArgs;
 	va_start(kArgs, pcFormat);
 	int iRet = VeVsprintf(pcDest, s, pcFormat, kArgs);

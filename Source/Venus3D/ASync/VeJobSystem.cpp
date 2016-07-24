@@ -120,7 +120,7 @@ VeJobSystem::VeJobSystem(size_t stFGNum, size_t stBGNum) noexcept
 	}
 	if (stBGNum)
 	{
-		assert(stBGNum <= (VE_JOB_BG_BUFFER_MASK + 1));
+		VE_ASSERT(stBGNum <= (VE_JOB_BG_BUFFER_MASK + 1));
 		m_i32BGState.store(0, std::memory_order_relaxed);
 		m_i32BGAvailableNum.store(0, std::memory_order_relaxed);
 		m_kBGThreads.resize(stBGNum);
@@ -165,7 +165,7 @@ VeJobSystem::~VeJobSystem() noexcept
 //--------------------------------------------------------------------------
 void VeJobSystem::ParallelCompute(VeJob* pkJob) noexcept
 {
-	assert(pkJob && pkJob->GetType() == VeJob::TYPE_PARALLEL_COMPUTE);
+	VE_ASSERT(pkJob && pkJob->GetType() == VeJob::TYPE_PARALLEL_COMPUTE);
 	int32_t check(0);
 	if (m_i32FGState.compare_exchange_weak(check, 1, std::memory_order_relaxed))
 	{
@@ -177,7 +177,7 @@ void VeJobSystem::ParallelCompute(VeJob* pkJob) noexcept
 //--------------------------------------------------------------------------
 void VeJobSystem::ProcessForegroundJobs() noexcept
 {
-	assert(!m_pkParallel);
+	VE_ASSERT(!m_pkParallel);
 	int32_t check(0);
 	if (m_i32FGState.compare_exchange_weak(check, 1, std::memory_order_relaxed))
 	{
@@ -188,10 +188,10 @@ void VeJobSystem::ProcessForegroundJobs() noexcept
 //--------------------------------------------------------------------------
 void VeJobSystem::Appointment(VeJob* pkJob, bool bCurrentFrame) noexcept
 {
-	assert(pkJob && pkJob->GetType() && pkJob->GetPriority() < VeJob::PRI_MAX);
+	VE_ASSERT(pkJob && pkJob->GetType() && pkJob->GetPriority() < VeJob::PRI_MAX);
 	if (pkJob->GetType() & 0xF0)
 	{
-		assert(m_kBGThreads.size());
+		VE_ASSERT(m_kBGThreads.size());
 		size_t stFrame = m_u32FrameCount.load(std::memory_order_relaxed) & 1;
 		stFrame = bCurrentFrame ? stFrame : (!stFrame);
 		auto& queue = m_akFGQueues[stFrame][pkJob->GetPriority()];
@@ -235,7 +235,7 @@ void VeJobSystem::ExecuteForeground(uint32_t u32Index) noexcept
 	VeJob* pkJob = FetchForeground(stFrame);
 	while (pkJob)
 	{
-		assert(!(pkJob->GetType() & 0xF0));
+		VE_ASSERT(!(pkJob->GetType() & 0xF0));
 		Execute(pkJob, u32Index);
 		pkJob = FetchForeground(stFrame);
 	}
@@ -249,13 +249,13 @@ VeJob* VeJobSystem::FetchForeground(size_t stFrame) noexcept
 		pkJob = queue.waiting.pop();
 		if (pkJob)
 		{
-			assert(pkJob->m_pkFiber);
+			VE_ASSERT(pkJob->m_pkFiber);
 			return pkJob;
 		}
 		pkJob = queue.main.pop();
 		if (pkJob)
 		{
-			assert(!(pkJob->m_pkFiber));
+			VE_ASSERT(!(pkJob->m_pkFiber));
 			return pkJob;
 		}
 	}
@@ -279,7 +279,7 @@ void VeJobSystem::ExecuteBackground(uint32_t u32Index) noexcept
 	VeJob* pkJob = FetchBackground();
 	while (pkJob)
 	{
-		assert(pkJob->GetType() & 0xF0);
+		VE_ASSERT(pkJob->GetType() & 0xF0);
 		Execute(pkJob, u32Index);
 		pkJob = FetchBackground();
 	}
@@ -293,13 +293,13 @@ VeJob* VeJobSystem::FetchBackground() noexcept
 		pkJob = queue.waiting.pop();
 		if (pkJob)
 		{
-			assert(pkJob->m_pkFiber);
+			VE_ASSERT(pkJob->m_pkFiber);
 			return pkJob;
 		}
 		pkJob = queue.main.pop();
 		if (pkJob)
 		{
-			assert(!(pkJob->m_pkFiber));
+			VE_ASSERT(!(pkJob->m_pkFiber));
 			return pkJob;
 		}
 	}
@@ -309,7 +309,7 @@ VeJob* VeJobSystem::FetchBackground() noexcept
 void VeJobSystem::Execute(VeJob* pkJob, uint32_t u32Index) noexcept
 {
 	auto type = pkJob->GetType() & 0xF;
-	assert(type >= 1 && type <= 3);
+	VE_ASSERT(type >= 1 && type <= 3);
 	if (type == 1)
 	{
 		pkJob->Work(u32Index);
@@ -320,7 +320,7 @@ void VeJobSystem::Execute(VeJob* pkJob, uint32_t u32Index) noexcept
 	}
 	else
 	{
-		assert(type == 2 || type == 3);
+		VE_ASSERT(type == 2 || type == 3);
 		if (pkJob->m_pkFiber)
 		{
 			pkJob->m_pvData = pkJob->m_pkFiber->resume(pkJob);
@@ -347,7 +347,7 @@ void VeJobSystem::Execute(VeJob* pkJob, uint32_t u32Index) noexcept
 			}
 			else
 			{
-				assert(m_kLargeFiberPool.vertify(pkJob->m_pkFiber));
+				VE_ASSERT(m_kLargeFiberPool.vertify(pkJob->m_pkFiber));
 				m_kLargeFiberPool.release((co_large*)pkJob->m_pkFiber);
 			}
 			pkJob->m_pkFiber = nullptr;

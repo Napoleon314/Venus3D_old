@@ -73,7 +73,7 @@ void VeThrow(const char* pcFile, int32_t i32Line, const char* pcFunc,
 	static_assert(std::is_base_of<VeException, _Ex>::value,
 		"_Ex has to be a subclass of VeException");
 	VeExceptionPtr spException = VE_NEW _Ex();
-	assert(spException);
+	VE_ASSERT(spException);
 	{
 		va_list kArgs;
 		va_start(kArgs, pcFormat);

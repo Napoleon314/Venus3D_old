@@ -66,7 +66,7 @@ VeBlob::~VeBlob() noexcept
 //--------------------------------------------------------------------------
 void VeBlob::AddSize(size_t stSize) noexcept
 {
-	assert(m_bNeedFree && stSize);
+	VE_ASSERT(m_bNeedFree && stSize);
 	if (m_pvBuffer)
 	{
 		m_stByteSize += stSize;

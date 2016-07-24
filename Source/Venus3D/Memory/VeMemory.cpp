@@ -58,8 +58,8 @@ extern std::vector<void(*)()> g_kClassTermList;
 #ifdef VE_DEBUG
 void _VeMemoryExit(size_t stRest, size_t stRestAligned) noexcept
 {
-	assert(s_stMallocCount == stRest);
-	assert(s_stAlignedMallocCount == stRestAligned);
+	VE_ASSERT(s_stMallocCount == stRest);
+	VE_ASSERT(s_stAlignedMallocCount == stRestAligned);
 }
 #else
 void _VeMemoryExit(size_t, size_t) noexcept
@@ -135,10 +135,10 @@ void* _VeRealloc(void* pvMemblock, size_t stSizeInBytes,
 	std::lock_guard<vtd::spin_lock> lck(s_kLock);
 	void* pvRes = realloc(pvMemblock, stSizeInBytes);
 	auto it = s_kMallocMap.find((size_t)pvMemblock);
-	assert(it != s_kMallocMap.end());
+	VE_ASSERT(it != s_kMallocMap.end());
 	VeMallocInfo kInfo = it->second;
 	s_kMallocMap.erase(it);
-	assert(s_kMallocMap.find((size_t)pvRes) == s_kMallocMap.end());
+	VE_ASSERT(s_kMallocMap.find((size_t)pvRes) == s_kMallocMap.end());
 	s_kMallocMap[(size_t)pvRes] = kInfo;
 	return pvRes;
 #	else
@@ -161,7 +161,7 @@ void _VeFree(void* pvMemory,
 	--s_stMallocCount;
 	free(pvMemory);
 	auto it = s_kMallocMap.find((size_t)pvMemory);
-	assert(it != s_kMallocMap.end());
+	VE_ASSERT(it != s_kMallocMap.end());
 	s_kMallocMap.erase(it);
 #	else
 	--s_stMallocCount;
@@ -184,7 +184,7 @@ void _VeAlignedFree(void* pvMemory,
 	--s_stAlignedMallocCount;
 	aligned_free(pvMemory);
 	auto it = s_kAlignedMallocMap.find((size_t)pvMemory);
-	assert(it != s_kAlignedMallocMap.end());
+	VE_ASSERT(it != s_kAlignedMallocMap.end());
 	s_kAlignedMallocMap.erase(it);
 #	else
 	--s_stAlignedMallocCount;

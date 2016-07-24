@@ -72,13 +72,13 @@ class VeSingleton : public VeMemObject
 public:
 	VeSingleton() noexcept
 	{
-		assert(!ms_pSingleton);
+		VE_ASSERT(!ms_pSingleton);
 		ms_pSingleton = static_cast<_Ty*>(this);
 	}
 
 	virtual ~VeSingleton() noexcept
 	{
-		assert(ms_pSingleton);
+		VE_ASSERT(ms_pSingleton);
 		ms_pSingleton = nullptr;
 	}
 
@@ -100,7 +100,7 @@ public:
 
 	static _Ty& Ref() noexcept
 	{
-		assert(ms_pSingleton);
+		VE_ASSERT(ms_pSingleton);
 		return (*ms_pSingleton);
 	}
 

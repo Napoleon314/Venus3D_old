@@ -123,3 +123,30 @@ __attribute__((analyzer_noreturn))
 #else
 #   error Unknown assertion level.
 #endif
+
+#if VE_ASSERT_LEVEL >= 2
+#	define VE_ASSERT_EQ(e,c) VE_ASSERT(e == c)
+#	define VE_ASSERT_NE(e,c) VE_ASSERT(e != c)
+#	define VE_ASSERT_LT(e,c) VE_ASSERT(e < c)
+#	define VE_ASSERT_GT(e,c) VE_ASSERT(e > c)
+#	define VE_ASSERT_LE(e,c) VE_ASSERT(e <= c)
+#	define VE_ASSERT_GE(e,c) VE_ASSERT(e >= c)
+#else
+#	define VE_ASSERT_EQ(e,c) (e)
+#	define VE_ASSERT_NE(e,c) (e)
+#	define VE_ASSERT_LT(e,c) (e)
+#	define VE_ASSERT_GT(e,c) (e)
+#	define VE_ASSERT_LE(e,c) (e)
+#	define VE_ASSERT_GE(e,c) (e)
+#endif
+
+#ifdef assert
+#	undef assert
+#endif
+#define assert(e) VE_ASSERT(e)
+#define assert_eq(e,c) VE_ASSERT_EQ(e,c)
+#define assert_ne(e,c) VE_ASSERT_NE(e,c) 
+#define assert_lt(e,c) VE_ASSERT_LT(e,c) 
+#define assert_gt(e,c) VE_ASSERT_GT(e,c)
+#define assert_le(e,c) VE_ASSERT_LE(e,c)
+#define assert_ge(e,c) VE_ASSERT_GE(e,c)

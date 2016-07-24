@@ -46,7 +46,7 @@ inline void* VeBlob::GetBuffer() noexcept
 //--------------------------------------------------------------------------
 inline void* VeBlob::GetBuffer(size_t stPos) noexcept
 {
-	assert(stPos < m_stByteSize);
+	VE_ASSERT(stPos < m_stByteSize);
 	return ((uint8_t*)m_pvBuffer) + stPos;
 }
 //--------------------------------------------------------------------------

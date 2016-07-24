@@ -95,9 +95,9 @@ int32_t WindowsVideo::MessageBoxSync(const char* pcCaption,
 //--------------------------------------------------------------------------
 LPWSTR WindowsVideo::UTF8ToWSTR(const char* pcStr) noexcept
 {
-	assert(pcStr);
+	VE_ASSERT(pcStr);
 	int32_t i32Num = MultiByteToWideChar(CP_UTF8, 0, pcStr, -1, nullptr, 0);
-	assert(i32Num >= 0);
+	VE_ASSERT(i32Num >= 0);
 	LPWSTR lpwstrBuf = VeAlloc(WCHAR, i32Num + 1);
 	lpwstrBuf[i32Num] = 0;
 	MultiByteToWideChar(CP_UTF8, 0, pcStr, -1, lpwstrBuf, i32Num);

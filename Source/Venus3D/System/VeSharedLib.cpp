@@ -45,7 +45,7 @@ VeSharedLib::~VeSharedLib() noexcept
 	{
 		Unload();
 	}
-	assert(!m_hSharedLib);
+	VE_ASSERT(!m_hSharedLib);
 }
 //--------------------------------------------------------------------------
 bool VeSharedLib::Load() noexcept
@@ -61,7 +61,7 @@ void VeSharedLib::Unload() noexcept
 {
 	if (m_hSharedLib)
 	{
-		assert_eq(VE_SHARED_LIB_UNLOAD(m_hSharedLib), VE_OK);
+		VE_ASSERT_EQ(VE_SHARED_LIB_UNLOAD(m_hSharedLib), VE_OK);
 		m_hSharedLib = nullptr;
 	}
 }
@@ -83,7 +83,7 @@ CFBundleRef VE_SHARED_LIB_LOAD(const char* pcName)
 	CFStringRef hName = CFStringCreateWithCString(kCFAllocatorDefault, pcName, kCFStringEncodingASCII);
 	CFURLRef hURL = CFURLCreateWithFileSystemPath(kCFAllocatorDefault, hName, kCFURLPOSIXPathStyle, true);
 	CFBundleRef hLib = CFBundleCreate(kCFAllocatorDefault, hURL);
-	assert(hLib);
+	VE_ASSERT(hLib);
 	CFRelease(hURL);
 	CFRelease(hName);
 	return hLib;

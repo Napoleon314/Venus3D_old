@@ -40,7 +40,7 @@ VeStackAllocator::VeStackAllocator(size_t stSize) noexcept
 //--------------------------------------------------------------------------
 VeStackAllocator::~VeStackAllocator() noexcept
 {
-	assert(m_pu8Buffer == m_pu8Current && m_kStack.empty());
+	VE_ASSERT(m_pu8Buffer == m_pu8Current && m_kStack.empty());
 	VeAlignedFree(m_pu8Buffer);
 	m_pu8Buffer = nullptr;
 	m_pu8Current = nullptr;
@@ -49,7 +49,7 @@ VeStackAllocator::~VeStackAllocator() noexcept
 void* VeStackAllocator::Allocate(size_t stSizeInBytes) noexcept
 {
 	stSizeInBytes = (stSizeInBytes + 0xF) & 0xFFFFFFF0;
-	assert(m_pu8Current - m_pu8Buffer <= ptrdiff_t(stSizeInBytes));
+	VE_ASSERT(m_pu8Current - m_pu8Buffer <= ptrdiff_t(stSizeInBytes));
 	void* pvRes = m_pu8Current;
 	m_pu8Current += stSizeInBytes;
 	m_kStack.push(stSizeInBytes);
@@ -65,7 +65,7 @@ VePoolAllocator::VePoolAllocator(size_t stUnitSize, size_t stUnitPerChunk,
 	size_t stAlign) noexcept : m_stUnitSize(stUnitSize)
 	, m_stUnitPerChunk(stUnitPerChunk), m_stAlign(stAlign)
 {
-	assert(stUnitSize >= sizeof(size_t) && stUnitSize >= stAlign
+	VE_ASSERT(stUnitSize >= sizeof(size_t) && stUnitSize >= stAlign
 		&& stUnitPerChunk && stAlign);
 	_AddChunk();
 }
@@ -73,7 +73,7 @@ VePoolAllocator::VePoolAllocator(size_t stUnitSize, size_t stUnitPerChunk,
 VePoolAllocator::~VePoolAllocator() noexcept
 {
 #	ifdef VE_MEM_DEBUG
-	assert(!m_u32UnitCount);
+	VE_ASSERT(!m_u32UnitCount);
 #	endif
 	while (m_pkChunkHead)
 	{
@@ -101,7 +101,7 @@ void VePoolAllocator::_AddChunk() noexcept
 //--------------------------------------------------------------------------
 void* VePoolAllocator::_Allocate() noexcept
 {
-	assert(m_pkChunkHead);
+	VE_ASSERT(m_pkChunkHead);
 #	ifdef VE_MEM_DEBUG
 	++m_u32UnitCount;
 #	endif

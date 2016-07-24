@@ -315,17 +315,7 @@
 #include <mutex>
 #include <condition_variable>
 
-#ifdef VE_DEBUG
-#	define assert_eq(e,c) assert(e == c)
-#	define assert_ne(e,c) assert(e != c)
-#	define assert_lt(e,c) assert(e < c)
-#	define assert_ge(e,c) assert(e >= c)
-#else
-#	define assert_eq(e,c) e
-#	define assert_ne(e,c) e
-#	define assert_lt(e,c) e
-#	define assert_ge(e,c) e
-#endif
+#include "VeAssert.h"
 
 #ifdef BUILD_PLATFORM_PC
 #	define VE_ENABLE_COROUTINE
@@ -460,7 +450,6 @@
 #include "Memory/VeAllocator.h"
 
 #include "Log/VeLog.h"
-#include "Log/VeAssert.h"
 #include "Log/VeException.h"
 
 #include "ASync/VeThread.h"
