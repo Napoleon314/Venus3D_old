@@ -51,7 +51,7 @@ VeAbortState VeException::Alert() noexcept
 			"Line: %d\n"
 			"Function: %s\n\n"
 			"Description: %s\n\n"
-			"For information on how your program can cause an assertion failure\n\n"
+			"For information on how your program can cause an exception\n\n"
 			"(Press Retry to debug the application)",
 			m_pcFile, m_i32Line, m_pcFunction, m_kDescription);
 		switch (spVideo->MessageBoxSync(m_kName, acBuffer,

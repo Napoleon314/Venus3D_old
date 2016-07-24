@@ -55,7 +55,7 @@ public:
 	inline void SetTriggerPoint(const char* pcFile, int32_t i32Line,
 		const char* pcFunc) noexcept;
 
-	VeAbortState Alert() noexcept;
+	virtual VeAbortState Alert() noexcept;
 
 protected:
 	vtd::string m_kName;
@@ -111,11 +111,5 @@ void VeThrow(const char* pcFile, int32_t i32Line, const char* pcFunc,
 		}									\
 		break;								\
 	} while (true)
-	
-	
-
-#define VE_TRY(f,e)				\
-	try {(f);}					\
-	catch(VeExceptionPtr e)
 
 #include "VeException.inl"
