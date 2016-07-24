@@ -44,3 +44,8 @@ inline VeTime& Venus3D::GetTime() noexcept
 	return m_kTime;
 }
 //--------------------------------------------------------------------------
+inline const VeVideoPtr& Venus3D::GetVideo() noexcept
+{
+	return m_spVideo;
+}
+//--------------------------------------------------------------------------

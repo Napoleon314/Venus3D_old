@@ -461,6 +461,7 @@
 
 #include "Log/VeLog.h"
 #include "Log/VeAssert.h"
+#include "Log/VeException.h"
 
 #include "ASync/VeThread.h"
 #include "ASync/VeCoroutine.h"
@@ -468,6 +469,8 @@
 
 #include "System//VeSharedLib.h"
 #include "System/VeTime.h"
+
+#include "Video/VeVideo.h"
 
 struct VENUS_API VeThreadLocalSingleton : public VeMemObject
 {
@@ -480,9 +483,36 @@ enum VeInitMask
 	VE_INIT_NONE		= 0x0,
 	VE_INIT_LOG			= 0x1,
 	VE_INIT_JOB			= 0x2,
-	VE_INIT_EVENT		= 0x4,
-	VE_INIT_VIDEO		= 0x8,
+	VE_INIT_VIDEO		= 0x4,
+
+	VE_INIT_CONSOLE		= VE_INIT_LOG | VE_INIT_JOB,
+	VE_INIT_WINDOW		= VE_INIT_CONSOLE | VE_INIT_VIDEO,
+
 	VE_INIT_MASK		= 0xFFFFFFFF
+};
+
+struct VeInitData
+{
+	const char* m_pcProcessName = nullptr;
+
+	VeInitData(const char* pcName) noexcept
+		: m_pcProcessName(pcName) {}
+
+#ifdef BUILD_PLATFORM_WIN
+
+	HINSTANCE m_hAppInst = nullptr;
+
+	VeInitData(const char* pcName, HINSTANCE hInst) noexcept
+		: m_pcProcessName(pcName), m_hAppInst(hInst) {}
+
+	VeInitData(std::initializer_list<std::tuple<const char*, HINSTANCE>> l) noexcept
+	{
+		m_pcProcessName = std::get<0>(*l.begin());
+		m_hAppInst = std::get<1>(*l.begin());
+	}
+
+#endif
+
 };
 
 class VENUS_API Venus3D : public VeSingleton<Venus3D>
@@ -492,13 +522,9 @@ public:
 		venus::allocator<std::pair<const size_t, VePoolAllocatorPtr>>>
 		PoolAllocatorMap;
 
-	Venus3D(const char* pcProcessName, uint32_t u32InitMask = VE_INIT_MASK) noexcept;
+	Venus3D(VeInitData kInitData, uint32_t u32InitMask = VE_INIT_MASK) noexcept;
 
 	~Venus3D() noexcept;
-
-	void Init(uint32_t u32InitMask);
-
-	void Term();
 
 	VeStackAllocator& GetStackAllocator() noexcept;
 
@@ -510,7 +536,13 @@ public:
 
 	inline VeTime& GetTime() noexcept;
 
+	inline const VeVideoPtr& GetVideo() noexcept;
+
 private:
+	void Init(VeInitData kInitData, uint32_t u32InitMask);
+
+	void Term();
+
 	void InitLog() noexcept;
 
 	void TermLog() noexcept;
@@ -519,12 +551,17 @@ private:
 
 	void TermJob() noexcept;
 
+	void InitVideo(VeInitData kInitData) noexcept;
+
+	void TermVideo() noexcept;
+
 	vtd::string m_kProcessName;
 	uint32_t m_u32ActiveMask = 0;
 	PoolAllocatorMap m_kAllocatorMap;
 	vtd::spin_lock m_kAllocatorLock;
 	VeLog m_kLog;
 	VeTime m_kTime;
+	VeVideoPtr m_spVideo;
 
 public:
 	VeLog::Pack CORE;

@@ -94,7 +94,7 @@ void VeLog::ConsoleOutput(Type eType, const char* pcTag,
 	};
 #	if defined(BUILD_PLATFORM_WIN)
 	char acLogBuffer[VE_MAX_LOG_MESSAGE + 64];
-	VeSprintf(acLogBuffer, "%s,%s: %s\n", s_apcLogTypeNames[eType], pcTag, pcText);
+	VeSprintf(acLogBuffer, "%s[%s]: %s\n", pcTag, s_apcLogTypeNames[eType], pcText);
 	static vtd::spin_lock lock;
 	{
 		std::lock_guard<vtd::spin_lock> l(lock);
@@ -102,7 +102,7 @@ void VeLog::ConsoleOutput(Type eType, const char* pcTag,
 		printf(acLogBuffer);
 	}
 #	else
-	printf("%s,%s: %s\n", s_apcLogTypeNames[eType], pcTag, pcText);
+	printf("%s[%s]: %s\n", pcTag, s_apcLogTypeNames[eType], pcText);
 #	endif
 #endif
 }

@@ -48,7 +48,6 @@ VENUS_API int32_t VeSnprintf(char* pcDest, size_t stDestSize,
 VENUS_API int32_t VeVsnprintf(char* pcDest, size_t stDestSize,
 	size_t stCount, const char* pcFormat, va_list kArgs) noexcept;
 
-
 template <size_t s>
 char* VeStrcpy(char(&pcDest)[s], const char* pcSrc) noexcept
 {
@@ -175,10 +174,6 @@ struct  VeStrLinker<_This, _Params...>
 		if (!(sizeof...(_Params))) return;
 		pcBuffer += i32Res;
 		stMax -= i32Res;
-		if (stMax < 2) return;
-		*pcBuffer = ',';
-		++pcBuffer;
-		--stMax;
 		VeStrLinker<_Params...>::Append(pcBuffer, stMax, _Pak...);
 	}
 };

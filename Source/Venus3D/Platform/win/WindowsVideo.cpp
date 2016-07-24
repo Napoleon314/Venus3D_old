@@ -3,9 +3,9 @@
 //  The MIT License (MIT)
 //  Copyright (c) 2016 Albert D Yang
 // -------------------------------------------------------------------------
-//  Module:      Venus3D
-//  File name:   Venus3D.cpp
-//  Created:     2016/07/06 by Albert
+//  Module:      Video
+//  File name:   WindowsVideo.cpp
+//  Created:     2016/07/24 by Albert
 //  Description:
 // -------------------------------------------------------------------------
 //  Permission is hereby granted, free of charge, to any person obtaining a
@@ -29,98 +29,90 @@
 ////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
+#include "WindowsVideo.h"
 
 //--------------------------------------------------------------------------
-Venus3D::Venus3D(VeInitData kInitData, uint32_t u32InitMask) noexcept
-	: m_kProcessName(kInitData.m_pcProcessName), CORE("Venus3D", m_kLog)
-	, USER(m_kProcessName, m_kLog)
-
+#ifdef THROW
+#	undef THROW
+#endif
+#define THROW(...) VE_THROW("WindowsVideo Error", __VA_ARGS__)
+//--------------------------------------------------------------------------
+VeRTTIImpl(WindowsVideo, VeDesktopVideo);
+//--------------------------------------------------------------------------
+WindowsVideo::WindowsVideo(HINSTANCE hInst) noexcept
+	: VeDesktopVideo("WINAPI")
 {
-	Init(kInitData, u32InitMask);
+	m_hInstance = hInst;
 }
 //--------------------------------------------------------------------------
-Venus3D::~Venus3D() noexcept
+WindowsVideo::~WindowsVideo() noexcept
 {
 	Term();
 }
 //--------------------------------------------------------------------------
-void Venus3D::Init(VeInitData kInitData, uint32_t u32InitMask)
+void WindowsVideo::Init()
 {
-	VE_MASK_CONDITION(u32InitMask, VE_INIT_LOG, InitLog());
-	VE_MASK_CONDITION(u32InitMask, VE_INIT_JOB, InitJob());
-	VE_MASK_CONDITION(u32InitMask, VE_INIT_VIDEO, InitVideo(kInitData));
-	VE_MASK_ADD(m_u32ActiveMask, u32InitMask);
-}
-//--------------------------------------------------------------------------
-void Venus3D::Term()
-{
-	VE_MASK_CONDITION(m_u32ActiveMask, VE_INIT_VIDEO, TermVideo());
-	VE_MASK_CONDITION(m_u32ActiveMask, VE_INIT_JOB, TermJob());
-	VE_MASK_CONDITION(m_u32ActiveMask, VE_INIT_LOG, TermLog());
-	VE_MASK_CLEAR(m_u32ActiveMask);
-}
-//--------------------------------------------------------------------------
-void Venus3D::InitLog() noexcept
-{
-	m_kLog.SetTarget(&VeLog::ConsoleOutput);
-}
-//--------------------------------------------------------------------------
-void Venus3D::TermLog() noexcept
-{
-	m_kLog.SetTarget(nullptr);
-}
-//--------------------------------------------------------------------------
-void Venus3D::InitJob() noexcept
-{
-	uint32_t u32CPUNum = VeThreadHardwareConcurrency();
-	VeJobSystem::Create(u32CPUNum, VE_CLAMP(u32CPUNum >> 1, 1, VE_JOB_BG_BUFFER_MASK + 1));
-}
-//--------------------------------------------------------------------------
-void Venus3D::TermJob() noexcept
-{
-	VeJobSystem::Destory();
-}
-//--------------------------------------------------------------------------
-#ifdef BUILD_PLATFORM_WIN
-extern VeVideoPtr CreateWindowsVideo(HINSTANCE hInst) noexcept;
-#endif
-//--------------------------------------------------------------------------
-void Venus3D::InitVideo(VeInitData kInitData) noexcept
-{
-#	ifdef BUILD_PLATFORM_WIN
-	m_spVideo = CreateWindowsVideo(kInitData.m_hAppInst);
-#	endif
-	if (m_spVideo)
+	if (!m_wstrClassName)
 	{
-		VE_TRY_CALL(m_spVideo->Init());
+		m_wstrClassName = UTF8ToWSTR(Venus3D::Ref().GetPakName());
+		WNDCLASSEXW windowClass = { 0 };
+		windowClass.cbSize = sizeof(WNDCLASSEXW);
+		windowClass.style = CS_HREDRAW | CS_VREDRAW;
+		windowClass.lpfnWndProc = WindowProc;
+		windowClass.hInstance = GetModuleHandle(NULL);
+		windowClass.hCursor = LoadCursor(NULL, IDC_ARROW);
+		windowClass.lpszClassName = m_wstrClassName;
+		if (!RegisterClassExW(&windowClass))
+		{
+			THROW("Couldn't register application class");
+		}
 	}
-	kInitData.m_pcProcessName = nullptr;
 }
 //--------------------------------------------------------------------------
-void Venus3D::TermVideo() noexcept
+void WindowsVideo::Term()
 {
-	if (m_spVideo)
+	if (m_wstrClassName)
 	{
-		VE_TRY_CALL(m_spVideo->Term());
+		if (!UnregisterClassW(m_wstrClassName, m_hInstance))
+		{
+			THROW("Couldn't unregister application class");
+		}
+		VeFree(m_wstrClassName);
+		m_wstrClassName = nullptr;
 	}
-	m_spVideo = nullptr;
 }
 //--------------------------------------------------------------------------
-VeStackAllocator& Venus3D::GetStackAllocator() noexcept
+int32_t WindowsVideo::MessageBoxSync(const char* pcCaption,
+	const char* pcText, uint32_t u32Flags) noexcept
 {
-	return VeThread::GetThreadLocalSingleton()->m_kAllocator;
+	LPWSTR lpwstrCaption = UTF8ToWSTR(pcCaption);
+	LPWSTR lpwstrText = UTF8ToWSTR(pcText);
+	int32_t i32Ret = MessageBoxW(NULL, lpwstrText, lpwstrCaption, u32Flags);
+	VeFree(lpwstrCaption);
+	VeFree(lpwstrText);
+	return i32Ret;
 }
 //--------------------------------------------------------------------------
-const VePoolAllocatorPtr& Venus3D::GetPoolAllocator(
-	size_t stUnitSize) noexcept
+LPWSTR WindowsVideo::UTF8ToWSTR(const char* pcStr) noexcept
 {
-	stUnitSize = (stUnitSize + 0xF) & (~0xF);
-	std::lock_guard<vtd::spin_lock> l(m_kAllocatorLock);
-	VePoolAllocatorPtr& spRes = m_kAllocatorMap[stUnitSize];
-	if (!spRes)
-	{
-		spRes = VE_NEW VePoolAllocator(stUnitSize);
-	}
-	return spRes;
+	assert(pcStr);
+	int32_t i32Num = MultiByteToWideChar(CP_UTF8, 0, pcStr, -1, nullptr, 0);
+	assert(i32Num >= 0);
+	LPWSTR lpwstrBuf = VeAlloc(WCHAR, i32Num + 1);
+	lpwstrBuf[i32Num] = 0;
+	MultiByteToWideChar(CP_UTF8, 0, pcStr, -1, lpwstrBuf, i32Num);
+	return lpwstrBuf;
+}
+//--------------------------------------------------------------------------
+LRESULT WindowsVideo::WindowProc(HWND hwnd, UINT msg, WPARAM wParam,
+	LPARAM lParam) noexcept
+{
+	return DefWindowProc(hwnd, msg, wParam, lParam);
+}
+
+//--------------------------------------------------------------------------
+VeVideoPtr CreateWindowsVideo(HINSTANCE hInst) noexcept
+{
+	return VE_NEW WindowsVideo(hInst ? hInst : GetModuleHandle(NULL));
 }
 //--------------------------------------------------------------------------

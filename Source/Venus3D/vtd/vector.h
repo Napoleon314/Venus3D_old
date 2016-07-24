@@ -78,6 +78,11 @@ namespace vtd
 			_Move.max_size = 0;
 		}
 
+		vector(std::initializer_list<_Ty> l) noexcept
+		{
+			assign(l.begin(), l.end());
+		}
+
 		~vector() noexcept
 		{
 			clear();
@@ -104,6 +109,7 @@ namespace vtd
 			_Move.buffer = nullptr;
 			_Move.used_size = 0;
 			_Move.max_size = 0;
+			return *this;
 		}
 
 		void clear() noexcept
@@ -292,9 +298,12 @@ namespace vtd
 
 		void assign(const_iterator itStart, const_iterator itLast) noexcept
 		{
-			difference_type diff = max(itLast - itStart, 0);
+			const difference_type diff = max(itLast - itStart, 0);
 			resize(diff);
-			_Alloc::memory_copy(buffer, itStart, (size_type)diff);
+			for (difference_type i(0); i < diff; ++i)
+			{
+				buffer[i] = itStart[i];
+			}
 		}
 
 		void push_back(const value_type& _Val) noexcept

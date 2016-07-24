@@ -4,8 +4,8 @@
 //  Copyright (c) 2016 Albert D Yang
 // -------------------------------------------------------------------------
 //  Module:      Log
-//  File name:   VeAssert.cpp
-//  Created:     2016/07/14 by Albert
+//  File name:   VeException.cpp
+//  Created:     2016/07/24 by Albert
 //  Description:
 // -------------------------------------------------------------------------
 //  Permission is hereby granted, free of charge, to any person obtaining a
@@ -31,45 +31,12 @@
 #include "stdafx.h"
 
 //--------------------------------------------------------------------------
-VeAssertState VeReportAssertion(const char* pcCond, const char* pcFile,
-	int32_t i32Line, const char* pcFunc) noexcept
+VeRTTIImpl(VeException);
+//--------------------------------------------------------------------------
+VeException::VeException(const char* pcName, const char* pcDesc,
+	const char* pcFile, int32_t i32Line, const char* pcFunc) noexcept
 {
-	auto& spVideo = Venus3D::Ref().GetVideo();
-	if (spVideo)
-	{
-		char acBuffer[VE_MAX_LOG_MESSAGE];
-		VeSprintf(acBuffer,
-			"Assertion failed!\n\n"
-			"File: %s\n"
-			"Line: %d\n"
-			"Function: %s\n\n"
-			"Expression: %s\n\n"
-			"For information on how your program can cause an assertion failure\n\n"
-			"(Press Retry to debug the application)",
-			pcFile, i32Line, pcFunc, pcCond);
-		switch (spVideo->MessageBoxSync(VE_ASSERT_CAPTION, acBuffer,
-			VE_MB_ABORTRETRYIGNORE | VE_MB_ERROR))
-		{
-		case VE_MB_IDABORT:
-			return VE_AS_STOP;
-		case VE_MB_IDRETRY:
-			return VE_AS_BREAK;
-		case VE_MB_IDIGNORE:
-			return VE_AS_IGNORE;
-		default:
-			return VE_AS_RETRY;
-		};
-	}
-	else
-	{
-		VeCoreLogE("*****************************************************");
-		VeCoreLogE("Assertion failed!");
-		VeCoreLogE("File: ", pcFile);
-		VeCoreLogE("Line: ", i32Line);
-		VeCoreLogE("Function: ", pcFunc);
-		VeCoreLogE("Expression: ", pcCond);
-		VeCoreLogE("*****************************************************");
-		return VE_AS_BREAK;
-	}
+	SetContent(pcName, pcDesc);
+	SetTriggerPoint(pcFile, i32Line, pcFunc);
 }
 //--------------------------------------------------------------------------

@@ -30,13 +30,13 @@
 
 #include "stdafx.h"
 
-extern int32_t VeMain() noexcept;
+extern int32_t VeEntry() noexcept;
 
 #ifdef BUILD_PLATFORM_WIN
 
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 {
-	return VeMain();
+	return VeEntry();
 }
 
 #elif defined(BUILD_PLATFORM_ANDROID)
@@ -45,7 +45,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 int main()
 {
-    return VeMain();
+    return VeEntry();
 }
 
 #endif

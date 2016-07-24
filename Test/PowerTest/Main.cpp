@@ -40,9 +40,10 @@ void* test(void* data) noexcept
 
 int main(/*int argc, char * argv[]*/)
 {
-	VeInit("PowerTest");
+	VeInit(VeInitData("PowerTest"), VE_INIT_CONSOLE);
 
 	{
+		VE_ENABLED_ASSERT(0);
 		VeCoroutine co;
 		co.prepare();
 		VeCoreLogI("main", (int)(size_t)co.start(test, (void*)1));

@@ -371,8 +371,9 @@ namespace vtd
 		{
 			if (copy.holder)
 			{
-				inc_refcount(copy.holder);
-				holder = copy.holder;
+				string_handle temp = (string_handle)copy.holder;
+				inc_refcount(temp);
+				holder = temp;
 			}
 		}
 

@@ -30,18 +30,19 @@
 
 #pragma once
 
-#ifndef assert_LEVEL
+#define VE_ASSERT_CAPTION ("Venus3D Assertion")
+
+#ifndef VE_ASSERT_LEVEL
 #ifdef VE_DEFAULT_ASSERT_LEVEL
-#define assert_LEVEL VE_DEFAULT_ASSERT_LEVEL
+#define VE_ASSERT_LEVEL VE_DEFAULT_ASSERT_LEVEL
 #elif defined(VE_DEBUG)
-#define SDL_ASSERT_LEVEL 2
+#define VE_ASSERT_LEVEL 2
 #else
-#define SDL_ASSERT_LEVEL 1
+#define VE_ASSERT_LEVEL 1
 #endif
-#endif /* assert_LEVEL */
+#endif
 
 #if defined(_MSC_VER)
-/* Don't include intrin.h here because it contains C++ code */
 extern void __cdecl __debugbreak(void);
 #define VE_DEBUG_BREAK() __debugbreak()
 #elif (!defined(__NACL__) && defined(__GNUC__) && (defined(__i386__) || defined(__x86_64__)))
@@ -50,54 +51,75 @@ extern void __cdecl __debugbreak(void);
 #include <signal.h>
 #define VE_DEBUG_BREAK() raise(SIGTRAP)
 #else
-/* How do we trigger breakpoints on this platform? */
 #define VE_DEBUG_BREAK() abort()
 #endif
 
-/* "while (0,0)" fools Microsoft's compiler's /W4 warning level into thinking
-this condition isn't constant. And looks like an owl's face! */
-#ifdef _MSC_VER  /* stupid /W4 warnings. */
-#define VE_NULL_WHILE_LOOP_CONDITION (0,0)
-#else
-#define VE_NULL_WHILE_LOOP_CONDITION (0)
-#endif
-
-#define VE_DISABLED_ASSERT(condition) \
-    do { (void) sizeof ((condition)); } while (VE_NULL_WHILE_LOOP_CONDITION)
-
 enum VeAssertState
 {
-	VE_ASSERTION_RETRY,
-	VE_ASSERTION_BREAK,
-	VE_ASSERTION_ABORT,
-	VE_ASSERTION_IGNORE,
-	VE_ASSERTION_ALWAYS_IGNORE
+	VE_AS_RETRY,
+	VE_AS_STOP,
+	VE_AS_BREAK,
+	VE_AS_IGNORE,
+	VE_AS_MAX
 };
 
-struct VeAssertData
-{
-	int32_t always_ignore;
-	uint32_t trigger_count;
-	const char *condition;
-	const char *filename;
-	int32_t linenum;
-	const char *function;
-	const VeAssertData *next;
-};
-
-#if (SDL_ASSERT_LEVEL > 0)
-
-
-VENUS_API VeAssertState VeReportAssertion(VeAssertData* data,
-	const char *func, const char *file, int line) noexcept;
+VENUS_API VeAssertState VeReportAssertion(const char* pcCond,
+	const char* pcFile, int32_t i32Line, const char* pcFunc) noexcept;
 
 #if defined(__clang__)
 #if __has_feature(attribute_analyzer_noreturn)
 __attribute__((analyzer_noreturn))
 #endif
 #endif
+
+#define VE_ENABLED_ASSERT(condition)												\
+	while (!(condition))															\
+	{																				\
+		switch (VeReportAssertion(#condition, __FILE__, __LINE__, __FUNCTION__))	\
+		{																			\
+		case VE_AS_RETRY:															\
+			continue;																\
+		case VE_AS_STOP:															\
+			::exit(0);break;														\
+		case VE_AS_BREAK:															\
+			VE_DEBUG_BREAK();break;													\
+		default:																	\
+			break;																	\
+		}																			\
+		break;																		\
+	}
+#define VE_ASSERT_ALWAYS(condition) VE_ENABLED_ASSERT(condition)
+#define VE_DISABLED_ASSERT(condition)
+#define VE_DISABLED_ASSERT_EXECUTE(condition) (condition)
+
+#if VE_ASSERT_LEVEL == 0
+#   define VE_ASSERT(condition) VE_DISABLED_ASSERT(condition)
+#   define VE_ASSERT_RELEASE(condition) VE_DISABLED_ASSERT(condition)
+#   define VE_ASSERT_PARANOID(condition) VE_DISABLED_ASSERT(condition)
+#   define VE_ASSERT_EXECUTE(condition) VE_DISABLED_ASSERT_EXECUTE(condition)
+#   define VE_ASSERT_RELEASE_EXECUTE(condition) VE_DISABLED_ASSERT_EXECUTE(condition)
+#   define VE_ASSERT_PARANOID_EXECUTE(condition) VE_DISABLED_ASSERT_EXECUTE(condition)
+#elif VE_ASSERT_LEVEL == 1
+#   define VE_ASSERT(condition) VE_DISABLED_ASSERT(condition)
+#   define VE_ASSERT_RELEASE(condition) VE_ENABLED_ASSERT(condition)
+#   define VE_ASSERT_PARANOID(condition) VE_DISABLED_ASSERT(condition)
+#   define VE_ASSERT_EXECUTE(condition) VE_DISABLED_ASSERT_EXECUTE(condition)
+#   define VE_ASSERT_RELEASE_EXECUTE(condition) VE_ENABLED_ASSERT(condition)
+#   define VE_ASSERT_PARANOID_EXECUTE(condition) VE_DISABLED_ASSERT_EXECUTE(condition)
+#elif VE_ASSERT_LEVEL == 2
+#   define VE_ASSERT(condition) VE_ENABLED_ASSERT(condition)
+#   define VE_ASSERT_RELEASE(condition) VE_ENABLED_ASSERT(condition)
+#   define VE_ASSERT_PARANOID(condition) VE_DISABLED_ASSERT(condition)
+#   define VE_ASSERT_EXECUTE(condition) VE_ENABLED_ASSERT(condition)
+#   define VE_ASSERT_RELEASE_EXECUTE(condition) VE_ENABLED_ASSERT(condition)
+#   define VE_ASSERT_PARANOID_EXECUTE(condition) VE_DISABLED_ASSERT_EXECUTE(condition)
+#elif VE_ASSERT_LEVEL == 3
+#   define VE_ASSERT(condition) VE_ENABLED_ASSERT(condition)
+#   define VE_ASSERT_RELEASE(condition) VE_ENABLED_ASSERT(condition)
+#   define VE_ASSERT_PARANOID(condition) VE_ENABLED_ASSERT(condition)
+#   define VE_ASSERT_EXECUTE(condition) VE_ENABLED_ASSERT(condition)
+#   define VE_ASSERT_RELEASE_EXECUTE(condition) VE_ENABLED_ASSERT(condition)
+#   define VE_ASSERT_PARANOID_EXECUTE(condition) VE_ENABLED_ASSERT(condition)
+#else
+#   error Unknown assertion level.
 #endif
-
-typedef VeAssertState (*VeAssertionHandler)(
-	const VeAssertData* data, void* userdata);
-
