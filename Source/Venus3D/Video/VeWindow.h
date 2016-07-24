@@ -4,8 +4,8 @@
 //  Copyright (c) 2016 Albert D Yang
 // -------------------------------------------------------------------------
 //  Module:      Video
-//  File name:   WindowsVideo.h
-//  Created:     2016/07/24 by Albert
+//  File name:   VeWindow.h
+//  Created:     2016/07/25 by Albert
 //  Description:
 // -------------------------------------------------------------------------
 //  Permission is hereby granted, free of charge, to any person obtaining a
@@ -30,37 +30,62 @@
 
 #pragma once
 
-class WindowsVideo : public VeDesktopVideo
+enum VeWindowFlag
 {
-	VeNoCopy(WindowsVideo);
-	VeRTTIDecl(WindowsVideo, VeDesktopVideo);
+	VE_WINDOW_MINIMIZED					= 0x00000001,
+	VE_WINDOW_MAXIMIZED					= 0x00000002,
+	VE_WINDOW_SHOWN						= 0x00000010,
+	VE_WINDOW_BORDERLESS				= 0x00000020,
+	VE_WINDOW_RESIZABLE					= 0x00000040,
+	VE_WINDOW_ALLOW_HIGHDPI				= 0x00000080,
+	VE_WINDOW_FOREIGN					= 0x00000100,
+	VE_WINDOW_VALID						= 0x80000000
+};
+
+#define VE_WINDOWPOS_UNDEFINED_MASK			0x1FFF0000
+#define VE_WINDOWPOS_UNDEFINED_DISPLAY(X)	(VE_WINDOWPOS_UNDEFINED_MASK|(X))
+#define VE_WINDOWPOS_UNDEFINED				VE_WINDOWPOS_UNDEFINED_DISPLAY(0)
+#define VE_WINDOWPOS_ISUNDEFINED(X)			(((X)&0xFFFF0000) == VE_WINDOWPOS_UNDEFINED_MASK)
+
+#define VE_WINDOWPOS_CENTERED_MASK			0x2FFF0000
+#define VE_WINDOWPOS_CENTERED_DISPLAY(X)	(VE_WINDOWPOS_CENTERED_MASK|(X))
+#define VE_WINDOWPOS_CENTERED				VE_WINDOWPOS_CENTERED_DISPLAY(0)
+#define VE_WINDOWPOS_ISCENTERED(X)			(((X)&0xFFFF0000) == VE_WINDOWPOS_CENTERED_MASK)
+
+VeSmartPointer(VeWindow);
+VeSmartPointer(VeDesktopWindow);
+
+class VENUS_API VeWindow : public VeRefObject
+{
+	VeNoCopy(VeWindow);
+	VeRTTIDecl(VeWindow);
 public:
-	WindowsVideo(const VeInitData& kInitData) noexcept;
+	VeWindow() noexcept;
 
-	virtual ~WindowsVideo() noexcept;
+	virtual ~VeWindow() noexcept = default;
+
+	virtual void* GetNativeHandle() noexcept = 0;
 	
-	virtual void Init();
+protected:
+	static uint32_t ms_u32Accumulator;
 
-	virtual void Term();
+	const uint32_t m_u32Index = 0;
+	uint32_t m_u32Flags = 0;
 
-	virtual void PumpEvents() noexcept;
+};
 
-	virtual int32_t MessageBoxSync(const char* pcCaption,
-		const char* pcText, uint32_t u32Flags) noexcept;
+class VENUS_API VeDesktopWindow : public VeWindow
+{
+	VeNoCopy(VeDesktopWindow);
+	VeRTTIDecl(VeDesktopWindow, VeWindow);
+public:
+	VeDesktopWindow() noexcept;
 
-	virtual VeDesktopWindowPtr Create(const char* pcTitle, int32_t x,
-		int32_t y, int32_t w, int32_t h, uint32_t u32Flags) noexcept;
-
-	static LPWSTR UTF8ToWSTR(const char* pcStr) noexcept;
+	virtual ~VeDesktopWindow() noexcept;
 
 protected:
-	friend class WindowsWindow;
-	static LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg,
-		WPARAM wParam, LPARAM lParam) noexcept;
-
-	HINSTANCE m_hInstance = nullptr;
-	HINSTANCE m_hPrevInstance = nullptr;
-	LPWSTR m_wstrClassName = nullptr;
-	int32_t m_i32CmdShow = SW_SHOW;
+	VeDesktopWindowPtr m_spParent;
+	vtd::intrusive_node<VeDesktopWindow*> m_kNode;
+	vtd::intrusive_list<VeDesktopWindow*> m_kChildList;
 
 };

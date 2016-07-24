@@ -440,7 +440,7 @@
 
 #define VeIsKindOf vtd::rtti::base::is_kind_of
 
-#define VeDynamicCast vtd::rtti::base::_dynamic_cast
+#define VeDynamicCast(t,p) vtd::rtti::base::_dynamic_cast<t>((t*)p)
 
 #include "Memory/VeString.h"
 #include "Memory/VeMemory.h"
@@ -459,6 +459,7 @@
 #include "System//VeSharedLib.h"
 #include "System/VeTime.h"
 
+#include "Video/VeWindow.h"
 #include "Video/VeVideo.h"
 
 struct VENUS_API VeThreadLocalSingleton : public VeMemObject

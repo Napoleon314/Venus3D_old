@@ -29,6 +29,7 @@
 ////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
+#include "WindowsWindow.h"
 #include "WindowsVideo.h"
 
 //--------------------------------------------------------------------------
@@ -39,10 +40,12 @@
 //--------------------------------------------------------------------------
 VeRTTIImpl(WindowsVideo, VeDesktopVideo);
 //--------------------------------------------------------------------------
-WindowsVideo::WindowsVideo(HINSTANCE hInst) noexcept
+WindowsVideo::WindowsVideo(const VeInitData& kInitData) noexcept
 	: VeDesktopVideo("WINAPI")
 {
-	m_hInstance = hInst;
+	m_hInstance = kInitData.m_hInstance ? kInitData.m_hInstance : GetModuleHandle(NULL);
+	m_hPrevInstance = kInitData.m_hPrevInstance;
+	m_i32CmdShow = kInitData.m_i32CmdShow;
 }
 //--------------------------------------------------------------------------
 WindowsVideo::~WindowsVideo() noexcept
@@ -82,6 +85,16 @@ void WindowsVideo::Term()
 	}
 }
 //--------------------------------------------------------------------------
+void WindowsVideo::PumpEvents() noexcept
+{
+	MSG msg;
+	while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
+	{
+		TranslateMessage(&msg);
+		DispatchMessage(&msg);
+	}
+}
+//--------------------------------------------------------------------------
 int32_t WindowsVideo::MessageBoxSync(const char* pcCaption,
 	const char* pcText, uint32_t u32Flags) noexcept
 {
@@ -91,6 +104,14 @@ int32_t WindowsVideo::MessageBoxSync(const char* pcCaption,
 	VeFree(lpwstrCaption);
 	VeFree(lpwstrText);
 	return i32Ret;
+}
+//--------------------------------------------------------------------------
+VeDesktopWindowPtr WindowsVideo::Create(const char* pcTitle, int32_t x,
+	int32_t y, int32_t w, int32_t h, uint32_t u32Flags) noexcept
+{
+	WindowsWindowPtr spWindow = VE_NEW WindowsWindow();
+	VE_TRY_CALL(spWindow->Init(*this, pcTitle, x, y, w, h, u32Flags));
+	return spWindow;
 }
 //--------------------------------------------------------------------------
 LPWSTR WindowsVideo::UTF8ToWSTR(const char* pcStr) noexcept
@@ -112,7 +133,6 @@ LRESULT WindowsVideo::WindowProc(HWND hwnd, UINT msg, WPARAM wParam,
 //--------------------------------------------------------------------------
 VeVideoPtr CreateWindowsVideo(const VeInitData& kInitData) noexcept
 {
-	return VE_NEW WindowsVideo(kInitData.m_hInstance
-		? kInitData.m_hInstance : GetModuleHandle(NULL));
+	return VE_NEW WindowsVideo(kInitData);
 }
 //--------------------------------------------------------------------------

@@ -3,9 +3,9 @@
 //  The MIT License (MIT)
 //  Copyright (c) 2016 Albert D Yang
 // -------------------------------------------------------------------------
-//  Module:      RenderTest
-//  File name:   Main.cpp
-//  Created:     2016/07/23 by Albert
+//  Module:      Video
+//  File name:   VeWindow.cpp
+//  Created:     2016/07/25 by Albert
 //  Description:
 // -------------------------------------------------------------------------
 //  Permission is hereby granted, free of charge, to any person obtaining a
@@ -28,25 +28,27 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-#include "RenderTest.h"
+#include "stdafx.h"
 
-const char* g_pcPakName = "com.venus3d.RenderTest";
-
-int32_t VeEntry(int32_t, char*[]) noexcept
+//--------------------------------------------------------------------------
+VeRTTIImpl(VeWindow);
+//--------------------------------------------------------------------------
+uint32_t VeWindow::ms_u32Accumulator = 0;
+//--------------------------------------------------------------------------
+VeWindow::VeWindow() noexcept : m_u32Index(++ms_u32Accumulator)
 {
-	VeDesktopVideoPtr spDesktop = VeDynamicCast(VeDesktopVideo, venus3d.GetVideo());
-	if (spDesktop)
-	{
-		VeDesktopWindowPtr spWin = spDesktop->Create("Test",
-			VE_WINDOWPOS_CENTERED, VE_WINDOWPOS_CENTERED, 1024, 768, 0);
 
-		while (true)
-		{
-			spDesktop->PumpEvents();
-		}
-
-	}
-	//VeDesktopWindowPtr spWin
-	//venus3d.GetVideo()->Create();
-	return 0;
 }
+//--------------------------------------------------------------------------
+VeRTTIImpl(VeDesktopWindow, VeWindow);
+//--------------------------------------------------------------------------
+VeDesktopWindow::VeDesktopWindow() noexcept
+{
+	m_kNode._Content = this;
+}
+//--------------------------------------------------------------------------
+VeDesktopWindow::~VeDesktopWindow() noexcept
+{
+	VE_ASSERT(m_kChildList.empty());
+}
+//--------------------------------------------------------------------------

@@ -3,9 +3,9 @@
 //  The MIT License (MIT)
 //  Copyright (c) 2016 Albert D Yang
 // -------------------------------------------------------------------------
-//  Module:      RenderTest
-//  File name:   Main.cpp
-//  Created:     2016/07/23 by Albert
+//  Module:      Video
+//  File name:   WindowsWindow.h
+//  Created:     2016/07/25 by Albert
 //  Description:
 // -------------------------------------------------------------------------
 //  Permission is hereby granted, free of charge, to any person obtaining a
@@ -28,25 +28,32 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-#include "RenderTest.h"
+#pragma once
 
-const char* g_pcPakName = "com.venus3d.RenderTest";
 
-int32_t VeEntry(int32_t, char*[]) noexcept
+class WindowsVideo;
+
+class WindowsWindow : public VeDesktopWindow
 {
-	VeDesktopVideoPtr spDesktop = VeDynamicCast(VeDesktopVideo, venus3d.GetVideo());
-	if (spDesktop)
-	{
-		VeDesktopWindowPtr spWin = spDesktop->Create("Test",
-			VE_WINDOWPOS_CENTERED, VE_WINDOWPOS_CENTERED, 1024, 768, 0);
+	VeNoCopy(WindowsWindow);
+	VeRTTIDecl(WindowsWindow, VeDesktopWindow);
+public:
+	WindowsWindow() noexcept = default;
 
-		while (true)
-		{
-			spDesktop->PumpEvents();
-		}
+	virtual ~WindowsWindow() noexcept;
 
-	}
-	//VeDesktopWindowPtr spWin
-	//venus3d.GetVideo()->Create();
-	return 0;
-}
+	virtual void* GetNativeHandle() noexcept;
+
+	void Init(WindowsVideo& kVideo, const char* pcTitle,
+		int32_t x, int32_t y, int32_t w, int32_t h, uint32_t u32Flags);
+
+	void Term();
+
+	static DWORD FlagsToWindowStyle(uint32_t u32Flags) noexcept;
+
+private:
+	HWND m_hHandle = nullptr;
+
+};
+
+VeSmartPointer(WindowsWindow);

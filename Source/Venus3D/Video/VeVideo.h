@@ -68,9 +68,6 @@ class VENUS_API VeVideo : public VeRefObject
 	VeNoCopy(VeVideo);
 	VeRTTIDecl(VeVideo);
 public:
-
-
-
 	VeVideo(const char* pcName) noexcept;
 
 	virtual ~VeVideo() noexcept;
@@ -81,11 +78,14 @@ public:
 
 	virtual void Term() = 0;
 
+	virtual void PumpEvents() noexcept = 0;
+
 	virtual int32_t MessageBoxSync(const char* pcCaption,
 		const char* pcText, uint32_t u32Flags) noexcept = 0;
 
 protected:
 	const vtd::string m_kName;
+	VeWindowPtr m_spActiveWindow;
 
 };
 
@@ -100,12 +100,11 @@ public:
 
 	virtual ~VeDesktopVideo() noexcept;
 
-	virtual void Init();
-
-	virtual void Term();
+	virtual VeDesktopWindowPtr Create(const char* pcTitle, int32_t x,
+		int32_t y, int32_t w, int32_t h, uint32_t u32Flags) noexcept = 0;
 
 protected:
-
+	vtd::intrusive_list<VeDesktopWindow*> m_kWindowList;
 
 };
 
