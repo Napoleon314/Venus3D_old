@@ -34,8 +34,6 @@ const char* g_pcPakName = "com.venus3d.RenderTest";
 
 int32_t VeEntry(int32_t, char*[]) noexcept
 {
-	VE_TRY_CALL(VE_THROW("Exception", "Content"));
-
 	RenderTest app;
 	app.Go();
 	return 0;
