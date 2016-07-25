@@ -1,4 +1,4 @@
-////////////////////////////////////////////////////////////////////////////
+﻿////////////////////////////////////////////////////////////////////////////
 //
 //  The MIT License (MIT)
 //  Copyright (c) 2016 Albert D Yang
@@ -37,8 +37,8 @@ int32_t VeEntry(int32_t, char*[]) noexcept
 	VeDesktopVideoPtr spDesktop = VeDynamicCast(VeDesktopVideo, venus3d.GetVideo());
 	if (spDesktop)
 	{
-		VeDesktopWindowPtr spWin = spDesktop->Create("Test",
-			VE_WINDOWPOS_CENTERED, VE_WINDOWPOS_CENTERED, 1024, 768, 0);
+		VeDesktopWindowPtr spWin = spDesktop->Create(u8"测试",
+			VE_WINDOWPOS_CENTERED, VE_WINDOWPOS_CENTERED, 1024, 768, VE_WINDOW_SHOWN);
 
 		while (true)
 		{

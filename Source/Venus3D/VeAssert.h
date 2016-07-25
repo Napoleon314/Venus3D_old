@@ -90,36 +90,23 @@ __attribute__((analyzer_noreturn))
 	}
 #define VE_ASSERT_ALWAYS(condition) VE_ENABLED_ASSERT(condition)
 #define VE_DISABLED_ASSERT(condition)
-#define VE_DISABLED_ASSERT_EXECUTE(condition) (condition)
 
 #if VE_ASSERT_LEVEL == 0
 #   define VE_ASSERT(condition) VE_DISABLED_ASSERT(condition)
 #   define VE_ASSERT_RELEASE(condition) VE_DISABLED_ASSERT(condition)
 #   define VE_ASSERT_PARANOID(condition) VE_DISABLED_ASSERT(condition)
-#   define VE_ASSERT_EXECUTE(condition) VE_DISABLED_ASSERT_EXECUTE(condition)
-#   define VE_ASSERT_RELEASE_EXECUTE(condition) VE_DISABLED_ASSERT_EXECUTE(condition)
-#   define VE_ASSERT_PARANOID_EXECUTE(condition) VE_DISABLED_ASSERT_EXECUTE(condition)
 #elif VE_ASSERT_LEVEL == 1
 #   define VE_ASSERT(condition) VE_DISABLED_ASSERT(condition)
 #   define VE_ASSERT_RELEASE(condition) VE_ENABLED_ASSERT(condition)
 #   define VE_ASSERT_PARANOID(condition) VE_DISABLED_ASSERT(condition)
-#   define VE_ASSERT_EXECUTE(condition) VE_DISABLED_ASSERT_EXECUTE(condition)
-#   define VE_ASSERT_RELEASE_EXECUTE(condition) VE_ENABLED_ASSERT(condition)
-#   define VE_ASSERT_PARANOID_EXECUTE(condition) VE_DISABLED_ASSERT_EXECUTE(condition)
 #elif VE_ASSERT_LEVEL == 2
 #   define VE_ASSERT(condition) VE_ENABLED_ASSERT(condition)
 #   define VE_ASSERT_RELEASE(condition) VE_ENABLED_ASSERT(condition)
 #   define VE_ASSERT_PARANOID(condition) VE_DISABLED_ASSERT(condition)
-#   define VE_ASSERT_EXECUTE(condition) VE_ENABLED_ASSERT(condition)
-#   define VE_ASSERT_RELEASE_EXECUTE(condition) VE_ENABLED_ASSERT(condition)
-#   define VE_ASSERT_PARANOID_EXECUTE(condition) VE_DISABLED_ASSERT_EXECUTE(condition)
 #elif VE_ASSERT_LEVEL == 3
 #   define VE_ASSERT(condition) VE_ENABLED_ASSERT(condition)
 #   define VE_ASSERT_RELEASE(condition) VE_ENABLED_ASSERT(condition)
 #   define VE_ASSERT_PARANOID(condition) VE_ENABLED_ASSERT(condition)
-#   define VE_ASSERT_EXECUTE(condition) VE_ENABLED_ASSERT(condition)
-#   define VE_ASSERT_RELEASE_EXECUTE(condition) VE_ENABLED_ASSERT(condition)
-#   define VE_ASSERT_PARANOID_EXECUTE(condition) VE_ENABLED_ASSERT(condition)
 #else
 #   error Unknown assertion level.
 #endif

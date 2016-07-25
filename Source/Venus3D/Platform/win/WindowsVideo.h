@@ -39,17 +39,17 @@ public:
 
 	virtual ~WindowsVideo() noexcept;
 	
-	virtual void Init();
+	virtual void Init() override;
 
-	virtual void Term();
+	virtual void Term() override;
 
-	virtual void PumpEvents() noexcept;
+	virtual void PumpEvents() noexcept override;
 
 	virtual int32_t MessageBoxSync(const char* pcCaption,
-		const char* pcText, uint32_t u32Flags) noexcept;
+		const char* pcText, uint32_t u32Flags) noexcept override;
 
 	virtual VeDesktopWindowPtr Create(const char* pcTitle, int32_t x,
-		int32_t y, int32_t w, int32_t h, uint32_t u32Flags) noexcept;
+		int32_t y, int32_t w, int32_t h, uint32_t u32Flags) noexcept override;
 
 	static LPWSTR UTF8ToWSTR(const char* pcStr) noexcept;
 

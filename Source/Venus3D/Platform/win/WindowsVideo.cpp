@@ -128,7 +128,9 @@ LPWSTR WindowsVideo::UTF8ToWSTR(const char* pcStr) noexcept
 LRESULT WindowsVideo::WindowProc(HWND hwnd, UINT msg, WPARAM wParam,
 	LPARAM lParam) noexcept
 {
-	return DefWindowProc(hwnd, msg, wParam, lParam);
+	WindowsWindow* pkWindow = (WindowsWindow*)(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+	VE_ASSERT_PARANOID(pkWindow);
+	return pkWindow->WindowProc(hwnd, msg, wParam, lParam);
 }
 //--------------------------------------------------------------------------
 VeVideoPtr CreateWindowsVideo(const VeInitData& kInitData) noexcept

@@ -42,12 +42,15 @@ public:
 
 	virtual ~WindowsWindow() noexcept;
 
-	virtual void* GetNativeHandle() noexcept;
+	virtual void* GetNativeHandle() noexcept override;
 
 	void Init(WindowsVideo& kVideo, const char* pcTitle,
 		int32_t x, int32_t y, int32_t w, int32_t h, uint32_t u32Flags);
 
 	void Term();
+
+	LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg,
+		WPARAM wParam, LPARAM lParam) noexcept;
 
 	static DWORD FlagsToWindowStyle(uint32_t u32Flags) noexcept;
 

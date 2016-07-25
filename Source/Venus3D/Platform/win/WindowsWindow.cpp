@@ -66,20 +66,39 @@ void WindowsWindow::Init(WindowsVideo& kVideo, const char* pcTitle,
 	RECT windowRect = { x, y, w, h };
 	AdjustWindowRect(&windowRect, dwStyle, FALSE);
 
-	//x = GetSystemMetrics(SM_CMONITORS);
+	w = windowRect.right - windowRect.left;
+	h = windowRect.bottom - windowRect.top;
 
-	m_hHandle = CreateWindowW(
-		kVideo.m_wstrClassName,
-		lpwstrTitle,
-		dwStyle,
-		flag_x == 1 ? CW_USEDEFAULT : windowRect.left,
-		flag_y == 1 ? CW_USEDEFAULT : windowRect.top,
-		windowRect.right - windowRect.left,
-		windowRect.bottom - windowRect.top,
-		nullptr,
-		nullptr,
-		kVideo.m_hInstance,
-		this);
+	switch (flag_x)
+	{
+	case 1:
+		x = CW_USEDEFAULT;
+		break;
+	case 2:
+		x = (GetSystemMetrics(SM_CXSCREEN) - w) >> 1;
+		break;
+	default:
+		x = windowRect.left;
+		break;
+	}
+	switch (flag_y)
+	{
+	case 1:
+		y = CW_USEDEFAULT;
+		break;
+	case 2:
+		y = (GetSystemMetrics(SM_CYSCREEN) - h) >> 1;
+		break;
+	default:
+		y = windowRect.top;
+		break;
+	}
+
+	x = vtd::max(x, 0);
+	y = vtd::max(y, 0);
+
+	m_hHandle = CreateWindowW(kVideo.m_wstrClassName, lpwstrTitle, dwStyle,
+		x, y, w, h, nullptr, nullptr, kVideo.m_hInstance, this);
 
 	VeFree(lpwstrTitle);
 
@@ -88,7 +107,28 @@ void WindowsWindow::Init(WindowsVideo& kVideo, const char* pcTitle,
 		THROW("Couldn't create window");
 	}
 
-	ShowWindow(m_hHandle, kVideo.m_i32CmdShow);
+	if (VE_MASK_HAS_ALL(u32Flags, VE_WINDOW_SHOWN))
+	{
+		int32_t i32Show = SW_SHOW;
+		if (VE_MASK_HAS_ALL(dwStyle, WS_THICKFRAME))
+		{
+			switch (u32Flags & 0xF)
+			{
+			case VE_WINDOW_MINIMIZED:
+				i32Show = SW_SHOWMINIMIZED;
+				break;
+			case VE_WINDOW_MAXIMIZED:
+				i32Show = SW_SHOWMAXIMIZED;
+				break;
+			case VE_WINDOW_DEPSTARTUP:
+				i32Show = kVideo.m_i32CmdShow;
+				break;
+			default:
+				break;
+			}
+		}
+		ShowWindow(m_hHandle, i32Show);
+	}
 
 	kVideo.m_kWindowList.attach_back(m_kNode);
 }
@@ -102,29 +142,37 @@ void WindowsWindow::Term()
 			THROW("Couldn't destory window");
 		}
 		m_hHandle = nullptr;
+		m_kNode.detach();
 	}
+	VE_ASSERT_PARANOID(!m_kNode.is_attach());
 }
 //--------------------------------------------------------------------------
-#define STYLE_BASIC         (WS_CLIPSIBLINGS | WS_CLIPCHILDREN)
-#define STYLE_FULLSCREEN    (WS_POPUP)
-#define STYLE_BORDERLESS    (WS_POPUP)
-#define STYLE_NORMAL        (WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX)
-#define STYLE_RESIZABLE     (WS_THICKFRAME | WS_MAXIMIZEBOX)
-#define STYLE_MASK          (STYLE_FULLSCREEN | STYLE_BORDERLESS | STYLE_NORMAL | STYLE_RESIZABLE)
+LRESULT WindowsWindow::WindowProc(HWND hwnd, UINT msg,
+	WPARAM wParam, LPARAM lParam) noexcept
+{
+	switch (msg)
+	{
+	case WM_DESTROY:
+		PostQuitMessage(0);
+		return 0;
+	default:
+		return DefWindowProc(hwnd, msg, wParam, lParam);
+	}
+}
 //--------------------------------------------------------------------------
 DWORD WindowsWindow::FlagsToWindowStyle(uint32_t u32Flags) noexcept
 {
 	DWORD dwStyle = 0;
 	if (VE_MASK_HAS_ALL(u32Flags, VE_WINDOW_BORDERLESS))
 	{
-		dwStyle |= STYLE_BORDERLESS;
+		dwStyle |= (WS_POPUP);
 	}
 	else
 	{
-		dwStyle |= STYLE_NORMAL;
+		dwStyle |= (WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX);
 		if (u32Flags & VE_WINDOW_RESIZABLE)
 		{
-			dwStyle |= STYLE_RESIZABLE;
+			dwStyle |= (WS_THICKFRAME | WS_MAXIMIZEBOX);
 		}
 	}
 	return dwStyle;
