@@ -1,11 +1,11 @@
-﻿////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////
 //
 //  The MIT License (MIT)
 //  Copyright (c) 2016 Albert D Yang
 // -------------------------------------------------------------------------
-//  Module:      RenderTest
-//  File name:   Main.cpp
-//  Created:     2016/07/23 by Albert
+//  Module:      Video
+//  File name:   VeWindow.inl
+//  Created:     2016/07/25 by Albert
 //  Description:
 // -------------------------------------------------------------------------
 //  Permission is hereby granted, free of charge, to any person obtaining a
@@ -28,23 +28,9 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-#include "RenderTest.h"
-
-const char* g_pcPakName = "com.venus3d.RenderTest";
-
-int32_t VeEntry(int32_t, char*[]) noexcept
+//--------------------------------------------------------------------------
+inline bool VeWindow::IsValid() noexcept
 {
-	VeDesktopVideoPtr spDesktop = VeDynamicCast(VeDesktopVideo, venus3d.GetVideo());
-	if (spDesktop)
-	{
-		VeDesktopWindowPtr spWin = spDesktop->Create(u8"RenderTest",
-			VE_WINDOWPOS_CENTERED, VE_WINDOWPOS_CENTERED, 1024, 768, VE_WINDOW_SHOWN);
-
-		while (spWin->IsValid())
-		{
-			spDesktop->PumpEvents();
-		}
-
-	}
-	return 0;
+	return GetNativeHandle() ? true : false;
 }
+//--------------------------------------------------------------------------

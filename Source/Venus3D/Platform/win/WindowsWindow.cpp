@@ -97,7 +97,7 @@ void WindowsWindow::Init(WindowsVideo& kVideo, const char* pcTitle,
 	x = vtd::max(x, 0);
 	y = vtd::max(y, 0);
 
-	m_hHandle = CreateWindowW(kVideo.m_wstrClassName, lpwstrTitle, dwStyle,
+	m_hHandle = CreateWindow(kVideo.m_wstrClassName, lpwstrTitle, dwStyle,
 		x, y, w, h, nullptr, nullptr, kVideo.m_hInstance, this);
 
 	VeFree(lpwstrTitle);
@@ -137,14 +137,22 @@ void WindowsWindow::Term()
 {
 	if (m_hHandle)
 	{
+		m_kNode.detach();
+		m_spParent = nullptr;
+		for (auto child : m_kChildList)
+		{
+			WindowsWindow* pkChild = VeDynamicCast(WindowsWindow, child);
+			VE_ASSERT(pkChild);
+			pkChild->Term();
+		}
+		VE_ASSERT(m_kChildList.empty());
 		if (!DestroyWindow(m_hHandle))
 		{
 			THROW("Couldn't destory window");
 		}
 		m_hHandle = nullptr;
-		m_kNode.detach();
 	}
-	VE_ASSERT_PARANOID(!m_kNode.is_attach());
+	VE_ASSERT(!m_kNode.is_attach());
 }
 //--------------------------------------------------------------------------
 LRESULT WindowsWindow::WindowProc(HWND hwnd, UINT msg,
@@ -153,7 +161,10 @@ LRESULT WindowsWindow::WindowProc(HWND hwnd, UINT msg,
 	switch (msg)
 	{
 	case WM_DESTROY:
-		PostQuitMessage(0);
+		if(m_kNode.is_attach())
+		{
+			VE_TRY_CALL(Term());
+		}
 		return 0;
 	default:
 		return DefWindowProc(hwnd, msg, wParam, lParam);

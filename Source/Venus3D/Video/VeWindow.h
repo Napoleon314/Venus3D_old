@@ -65,6 +65,8 @@ public:
 
 	virtual ~VeWindow() noexcept = default;
 
+	inline bool IsValid() noexcept;
+
 	virtual void* GetNativeHandle() noexcept = 0;
 	
 protected:
@@ -90,3 +92,5 @@ protected:
 	vtd::intrusive_list<VeDesktopWindow*> m_kChildList;
 
 };
+
+#include "VeWindow.inl"

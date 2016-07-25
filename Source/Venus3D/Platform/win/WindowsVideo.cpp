@@ -76,6 +76,13 @@ void WindowsVideo::Term()
 {
 	if (m_wstrClassName)
 	{
+		for (auto win : m_kWindowList)
+		{
+			WindowsWindow* pkWin = VeDynamicCast(WindowsWindow, win);
+			VE_ASSERT(pkWin);
+			pkWin->Term();
+		}
+		VE_ASSERT(m_kWindowList.empty());
 		if (!UnregisterClassW(m_wstrClassName, m_hInstance))
 		{
 			THROW("Couldn't unregister application class");
@@ -128,9 +135,27 @@ LPWSTR WindowsVideo::UTF8ToWSTR(const char* pcStr) noexcept
 LRESULT WindowsVideo::WindowProc(HWND hwnd, UINT msg, WPARAM wParam,
 	LPARAM lParam) noexcept
 {
-	WindowsWindow* pkWindow = (WindowsWindow*)(GetWindowLongPtr(hwnd, GWLP_USERDATA));
-	VE_ASSERT_PARANOID(pkWindow);
-	return pkWindow->WindowProc(hwnd, msg, wParam, lParam);
+	switch (msg)
+	{
+	case WM_CREATE:
+	{
+		LPCREATESTRUCT pCreateStruct = reinterpret_cast<LPCREATESTRUCT>(lParam);
+		SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pCreateStruct->lpCreateParams));
+		return 0;
+	}
+	default:
+	{
+		WindowsWindow* pkWindow = reinterpret_cast<WindowsWindow*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+		if (pkWindow)
+		{
+			return pkWindow->WindowProc(hwnd, msg, wParam, lParam);
+		}
+		else
+		{
+			return DefWindowProc(hwnd, msg, wParam, lParam);
+		}
+	}
+	}
 }
 //--------------------------------------------------------------------------
 VeVideoPtr CreateWindowsVideo(const VeInitData& kInitData) noexcept
