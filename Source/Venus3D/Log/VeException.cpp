@@ -53,7 +53,7 @@ VeAbortState VeException::Alert() noexcept
 			"Description: %s\n\n"
 			"For information on how your program can cause an exception\n\n"
 			"(Press Retry to debug the application)",
-			m_pcFile, m_i32Line, m_pcFunction, m_kDescription);
+			m_pcFile, m_i32Line, m_pcFunction, m_kDescription.c_str());
 		switch (spVideo->MessageBoxSync(m_kName, acBuffer,
 			VE_MB_ABORTRETRYIGNORE | VE_MB_WARNING))
 		{
@@ -74,11 +74,11 @@ VeAbortState VeException::Alert() noexcept
 	else
 	{
 		VeCoreLogW("*****************************************************");
-		VeCoreLogW("Exception: ", m_kName);
+		VeCoreLogW("Exception: ", m_kName.c_str());
 		VeCoreLogW("File: ", m_pcFile);
 		VeCoreLogW("Line: ", m_i32Line);
 		VeCoreLogW("Function: ", m_pcFunction);
-		VeCoreLogW("Description: ", m_kDescription);
+		VeCoreLogW("Description: ", m_kDescription.c_str());
 		VeCoreLogW("*****************************************************");
 		return VE_AS_IGNORE;
 	}

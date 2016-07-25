@@ -83,12 +83,19 @@ void Venus3D::TermJob() noexcept
 //--------------------------------------------------------------------------
 #ifdef BUILD_PLATFORM_WIN
 extern VeVideoPtr CreateWindowsVideo(const VeInitData& kInitData) noexcept;
+#else
+VeVideoPtr CreateVideo(const VeInitData&) noexcept
+{
+    return nullptr;
+}
 #endif
 //--------------------------------------------------------------------------
 void Venus3D::InitVideo(const VeInitData& kInitData) noexcept
 {
 #	ifdef BUILD_PLATFORM_WIN
 	m_spVideo = CreateWindowsVideo(kInitData);
+#   else
+    m_spVideo = CreateVideo(kInitData);
 #	endif
 	if (m_spVideo)
 	{

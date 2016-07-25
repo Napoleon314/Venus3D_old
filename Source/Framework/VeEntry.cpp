@@ -63,9 +63,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
 #else
 
-int main()
+int main(int32_t argc, char * argv[])
 {
-    return VeEntry();
+    return VeEntry(argc, argv);
 }
 
 #endif
