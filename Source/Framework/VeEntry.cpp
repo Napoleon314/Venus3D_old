@@ -30,11 +30,10 @@
 
 #include "stdafx.h"
 
+extern const char* g_pcPakName;
 extern int32_t VeEntry(int32_t argc, char * argv[]) noexcept;
 
 #ifdef BUILD_PLATFORM_WIN
-
-extern const char* g_pcPakName;
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	LPSTR lpCmdLine, int nCmdShow)
@@ -65,7 +64,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
 int main(int32_t argc, char * argv[])
 {
-    return VeEntry(argc, argv);
+    int32_t i32Exit(0);
+    VeInit(VeInitData(g_pcPakName, VE_INIT_WINDOW));
+    i32Exit = VeEntry(argc, argv);
+    VeTerm();
+    return i32Exit;
 }
 
 #endif
