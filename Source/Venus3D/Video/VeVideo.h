@@ -100,8 +100,9 @@ public:
 
 	virtual ~VeDesktopVideo() noexcept;
 
-	virtual VeDesktopWindowPtr Create(const char* pcTitle, int32_t x,
-		int32_t y, int32_t w, int32_t h, uint32_t u32Flags) noexcept = 0;
+	virtual VeDesktopWindowPtr Create(const char* pcTitle, int32_t w, int32_t h,
+		int32_t x = VE_WINDOWPOS_CENTERED, int32_t y = VE_WINDOWPOS_CENTERED,
+		uint32_t u32Flags = VE_WINDOW_DEFAUT_FLAGS) noexcept = 0;
 
 protected:
 	vtd::intrusive_list<VeDesktopWindow*> m_kWindowList;

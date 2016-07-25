@@ -44,6 +44,10 @@ public:
 
 	virtual void* GetNativeHandle() noexcept override;
 
+	virtual void Show() noexcept override;
+
+	virtual void Hide() noexcept override;
+
 	void Init(WindowsVideo& kVideo, const char* pcTitle,
 		int32_t x, int32_t y, int32_t w, int32_t h, uint32_t u32Flags);
 
@@ -55,6 +59,8 @@ public:
 	static DWORD FlagsToWindowStyle(uint32_t u32Flags) noexcept;
 
 private:
+	void UpdateFlags() noexcept;
+
 	HWND m_hHandle = nullptr;
 
 };

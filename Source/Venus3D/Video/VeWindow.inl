@@ -31,6 +31,16 @@
 //--------------------------------------------------------------------------
 inline bool VeWindow::IsValid() noexcept
 {
-	return GetNativeHandle() ? true : false;
+	return VE_MASK_HAS_ANY(m_u32Flags, VE_WINDOW_VALID);
+}
+//--------------------------------------------------------------------------
+inline bool VeWindow::IsVisible() noexcept
+{
+	return VE_MASK_HAS_ANY(m_u32Flags, VE_WINDOW_SHOWN);
+}
+//--------------------------------------------------------------------------
+inline bool VeWindow::IsHidden() noexcept
+{
+	return !IsVisible();
 }
 //--------------------------------------------------------------------------

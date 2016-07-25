@@ -40,7 +40,7 @@ void* test(void* data) noexcept
 
 int main(/*int argc, char * argv[]*/)
 {
-	VeInit(VeInitData("PowerTest"), VE_INIT_CONSOLE);
+	VeInit(VeInitData("PowerTest", VE_INIT_CONSOLE));
 
 	{
 		VE_ENABLED_ASSERT(0);

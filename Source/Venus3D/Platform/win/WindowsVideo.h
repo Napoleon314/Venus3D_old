@@ -48,8 +48,8 @@ public:
 	virtual int32_t MessageBoxSync(const char* pcCaption,
 		const char* pcText, uint32_t u32Flags) noexcept override;
 
-	virtual VeDesktopWindowPtr Create(const char* pcTitle, int32_t x,
-		int32_t y, int32_t w, int32_t h, uint32_t u32Flags) noexcept override;
+	virtual VeDesktopWindowPtr Create(const char* pcTitle, int32_t w, int32_t h,
+		int32_t x, int32_t y, uint32_t u32Flags) noexcept override;
 
 	static LPWSTR UTF8ToWSTR(const char* pcStr) noexcept;
 

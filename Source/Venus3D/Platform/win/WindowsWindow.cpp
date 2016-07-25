@@ -97,7 +97,7 @@ void WindowsWindow::Init(WindowsVideo& kVideo, const char* pcTitle,
 	x = vtd::max(x, 0);
 	y = vtd::max(y, 0);
 
-	m_hHandle = CreateWindow(kVideo.m_wstrClassName, lpwstrTitle, dwStyle,
+	m_hHandle = CreateWindowW(kVideo.m_wstrClassName, lpwstrTitle, dwStyle,
 		x, y, w, h, nullptr, nullptr, kVideo.m_hInstance, this);
 
 	VeFree(lpwstrTitle);
@@ -130,6 +130,9 @@ void WindowsWindow::Init(WindowsVideo& kVideo, const char* pcTitle,
 		ShowWindow(m_hHandle, i32Show);
 	}
 
+	m_u32Flags = u32Flags & (VE_WINDOW_ALLOW_HIGHDPI | VE_WINDOW_FOREIGN);
+	UpdateFlags();
+
 	kVideo.m_kWindowList.attach_back(m_kNode);
 }
 //--------------------------------------------------------------------------
@@ -146,13 +149,54 @@ void WindowsWindow::Term()
 			pkChild->Term();
 		}
 		VE_ASSERT(m_kChildList.empty());
-		if (!DestroyWindow(m_hHandle))
+		if (!VE_MASK_HAS_ALL(m_u32Flags, VE_WINDOW_FOREIGN))
 		{
-			THROW("Couldn't destory window");
+			if (!DestroyWindow(m_hHandle))
+			{
+				THROW("Couldn't destory window");
+			}
 		}
 		m_hHandle = nullptr;
+		UpdateFlags();
 	}
 	VE_ASSERT(!m_kNode.is_attach());
+}
+//--------------------------------------------------------------------------
+void WindowsWindow::Show() noexcept
+{
+	if (IsValid() && IsHidden())
+	{
+		VE_ASSERT_EQ(ShowWindow(m_hHandle, SW_SHOW), 0);
+		UpdateFlags();
+	}
+}
+//--------------------------------------------------------------------------
+void WindowsWindow::Hide() noexcept
+{
+	if (IsValid() && IsVisible())
+	{
+		VE_ASSERT_NE(ShowWindow(m_hHandle, SW_HIDE), 0);
+		UpdateFlags();
+	}
+}
+//--------------------------------------------------------------------------
+void WindowsWindow::UpdateFlags() noexcept
+{
+	if (m_hHandle)
+	{
+		m_u32Flags &= (VE_WINDOW_ALLOW_HIGHDPI | VE_WINDOW_FOREIGN);
+		LONG dwStyle = GetWindowLongW(m_hHandle, GWL_STYLE);
+		VE_MASK_CONDITION(dwStyle, WS_MINIMIZE, VE_MASK_ADD(m_u32Flags, VE_WINDOW_MINIMIZED));
+		VE_MASK_CONDITION(dwStyle, WS_MAXIMIZE, VE_MASK_ADD(m_u32Flags, VE_WINDOW_MAXIMIZED));
+		VE_MASK_CONDITION(dwStyle, WS_VISIBLE, VE_MASK_ADD(m_u32Flags, VE_WINDOW_SHOWN));
+		VE_MASK_CONDITION(dwStyle, WS_POPUP, VE_MASK_ADD(m_u32Flags, VE_WINDOW_BORDERLESS));
+		VE_MASK_CONDITION(dwStyle, WS_THICKFRAME, VE_MASK_ADD(m_u32Flags, VE_WINDOW_RESIZABLE));
+		VE_MASK_ADD(m_u32Flags, VE_WINDOW_VALID);
+	}
+	else
+	{
+		m_u32Flags = 0;
+	}
 }
 //--------------------------------------------------------------------------
 LRESULT WindowsWindow::WindowProc(HWND hwnd, UINT msg,

@@ -43,6 +43,8 @@ enum VeWindowFlag
 	VE_WINDOW_VALID						= 0x80000000
 };
 
+#define VE_WINDOW_DEFAUT_FLAGS (VE_WINDOW_ALLOW_HIGHDPI)
+
 #define VE_WINDOWPOS_UNDEFINED_MASK			0x1FFF0000
 #define VE_WINDOWPOS_UNDEFINED_DISPLAY(X)	(VE_WINDOWPOS_UNDEFINED_MASK|(X))
 #define VE_WINDOWPOS_UNDEFINED				VE_WINDOWPOS_UNDEFINED_DISPLAY(0)
@@ -67,7 +69,15 @@ public:
 
 	inline bool IsValid() noexcept;
 
+	inline bool IsVisible() noexcept;
+
+	inline bool IsHidden() noexcept;
+
 	virtual void* GetNativeHandle() noexcept = 0;
+
+	virtual void Show() noexcept = 0;
+
+	virtual void Hide() noexcept = 0;
 	
 protected:
 	static uint32_t ms_u32Accumulator;

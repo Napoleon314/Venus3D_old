@@ -37,8 +37,8 @@ int32_t VeEntry(int32_t, char*[]) noexcept
 	VeDesktopVideoPtr spDesktop = VeDynamicCast(VeDesktopVideo, venus3d.GetVideo());
 	if (spDesktop)
 	{
-		VeDesktopWindowPtr spWin = spDesktop->Create(u8"RenderTest",
-			VE_WINDOWPOS_CENTERED, VE_WINDOWPOS_CENTERED, 1024, 768, VE_WINDOW_SHOWN);
+		VeDesktopWindowPtr spWin = spDesktop->Create(u8"RenderTest", 1024, 768);
+		spWin->Show();
 
 		while (spWin->IsValid())
 		{

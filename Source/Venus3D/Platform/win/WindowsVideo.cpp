@@ -113,8 +113,8 @@ int32_t WindowsVideo::MessageBoxSync(const char* pcCaption,
 	return i32Ret;
 }
 //--------------------------------------------------------------------------
-VeDesktopWindowPtr WindowsVideo::Create(const char* pcTitle, int32_t x,
-	int32_t y, int32_t w, int32_t h, uint32_t u32Flags) noexcept
+VeDesktopWindowPtr WindowsVideo::Create(const char* pcTitle,
+	int32_t w, int32_t h, int32_t x, int32_t y, uint32_t u32Flags) noexcept
 {
 	WindowsWindowPtr spWindow = VE_NEW WindowsWindow();
 	VE_TRY_CALL(spWindow->Init(*this, pcTitle, x, y, w, h, u32Flags));
@@ -140,12 +140,14 @@ LRESULT WindowsVideo::WindowProc(HWND hwnd, UINT msg, WPARAM wParam,
 	case WM_CREATE:
 	{
 		LPCREATESTRUCT pCreateStruct = reinterpret_cast<LPCREATESTRUCT>(lParam);
-		SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pCreateStruct->lpCreateParams));
+		SetWindowLongPtrW(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(
+			pCreateStruct->lpCreateParams));
 		return 0;
 	}
 	default:
 	{
-		WindowsWindow* pkWindow = reinterpret_cast<WindowsWindow*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+		WindowsWindow* pkWindow = reinterpret_cast<WindowsWindow*>(
+			GetWindowLongPtrW(hwnd, GWLP_USERDATA));
 		if (pkWindow)
 		{
 			return pkWindow->WindowProc(hwnd, msg, wParam, lParam);
