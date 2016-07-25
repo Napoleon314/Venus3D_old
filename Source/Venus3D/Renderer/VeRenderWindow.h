@@ -3,9 +3,9 @@
 //  The MIT License (MIT)
 //  Copyright (c) 2016 Albert D Yang
 // -------------------------------------------------------------------------
-//  Module:      Video
-//  File name:   VeWindow.inl
-//  Created:     2016/07/25 by Albert
+//  Module:      VeRenderer
+//  File name:   VeRenderWindow.h
+//  Created:     2016/07/22 by Albert
 //  Description:
 // -------------------------------------------------------------------------
 //  Permission is hereby granted, free of charge, to any person obtaining a
@@ -28,29 +28,53 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-//--------------------------------------------------------------------------
-inline bool VeWindow::IsValid() noexcept
+#pragma once
+
+class VENUS_API VeRenderWindow : public VeRefObject
 {
-	return VE_MASK_HAS_ANY(m_u32Flags, VE_WINDOW_VALID);
-}
-//--------------------------------------------------------------------------
-inline bool VeWindow::IsVisible() noexcept
-{
-	return VE_MASK_HAS_ANY(m_u32Flags, VE_WINDOW_SHOWN);
-}
-//--------------------------------------------------------------------------
-inline bool VeWindow::IsHidden() noexcept
-{
-	return !IsVisible();
-}
-//--------------------------------------------------------------------------
-inline uint32_t VeWindow::GetWidth() noexcept
-{
-	return (uint32_t)m_u16Width;
-}
-//--------------------------------------------------------------------------
-inline uint32_t VeWindow::GetHeight() noexcept
-{
-	return (uint32_t)m_u16Height;
-}
-//--------------------------------------------------------------------------
+	VeNoCopy(VeRenderWindow);
+	VeRTTIDecl(VeRenderWindow);
+public:
+	VeRenderWindow(const VeWindowPtr& spWindow) noexcept;
+
+	virtual ~VeRenderWindow() noexcept;
+
+	inline const VeWindowPtr& GetTargetWindow() noexcept;
+
+	inline bool IsSync() noexcept;
+
+	inline void SetSync(bool bEnable) noexcept;
+
+	inline uint64_t GetFrameIndex() noexcept;
+
+	inline bool IsVisible() noexcept;
+
+	inline bool IsHidden() noexcept;
+
+	inline uint32_t GetWidth() noexcept;
+
+	inline uint32_t GetHeight() noexcept;
+
+	inline void Show() noexcept;
+
+	inline void Hide() noexcept;
+
+	inline void SetTitle(const char* pcTitle) noexcept;
+
+	virtual bool IsValid() noexcept;
+
+	virtual void Begin() noexcept = 0;
+
+	virtual void End() noexcept = 0;
+
+protected:
+	friend class VeRenderer;
+	VeWindowPtr m_spTargetWindow;
+	uint64_t m_u64FrameIndex = 0;
+	bool m_bSync = false;
+
+};
+
+VeSmartPointer(VeRenderWindow);
+
+#include "VeRenderWindow.inl"

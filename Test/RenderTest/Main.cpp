@@ -35,16 +35,48 @@ const char* g_pcPakName = "com.venus3d.RenderTest";
 int32_t VeEntry(int32_t, char*[]) noexcept
 {
 	VeDesktopVideoPtr spDesktop = VeDynamicCast(VeDesktopVideo, venus3d.GetVideo());
-	if (spDesktop)
+	if (!spDesktop) return 0;
+	VeRendererPtr spD3D12 = VeRenderer::Create(VE_RENDER_D3D12);
+	if (!spD3D12) return 0;
+	VE_TRY_CALL(spD3D12->Init());
+
+	VeRenderWindowPtr spWindow = spD3D12->CreateRenderWindow("D3D12", 1024, 768);
+	//spWindow->SetSync(true);
+	while (true)
 	{
-		VeDesktopWindowPtr spWin = spDesktop->Create(u8"RenderTest", 1024, 768);
-		spWin->Show();
-
-		while (spWin->IsValid())
+		venus3d.GetTime().Update();
+		spDesktop->PumpEvents();
 		{
-			spDesktop->PumpEvents();
-		}
+			static float s_f32TimeCount(0);
+			static uint32_t s_u32FrameCount(0);
+			static uint32_t s_u32FPS;
 
+			s_f32TimeCount += venus3d.GetTime().GetDeltaTime();
+			++s_u32FrameCount;
+
+			if (s_f32TimeCount > 1.0f)
+			{
+				s_u32FPS = s_u32FrameCount;
+				char s_acFPS[64];
+				VeSprintf(s_acFPS, "%s[FPS:%d]", "D3D12", s_u32FrameCount);
+				spWindow->SetTitle(s_acFPS);
+				s_f32TimeCount -= floorf(s_f32TimeCount);
+				s_u32FrameCount = 0;
+			}
+		}
+		if (spWindow->IsValid())
+		{
+			spWindow->Begin();
+			spWindow->End();
+		}
+		else
+		{
+			spWindow = nullptr;
+			break;
+		}
 	}
+	
+	VE_TRY_CALL(spD3D12->Term());
+
 	return 0;
 }

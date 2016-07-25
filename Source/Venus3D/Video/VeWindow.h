@@ -73,17 +73,22 @@ public:
 
 	inline bool IsHidden() noexcept;
 
+	inline uint32_t GetWidth() noexcept;
+
+	inline uint32_t GetHeight() noexcept;
+
 	virtual void* GetNativeHandle() noexcept = 0;
 
 	virtual void Show() noexcept = 0;
 
 	virtual void Hide() noexcept = 0;
+
+	virtual void SetTitle(const char* pcTitle) noexcept = 0;
 	
 protected:
-	static uint32_t ms_u32Accumulator;
-
-	const uint32_t m_u32Index = 0;
 	uint32_t m_u32Flags = 0;
+	uint16_t m_u16Width = 0;
+	uint16_t m_u16Height = 0;
 
 };
 

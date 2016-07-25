@@ -3,9 +3,9 @@
 //  The MIT License (MIT)
 //  Copyright (c) 2016 Albert D Yang
 // -------------------------------------------------------------------------
-//  Module:      Video
-//  File name:   VeWindow.inl
-//  Created:     2016/07/25 by Albert
+//  Module:      VeRenderer
+//  File name:   VeRenderer.h
+//  Created:     2016/07/22 by Albert
 //  Description:
 // -------------------------------------------------------------------------
 //  Permission is hereby granted, free of charge, to any person obtaining a
@@ -28,29 +28,68 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-//--------------------------------------------------------------------------
-inline bool VeWindow::IsValid() noexcept
+#pragma once
+
+#define VE_RENDER_D3D			(0x0100)
+#define VE_RENDER_KHR			(0x0200)
+#define VE_RENDER_APPLE			(0x0400)
+#define VE_RENDER_MOBILE		(0x0800)
+#define VE_RENDER_NGAPI			(0x1000)
+#define VE_RENDER_API_VER_MASK	(0x00FF)
+
+enum VeRenderAPI
 {
-	return VE_MASK_HAS_ANY(m_u32Flags, VE_WINDOW_VALID);
-}
-//--------------------------------------------------------------------------
-inline bool VeWindow::IsVisible() noexcept
+	VE_RENDER_D3D11		= (0xB0 | VE_RENDER_D3D),
+	VE_RENDER_D3D12		= (0xC0 | VE_RENDER_D3D | VE_RENDER_NGAPI),
+	VE_RENDER_OPENGL	= (VE_RENDER_KHR | VE_RENDER_APPLE),
+	VE_RENDER_GLES3		= (0x30 | VE_RENDER_KHR | VE_RENDER_APPLE | VE_RENDER_MOBILE),
+	VE_RENDER_VULKAN	= (VE_RENDER_KHR | VE_RENDER_MOBILE | VE_RENDER_NGAPI),
+	VE_RENDER_METAL		= (VE_RENDER_APPLE | VE_RENDER_MOBILE | VE_RENDER_NGAPI)
+};
+
+VeSmartPointer(VeRenderer);
+
+class VENUS_API VeRenderer : public VeRefObject
 {
-	return VE_MASK_HAS_ANY(m_u32Flags, VE_WINDOW_SHOWN);
-}
-//--------------------------------------------------------------------------
-inline bool VeWindow::IsHidden() noexcept
-{
-	return !IsVisible();
-}
-//--------------------------------------------------------------------------
-inline uint32_t VeWindow::GetWidth() noexcept
-{
-	return (uint32_t)m_u16Width;
-}
-//--------------------------------------------------------------------------
-inline uint32_t VeWindow::GetHeight() noexcept
-{
-	return (uint32_t)m_u16Height;
-}
-//--------------------------------------------------------------------------
+	VeNoCopy(VeRenderer);
+	VeRTTIDecl(VeRenderer);
+public:
+	enum API
+	{
+		API_NONE = 0x0,
+		API_D3D11 = 0x1,
+		API_D3D12 = 0x2,
+		API_OGL = 0x4,
+		API_OGLES2 = 0x8,
+		API_OGLES3 = 0x10,
+		API_MASK = 0xFF
+	};
+
+	VeRenderer() noexcept;
+
+	virtual ~VeRenderer() noexcept;
+
+	VeRenderWindowPtr CreateRenderWindow(const char* pcTitle, int32_t w, int32_t h,
+		int32_t x = VE_WINDOWPOS_CENTERED, int32_t y = VE_WINDOWPOS_CENTERED,
+		uint32_t u32Flags = VE_WINDOW_DEFAUT_FLAGS) noexcept;
+
+	virtual void Init() = 0;
+
+	virtual void Term() = 0;
+
+	virtual void BeginSyncCopy() noexcept = 0;
+
+	virtual void EndSyncCopy() noexcept = 0;
+
+	virtual VeRenderWindowPtr CreateRenderWindow(const VeWindowPtr& spWindow) noexcept = 0;
+	
+	static VeRendererPtr Create(VeRenderAPI eAPI) noexcept;
+
+protected:
+	
+
+	
+
+};
+
+#include "VeRenderer.inl"

@@ -3,9 +3,9 @@
 //  The MIT License (MIT)
 //  Copyright (c) 2016 Albert D Yang
 // -------------------------------------------------------------------------
-//  Module:      Video
-//  File name:   VeWindow.inl
-//  Created:     2016/07/25 by Albert
+//  Module:      VeRenderer
+//  File name:   VeRenderWindow.inl
+//  Created:     2016/07/22 by Albert
 //  Description:
 // -------------------------------------------------------------------------
 //  Permission is hereby granted, free of charge, to any person obtaining a
@@ -29,28 +29,65 @@
 ////////////////////////////////////////////////////////////////////////////
 
 //--------------------------------------------------------------------------
-inline bool VeWindow::IsValid() noexcept
+inline const VeWindowPtr& VeRenderWindow::GetTargetWindow() noexcept
 {
-	return VE_MASK_HAS_ANY(m_u32Flags, VE_WINDOW_VALID);
+	return m_spTargetWindow;
 }
 //--------------------------------------------------------------------------
-inline bool VeWindow::IsVisible() noexcept
+inline bool VeRenderWindow::IsSync() noexcept
 {
-	return VE_MASK_HAS_ANY(m_u32Flags, VE_WINDOW_SHOWN);
+	return m_bSync;
 }
 //--------------------------------------------------------------------------
-inline bool VeWindow::IsHidden() noexcept
+inline void VeRenderWindow::SetSync(bool bEnable) noexcept
 {
-	return !IsVisible();
+	m_bSync = bEnable;
 }
 //--------------------------------------------------------------------------
-inline uint32_t VeWindow::GetWidth() noexcept
+inline uint64_t VeRenderWindow::GetFrameIndex() noexcept
 {
-	return (uint32_t)m_u16Width;
+	return m_u64FrameIndex;
 }
 //--------------------------------------------------------------------------
-inline uint32_t VeWindow::GetHeight() noexcept
+inline bool VeRenderWindow::IsVisible() noexcept
 {
-	return (uint32_t)m_u16Height;
+	VE_ASSERT(IsValid());
+	return m_spTargetWindow->IsVisible();
+}
+//--------------------------------------------------------------------------
+inline bool VeRenderWindow::IsHidden() noexcept
+{
+	VE_ASSERT(IsValid());
+	return m_spTargetWindow->IsHidden();
+}
+//--------------------------------------------------------------------------
+inline uint32_t VeRenderWindow::GetWidth() noexcept
+{
+	VE_ASSERT(IsValid());
+	return m_spTargetWindow->GetWidth();
+}
+//--------------------------------------------------------------------------
+inline uint32_t VeRenderWindow::GetHeight() noexcept
+{
+	VE_ASSERT(IsValid());
+	return m_spTargetWindow->GetHeight();
+}
+//--------------------------------------------------------------------------
+void VeRenderWindow::Show() noexcept
+{
+	VE_ASSERT(IsValid());
+	m_spTargetWindow->Show();
+}
+//--------------------------------------------------------------------------
+void VeRenderWindow::Hide() noexcept
+{
+	VE_ASSERT(IsValid());
+	m_spTargetWindow->Hide();
+}
+//--------------------------------------------------------------------------
+inline void VeRenderWindow::SetTitle(const char* pcTitle) noexcept
+{
+	VE_ASSERT(IsValid());
+	m_spTargetWindow->SetTitle(pcTitle);
 }
 //--------------------------------------------------------------------------

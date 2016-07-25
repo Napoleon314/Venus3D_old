@@ -462,6 +462,9 @@
 #include "Video/VeWindow.h"
 #include "Video/VeVideo.h"
 
+#include "Renderer/VeRenderWindow.h"
+#include "Renderer/VeRenderer.h"
+
 struct VENUS_API VeThreadLocalSingleton : public VeMemObject
 {
 	VeCoenvironment m_kCoenviron;

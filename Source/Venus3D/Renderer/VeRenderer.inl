@@ -3,9 +3,9 @@
 //  The MIT License (MIT)
 //  Copyright (c) 2016 Albert D Yang
 // -------------------------------------------------------------------------
-//  Module:      Video
-//  File name:   VeWindow.inl
-//  Created:     2016/07/25 by Albert
+//  Module:      VeRenderer
+//  File name:   VeRenderer.inl
+//  Created:     2016/07/22 by Albert
 //  Description:
 // -------------------------------------------------------------------------
 //  Permission is hereby granted, free of charge, to any person obtaining a
@@ -27,30 +27,3 @@
 //  SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 ////////////////////////////////////////////////////////////////////////////
-
-//--------------------------------------------------------------------------
-inline bool VeWindow::IsValid() noexcept
-{
-	return VE_MASK_HAS_ANY(m_u32Flags, VE_WINDOW_VALID);
-}
-//--------------------------------------------------------------------------
-inline bool VeWindow::IsVisible() noexcept
-{
-	return VE_MASK_HAS_ANY(m_u32Flags, VE_WINDOW_SHOWN);
-}
-//--------------------------------------------------------------------------
-inline bool VeWindow::IsHidden() noexcept
-{
-	return !IsVisible();
-}
-//--------------------------------------------------------------------------
-inline uint32_t VeWindow::GetWidth() noexcept
-{
-	return (uint32_t)m_u16Width;
-}
-//--------------------------------------------------------------------------
-inline uint32_t VeWindow::GetHeight() noexcept
-{
-	return (uint32_t)m_u16Height;
-}
-//--------------------------------------------------------------------------

@@ -66,6 +66,10 @@ void WindowsWindow::Init(WindowsVideo& kVideo, const char* pcTitle,
 	RECT windowRect = { x, y, w, h };
 	AdjustWindowRect(&windowRect, dwStyle, FALSE);
 
+	VE_ASSERT(w > 0 && w < UINT16_MAX && h > 0 && h < UINT16_MAX);
+	m_u16Width = (uint16_t)w;
+	m_u16Height = (uint16_t)h;
+
 	w = windowRect.right - windowRect.left;
 	h = windowRect.bottom - windowRect.top;
 
@@ -94,8 +98,8 @@ void WindowsWindow::Init(WindowsVideo& kVideo, const char* pcTitle,
 		break;
 	}
 
-	x = vtd::max(x, 0);
-	y = vtd::max(y, 0);
+	x = x == CW_USEDEFAULT ? x : vtd::max(x, 0);
+	y = y == CW_USEDEFAULT ? y : vtd::max(y, 0);
 
 	m_hHandle = CreateWindowW(kVideo.m_wstrClassName, lpwstrTitle, dwStyle,
 		x, y, w, h, nullptr, nullptr, kVideo.m_hInstance, this);
@@ -104,6 +108,8 @@ void WindowsWindow::Init(WindowsVideo& kVideo, const char* pcTitle,
 
 	if (!m_hHandle)
 	{
+		m_u16Width = 0;
+		m_u16Height = 0;
 		THROW("Couldn't create window");
 	}
 
@@ -178,6 +184,17 @@ void WindowsWindow::Hide() noexcept
 		VE_ASSERT_NE(ShowWindow(m_hHandle, SW_HIDE), 0);
 		UpdateFlags();
 	}
+}
+//--------------------------------------------------------------------------
+void WindowsWindow::SetTitle(const char* pcTitle) noexcept
+{
+	int32_t i32Num = MultiByteToWideChar(CP_UTF8, 0, pcTitle, -1, nullptr, 0);
+	VE_ASSERT(i32Num >= 0);
+	LPWSTR lpwstrBuf = VeStackAlloc(WCHAR, i32Num + 1);
+	lpwstrBuf[i32Num] = 0;
+	MultiByteToWideChar(CP_UTF8, 0, pcTitle, -1, lpwstrBuf, i32Num);
+	SetWindowTextW(m_hHandle, lpwstrBuf);
+	VeStackFree(lpwstrBuf);
 }
 //--------------------------------------------------------------------------
 void WindowsWindow::UpdateFlags() noexcept

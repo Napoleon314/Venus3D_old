@@ -48,6 +48,8 @@ public:
 
 	virtual void Hide() noexcept override;
 
+	virtual void SetTitle(const char* pcTitle) noexcept override;
+
 	void Init(WindowsVideo& kVideo, const char* pcTitle,
 		int32_t x, int32_t y, int32_t w, int32_t h, uint32_t u32Flags);
 

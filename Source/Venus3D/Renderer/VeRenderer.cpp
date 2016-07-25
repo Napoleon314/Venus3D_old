@@ -3,9 +3,9 @@
 //  The MIT License (MIT)
 //  Copyright (c) 2016 Albert D Yang
 // -------------------------------------------------------------------------
-//  Module:      Video
-//  File name:   VeWindow.inl
-//  Created:     2016/07/25 by Albert
+//  Module:      Venus3D
+//  File name:   VeRenderer.cpp
+//  Created:     2016/07/22 by Albert
 //  Description:
 // -------------------------------------------------------------------------
 //  Permission is hereby granted, free of charge, to any person obtaining a
@@ -28,29 +28,49 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
+#include "stdafx.h"
+
 //--------------------------------------------------------------------------
-inline bool VeWindow::IsValid() noexcept
+VeRTTIImpl(VeRenderer);
+//--------------------------------------------------------------------------
+VeRenderer::VeRenderer() noexcept
 {
-	return VE_MASK_HAS_ANY(m_u32Flags, VE_WINDOW_VALID);
+	
 }
 //--------------------------------------------------------------------------
-inline bool VeWindow::IsVisible() noexcept
+VeRenderer::~VeRenderer() noexcept
 {
-	return VE_MASK_HAS_ANY(m_u32Flags, VE_WINDOW_SHOWN);
+
 }
 //--------------------------------------------------------------------------
-inline bool VeWindow::IsHidden() noexcept
+#ifdef VE_ENABLE_D3D12
+//--------------------------------------------------------------------------
+extern VeRendererPtr CreateRendererD3D12() noexcept;
+//--------------------------------------------------------------------------
+#endif
+//--------------------------------------------------------------------------
+VeRenderWindowPtr VeRenderer::CreateRenderWindow(const char* pcTitle,
+	int32_t w, int32_t h, int32_t x, int32_t y, uint32_t u32Flags) noexcept
 {
-	return !IsVisible();
+	VeDesktopVideoPtr spVideo = VeDynamicCast(VeDesktopVideo, Venus3D::Ref().GetVideo());
+	if (!spVideo) return nullptr;
+	VeDesktopWindowPtr spWindow = spVideo->Create(pcTitle, w, h, x, y, u32Flags);
+	VE_ASSERT(spWindow);
+	VeRenderWindowPtr spRes = CreateRenderWindow(spWindow);
+	spWindow = nullptr;
+	return spRes;
 }
 //--------------------------------------------------------------------------
-inline uint32_t VeWindow::GetWidth() noexcept
+VeRendererPtr VeRenderer::Create(VeRenderAPI eAPI) noexcept
 {
-	return (uint32_t)m_u16Width;
-}
-//--------------------------------------------------------------------------
-inline uint32_t VeWindow::GetHeight() noexcept
-{
-	return (uint32_t)m_u16Height;
+	switch (eAPI)
+	{
+#	ifdef VE_ENABLE_D3D12
+	case VE_RENDER_D3D12:
+		return CreateRendererD3D12();
+#	endif
+	default:
+		return nullptr;
+	}
 }
 //--------------------------------------------------------------------------

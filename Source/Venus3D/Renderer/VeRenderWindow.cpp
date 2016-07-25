@@ -3,9 +3,9 @@
 //  The MIT License (MIT)
 //  Copyright (c) 2016 Albert D Yang
 // -------------------------------------------------------------------------
-//  Module:      Video
-//  File name:   VeWindow.inl
-//  Created:     2016/07/25 by Albert
+//  Module:      VeRenderer
+//  File name:   VeRenderWindow.cpp
+//  Created:     2016/07/22 by Albert
 //  Description:
 // -------------------------------------------------------------------------
 //  Permission is hereby granted, free of charge, to any person obtaining a
@@ -28,29 +28,24 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
+#include "stdafx.h"
+
 //--------------------------------------------------------------------------
-inline bool VeWindow::IsValid() noexcept
+VeRTTIImpl(VeRenderWindow);
+//--------------------------------------------------------------------------
+VeRenderWindow::VeRenderWindow(const VeWindowPtr& spWindow) noexcept
+	: m_spTargetWindow(spWindow)
 {
-	return VE_MASK_HAS_ANY(m_u32Flags, VE_WINDOW_VALID);
+
 }
 //--------------------------------------------------------------------------
-inline bool VeWindow::IsVisible() noexcept
+VeRenderWindow::~VeRenderWindow() noexcept
 {
-	return VE_MASK_HAS_ANY(m_u32Flags, VE_WINDOW_SHOWN);
+	m_spTargetWindow = nullptr;
 }
 //--------------------------------------------------------------------------
-inline bool VeWindow::IsHidden() noexcept
+bool VeRenderWindow::IsValid() noexcept
 {
-	return !IsVisible();
-}
-//--------------------------------------------------------------------------
-inline uint32_t VeWindow::GetWidth() noexcept
-{
-	return (uint32_t)m_u16Width;
-}
-//--------------------------------------------------------------------------
-inline uint32_t VeWindow::GetHeight() noexcept
-{
-	return (uint32_t)m_u16Height;
+	return m_spTargetWindow ? m_spTargetWindow->IsValid() : false;
 }
 //--------------------------------------------------------------------------

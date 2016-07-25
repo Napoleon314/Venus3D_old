@@ -3,9 +3,9 @@
 //  The MIT License (MIT)
 //  Copyright (c) 2016 Albert D Yang
 // -------------------------------------------------------------------------
-//  Module:      Video
-//  File name:   VeWindow.inl
-//  Created:     2016/07/25 by Albert
+//  Module:      D3D12
+//  File name:   VeRenderWindowD3D12.h
+//  Created:     2016/07/23 by Albert
 //  Description:
 // -------------------------------------------------------------------------
 //  Permission is hereby granted, free of charge, to any person obtaining a
@@ -28,29 +28,51 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-//--------------------------------------------------------------------------
-inline bool VeWindow::IsValid() noexcept
+#pragma once
+
+#include "VeRendererD3D12.h"
+
+class VeRenderWindowD3D12 : public VeRenderWindow
 {
-	return VE_MASK_HAS_ANY(m_u32Flags, VE_WINDOW_VALID);
-}
-//--------------------------------------------------------------------------
-inline bool VeWindow::IsVisible() noexcept
-{
-	return VE_MASK_HAS_ANY(m_u32Flags, VE_WINDOW_SHOWN);
-}
-//--------------------------------------------------------------------------
-inline bool VeWindow::IsHidden() noexcept
-{
-	return !IsVisible();
-}
-//--------------------------------------------------------------------------
-inline uint32_t VeWindow::GetWidth() noexcept
-{
-	return (uint32_t)m_u16Width;
-}
-//--------------------------------------------------------------------------
-inline uint32_t VeWindow::GetHeight() noexcept
-{
-	return (uint32_t)m_u16Height;
-}
-//--------------------------------------------------------------------------
+	VeNoCopy(VeRenderWindowD3D12);
+	VeRTTIDecl(VeRenderWindowD3D12, VeRenderWindow);
+public:
+	VeRenderWindowD3D12(const VeWindowPtr& spWindow) noexcept;
+
+	virtual ~VeRenderWindowD3D12() noexcept;
+
+	void Init(VeRendererD3D12& kRenderer) noexcept;
+
+	void Term() noexcept;
+
+	virtual bool IsValid() noexcept override;
+
+	virtual void Begin() noexcept override;
+
+	virtual void End() noexcept override;
+
+protected:
+	vtd::intrusive_node<VeRenderWindowD3D12*> m_kNode;
+	ID3D12CommandQueue* m_pkCommandQueue = nullptr;
+	IDXGISwapChain3* m_pkSwapChain = nullptr;
+
+	struct FrameCache
+	{
+		ID3D12Resource* m_pkBufferResource = nullptr;
+		D3D12_CPU_DESCRIPTOR_HANDLE m_hHandle = {};
+		ID3D12CommandAllocator* m_pkDirectAllocator = nullptr;
+		VeVector<ID3D12GraphicsCommandList*> m_kDirectCommandList;
+		ID3D12CommandAllocator* m_pkBundleAllocator = nullptr;
+		VeVector<ID3D12GraphicsCommandList*> m_kBundleCommandList;
+		uint64_t m_u64FenceValue = 0;
+
+		ID3D12GraphicsCommandList* m_pkTestList = nullptr;
+
+	} m_akFrameCache[VeRendererD3D12::FRAME_COUNT];
+
+	ID3D12Fence* m_pkFence = nullptr;
+	HANDLE m_kFenceEvent = nullptr;
+	uint64_t m_u64FenceValue = 0;
+	uint32_t m_u32FramePtr = 0;
+
+};
