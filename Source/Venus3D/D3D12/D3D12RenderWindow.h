@@ -30,6 +30,8 @@
 
 #pragma once
 
+#ifdef VE_ENABLE_D3D12
+
 class D3D12RenderWindow : public VeRenderWindow
 {
 	VeNoCopy(D3D12RenderWindow);
@@ -74,3 +76,5 @@ protected:
 	uint32_t m_u32FramePtr = 0;
 
 };
+
+#endif
