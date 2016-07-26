@@ -58,10 +58,10 @@ inline D3D12_RESOURCE_BARRIER BarrierTransition(
 }
 
 template <D3D12_DESCRIPTOR_HEAP_TYPE TYPE, uint32_t NUM, D3D12_DESCRIPTOR_HEAP_FLAGS FLAGS>
-class VeHeapShellD3D12
+class D3D12HeapShell
 {
 public:
-	VeHeapShellD3D12() noexcept
+	D3D12HeapShell() noexcept
 	{
 		m_u32FreeStart.store(0, std::memory_order_relaxed);
 	}
@@ -148,9 +148,9 @@ public:
 	static constexpr uint32_t DSV_COUNT = 32;
 	static constexpr uint32_t SRV_COUNT = 4096;
 
-	typedef VeHeapShellD3D12<D3D12_DESCRIPTOR_HEAP_TYPE_RTV, RTV_COUNT, D3D12_DESCRIPTOR_HEAP_FLAG_NONE> RTVHeap;
-	typedef VeHeapShellD3D12<D3D12_DESCRIPTOR_HEAP_TYPE_DSV, DSV_COUNT, D3D12_DESCRIPTOR_HEAP_FLAG_NONE> DSVHeap;
-	typedef VeHeapShellD3D12<D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, SRV_COUNT, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE> SRVHeap;
+	typedef D3D12HeapShell<D3D12_DESCRIPTOR_HEAP_TYPE_RTV, RTV_COUNT, D3D12_DESCRIPTOR_HEAP_FLAG_NONE> RTVHeap;
+	typedef D3D12HeapShell<D3D12_DESCRIPTOR_HEAP_TYPE_DSV, DSV_COUNT, D3D12_DESCRIPTOR_HEAP_FLAG_NONE> DSVHeap;
+	typedef D3D12HeapShell<D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, SRV_COUNT, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE> SRVHeap;
 
 	VeRendererD3D12() noexcept;
 
@@ -167,7 +167,7 @@ public:
 	virtual VeRenderWindowPtr CreateRenderWindow(const VeWindowPtr& spWindow) noexcept override;
 
 protected:
-	friend class VeRenderWindowD3D12;
+	friend class D3D12RenderWindow;
 
 	VeSharedLibPtr m_spD3D12;
 	VeSharedLibPtr m_spDXGI;
@@ -181,7 +181,7 @@ protected:
 	DSVHeap m_kDSVHeap;
 	SRVHeap m_kSRVHeap;
 
-	vtd::intrusive_list<VeRenderWindowD3D12*> m_kRenderWindowList;
+	vtd::intrusive_list<D3D12RenderWindow*> m_kRenderWindowList;
 
 	HRESULT(WINAPI* D3D12GetDebugInterface)(
 		_In_ REFIID riid, _COM_Outptr_opt_ void** ppvDebug) = nullptr;

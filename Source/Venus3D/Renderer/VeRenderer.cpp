@@ -45,7 +45,7 @@ VeRenderer::~VeRenderer() noexcept
 //--------------------------------------------------------------------------
 #ifdef VE_ENABLE_D3D12
 //--------------------------------------------------------------------------
-extern VeRendererPtr CreateRendererD3D12() noexcept;
+extern VeRendererPtr CreateD3D12Renderer() noexcept;
 //--------------------------------------------------------------------------
 #endif
 //--------------------------------------------------------------------------
@@ -67,7 +67,7 @@ VeRendererPtr VeRenderer::Create(VeRenderAPI eAPI) noexcept
 	{
 #	ifdef VE_ENABLE_D3D12
 	case VE_RENDER_D3D12:
-		return CreateRendererD3D12();
+		return CreateD3D12Renderer();
 #	endif
 	default:
 		return nullptr;

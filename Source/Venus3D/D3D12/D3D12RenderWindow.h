@@ -30,16 +30,14 @@
 
 #pragma once
 
-#include "VeRendererD3D12.h"
-
-class VeRenderWindowD3D12 : public VeRenderWindow
+class D3D12RenderWindow : public VeRenderWindow
 {
-	VeNoCopy(VeRenderWindowD3D12);
-	VeRTTIDecl(VeRenderWindowD3D12, VeRenderWindow);
+	VeNoCopy(D3D12RenderWindow);
+	VeRTTIDecl(D3D12RenderWindow, VeRenderWindow);
 public:
-	VeRenderWindowD3D12(const VeWindowPtr& spWindow) noexcept;
+	D3D12RenderWindow(const VeWindowPtr& spWindow) noexcept;
 
-	virtual ~VeRenderWindowD3D12() noexcept;
+	virtual ~D3D12RenderWindow() noexcept;
 
 	void Init(VeRendererD3D12& kRenderer) noexcept;
 
@@ -52,7 +50,7 @@ public:
 	virtual void End() noexcept override;
 
 protected:
-	vtd::intrusive_node<VeRenderWindowD3D12*> m_kNode;
+	vtd::intrusive_node<D3D12RenderWindow*> m_kNode;
 	ID3D12CommandQueue* m_pkCommandQueue = nullptr;
 	IDXGISwapChain3* m_pkSwapChain = nullptr;
 

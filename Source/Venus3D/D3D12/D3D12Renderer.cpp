@@ -29,8 +29,8 @@
 ////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
-#include "VeRendererD3D12.h"
-#include "VeRenderWindowD3D12.h"
+#include "D3D12Renderer.h"
+#include "D3D12RenderWindow.h"
 
 //--------------------------------------------------------------------------
 #ifdef VE_ENABLE_D3D12
@@ -168,13 +168,13 @@ void VeRendererD3D12::EndSyncCopy() noexcept
 VeRenderWindowPtr VeRendererD3D12::CreateRenderWindow(
 	const VeWindowPtr& spWindow) noexcept
 {
-	VeRenderWindowD3D12* pkRenderWindow = VE_NEW VeRenderWindowD3D12(spWindow);
+	D3D12RenderWindow* pkRenderWindow = VE_NEW D3D12RenderWindow(spWindow);
 	assert(pkRenderWindow);
 	pkRenderWindow->Init(*this);
 	return pkRenderWindow;
 }
 //--------------------------------------------------------------------------
-VeRendererPtr CreateRendererD3D12() noexcept
+VeRendererPtr CreateD3D12Renderer() noexcept
 {
 	return VE_NEW VeRendererD3D12();
 }

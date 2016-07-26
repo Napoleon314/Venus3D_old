@@ -29,23 +29,24 @@
 ////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
-#include "VeRenderWindowD3D12.h"
+#include "D3D12Renderer.h"
+#include "D3D12RenderWindow.h"
 
 //--------------------------------------------------------------------------
-VeRTTIImpl(VeRenderWindowD3D12, VeRenderWindow);
+VeRTTIImpl(D3D12RenderWindow, VeRenderWindow);
 //--------------------------------------------------------------------------
-VeRenderWindowD3D12::VeRenderWindowD3D12(
+D3D12RenderWindow::D3D12RenderWindow(
 	const VeWindowPtr& spWindow) noexcept : VeRenderWindow(spWindow)
 {
 	m_kNode._Content = this;
 }
 //--------------------------------------------------------------------------
-VeRenderWindowD3D12::~VeRenderWindowD3D12() noexcept
+D3D12RenderWindow::~D3D12RenderWindow() noexcept
 {
 	Term();
 }
 //--------------------------------------------------------------------------
-void VeRenderWindowD3D12::Init(VeRendererD3D12& kRenderer) noexcept
+void D3D12RenderWindow::Init(VeRendererD3D12& kRenderer) noexcept
 {
 	if ((!m_kNode.is_attach()) && m_spTargetWindow)
 	{
@@ -109,7 +110,7 @@ void VeRenderWindowD3D12::Init(VeRendererD3D12& kRenderer) noexcept
 	}
 }
 //--------------------------------------------------------------------------
-void VeRenderWindowD3D12::Term() noexcept
+void D3D12RenderWindow::Term() noexcept
 {
 	if (m_kNode.is_attach())
 	{
@@ -151,12 +152,12 @@ void VeRenderWindowD3D12::Term() noexcept
 	}
 }
 //--------------------------------------------------------------------------
-bool VeRenderWindowD3D12::IsValid() noexcept
+bool D3D12RenderWindow::IsValid() noexcept
 {
 	return VeRenderWindow::IsValid() ? m_kNode.is_attach() : false;
 }
 //--------------------------------------------------------------------------
-void VeRenderWindowD3D12::Begin() noexcept
+void D3D12RenderWindow::Begin() noexcept
 {
 	assert(IsValid() && m_u32FramePtr < VeRendererD3D12::FRAME_COUNT);
 	FrameCache& kFrame = m_akFrameCache[m_u32FramePtr];
@@ -175,7 +176,7 @@ void VeRenderWindowD3D12::Begin() noexcept
 	assert_ge(kFrame.m_pkDirectAllocator->Reset(), S_OK);
 }
 //--------------------------------------------------------------------------
-void VeRenderWindowD3D12::End() noexcept
+void D3D12RenderWindow::End() noexcept
 {
 	assert(IsValid() && m_u32FramePtr < VeRendererD3D12::FRAME_COUNT);
 	FrameCache& kFrame = m_akFrameCache[m_u32FramePtr];
