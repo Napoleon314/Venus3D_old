@@ -35,7 +35,7 @@
 #if defined(BUILD_PLATFORM_WIN)
 #define LIB_VULKAN "vulkan-1.dll"
 #elif defined(BUILD_PLATFORM_LINUX)
-#define LIB_VULKAN "vulkan.so"
+#define LIB_VULKAN "libvulkan.so"
 #endif
 
 class VulkanRenderer : public VeRenderer

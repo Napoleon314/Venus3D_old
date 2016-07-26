@@ -51,14 +51,12 @@ int32_t VeEntry(int32_t, char*[]) noexcept
 		{
 			static float s_f32TimeCount(0);
 			static uint32_t s_u32FrameCount(0);
-			static uint32_t s_u32FPS;
 
 			s_f32TimeCount += venus3d.GetTime().GetDeltaTime();
 			++s_u32FrameCount;
 
 			if (s_f32TimeCount > 1.0f)
 			{
-				s_u32FPS = s_u32FrameCount;
 				char s_acFPS[64];
 				VeSprintf(s_acFPS, "%s[FPS:%d]", "D3D12", s_u32FrameCount);
 				spWindow->SetTitle(s_acFPS);

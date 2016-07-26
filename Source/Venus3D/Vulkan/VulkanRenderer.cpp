@@ -57,11 +57,11 @@ VulkanRenderer::~VulkanRenderer() noexcept
 void VulkanRenderer::Init()
 {
 #	ifdef VE_SHARED_LIB
-	m_spVulkan = VE_NEW VeSharedLib("vulkan-1.dll");
+	m_spVulkan = VE_NEW VeSharedLib(LIB_VULKAN);
 	if (!m_spVulkan->Load())
 	{
-		VeCoreLogI("Failed to load vulkan.dll.");
-		THROW("Failed to load vulkan.dll.");
+		VeCoreLogI("Failed to load " LIB_VULKAN ".");
+		THROW("Failed to load " LIB_VULKAN ".");
 	}
 #	endif
 }
