@@ -48,7 +48,7 @@ D3D12RenderWindow::~D3D12RenderWindow() noexcept
 	Term();
 }
 //--------------------------------------------------------------------------
-void D3D12RenderWindow::Init(VeRendererD3D12& kRenderer) noexcept
+void D3D12RenderWindow::Init(D3D12Renderer& kRenderer) noexcept
 {
 	if ((!m_kNode.is_attach()) && m_spTargetWindow)
 	{
@@ -57,7 +57,7 @@ void D3D12RenderWindow::Init(VeRendererD3D12& kRenderer) noexcept
 		kQueueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
 		VE_ASSERT_GE(kRenderer.m_pkDevice->CreateCommandQueue(&kQueueDesc, IID_PPV_ARGS(&m_pkCommandQueue)), S_OK);
 		DXGI_SWAP_CHAIN_DESC kSwapChainDesc = {};
-		kSwapChainDesc.BufferCount = VeRendererD3D12::FRAME_COUNT;
+		kSwapChainDesc.BufferCount = D3D12Renderer::FRAME_COUNT;
 		kSwapChainDesc.BufferDesc.Width = m_spTargetWindow->GetWidth();
 		kSwapChainDesc.BufferDesc.Height = m_spTargetWindow->GetHeight();
 		kSwapChainDesc.BufferDesc.Format = DXGI_FORMAT_R10G10B10A2_UNORM;
@@ -71,7 +71,7 @@ void D3D12RenderWindow::Init(VeRendererD3D12& kRenderer) noexcept
 		VE_ASSERT_GE(pkSwapChain->QueryInterface(IID_PPV_ARGS(&m_pkSwapChain)), S_OK);
 		VE_SAFE_RELEASE(pkSwapChain);
 		VE_ASSERT(m_pkCommandQueue && m_pkSwapChain);
-		for (uint32_t i(0); i < VeRendererD3D12::FRAME_COUNT; ++i)
+		for (uint32_t i(0); i < D3D12Renderer::FRAME_COUNT; ++i)
 		{
 			FrameCache& kFrame = m_akFrameCache[i];
 			VE_ASSERT_GE(m_pkSwapChain->GetBuffer(i, IID_PPV_ARGS(&kFrame.m_pkBufferResource)), S_OK);
@@ -113,8 +113,8 @@ void D3D12RenderWindow::Term() noexcept
 {
 	if (m_kNode.is_attach())
 	{
-		VeRendererD3D12& kRenderer = *vtd::member_cast(
-			&VeRendererD3D12::m_kRenderWindowList, m_kNode.get_list());
+		D3D12Renderer& kRenderer = *vtd::member_cast(
+			&D3D12Renderer::m_kRenderWindowList, m_kNode.get_list());
 
 		const uint64_t u64LastCompleted = m_pkFence->GetCompletedValue();
 		VE_ASSERT_GE(m_pkCommandQueue->Signal(m_pkFence, m_u64FenceValue), S_OK);
@@ -158,7 +158,7 @@ bool D3D12RenderWindow::IsValid() noexcept
 //--------------------------------------------------------------------------
 void D3D12RenderWindow::Begin() noexcept
 {
-	VE_ASSERT(IsValid() && m_u32FramePtr < VeRendererD3D12::FRAME_COUNT);
+	VE_ASSERT(IsValid() && m_u32FramePtr < D3D12Renderer::FRAME_COUNT);
 	FrameCache& kFrame = m_akFrameCache[m_u32FramePtr];
 	if (kFrame.m_u64FenceValue > m_pkFence->GetCompletedValue())
 	{
@@ -177,7 +177,7 @@ void D3D12RenderWindow::Begin() noexcept
 //--------------------------------------------------------------------------
 void D3D12RenderWindow::End() noexcept
 {
-	VE_ASSERT(IsValid() && m_u32FramePtr < VeRendererD3D12::FRAME_COUNT);
+	VE_ASSERT(IsValid() && m_u32FramePtr < D3D12Renderer::FRAME_COUNT);
 	FrameCache& kFrame = m_akFrameCache[m_u32FramePtr];
 
 	VE_ASSERT_GE(kFrame.m_pkTestList->Reset(kFrame.m_pkDirectAllocator, nullptr), S_OK);

@@ -41,7 +41,7 @@ public:
 
 	virtual ~D3D12RenderWindow() noexcept;
 
-	void Init(VeRendererD3D12& kRenderer) noexcept;
+	void Init(D3D12Renderer& kRenderer) noexcept;
 
 	void Term() noexcept;
 
@@ -68,7 +68,7 @@ protected:
 
 		ID3D12GraphicsCommandList* m_pkTestList = nullptr;
 
-	} m_akFrameCache[VeRendererD3D12::FRAME_COUNT];
+	} m_akFrameCache[D3D12Renderer::FRAME_COUNT];
 
 	ID3D12Fence* m_pkFence = nullptr;
 	HANDLE m_kFenceEvent = nullptr;

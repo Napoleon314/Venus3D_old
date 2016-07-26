@@ -137,10 +137,10 @@ private:
 
 };
 
-class VeRendererD3D12 : public VeRenderer
+class D3D12Renderer : public VeRenderer
 {
-	VeNoCopy(VeRendererD3D12);
-	VeRTTIDecl(VeRendererD3D12);
+	VeNoCopy(D3D12Renderer);
+	VeRTTIDecl(D3D12Renderer);
 public:
 	static constexpr uint32_t FRAME_COUNT = 3;
 	static constexpr uint32_t MAX_MRT_COUNT = 8;
@@ -152,9 +152,9 @@ public:
 	typedef D3D12HeapShell<D3D12_DESCRIPTOR_HEAP_TYPE_DSV, DSV_COUNT, D3D12_DESCRIPTOR_HEAP_FLAG_NONE> DSVHeap;
 	typedef D3D12HeapShell<D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, SRV_COUNT, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE> SRVHeap;
 
-	VeRendererD3D12() noexcept;
+	D3D12Renderer() noexcept;
 
-	virtual ~VeRendererD3D12() noexcept;
+	virtual ~D3D12Renderer() noexcept;
 
 	virtual void Init() override;
 
@@ -208,7 +208,5 @@ protected:
 		ID3DBlob** ppCode, ID3DBlob** ppErrorMsgs) = nullptr;
 
 };
-
-VeRendererPtr CreateRendererD3D12() noexcept;
 
 #endif

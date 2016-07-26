@@ -35,69 +35,74 @@
 //--------------------------------------------------------------------------
 #ifdef VE_ENABLE_D3D12
 //--------------------------------------------------------------------------
-VeRTTIImpl(VeRendererD3D12);
+#ifdef THROW
+#	undef THROW
+#endif
+#define THROW(...) VE_THROW("D3D12Renderer Error", __VA_ARGS__)
 //--------------------------------------------------------------------------
-VeRendererD3D12::VeRendererD3D12() noexcept
+VeRTTIImpl(D3D12Renderer);
+//--------------------------------------------------------------------------
+D3D12Renderer::D3D12Renderer() noexcept
 {
 
 }
 //--------------------------------------------------------------------------
-VeRendererD3D12::~VeRendererD3D12() noexcept
+D3D12Renderer::~D3D12Renderer() noexcept
 {
 
 }
 //--------------------------------------------------------------------------
-void VeRendererD3D12::Init()
+void D3D12Renderer::Init()
 {
 	m_spD3D12 = VE_NEW VeSharedLib(LIB_D3D12);
 	if (!m_spD3D12->Load())
 	{
-		throw "Failed to load " LIB_D3D12 ".";
+		THROW("Failed to load " LIB_D3D12 ".");
 	}
 	m_spDXGI = VE_NEW VeSharedLib(LIB_DXGI);
 	if (!m_spDXGI->Load())
 	{
-		throw "Failed to load " LIB_DXGI ".";
+		THROW("Failed to load " LIB_DXGI ".");
 	}
 	m_spD3DCompiler = VE_NEW VeSharedLib(LIB_D3DCOMPLIER);
 	if (!m_spD3DCompiler->Load())
 	{
-		throw "Failed to load " LIB_D3DCOMPLIER ".";
+		THROW("Failed to load " LIB_D3DCOMPLIER ".");
 	}
 
 	D3D12GetDebugInterface = (decltype(D3D12GetDebugInterface))
 		m_spD3D12->GetProc("D3D12GetDebugInterface");
 	if (!D3D12GetDebugInterface)
 	{
-		throw "Failed to fetch function D3D12GetDebugInterface.";
+		THROW("Failed to fetch function D3D12GetDebugInterface.");
 	}
 
 	D3D12CreateDevice = (decltype(D3D12CreateDevice))
 		m_spD3D12->GetProc("D3D12CreateDevice");
 	if (!D3D12CreateDevice)
 	{
-		throw "Failed to fetch function D3D12CreateDevice.";
+		THROW("Failed to fetch function D3D12CreateDevice.");
 	}
 
 	D3D12SerializeRootSignature = (decltype(D3D12SerializeRootSignature))
 		m_spD3D12->GetProc("D3D12SerializeRootSignature");
 	if (!D3D12SerializeRootSignature)
 	{
-		throw "Failed to fetch function D3D12SerializeRootSignature.";
+		THROW("Failed to fetch function D3D12SerializeRootSignature.");
 	}
 
 	CreateDXGIFactory1 = (decltype(CreateDXGIFactory1))
 		m_spDXGI->GetProc("CreateDXGIFactory1");
 	if (!CreateDXGIFactory1)
 	{
-		throw "Failed to fetch function CreateDXGIFactory1.";
+		THROW("Failed to fetch function CreateDXGIFactory1.");
 	}
 
 	D3DCompile = (decltype(D3DCompile))
 		m_spD3DCompiler->GetProc("D3DCompile");
 	if (!D3DCompile)
 	{
-		throw "Failed to fetch function D3DCompile.";
+		THROW("Failed to fetch function D3DCompile.");
 	}
 
 #	ifdef VE_DEBUG
@@ -113,18 +118,18 @@ void VeRendererD3D12::Init()
 
 	if (VE_FAILED(CreateDXGIFactory1(IID_PPV_ARGS(&m_pkDXGIFactory))))
 	{
-		throw "Failed to create DXGI factory.";
+		THROW("Failed to create DXGI factory.");
 	}
 
 	if (m_pkDXGIFactory->EnumAdapters1(0, &m_pkDefaultAdapter) == DXGI_ERROR_NOT_FOUND)
 	{
-		throw "Failed to get main adapter.";
+		THROW("Failed to get main adapter.");
 	}
 
 	if (VE_FAILED(D3D12CreateDevice(m_pkDefaultAdapter,
 		D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&m_pkDevice))))
 	{
-		throw "Failed to create d3d12 device.";
+		THROW("Failed to create d3d12 device.");
 	}
 
 	m_kRTVHeap.Init(m_pkDevice);
@@ -134,7 +139,7 @@ void VeRendererD3D12::Init()
 	VeCoreLogI("VeRendererD3D12 has been created.");
 }
 //--------------------------------------------------------------------------
-void VeRendererD3D12::Term()
+void D3D12Renderer::Term()
 {
 	m_kSRVHeap.Term();
 	m_kDSVHeap.Term();
@@ -155,17 +160,17 @@ void VeRendererD3D12::Term()
 	m_spD3DCompiler = nullptr;
 }
 //--------------------------------------------------------------------------
-void VeRendererD3D12::BeginSyncCopy() noexcept
+void D3D12Renderer::BeginSyncCopy() noexcept
 {
 
 }
 //--------------------------------------------------------------------------
-void VeRendererD3D12::EndSyncCopy() noexcept
+void D3D12Renderer::EndSyncCopy() noexcept
 {
 
 }
 //--------------------------------------------------------------------------
-VeRenderWindowPtr VeRendererD3D12::CreateRenderWindow(
+VeRenderWindowPtr D3D12Renderer::CreateRenderWindow(
 	const VeWindowPtr& spWindow) noexcept
 {
 	D3D12RenderWindow* pkRenderWindow = VE_NEW D3D12RenderWindow(spWindow);
@@ -176,7 +181,7 @@ VeRenderWindowPtr VeRendererD3D12::CreateRenderWindow(
 //--------------------------------------------------------------------------
 VeRendererPtr CreateD3D12Renderer() noexcept
 {
-	return VE_NEW VeRendererD3D12();
+	return VE_NEW D3D12Renderer();
 }
 //--------------------------------------------------------------------------
 #endif

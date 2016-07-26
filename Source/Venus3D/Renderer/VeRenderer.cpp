@@ -49,6 +49,12 @@ extern VeRendererPtr CreateD3D12Renderer() noexcept;
 //--------------------------------------------------------------------------
 #endif
 //--------------------------------------------------------------------------
+#ifdef VE_ENABLE_VULKAN
+//--------------------------------------------------------------------------
+extern VeRendererPtr CreateVulkanRenderer() noexcept;
+//--------------------------------------------------------------------------
+#endif
+//--------------------------------------------------------------------------
 VeRenderWindowPtr VeRenderer::CreateRenderWindow(const char* pcTitle,
 	int32_t w, int32_t h, int32_t x, int32_t y, uint32_t u32Flags) noexcept
 {
@@ -68,6 +74,10 @@ VeRendererPtr VeRenderer::Create(VeRenderAPI eAPI) noexcept
 #	ifdef VE_ENABLE_D3D12
 	case VE_RENDER_D3D12:
 		return CreateD3D12Renderer();
+#	endif
+#	ifdef VE_ENABLE_VULKAN
+	case VE_RENDER_VULKAN:
+		return CreateVulkanRenderer();
 #	endif
 	default:
 		return nullptr;

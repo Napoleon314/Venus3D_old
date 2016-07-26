@@ -32,5 +32,37 @@
 
 #ifdef VE_ENABLE_VULKAN
 
+#ifdef BUILD_PLATFORM_WIN
+#define LIB_VULKAN "vulkan-1.dll"
+#endif
+
+class VulkanRenderer : public VeRenderer
+{
+	VeNoCopy(VulkanRenderer);
+	VeRTTIDecl(VulkanRenderer);
+public:
+	VulkanRenderer() noexcept;
+
+	virtual ~VulkanRenderer() noexcept;
+
+	virtual void Init() override;
+
+	virtual void Term() override;
+
+	virtual void BeginSyncCopy() noexcept override;
+
+	virtual void EndSyncCopy() noexcept override;
+
+	virtual VeRenderWindowPtr CreateRenderWindow(const VeWindowPtr& spWindow) noexcept override;
+
+protected:
+	friend class VulkanRenderWindow;
+
+#	ifdef VE_SHARED_LIB
+	VeSharedLibPtr m_spVulkan;
+#	endif
+
+
+};
 
 #endif

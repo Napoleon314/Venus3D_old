@@ -29,9 +29,70 @@
 ////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
+#ifdef VE_ENABLE_VULKAN
+#	include "vulkan.h"
+#endif
 #include "VulkanRenderer.h"
 
+//--------------------------------------------------------------------------
 #ifdef VE_ENABLE_VULKAN
-
-
+//--------------------------------------------------------------------------
+#ifdef THROW
+#	undef THROW
 #endif
+#define THROW(...) VE_THROW("VulkanRenderer Error", __VA_ARGS__)
+//--------------------------------------------------------------------------
+VeRTTIImpl(VulkanRenderer);
+//--------------------------------------------------------------------------
+VulkanRenderer::VulkanRenderer() noexcept
+{
+
+}
+//--------------------------------------------------------------------------
+VulkanRenderer::~VulkanRenderer() noexcept
+{
+
+}
+//--------------------------------------------------------------------------
+void VulkanRenderer::Init()
+{
+#	ifdef VE_SHARED_LIB
+	m_spVulkan = VE_NEW VeSharedLib("vulkan-1.dll");
+	if (!m_spVulkan->Load())
+	{
+		VeCoreLogI("Failed to load vulkan.dll.");
+		THROW("Failed to load vulkan.dll.");
+	}
+#	endif
+}
+//--------------------------------------------------------------------------
+void VulkanRenderer::Term()
+{
+#	ifdef VE_SHARED_LIB
+	m_spVulkan = nullptr;
+#	endif
+}
+//--------------------------------------------------------------------------
+void VulkanRenderer::BeginSyncCopy() noexcept
+{
+
+}
+//--------------------------------------------------------------------------
+void VulkanRenderer::EndSyncCopy() noexcept
+{
+
+}
+//--------------------------------------------------------------------------
+VeRenderWindowPtr VulkanRenderer::CreateRenderWindow(
+	const VeWindowPtr&) noexcept
+{
+	return nullptr;
+}
+//--------------------------------------------------------------------------
+VeRendererPtr CreateVulkanRenderer() noexcept
+{
+	return VE_NEW VulkanRenderer();
+}
+//--------------------------------------------------------------------------
+#endif
+//--------------------------------------------------------------------------

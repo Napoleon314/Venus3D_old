@@ -34,14 +34,16 @@ const char* g_pcPakName = "com.venus3d.RenderTest";
 
 int32_t VeEntry(int32_t, char*[]) noexcept
 {
-	VeDesktopVideoPtr spDesktop = VeDynamicCast(VeDesktopVideo, venus3d.GetVideo());
-	if (!spDesktop) return 0;
-	VeRendererPtr spD3D12 = VeRenderer::Create(VE_RENDER_D3D12);
+	VeRendererPtr spD3D12 = VeRenderer::Create(VE_RENDER_VULKAN);
 	if (!spD3D12) return 0;
 	VE_TRY_CALL(spD3D12->Init());
 
 	VeRenderWindowPtr spWindow = spD3D12->CreateRenderWindow("D3D12", 1024, 768);
-	//spWindow->SetSync(true);
+	if (!spWindow) return 0;
+
+	VeDesktopVideoPtr spDesktop = VeDynamicCast(VeDesktopVideo, venus3d.GetVideo());
+	if (!spDesktop) return 0;
+
 	while (true)
 	{
 		venus3d.GetTime().Update();

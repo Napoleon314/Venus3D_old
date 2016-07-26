@@ -29,6 +29,13 @@ if __name__ == "__main__":
 				log_error("Config %s failed." % build_cfg.project_name)
 		os.chdir(curdir)
 
+	os.chdir(curdir + "/" + build_cfg.dependent_path + "/vulkan_loader")
+	cmake_cmd = batch_command(bi.host_platform)
+	cmake_cmd.add_command("python vk_gen.py " + curdir + "/" + build_cfg.source_path + "/Venus3D/Vulkan")
+	if cmake_cmd.execute() != 0:
+		log_error("Config %s failed." % build_cfg.project_name)
+	os.chdir(curdir)
+
 	additional_options = "-DCFG_PROJECT_NAME:STRING=\"%s\"" % build_cfg.project_name
 	additional_options += " -DCFG_BINARY_PATH:STRING=\"%s\"" % build_cfg.binary_path
 	additional_options += " -DCFG_BUILD_PATH:STRING=\"%s\"" % build_cfg.build_path
