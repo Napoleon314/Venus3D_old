@@ -9,7 +9,7 @@ include_path		= "Include"
 source_path			= "Source"
 test_path			= "Test"
 
-dependent_list		= [("maker", "https://github.com/Napoleon314/maker"),]
+dependent_list		= [("maker", "https://github.com/Napoleon314/maker"),("vulkan_loader", "https://github.com/Napoleon314/vulkan_loader")]
 
 # Compiler name.
 #   On Windows desktop, could be "vc140", "vc120", "vc110", "mingw", "auto".
