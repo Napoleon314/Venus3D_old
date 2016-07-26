@@ -32,8 +32,10 @@
 
 #ifdef VE_ENABLE_VULKAN
 
-#ifdef BUILD_PLATFORM_WIN
+#if defined(BUILD_PLATFORM_WIN)
 #define LIB_VULKAN "vulkan-1.dll"
+#elif defined(BUILD_PLATFORM_LINUX)
+#define LIB_VULKAN "vulkan.so"
 #endif
 
 class VulkanRenderer : public VeRenderer
