@@ -32,8 +32,6 @@
 #include "WindowsWindow.h"
 #include "WindowsVideo.h"
 
-#pragma warning(disable: 4100)
-
 //--------------------------------------------------------------------------
 #ifdef THROW
 #	undef THROW

@@ -72,15 +72,15 @@ public:
 		{
 			TYPE, NUM, FLAGS, 0
 		};
-		assert_eq(VE_SUCCEEDED(pkDevice->CreateDescriptorHeap(
-			&kHeapDesc, IID_PPV_ARGS(&m_pkHeap))), true);
-		assert(m_pkHeap);
+		VE_ASSERT_GE(pkDevice->CreateDescriptorHeap(
+			&kHeapDesc, IID_PPV_ARGS(&m_pkHeap)), S_OK);
+		VE_ASSERT(m_pkHeap);
 		m_u32DescIncSize = pkDevice->GetDescriptorHandleIncrementSize(TYPE);
 	}
 
 	void Term() noexcept
 	{
-		assert(m_u32FreeStart == m_kFreeIndexList.size());
+		VE_ASSERT(m_u32FreeStart == m_kFreeIndexList.size());
 		VE_SAFE_RELEASE(m_pkHeap);
 	}
 
@@ -98,7 +98,7 @@ public:
 				u32Res = m_u32FreeStart.load(std::memory_order_relaxed);
 				if (u32Res >= NUM)
 				{
-					assert(!"Can not alloc descriptor heap.");
+					VE_ASSERT(!"Can not alloc descriptor heap.");
 					return UINT_MAX;
 				}
 			} while (! m_u32FreeStart.compare_exchange_weak(u32Res, u32Res + 1, std::memory_order_relaxed));
@@ -109,7 +109,7 @@ public:
 
 	void Free(uint32_t u32Pointer) noexcept
 	{
-		assert(u32Pointer % m_u32DescIncSize == 0
+		VE_ASSERT(u32Pointer % m_u32DescIncSize == 0
 			&& (u32Pointer / m_u32DescIncSize) < NUM);
 		m_kFreeIndexList.push(u32Pointer);
 	}

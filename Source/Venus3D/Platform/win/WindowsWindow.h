@@ -30,7 +30,6 @@
 
 #pragma once
 
-
 class WindowsVideo;
 
 class WindowsWindow : public VeDesktopWindow

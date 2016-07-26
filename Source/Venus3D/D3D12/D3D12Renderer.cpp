@@ -169,7 +169,7 @@ VeRenderWindowPtr VeRendererD3D12::CreateRenderWindow(
 	const VeWindowPtr& spWindow) noexcept
 {
 	D3D12RenderWindow* pkRenderWindow = VE_NEW D3D12RenderWindow(spWindow);
-	assert(pkRenderWindow);
+	VE_ASSERT(pkRenderWindow);
 	pkRenderWindow->Init(*this);
 	return pkRenderWindow;
 }
