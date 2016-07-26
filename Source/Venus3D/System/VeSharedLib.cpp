@@ -76,7 +76,7 @@ void* VeSharedLib::GetProc(const char* pcProcName) noexcept
 	return (void*)VE_SHARED_LIB_GET_PROC(m_hSharedLib, pcProcName);
 }
 //--------------------------------------------------------------------------
-#ifdef BUILD_PLATFORM_OSX
+#ifdef BUILD_PLATFORM_DARWIN
 //--------------------------------------------------------------------------
 CFBundleRef VE_SHARED_LIB_LOAD(const char* pcName)
 {
