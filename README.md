@@ -1,5 +1,6 @@
-# Venus3D
-A simple mobile engine designed by a nerd who's addicted to realtime computer graphics
+Venus3D
+===
+A experimental 3D engine project for NGAPI
 
-# Now working
-I'm trying to build up a SDL like window interface including events pump for my real d3d12 render system. It's coming soon but now there are nothing to display.
+# Current working situation
+I am trying to create hello-world rendering windows on different platforms. Readme will be update to a richer version soon.
