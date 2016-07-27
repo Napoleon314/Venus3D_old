@@ -30,7 +30,12 @@
 
 #include "stdafx.h"
 #ifdef VE_ENABLE_VULKAN
-#	include "vulkan.h"
+#	if defined(BUILD_PLATFORM_WIN)
+#		define VK_USE_PLATFORM_WIN32_KHR
+#	elif defined(BUILD_PLATFORM_LINUX)
+#		define VK_USE_PLATFORM_XLIB_KHR
+#	endif
+#	include "vulkan_loader.h"
 #endif
 #include "VulkanRenderer.h"
 
@@ -41,6 +46,8 @@
 #	undef THROW
 #endif
 #define THROW(...) VE_THROW("VulkanRenderer Error", __VA_ARGS__)
+//--------------------------------------------------------------------------
+VK_LOADER_GLOBAL;
 //--------------------------------------------------------------------------
 VeRTTIImpl(VulkanRenderer);
 //--------------------------------------------------------------------------
@@ -56,21 +63,16 @@ VulkanRenderer::~VulkanRenderer() noexcept
 //--------------------------------------------------------------------------
 void VulkanRenderer::Init()
 {
-#	ifdef VE_SHARED_LIB
-	m_spVulkan = VE_NEW VeSharedLib(LIB_VULKAN);
-	if (!m_spVulkan->Load())
+	VK_LOADER_LOAD_ALL(LIB_VULKAN);
+	if (!VK_LOADER_HAS_LOADED())
 	{
-		VeCoreLogI("Failed to load " LIB_VULKAN ".");
 		THROW("Failed to load " LIB_VULKAN ".");
 	}
-#	endif
 }
 //--------------------------------------------------------------------------
 void VulkanRenderer::Term()
 {
-#	ifdef VE_SHARED_LIB
-	m_spVulkan = nullptr;
-#	endif
+	VK_LOADER_UNLOAD_ALL();
 }
 //--------------------------------------------------------------------------
 void VulkanRenderer::BeginSyncCopy() noexcept

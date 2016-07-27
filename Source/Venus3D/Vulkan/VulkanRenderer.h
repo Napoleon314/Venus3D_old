@@ -60,10 +60,6 @@ public:
 protected:
 	friend class VulkanRenderWindow;
 
-#	ifdef VE_SHARED_LIB
-	VeSharedLibPtr m_spVulkan;
-#	endif
-
 
 };
 
