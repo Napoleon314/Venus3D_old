@@ -3,6 +3,6 @@ _*
 Binary/*
 Build/*
 Dependent/*
-*/vulkan.h
-*/vk_platform.h
-*/vulkan_loader.h
+*vulkan.h
+*vk_platform.h
+*vulkan_loader.h
