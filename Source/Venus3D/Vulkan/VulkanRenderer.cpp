@@ -68,6 +68,7 @@ void VulkanRenderer::Init()
 	{
 		THROW("Failed to load " LIB_VULKAN ".");
 	}
+	VeCoreLogI("VulkanRenderer created successfully.");
 }
 //--------------------------------------------------------------------------
 void VulkanRenderer::Term()
