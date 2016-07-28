@@ -93,7 +93,7 @@ void Venus3D::InitVideo() noexcept
 #	ifdef BUILD_PLATFORM_WIN
 	m_spVideo = CreateWindowsVideo();
 #   else
-    m_spVideo = CreateVideo(kInitData);
+    m_spVideo = CreateVideo();
 #	endif
 	if (m_spVideo)
 	{

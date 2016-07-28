@@ -539,7 +539,7 @@ public:
 		PoolAllocatorMap;
 
 	static constexpr const char* ENGINE_NAME = "Venus3D";
-	static constexpr uint32_t ENGINE_VERSION = VE_MAKE_VERSION(0, 1, 0);
+	static constexpr uint32_t ENGINE_VERSION = VE_MAKE_VERSION(0, 1);
 
 	Venus3D(const VeInitData& kInitData) noexcept;
 

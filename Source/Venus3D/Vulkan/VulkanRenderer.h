@@ -38,6 +38,8 @@
 #define LIB_VULKAN "libvulkan.so"
 #endif
 
+class VulkanRenderWindow;
+
 class VulkanRenderer : public VeRenderer
 {
 	VeNoCopy(VulkanRenderer);

@@ -66,7 +66,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 int main(int32_t argc, char * argv[])
 {
     int32_t i32Exit(0);
-    VeInit(VeInitData(g_pcPakName, VE_INIT_WINDOW));
+    VeInit(VeInitData(g_pcAppName, g_u32AppVersion, VE_INIT_WINDOW));
     i32Exit = VeEntry(argc, argv);
     VeTerm();
     return i32Exit;
