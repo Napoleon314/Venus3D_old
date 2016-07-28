@@ -29,9 +29,9 @@
 ////////////////////////////////////////////////////////////////////////////
 
 //--------------------------------------------------------------------------
-inline const vtd::string& Venus3D::GetPakName() noexcept
+inline const VeInitData& Venus3D::GetInitData() noexcept
 {
-	return m_kProcessName;
+	return m_kInitData;
 }
 //--------------------------------------------------------------------------
 inline VeLog& Venus3D::GetLog() noexcept

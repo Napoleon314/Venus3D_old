@@ -1,11 +1,11 @@
-﻿////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////
 //
 //  The MIT License (MIT)
 //  Copyright (c) 2016 Albert D Yang
 // -------------------------------------------------------------------------
-//  Module:      RenderTest
-//  File name:   Main.cpp
-//  Created:     2016/07/23 by Albert
+//  Module:      Vulkan
+//  File name:   VulkanRenderWindow.h
+//  Created:     2016/07/28 by Albert
 //  Description:
 // -------------------------------------------------------------------------
 //  Permission is hereby granted, free of charge, to any person obtaining a
@@ -28,49 +28,32 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-#include "RenderTest.h"
+#pragma once
 
-const char* g_pcAppName = "com.venus3d.RenderTest";
-uint32_t g_u32AppVersion = VE_MAKE_VERSION(1, 0, 0);
+#ifdef VE_ENABLE_VULKAN
 
-int32_t VeEntry(int32_t, char*[]) noexcept
+class VulkanRenderWindow : public VeRenderWindow
 {
-	VeRendererPtr spD3D12 = VeRenderer::Create(VE_RENDER_VULKAN);
-	if (!spD3D12) return 0;
-	VE_TRY_CALL(spD3D12->Init());
+	VeNoCopy(VulkanRenderWindow);
+	VeRTTIDecl(VulkanRenderWindow, VeRenderWindow);
+public:
+	VulkanRenderWindow(const VeWindowPtr& spWindow) noexcept;
 
-	VeRenderWindowPtr spWindow = spD3D12->CreateRenderWindow("D3D12", 1024, 768);
-	if (!spWindow) return 0;
+	virtual ~VulkanRenderWindow() noexcept;
 
-	VeDesktopVideoPtr spDesktop = VeDynamicCast(VeDesktopVideo, venus3d.GetVideo());
-	if (!spDesktop) return 0;
+	void Init(VulkanRenderer& kRenderer) noexcept;
 
-	while (true)
-	{
-		venus3d.GetTime().Update();
-		spDesktop->PumpEvents();
-		{
-			static float s_f32TimeCount(0);
-			static uint32_t s_u32FrameCount(0);
+	void Term() noexcept;
 
-			s_f32TimeCount += venus3d.GetTime().GetDeltaTime();
-			++s_u32FrameCount;
+	virtual bool IsValid() noexcept override;
 
-			if (s_f32TimeCount > 1.0f)
-			{
-				char s_acFPS[64];
-				VeSprintf(s_acFPS, "%s[FPS:%d]", "D3D12", s_u32FrameCount);
-				spWindow->SetTitle(s_acFPS);
-				s_f32TimeCount -= floorf(s_f32TimeCount);
-				s_u32FrameCount = 0;
-			}
-		}
-		if (!spWindow->IsValid()) break;
-		spWindow->Begin();
-		spWindow->End();
-	}
-	
-	VE_TRY_CALL(spD3D12->Term());
+	virtual void Begin() noexcept override;
 
-	return 0;
-}
+	virtual void End() noexcept override;
+
+protected:
+	vtd::intrusive_node<VulkanRenderWindow*> m_kNode;
+
+};
+
+#endif

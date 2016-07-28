@@ -35,7 +35,7 @@ class WindowsVideo : public VeDesktopVideo
 	VeNoCopy(WindowsVideo);
 	VeRTTIDecl(WindowsVideo, VeDesktopVideo);
 public:
-	WindowsVideo(const VeInitData& kInitData) noexcept;
+	WindowsVideo() noexcept;
 
 	virtual ~WindowsVideo() noexcept;
 	

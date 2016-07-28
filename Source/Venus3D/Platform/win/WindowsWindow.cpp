@@ -188,11 +188,10 @@ void WindowsWindow::SetTitle(const char* pcTitle) noexcept
 {
 	int32_t i32Num = MultiByteToWideChar(CP_UTF8, 0, pcTitle, -1, nullptr, 0);
 	VE_ASSERT(i32Num >= 0);
-	LPWSTR lpwstrBuf = VeStackAlloc(WCHAR, i32Num + 1);
-	lpwstrBuf[i32Num] = 0;
-	MultiByteToWideChar(CP_UTF8, 0, pcTitle, -1, lpwstrBuf, i32Num);
-	SetWindowTextW(m_hHandle, lpwstrBuf);
-	VeStackFree(lpwstrBuf);
+	VeDyanmicStack<WCHAR> kBuf(i32Num + 1);
+	kBuf[i32Num] = 0;
+	MultiByteToWideChar(CP_UTF8, 0, pcTitle, -1, kBuf, i32Num);
+	SetWindowTextW(m_hHandle, kBuf);
 }
 //--------------------------------------------------------------------------
 void WindowsWindow::UpdateFlags() noexcept

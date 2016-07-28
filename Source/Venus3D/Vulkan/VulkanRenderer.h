@@ -3,9 +3,9 @@
 //  The MIT License (MIT)
 //  Copyright (c) 2016 Albert D Yang
 // -------------------------------------------------------------------------
-//  Module:      D3D12
-//  File name:   VeRendererD3D12.h
-//  Created:     2016/07/22 by Albert
+//  Module:      Vulkan
+//  File name:   VulkanRenderer.h
+//  Created:     2016/07/28 by Albert
 //  Description:
 // -------------------------------------------------------------------------
 //  Permission is hereby granted, free of charge, to any person obtaining a
@@ -58,8 +58,16 @@ public:
 	virtual VeRenderWindowPtr CreateRenderWindow(const VeWindowPtr& spWindow) noexcept override;
 
 protected:
+	void InitVulkanInstance();
+
+	void InitPhysicalDevice();
+
 	friend class VulkanRenderWindow;
 
+	VkInstance m_hVulkan = nullptr;
+	vtd::vector<VkPhysicalDevice> m_kGPUVec;
+
+	vtd::intrusive_list<VulkanRenderWindow*> m_kRenderWindowList;
 
 };
 

@@ -141,6 +141,12 @@ void D3D12Renderer::Init()
 //--------------------------------------------------------------------------
 void D3D12Renderer::Term()
 {
+	for (auto pkWindow : m_kRenderWindowList)
+	{
+		pkWindow->Term();
+	}
+	VE_ASSERT(m_kRenderWindowList.empty());
+
 	m_kSRVHeap.Term();
 	m_kDSVHeap.Term();
 	m_kRTVHeap.Term();

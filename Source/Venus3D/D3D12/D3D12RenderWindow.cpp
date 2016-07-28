@@ -37,8 +37,8 @@
 //--------------------------------------------------------------------------
 VeRTTIImpl(D3D12RenderWindow, VeRenderWindow);
 //--------------------------------------------------------------------------
-D3D12RenderWindow::D3D12RenderWindow(
-	const VeWindowPtr& spWindow) noexcept : VeRenderWindow(spWindow)
+D3D12RenderWindow::D3D12RenderWindow(const VeWindowPtr& spWindow) noexcept
+	: VeRenderWindow(spWindow)
 {
 	m_kNode._Content = this;
 }

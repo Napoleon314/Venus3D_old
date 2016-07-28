@@ -49,7 +49,7 @@ VeStackAllocator::~VeStackAllocator() noexcept
 void* VeStackAllocator::Allocate(size_t stSizeInBytes) noexcept
 {
 	stSizeInBytes = (stSizeInBytes + 0xF) & 0xFFFFFFF0;
-	VE_ASSERT(m_pu8Current - m_pu8Buffer <= ptrdiff_t(stSizeInBytes));
+	VE_ASSERT((m_stSize - (m_pu8Current - m_pu8Buffer)) >= stSizeInBytes);
 	void* pvRes = m_pu8Current;
 	m_pu8Current += stSizeInBytes;
 	m_kStack.push(stSizeInBytes);

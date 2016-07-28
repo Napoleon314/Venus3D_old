@@ -353,6 +353,18 @@
 	((uint32_t)(ch0) | ((uint32_t)(ch1) << 8) |							\
 	((uint32_t)(ch2) << 16) | ((uint32_t)(ch3) << 24 ))
 
+
+inline constexpr uint32_t VeMakeVersion(uint32_t maj, uint32_t min = 0, uint32_t pch = 0) noexcept
+{
+	return (((maj) << 22) | ((min) << 12) | (pch));
+}
+
+#define VE_MAKE_VERSION(...) VeMakeVersion(__VA_ARGS__)
+
+#define VE_VERSION_MAJOR(version) ((uint32_t)(version) >> 22)
+#define VE_VERSION_MINOR(version) (((uint32_t)(version) >> 12) & 0x3ff)
+#define VE_VERSION_PATCH(version) ((uint32_t)(version) & 0xfff)
+
 #define VeNoCopy(cls) \
 	cls(const cls&) = delete;\
 	cls& operator= (const cls&) = delete
@@ -486,10 +498,12 @@ enum VeInitMask
 
 struct VeInitData
 {
-	const char* m_pcProcessName = nullptr;
+	const char* m_pcAppName = nullptr;
+	uint32_t m_u32AppVersion = 0;
+	uint32_t m_u32InitMask = (uint32_t)VE_INIT_MASK;
 
-	VeInitData(const char* pcName, uint32_t u32InitMask) noexcept
-		: m_pcProcessName(pcName), m_u32InitMask(u32InitMask) {}
+	VeInitData(const char* pcName, uint32_t u32Version, uint32_t u32InitMask) noexcept
+		: m_pcAppName(pcName), m_u32AppVersion(u32Version), m_u32InitMask(u32InitMask) {}
 
 #ifdef BUILD_PLATFORM_WIN
 
@@ -497,24 +511,23 @@ struct VeInitData
 	HINSTANCE m_hPrevInstance = nullptr;
 	int32_t m_i32CmdShow = 0;
 
-	VeInitData(const char* pcName, HINSTANCE hInstance,
-		HINSTANCE hPrevInstance, int32_t i32Show, uint32_t u32InitMask) noexcept
-		: m_pcProcessName(pcName), m_hInstance(hInstance)
-		, m_hPrevInstance(hPrevInstance), m_i32CmdShow(i32Show)
-		, m_u32InitMask(u32InitMask) {}
+	VeInitData(const char* pcName, uint32_t u32Version, uint32_t u32InitMask,
+		HINSTANCE hInstance, HINSTANCE hPrevInstance, int32_t i32Show) noexcept
+		: m_pcAppName(pcName), m_u32AppVersion(u32Version), m_u32InitMask(u32InitMask)
+		, m_hInstance(hInstance), m_hPrevInstance(hPrevInstance), m_i32CmdShow(i32Show)
+		 {}
 
-	VeInitData(std::initializer_list<std::tuple<const char*,HINSTANCE,HINSTANCE,int32_t,uint32_t>> l) noexcept
+	VeInitData(std::initializer_list<std::tuple<const char*,uint32_t,uint32_t,HINSTANCE,HINSTANCE,int32_t>> l) noexcept
 	{
-		m_pcProcessName = std::get<0>(*l.begin());
-		m_hInstance = std::get<1>(*l.begin());
-		m_hPrevInstance = std::get<2>(*l.begin());
-		m_i32CmdShow = std::get<3>(*l.begin());
-		m_u32InitMask = std::get<4>(*l.begin());
+		m_pcAppName = std::get<0>(*l.begin());
+		m_u32AppVersion = std::get<1>(*l.begin());
+		m_u32InitMask = std::get<2>(*l.begin());
+		m_hInstance = std::get<3>(*l.begin());
+		m_hPrevInstance = std::get<4>(*l.begin());
+		m_i32CmdShow = std::get<5>(*l.begin());
 	}
 
 #endif
-
-	uint32_t m_u32InitMask = (uint32_t)VE_INIT_MASK;
 
 };
 
@@ -525,6 +538,9 @@ public:
 		venus::allocator<std::pair<const size_t, VePoolAllocatorPtr>>>
 		PoolAllocatorMap;
 
+	static constexpr const char* ENGINE_NAME = "Venus3D";
+	static constexpr uint32_t ENGINE_VERSION = VE_MAKE_VERSION(0, 1, 0);
+
 	Venus3D(const VeInitData& kInitData) noexcept;
 
 	~Venus3D() noexcept;
@@ -533,7 +549,7 @@ public:
 
 	const VePoolAllocatorPtr& GetPoolAllocator(size_t stUnitSize) noexcept;
 
-	inline const vtd::string& GetPakName() noexcept;
+	inline const VeInitData& GetInitData() noexcept;
 
 	inline VeLog& GetLog() noexcept;
 
@@ -542,7 +558,7 @@ public:
 	inline const VeVideoPtr& GetVideo() noexcept;
 
 private:
-	void Init(const VeInitData& kInitData);
+	void Init();
 
 	void Term();
 
@@ -554,12 +570,11 @@ private:
 
 	void TermJob() noexcept;
 
-	void InitVideo(const VeInitData& kInitData) noexcept;
+	void InitVideo() noexcept;
 
 	void TermVideo() noexcept;
 
-	vtd::string m_kProcessName;
-	uint32_t m_u32ActiveMask = 0;
+	VeInitData m_kInitData;
 	PoolAllocatorMap m_kAllocatorMap;
 	vtd::spin_lock m_kAllocatorLock;
 	VeLog m_kLog;
@@ -577,6 +592,49 @@ public:
 
 #define VeStackAlloc(t,s) (t*)(Venus3D::Ref().GetStackAllocator().Allocate(sizeof(t)*(s)))
 #define VeStackFree(p) Venus3D::Ref().GetStackAllocator().Deallocate(); (p) = nullptr
+
+template <class _Ty>
+class VeDyanmicStack
+{
+public:
+	VeDyanmicStack(size_t stNum) noexcept
+	{
+		m_pData = VeStackAlloc(_Ty, stNum);
+#		ifdef VE_DEBUG
+		m_stNum = stNum;
+#		endif
+	}
+
+	~VeDyanmicStack() noexcept
+	{
+		VeStackFree(m_pData);
+	}
+
+	operator _Ty* () noexcept
+	{
+		return m_pData;
+	}
+
+	_Ty& operator [] (size_t stIndex) noexcept
+	{
+#		ifdef VE_DEBUG
+		VE_ASSERT(stIndex < m_stNum);
+#		endif
+		return m_pData[stIndex];
+	}
+
+	_Ty* data() noexcept
+	{
+		return m_pData;
+	}
+
+private:
+	_Ty* m_pData = nullptr;
+#	ifdef VE_DEBUG
+	size_t m_stNum;
+#	endif
+
+};
 
 #ifdef VE_DEBUG
 #	define VeCoreDebugOutput venus3d.CORE.D.LogFormat

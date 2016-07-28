@@ -3,9 +3,9 @@
 //  The MIT License (MIT)
 //  Copyright (c) 2016 Albert D Yang
 // -------------------------------------------------------------------------
-//  Module:      Venus3D
-//  File name:   Venus3D.cpp
-//  Created:     2016/07/06 by Albert
+//  Module:      Vulkan
+//  File name:   VulkanRenderWindow.cpp
+//  Created:     2016/07/28 by Albert
 //  Description:
 // -------------------------------------------------------------------------
 //  Permission is hereby granted, free of charge, to any person obtaining a
@@ -29,102 +29,75 @@
 ////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
+#ifdef VE_ENABLE_VULKAN
+#	if defined(BUILD_PLATFORM_WIN)
+#		define VK_USE_PLATFORM_WIN32_KHR
+#	elif defined(BUILD_PLATFORM_LINUX)
+#		define VK_USE_PLATFORM_XLIB_KHR
+#	endif
+#	include "vulkan_loader.h"
+#endif
+#include "VulkanRenderer.h"
+#include "VulkanRenderWindow.h"
 
 //--------------------------------------------------------------------------
-Venus3D::Venus3D(const VeInitData& kInitData) noexcept
-	: m_kInitData(kInitData), CORE(ENGINE_NAME, m_kLog)
-	, USER(kInitData.m_pcAppName, m_kLog)
-
+#ifdef VE_ENABLE_VULKAN
+//--------------------------------------------------------------------------
+VeRTTIImpl(VulkanRenderWindow, VeRenderWindow);
+//--------------------------------------------------------------------------
+VulkanRenderWindow::VulkanRenderWindow(const VeWindowPtr& spWindow) noexcept
+	: VeRenderWindow(spWindow)
 {
-	Init();
+	m_kNode._Content = this;
 }
 //--------------------------------------------------------------------------
-Venus3D::~Venus3D() noexcept
+VulkanRenderWindow::~VulkanRenderWindow() noexcept
 {
 	Term();
 }
 //--------------------------------------------------------------------------
-void Venus3D::Init()
+void VulkanRenderWindow::Init(VulkanRenderer& kRenderer) noexcept
 {
-	VE_MASK_CONDITION(m_kInitData.m_u32InitMask, VE_INIT_LOG, InitLog());
-	VE_MASK_CONDITION(m_kInitData.m_u32InitMask, VE_INIT_JOB, InitJob());
-	VE_MASK_CONDITION(m_kInitData.m_u32InitMask, VE_INIT_VIDEO, InitVideo());
+	if ((!m_kNode.is_attach()) && m_spTargetWindow)
+	{
+#		ifdef VK_USE_PLATFORM_WIN32_KHR
+		/*VkWin32SurfaceCreateInfoKHR kSurfaceInfo =
+		{
+			VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR,
+			NULL,
+			0,
+
+		}*/
+#		endif
+
+		m_spTargetWindow->Show();
+
+		kRenderer.m_kRenderWindowList.attach_back(m_kNode);
+	}
 }
 //--------------------------------------------------------------------------
-void Venus3D::Term()
+void VulkanRenderWindow::Term() noexcept
 {
-	VE_MASK_CONDITION(m_kInitData.m_u32InitMask, VE_INIT_VIDEO, TermVideo());
-	VE_MASK_CONDITION(m_kInitData.m_u32InitMask, VE_INIT_JOB, TermJob());
-	VE_MASK_CONDITION(m_kInitData.m_u32InitMask, VE_INIT_LOG, TermLog());
+	if (m_kNode.is_attach())
+	{
+		m_kNode.detach();
+	}
 }
 //--------------------------------------------------------------------------
-void Venus3D::InitLog() noexcept
+bool VulkanRenderWindow::IsValid() noexcept
 {
-	m_kLog.SetTarget(&VeLog::ConsoleOutput);
+	return VeRenderWindow::IsValid() ? m_kNode.is_attach() : false;
 }
 //--------------------------------------------------------------------------
-void Venus3D::TermLog() noexcept
+void VulkanRenderWindow::Begin() noexcept
 {
-	m_kLog.SetTarget(nullptr);
+
 }
 //--------------------------------------------------------------------------
-void Venus3D::InitJob() noexcept
+void VulkanRenderWindow::End() noexcept
 {
-	uint32_t u32CPUNum = VeThreadHardwareConcurrency();
-	VeJobSystem::Create(u32CPUNum, VE_CLAMP(u32CPUNum >> 1, 1, VE_JOB_BG_BUFFER_MASK + 1));
+
 }
 //--------------------------------------------------------------------------
-void Venus3D::TermJob() noexcept
-{
-	VeJobSystem::Destory();
-}
-//--------------------------------------------------------------------------
-#ifdef BUILD_PLATFORM_WIN
-extern VeVideoPtr CreateWindowsVideo() noexcept;
-#else
-VeVideoPtr CreateVideo() noexcept
-{
-    return nullptr;
-}
 #endif
-//--------------------------------------------------------------------------
-void Venus3D::InitVideo() noexcept
-{
-#	ifdef BUILD_PLATFORM_WIN
-	m_spVideo = CreateWindowsVideo();
-#   else
-    m_spVideo = CreateVideo(kInitData);
-#	endif
-	if (m_spVideo)
-	{
-		VE_TRY_CALL(m_spVideo->Init());
-	}
-}
-//--------------------------------------------------------------------------
-void Venus3D::TermVideo() noexcept
-{
-	if (m_spVideo)
-	{
-		VE_TRY_CALL(m_spVideo->Term());
-	}
-	m_spVideo = nullptr;
-}
-//--------------------------------------------------------------------------
-VeStackAllocator& Venus3D::GetStackAllocator() noexcept
-{
-	return VeThread::GetThreadLocalSingleton()->m_kAllocator;
-}
-//--------------------------------------------------------------------------
-const VePoolAllocatorPtr& Venus3D::GetPoolAllocator(
-	size_t stUnitSize) noexcept
-{
-	stUnitSize = (stUnitSize + 0xF) & (~0xF);
-	std::lock_guard<vtd::spin_lock> l(m_kAllocatorLock);
-	VePoolAllocatorPtr& spRes = m_kAllocatorMap[stUnitSize];
-	if (!spRes)
-	{
-		spRes = VE_NEW VePoolAllocator(stUnitSize);
-	}
-	return spRes;
-}
 //--------------------------------------------------------------------------

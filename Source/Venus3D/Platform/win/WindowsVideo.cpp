@@ -40,12 +40,12 @@
 //--------------------------------------------------------------------------
 VeRTTIImpl(WindowsVideo, VeDesktopVideo);
 //--------------------------------------------------------------------------
-WindowsVideo::WindowsVideo(const VeInitData& kInitData) noexcept
+WindowsVideo::WindowsVideo() noexcept
 	: VeDesktopVideo("WINAPI")
 {
-	m_hInstance = kInitData.m_hInstance ? kInitData.m_hInstance : GetModuleHandle(NULL);
-	m_hPrevInstance = kInitData.m_hPrevInstance;
-	m_i32CmdShow = kInitData.m_i32CmdShow;
+	m_hInstance = Venus3D::Ref().GetInitData().m_hInstance;
+	m_hPrevInstance = Venus3D::Ref().GetInitData().m_hPrevInstance;
+	m_i32CmdShow = Venus3D::Ref().GetInitData().m_i32CmdShow;
 }
 //--------------------------------------------------------------------------
 WindowsVideo::~WindowsVideo() noexcept
@@ -57,7 +57,7 @@ void WindowsVideo::Init()
 {
 	if (!m_wstrClassName)
 	{
-		m_wstrClassName = UTF8ToWSTR(Venus3D::Ref().GetPakName());
+		m_wstrClassName = UTF8ToWSTR(Venus3D::Ref().GetInitData().m_pcAppName);
 		WNDCLASSEXW windowClass = { 0 };
 		windowClass.cbSize = sizeof(WNDCLASSEXW);
 		windowClass.style = CS_HREDRAW | CS_VREDRAW;
@@ -160,8 +160,8 @@ LRESULT WindowsVideo::WindowProc(HWND hwnd, UINT msg, WPARAM wParam,
 	}
 }
 //--------------------------------------------------------------------------
-VeVideoPtr CreateWindowsVideo(const VeInitData& kInitData) noexcept
+VeVideoPtr CreateWindowsVideo() noexcept
 {
-	return VE_NEW WindowsVideo(kInitData);
+	return VE_NEW WindowsVideo();
 }
 //--------------------------------------------------------------------------

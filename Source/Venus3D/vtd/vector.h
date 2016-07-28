@@ -356,6 +356,11 @@ namespace vtd
 			return _Where;
 		}
 
+		pointer data() noexcept
+		{
+			return buffer;
+		}
+
 	private:
 		pointer buffer = nullptr;
 		size_type used_size = 0;

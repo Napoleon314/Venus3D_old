@@ -30,7 +30,8 @@
 
 #include "stdafx.h"
 
-extern const char* g_pcPakName;
+extern const char* g_pcAppName;
+extern uint32_t g_u32AppVersion;
 extern int32_t VeEntry(int32_t argc, char * argv[]) noexcept;
 
 #ifdef BUILD_PLATFORM_WIN
@@ -51,7 +52,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 				pcTemp = vtd::strtok<CHAR>(NULL, " ", &pcContent);
 			}
 		}
-		VeInit(VeInitData(g_pcPakName, hInstance, hPrevInstance, nCmdShow, VE_INIT_WINDOW));
+		VeInit(VeInitData(g_pcAppName, g_u32AppVersion, VE_INIT_WINDOW, hInstance, hPrevInstance, nCmdShow));
 		i32Exit = VeEntry(argc, argv);
 		VeTerm();
 	}
