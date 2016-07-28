@@ -69,11 +69,25 @@ void VulkanRenderer::Init()
 	{
 		THROW("Failed to load " LIB_VULKAN ".");
 	}
-	InitVulkanInstance();
-	InitPhysicalDevice();
+
+	InitInstance();
+	InitDevice();
 }
 //--------------------------------------------------------------------------
-void VulkanRenderer::InitVulkanInstance()
+void VulkanRenderer::Term()
+{
+	for (auto pkWindow : m_kRenderWindowList)
+	{
+		pkWindow->Term();
+	}
+	VE_ASSERT(m_kRenderWindowList.empty());
+
+	TermDevice();
+	TermInstance();
+	VK_LOADER_UNLOAD_ALL();
+}
+//--------------------------------------------------------------------------
+void VulkanRenderer::InitInstance()
 {
 	uint32_t u32LayerCount;
 	if (vkEnumerateInstanceLayerProperties(&u32LayerCount, nullptr) != VK_SUCCESS)
@@ -84,6 +98,14 @@ void VulkanRenderer::InitVulkanInstance()
 	if (vkEnumerateInstanceLayerProperties(&u32LayerCount, kLayers) != VK_SUCCESS)
 	{
 		THROW("Failed to enumerate instance layer properties");
+	}
+	if (u32LayerCount > 1)
+	{
+		for (uint32_t i(1); i < u32LayerCount; ++i)
+		{
+			VeCoreLogI("Ignored layer ", kLayers[i].layerName, ": ", kLayers[i].description);
+		}
+		u32LayerCount = 1;
 	}
 	VeDyanmicStack<const char*> kLayerNames(u32LayerCount);
 	for (uint32_t i(0); i < u32LayerCount; ++i)
@@ -105,10 +127,9 @@ void VulkanRenderer::InitVulkanInstance()
 	const char* apcExtNames[] =
 	{
 		VK_KHR_SURFACE_EXTENSION_NAME,
-#		ifdef VK_USE_PLATFORM_WIN32_KHR
+#		if defined(VK_USE_PLATFORM_WIN32_KHR)
 		VK_KHR_WIN32_SURFACE_EXTENSION_NAME,
 #		endif
-		VK_EXT_DEBUG_REPORT_EXTENSION_NAME
 	};
 
 	VkInstanceCreateInfo kCreateInfo =
@@ -129,30 +150,50 @@ void VulkanRenderer::InitVulkanInstance()
 	VE_ASSERT(m_hVulkan);
 }
 //--------------------------------------------------------------------------
-void VulkanRenderer::InitPhysicalDevice()
+void VulkanRenderer::TermInstance()
+{
+	vkDestroyInstance(m_hVulkan, nullptr);
+	m_hVulkan = nullptr;
+}
+
+//--------------------------------------------------------------------------
+void VulkanRenderer::InitDevice()
 {
 	uint32_t u32GPUCount;
 	if (vkEnumeratePhysicalDevices(m_hVulkan, &u32GPUCount, nullptr) != VK_SUCCESS)
 	{
 		THROW("Failed to enumerate physical devices");
 	}
-	m_kGPUVec.resize(u32GPUCount);
-	if (vkEnumeratePhysicalDevices(m_hVulkan, &u32GPUCount, m_kGPUVec.data()) != VK_SUCCESS)
+	m_kDeviceList.resize(u32GPUCount);
+	VeDyanmicStack<VkPhysicalDevice> kGPUList(u32GPUCount);
+	if (vkEnumeratePhysicalDevices(m_hVulkan, &u32GPUCount, kGPUList.data()) != VK_SUCCESS)
 	{
 		THROW("Failed to enumerate physical devices");
 	}
+	for (uint32_t i(0); i < u32GPUCount; ++i)
+	{
+		auto& kDevice = m_kDeviceList[i];
+		kDevice.m_hGPU = kGPUList[i];
+		uint32_t u32QueueCount;
+		vkGetPhysicalDeviceQueueFamilyProperties(kDevice.m_hGPU, &u32QueueCount, nullptr);
+		kDevice.m_kQueueList.resize(u32QueueCount);
+		vkGetPhysicalDeviceQueueFamilyProperties(kDevice.m_hGPU, &u32QueueCount, kDevice.m_kQueueList.data());
+
+
+		VkDeviceQueueCreateInfo kQueueCreateInfo
+		{
+
+		};
+
+		//VkDeviceCreateInfo deviceCreateInfo = {};
+
+		
+	}
 }
 //--------------------------------------------------------------------------
-void VulkanRenderer::Term()
+void VulkanRenderer::TermDevice()
 {
-	for (auto pkWindow : m_kRenderWindowList)
-	{
-		pkWindow->Term();
-	}
-	VE_ASSERT(m_kRenderWindowList.empty());
-
-	vkDestroyInstance(m_hVulkan, nullptr);
-	VK_LOADER_UNLOAD_ALL();
+	m_kDeviceList.clear();
 }
 //--------------------------------------------------------------------------
 void VulkanRenderer::BeginSyncCopy() noexcept

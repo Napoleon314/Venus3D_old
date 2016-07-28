@@ -53,6 +53,7 @@ public:
 
 protected:
 	vtd::intrusive_node<VulkanRenderWindow*> m_kNode;
+	VkSurfaceKHR m_hSurface = nullptr;
 
 };
 

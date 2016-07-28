@@ -61,13 +61,56 @@ void VulkanRenderWindow::Init(VulkanRenderer& kRenderer) noexcept
 	if ((!m_kNode.is_attach()) && m_spTargetWindow)
 	{
 #		ifdef VK_USE_PLATFORM_WIN32_KHR
-		/*VkWin32SurfaceCreateInfoKHR kSurfaceInfo =
+		VkWin32SurfaceCreateInfoKHR kSurfaceInfo =
 		{
 			VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR,
 			NULL,
 			0,
+			Venus3D::Ref().GetInitData().m_hInstance,
+			(HWND)(m_spTargetWindow->GetNativeHandle())
+		};
+		VE_ASSERT_EQ(vkCreateWin32SurfaceKHR(kRenderer.m_hVulkan,
+			&kSurfaceInfo, nullptr, &m_hSurface), VK_SUCCESS);
 
+		/*VE_ASSERT(kRenderer.m_kGPUList.size());
+		auto& kDevice = kRenderer.m_kGPUList.front();
+		VeDyanmicStack<VkBool32> kSupports(kDevice.m_kQueueList.size());
+		for (size_t i(0); i < kDevice.m_kQueueList.size(); ++i)
+		{
+			VE_ASSERT_EQ(vkGetPhysicalDeviceSurfaceSupportKHR(kDevice.m_hGPU,
+				(uint32_t)i, m_hSurface, &kSupports[i]), VK_SUCCESS);
+		}
+		uint32_t u32GraphicsQueueIndex = UINT32_MAX;
+		uint32_t u32PresentQueueIndex = UINT32_MAX;
+		for (uint32_t i = 0; i < kDevice.m_kQueueList.size(); ++i)
+		{
+			if ((kDevice.m_kQueueList[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) != 0)
+			{
+				if (u32GraphicsQueueIndex == UINT32_MAX)
+				{
+					u32GraphicsQueueIndex = i;
+				}
+
+				if (kSupports[i] == VK_TRUE)
+				{
+					u32GraphicsQueueIndex = i;
+					u32PresentQueueIndex = i;
+					break;
+				}
+			}
+		}
+		if (u32GraphicsQueueIndex == UINT32_MAX)
+		{
+			for (uint32_t i = 0; i < kDevice.m_kQueueList.size(); ++i)
+			{
+				if (kSupports[i] == VK_TRUE)
+				{
+					u32PresentQueueIndex = i;
+					break;
+				}
+			}
 		}*/
+
 #		endif
 
 		m_spTargetWindow->Show();
@@ -80,6 +123,14 @@ void VulkanRenderWindow::Term() noexcept
 {
 	if (m_kNode.is_attach())
 	{
+		VulkanRenderer& kRenderer = *vtd::member_cast(
+			&VulkanRenderer::m_kRenderWindowList, m_kNode.get_list());
+
+		vkDestroySurfaceKHR(kRenderer.m_hVulkan, m_hSurface, nullptr);
+
+
+
+
 		m_kNode.detach();
 	}
 }

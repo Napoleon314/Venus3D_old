@@ -35,7 +35,7 @@ uint32_t g_u32AppVersion = VE_MAKE_VERSION(1, 0, 0);
 
 int32_t VeEntry(int32_t, char*[]) noexcept
 {
-	VeRendererPtr spD3D12 = VeRenderer::Create(VE_RENDER_VULKAN);
+	VeRendererPtr spD3D12 = VeRenderer::Create(VE_RENDER_D3D12);
 	if (!spD3D12) return 0;
 	VE_TRY_CALL(spD3D12->Init());
 

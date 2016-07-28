@@ -45,6 +45,12 @@ class VulkanRenderer : public VeRenderer
 	VeNoCopy(VulkanRenderer);
 	VeRTTIDecl(VulkanRenderer);
 public:
+	struct Device
+	{
+		VkPhysicalDevice m_hGPU;
+		vtd::vector<VkQueueFamilyProperties> m_kQueueList;
+	};
+
 	VulkanRenderer() noexcept;
 
 	virtual ~VulkanRenderer() noexcept;
@@ -60,14 +66,18 @@ public:
 	virtual VeRenderWindowPtr CreateRenderWindow(const VeWindowPtr& spWindow) noexcept override;
 
 protected:
-	void InitVulkanInstance();
+	void InitInstance();
 
-	void InitPhysicalDevice();
+	void TermInstance();
+
+	void InitDevice();
+
+	void TermDevice();
 
 	friend class VulkanRenderWindow;
 
 	VkInstance m_hVulkan = nullptr;
-	vtd::vector<VkPhysicalDevice> m_kGPUVec;
+	vtd::vector<Device> m_kDeviceList;
 
 	vtd::intrusive_list<VulkanRenderWindow*> m_kRenderWindowList;
 
