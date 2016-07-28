@@ -5,6 +5,16 @@
 
 #if defined(_MSC_VER)
 #	pragma warning(disable: 4996)
+#	pragma warning(disable: 4224)
+#	pragma warning(disable: 4245)
+#	pragma warning(disable: 4244)
+#	pragma warning(disable: 4706)
+#	pragma warning(disable: 4100)
+#	pragma warning(disable: 4456)
+#	pragma warning(disable: 4267)
+#	pragma warning(disable: 4457)
+#	pragma warning(disable: 4701)
+#	pragma warning(disable: 4702)
 #elif defined(__GNUC__)
 #	pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #	pragma GCC diagnostic ignored "-Wimplicit-function-declaration"
