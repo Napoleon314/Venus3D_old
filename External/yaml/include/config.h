@@ -15,6 +15,8 @@
 #	pragma warning(disable: 4457)
 #	pragma warning(disable: 4701)
 #	pragma warning(disable: 4702)
+#elif defined(__clang__)
+#	pragma clang diagnostic ignored "-Wunused-parameter"
 #elif defined(__GNUC__)
 #	pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #	pragma GCC diagnostic ignored "-Wimplicit-function-declaration"
