@@ -136,7 +136,7 @@ void D3D12Renderer::Init()
 	m_kDSVHeap.Init(m_pkDevice);
 	m_kSRVHeap.Init(m_pkDevice);
 
-	VeCoreLogI("VeRendererD3D12 has been created.");
+	VeCoreLogI("D3D12Renderer created successfully.");
 }
 //--------------------------------------------------------------------------
 void D3D12Renderer::Term()
