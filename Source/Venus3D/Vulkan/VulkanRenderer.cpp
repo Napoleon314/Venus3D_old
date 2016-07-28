@@ -179,12 +179,6 @@ void VulkanRenderer::InitDevice()
 		kDevice.m_kQueueList.resize(u32QueueCount);
 		vkGetPhysicalDeviceQueueFamilyProperties(kDevice.m_hGPU, &u32QueueCount, kDevice.m_kQueueList.data());
 
-
-		VkDeviceQueueCreateInfo kQueueCreateInfo
-		{
-
-		};
-
 		//VkDeviceCreateInfo deviceCreateInfo = {};
 
 		
