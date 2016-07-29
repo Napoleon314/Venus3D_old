@@ -44,13 +44,7 @@ RenderTest::~RenderTest() noexcept
 //--------------------------------------------------------------------------
 void RenderTest::OnInit() noexcept
 {
-	VeInputLayout::ElementDesc desc[] =
-	{
-		{ VE_SN_POSITION, 0, VE_PF_R32G32B32_FLOAT, 0, 0, VE_IC_PER_VERTEX_DATA, 0 },
-		{ VE_SN_TEXCOORD, 0, VE_PF_R32G32_FLOAT, 0, 12, VE_IC_PER_VERTEX_DATA, 0 }
-	};
-
-	VeInputLayoutPtr spIA = m_spRenderer->CreateInputLayout(desc);
+	
 }
 //--------------------------------------------------------------------------
 void RenderTest::OnTerm() noexcept
