@@ -70,6 +70,22 @@ void VeApplication::ProcessEvents() noexcept
 void VeApplication::Update() noexcept
 {
 	venus3d.GetTime().Update();
+	{
+		static float s_f32TimeCount(0);
+		static uint32_t s_u32FrameCount(0);
+
+		s_f32TimeCount += venus3d.GetTime().GetDeltaTime();
+		++s_u32FrameCount;
+
+		if (s_f32TimeCount > 1.0f)
+		{
+			char s_acFPS[64];
+			VeSprintf(s_acFPS, "%s[FPS:%d]", "D3D12", s_u32FrameCount);
+			m_spWindow->SetTitle(s_acFPS);
+			s_f32TimeCount -= floorf(s_f32TimeCount);
+			s_u32FrameCount = 0;
+		}
+	}
 	OnUpdate();
 }
 //--------------------------------------------------------------------------
