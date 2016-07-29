@@ -3,9 +3,9 @@
 //  The MIT License (MIT)
 //  Copyright (c) 2016 Albert D Yang
 // -------------------------------------------------------------------------
-//  Module:      Framework
-//  File name:   VeApplication.cpp
-//  Created:     2016/07/23 by Albert
+//  Module:      D3D12
+//  File name:   VeRendererD3D12.cpp
+//  Created:     2016/07/22 by Albert
 //  Description:
 // -------------------------------------------------------------------------
 //  Permission is hereby granted, free of charge, to any person obtaining a
@@ -29,78 +29,56 @@
 ////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
+#include "D3D12Renderer.h"
+#include "D3D12RenderWindow.h"
+#include "D3D12RenderState.h"
 
 //--------------------------------------------------------------------------
-VeApplication::VeApplication(const char* pcName,
-	uint32_t u32Version) noexcept
-	: m_kName(pcName), m_u32Version(u32Version)
-{
-
-}
+#ifdef VE_ENABLE_D3D12
 //--------------------------------------------------------------------------
-VeApplication::~VeApplication() noexcept
-{
-	
-}
+VeRTTIImpl(D3D12InputLayout, VeInputLayout);
 //--------------------------------------------------------------------------
-void VeApplication::Init() noexcept
+static constexpr const char* s_apcSematicNameMap[VE_SN_NUM] =
 {
-	m_spRenderer = VeRenderer::Create(VE_RENDER_D3D12);
-	VE_ASSERT(m_spRenderer);
-	VE_TRY_CALL(m_spRenderer->Init());
-	m_spWindow = m_spRenderer->CreateRenderWindow("D3D12", 1024, 768);
-	VE_ASSERT(m_spWindow);
-	OnInit();
-}
+	"BINORMAL",
+	"BLENDINDICES",
+	"BLENDWEIGHT",
+	"COLOR",
+	"NORMAL",
+	"POSITION",
+	"POSITIONT",
+	"PSIZE",
+	"TANGENT",
+	"TEXCOORD"
+};
 //--------------------------------------------------------------------------
-void VeApplication::Term() noexcept
+D3D12InputLayout::D3D12InputLayout(
+	const VeInputLayout::ElementDesc* pkDescs, size_t stNum) noexcept
 {
-	OnTerm();
-	m_spWindow = nullptr;
-	VE_TRY_CALL(m_spRenderer->Term());
-	m_spRenderer = nullptr;
-}
-//--------------------------------------------------------------------------
-void VeApplication::ProcessEvents() noexcept
-{
-	VE_ASSERT(venus3d.GetVideo());
-	venus3d.GetVideo()->PumpEvents();
-}
-//--------------------------------------------------------------------------
-void VeApplication::Update() noexcept
-{
-	venus3d.GetTime().Update();
-	OnUpdate();
-}
-//--------------------------------------------------------------------------
-void VeApplication::Render() noexcept
-{
-	m_spWindow->Begin();
-	OnRender();	
-	m_spWindow->End();
-}
-//--------------------------------------------------------------------------
-void VeApplication::Loop() noexcept
-{
-	while (m_bLoop)
+	VE_ASSERT(stNum);
+	D3D12_INPUT_ELEMENT_DESC* pkAllocated = VeAlloc(D3D12_INPUT_ELEMENT_DESC, stNum);
+	for (size_t i(0); i < stNum; ++i)
 	{
-		ProcessEvents();
-		if (m_spWindow && m_spWindow->IsValid())
+		pkAllocated[i] =
 		{
-			Update();
-			Render();
-		}
-		else
-		{
-			Quit();
-		}
+			s_apcSematicNameMap[pkDescs[i].m_eName],
+			pkDescs[i].m_u32Index,
+			(DXGI_FORMAT)pkDescs[i].m_eFormat,
+			pkDescs[i].m_u32Slot,
+			pkDescs[i].m_u32Offset,
+			(D3D12_INPUT_CLASSIFICATION)pkDescs[i].m_eClass,
+			pkDescs[i].m_u32Rate
+		};
 	}
+	m_kDesc = { pkAllocated, (UINT)stNum };
 }
 //--------------------------------------------------------------------------
-void VeApplication::Go() noexcept
+D3D12InputLayout::~D3D12InputLayout() noexcept
 {
-	Init();
-	Loop();
-	Term();
+	VeFree((void*)m_kDesc.pInputElementDescs);
+	m_kDesc.pInputElementDescs = nullptr;
+	m_kDesc.NumElements = 0;
 }
+//--------------------------------------------------------------------------
+#endif
 //--------------------------------------------------------------------------

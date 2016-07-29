@@ -32,9 +32,17 @@
 
 #include <Venus3D.h>
 
+VeSmartPointer(VeApplication);
+
 class VeApplication : public VeRefObject
 {
 public:
+	inline const vtd::string& GetName() noexcept;
+
+	inline uint32_t GetVersion() noexcept;
+
+	inline void Quit() noexcept;
+
 	virtual void Init() noexcept;
 
 	virtual void Term() noexcept;	
@@ -57,12 +65,18 @@ public:
 
 	virtual void OnRender() noexcept {}
 
+	static VeApplicationPtr Create(int32_t argc, char * argv[]) noexcept;
+
 protected:
-	VeApplication() noexcept;
+	VeApplication(const char* pcName, uint32_t u32Version) noexcept;
 
 	virtual ~VeApplication() noexcept;
 
+	const vtd::string m_kName;
+	const uint32_t m_u32Version;
 	bool m_bLoop = true;
+	VeRendererPtr m_spRenderer;
+	VeRenderWindowPtr m_spWindow;
 
 };
 

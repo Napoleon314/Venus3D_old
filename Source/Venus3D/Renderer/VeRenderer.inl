@@ -27,3 +27,11 @@
 //  SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 ////////////////////////////////////////////////////////////////////////////
+
+//--------------------------------------------------------------------------
+inline VeInputLayoutPtr VeRenderer::CreateInputLayout(
+	const VeDyanmicStack<VeInputLayout::ElementDesc>& kDesc) noexcept
+{
+	return CreateInputLayout(kDesc.data(), kDesc.size());
+}
+//--------------------------------------------------------------------------

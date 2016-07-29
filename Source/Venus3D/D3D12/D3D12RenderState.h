@@ -3,9 +3,9 @@
 //  The MIT License (MIT)
 //  Copyright (c) 2016 Albert D Yang
 // -------------------------------------------------------------------------
-//  Module:      Framework
-//  File name:   VeEntry.cpp
-//  Created:     2016/07/23 by Albert
+//  Module:      D3D12
+//  File name:   D3D12RenderState.h
+//  Created:     2016/07/29 by Albert
 //  Description:
 // -------------------------------------------------------------------------
 //  Permission is hereby granted, free of charge, to any person obtaining a
@@ -28,45 +28,33 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-#include "stdafx.h"
+#pragma once
 
-#ifdef BUILD_PLATFORM_WIN
+#ifdef VE_ENABLE_D3D12
 
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
-	LPSTR lpCmdLine, int nCmdShow)
+class D3D12InputLayout : public VeInputLayout
 {
-	int argc(0);
-	char* argv[256];
+	VeNoCopy(D3D12InputLayout);
+	VeRTTIDecl(D3D12InputLayout, VeInputLayout);
+public:
+	D3D12InputLayout(const VeInputLayout::ElementDesc* pkDescs, size_t stNum) noexcept;
+
+	virtual ~D3D12InputLayout() noexcept;
+
+	operator const D3D12_INPUT_LAYOUT_DESC&() noexcept
 	{
-		char* pcContent;
-		char* pcTemp = vtd::strtok(lpCmdLine, " ", &pcContent);
-		while (pcTemp)
-		{
-			argv[argc++] = pcTemp;
-			pcTemp = vtd::strtok<CHAR>(NULL, " ", &pcContent);
-		}
+		return m_kDesc;
 	}
-	VeApplicationPtr spApp = VeApplication::Create(argc, argv);
-	VE_ASSERT(spApp);
-	VeInit(VeInitData(spApp->GetName(), spApp->GetVersion(), VE_INIT_WINDOW,
-		hInstance, hPrevInstance, nCmdShow));
-	spApp->Go();
-	spApp = nullptr;
-	VeTerm();
-	return 0;
-}
 
-#elif defined(BUILD_PLATFORM_ANDROID)
+	const D3D12_INPUT_LAYOUT_DESC& Get() noexcept
+	{
+		return m_kDesc;
+	}
 
-#else
+private:
+	D3D12_INPUT_LAYOUT_DESC m_kDesc;
 
-int main(int32_t argc, char * argv[])
-{
-    int32_t i32Exit(0);
-    VeInit(VeInitData(g_pcAppName, g_u32AppVersion, VE_INIT_WINDOW));
-    i32Exit = VeEntry(argc, argv);
-    VeTerm();
-    return i32Exit;
-}
+};
+
 
 #endif

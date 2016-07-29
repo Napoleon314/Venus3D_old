@@ -73,6 +73,14 @@ public:
 		int32_t x = VE_WINDOWPOS_CENTERED, int32_t y = VE_WINDOWPOS_CENTERED,
 		uint32_t u32Flags = VE_WINDOW_DEFAUT_FLAGS) noexcept;
 
+	inline VeInputLayoutPtr CreateInputLayout(const VeDyanmicStack<VeInputLayout::ElementDesc>& kDesc) noexcept;
+
+	template <size_t n>
+	VeInputLayoutPtr CreateInputLayout(const VeInputLayout::ElementDesc(&desc)[n]) noexcept
+	{
+		return CreateInputLayout(desc, n);
+	}
+
 	virtual void Init() = 0;
 
 	virtual void Term() = 0;
@@ -82,6 +90,8 @@ public:
 	virtual void EndSyncCopy() noexcept = 0;
 
 	virtual VeRenderWindowPtr CreateRenderWindow(const VeWindowPtr& spWindow) noexcept = 0;
+
+	virtual VeInputLayoutPtr CreateInputLayout(const VeInputLayout::ElementDesc* pkDescs, size_t stNum) noexcept = 0;
 	
 	static VeRendererPtr Create(VeRenderAPI eAPI) noexcept;
 

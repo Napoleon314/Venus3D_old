@@ -31,6 +31,7 @@
 #include "stdafx.h"
 #include "D3D12Renderer.h"
 #include "D3D12RenderWindow.h"
+#include "D3D12RenderState.h"
 
 //--------------------------------------------------------------------------
 #ifdef VE_ENABLE_D3D12
@@ -183,6 +184,12 @@ VeRenderWindowPtr D3D12Renderer::CreateRenderWindow(
 	VE_ASSERT(pkRenderWindow);
 	pkRenderWindow->Init(*this);
 	return pkRenderWindow;
+}
+//--------------------------------------------------------------------------
+VeInputLayoutPtr D3D12Renderer::CreateInputLayout(
+	const VeInputLayout::ElementDesc* pkDescs, size_t stNum) noexcept
+{
+	return VE_NEW D3D12InputLayout(pkDescs, stNum);
 }
 //--------------------------------------------------------------------------
 VeRendererPtr CreateD3D12Renderer() noexcept

@@ -31,6 +31,7 @@
 #include "stdafx.h"
 #include "D3D12Renderer.h"
 #include "D3D12RenderWindow.h"
+#include "D3D12RenderState.h"
 
 //--------------------------------------------------------------------------
 #ifdef VE_ENABLE_D3D12

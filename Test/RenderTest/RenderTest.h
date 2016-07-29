@@ -37,4 +37,14 @@ class RenderTest : public VeApplication
 public:
 	RenderTest() noexcept;
 
+	virtual ~RenderTest() noexcept;
+
+	virtual void OnInit() noexcept;
+
+	virtual void OnTerm() noexcept;
+
+	virtual void OnUpdate() noexcept;
+
+	virtual void OnRender() noexcept;
+
 };

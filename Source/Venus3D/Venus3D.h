@@ -233,7 +233,7 @@
 #ifdef BUILD_PLATFORM_APPLE
 #	define VE_ENABLE_METAL
 #else
-#	define VE_ENABLE_VULKAN
+//#	define VE_ENABLE_VULKAN
 #endif
 
 #define VE_OK (0)
@@ -474,9 +474,6 @@ inline constexpr uint32_t VeMakeVersion(uint32_t maj, uint32_t min = 0, uint32_t
 #include "Video/VeWindow.h"
 #include "Video/VeVideo.h"
 
-#include "Renderer/VeRenderWindow.h"
-#include "Renderer/VeRenderer.h"
-
 struct VENUS_API VeThreadLocalSingleton : public VeMemObject
 {
 	VeCoenvironment m_kCoenviron;
@@ -596,13 +593,27 @@ public:
 template <class _Ty>
 class VeDyanmicStack
 {
+	VeNoCopy(VeDyanmicStack);
+	VeNoMove(VeDyanmicStack);
 public:
+	typedef _Ty* iterator;
+	typedef const _Ty* const_iterator;
+
 	VeDyanmicStack(size_t stNum) noexcept
 	{
 		m_pData = VeStackAlloc(_Ty, stNum);
-#		ifdef VE_DEBUG
 		m_stNum = stNum;
-#		endif
+	}
+
+	VeDyanmicStack(std::initializer_list<_Ty> l) noexcept
+	{
+		m_stNum = l.size();
+		m_pData = VeStackAlloc(_Ty, m_stNum);
+		_Ty* pStart = m_pData;
+		for (auto&& val : l)
+		{
+			*pStart++ = val;
+		}
 	}
 
 	~VeDyanmicStack() noexcept
@@ -623,16 +634,44 @@ public:
 		return m_pData[stIndex];
 	}
 
+	iterator begin() noexcept
+	{
+		return m_pData;
+	}
+
+	iterator end() noexcept
+	{
+		return m_pData + m_stNum;
+	}
+
 	_Ty* data() noexcept
 	{
 		return m_pData;
 	}
 
+	const_iterator begin() const noexcept
+	{
+		return m_pData;
+	}
+
+	const_iterator end() const noexcept
+	{
+		return m_pData + m_stNum;
+	}
+
+	const _Ty* data() const noexcept
+	{
+		return m_pData;
+	}
+
+	size_t size() const noexcept
+	{
+		return m_stNum;
+	}
+
 private:
 	_Ty* m_pData = nullptr;
-#	ifdef VE_DEBUG
 	size_t m_stNum;
-#	endif
 
 };
 
@@ -667,5 +706,9 @@ inline void VeTerm() noexcept
 	VeThread::Term();
 	VeMemoryExit();
 }
+
+#include "Renderer/VeRenderWindow.h"
+#include "Renderer/VeRenderState.h"
+#include "Renderer/VeRenderer.h"
 
 #include "Venus3D.inl"

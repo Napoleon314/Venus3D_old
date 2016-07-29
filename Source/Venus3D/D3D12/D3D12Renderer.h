@@ -166,6 +166,8 @@ public:
 
 	virtual VeRenderWindowPtr CreateRenderWindow(const VeWindowPtr& spWindow) noexcept override;
 
+	virtual VeInputLayoutPtr CreateInputLayout(const VeInputLayout::ElementDesc* pkDescs, size_t stNum) noexcept override;
+
 protected:
 	friend class D3D12RenderWindow;
 
