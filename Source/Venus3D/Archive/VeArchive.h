@@ -73,6 +73,15 @@ enum VeArchPermission
 	VE_ARCH_PERM_MASK		= 0xFF0000
 };
 
+enum VeArchType
+{
+	VE_ARCH_BLOB,
+	VE_ARCH_FILE,
+	VE_ARCH_URL,
+	VE_ARCH_ASSET,
+	VE_ARCH_MASK			= 0xFF
+};
+
 VeSmartPointer(VeArchive);
 
 class VENUS_API VeArchive : public VeRefObject
