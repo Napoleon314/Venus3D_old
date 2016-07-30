@@ -471,6 +471,7 @@ inline constexpr uint32_t VeMakeVersion(uint32_t maj, uint32_t min = 0, uint32_t
 #include "System/VeSharedLib.h"
 #include "System/VeTime.h"
 #include "System/VeArchive.h"
+#include "System/VeFile.h"
 
 #include "Video/VeWindow.h"
 #include "Video/VeVideo.h"
@@ -675,6 +676,17 @@ private:
 	size_t m_stNum;
 
 };
+
+inline int32_t VeSprintf(VeDyanmicStack<char>& kDest,
+	const char* pcFormat, ...) noexcept
+{
+	VE_ASSERT(pcFormat);
+	va_list kArgs;
+	va_start(kArgs, pcFormat);
+	int iRet = VeVsprintf(kDest.data(), kDest.size(), pcFormat, kArgs);
+	va_end(kArgs);
+	return iRet;
+}
 
 #ifdef VE_DEBUG
 #	define VeCoreDebugOutput venus3d.CORE.D.LogFormat

@@ -3,7 +3,7 @@
 //  The MIT License (MIT)
 //  Copyright (c) 2016 Albert D Yang
 // -------------------------------------------------------------------------
-//  Module:      Event
+//  Module:      System
 //  File name:   VeTime.h
 //  Created:     2016/07/20 by Albert
 //  Description:

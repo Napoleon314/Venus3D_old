@@ -4,8 +4,8 @@
 //  Copyright (c) 2016 Albert D Yang
 // -------------------------------------------------------------------------
 //  Module:      System
-//  File name:   VeTime.inl
-//  Created:     2016/07/20 by Albert
+//  File name:   VeFile.h
+//  Created:     2016/07/30 by Albert
 //  Description:
 // -------------------------------------------------------------------------
 //  Permission is hereby granted, free of charge, to any person obtaining a
@@ -28,54 +28,57 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-//--------------------------------------------------------------------------
-inline float VeTime::GetDeltaTime() noexcept
+#pragma once
+
+class VeFileDir;
+
+class VENUS_API VeFile : public VeArchive
 {
-	return (float)m_f64DeltaTime;
-}
-//--------------------------------------------------------------------------
-inline double VeTime::GetDeltaTime64() noexcept
+	VeNoCopy(VeFile);
+	VeRTTIDecl(VeFile, VeArchive);
+public:
+	virtual ~VeFile() noexcept;
+
+	virtual bool Seek(ptrdiff_t pdOffset, VeWhence eWhence) noexcept;
+
+	virtual size_t Tell() noexcept;
+
+	virtual size_t Read(void* pvOutput, size_t stBytes) noexcept;
+
+	virtual size_t Write(void* pvOutput, size_t stBytes) noexcept;
+
+private:
+	friend class VeFileDir;
+	VeFile(FILE* hFile, uint32_t u32Flags) noexcept;
+
+	FILE* m_hFile = nullptr;
+
+};
+
+class VENUS_API VeFileDir : public VeDirectory
 {
-	return m_f64DeltaTime;
-}
-//--------------------------------------------------------------------------
-inline double VeTime::GetTime() noexcept
-{
-	return m_f64Time;
-}
-//--------------------------------------------------------------------------
-inline uint32_t VeTime::GetTimeUInt() noexcept
-{
-	return (uint32_t)(m_f64Time * 100);
-}
-//--------------------------------------------------------------------------
-inline uint64_t VeTime::GetCurrentCount() noexcept
-{
-	return m_u64CurrentCount;
-}
-//--------------------------------------------------------------------------
-inline void VeTime::Pause() noexcept
-{
-	m_bPaused = true;
-}
-//--------------------------------------------------------------------------
-inline void VeTime::Resume() noexcept
-{
-	m_bPaused = false;
-}
-//--------------------------------------------------------------------------
-inline bool VeTime::GetPaused() noexcept
-{
-	return m_bPaused;
-}
-//--------------------------------------------------------------------------
-inline void VeTime::SetInvert(bool bInv) noexcept
-{
-	m_bInvert = bInv;
-}
-//--------------------------------------------------------------------------
-inline bool VeTime::GetInvert() noexcept
-{
-	return m_bInvert;
-}
-//--------------------------------------------------------------------------
+	VeNoCopy(VeFileDir);
+	VeRTTIDecl(VeFileDir, VeDirectory);
+public:
+	virtual ~VeFileDir() noexcept;
+
+	virtual bool Access(const char* pcPath, uint32_t u32Flags) noexcept;
+
+	virtual ArchDataPtr FindFirst(const char* pcDesc = nullptr) noexcept;
+
+	virtual VeDirectoryPtr OpenSubdir(const char* pcPath, bool bTryCreate) noexcept;
+
+	virtual VeArchivePtr OpenArchive(const char* pcPath, uint32_t u32Flags) noexcept;
+
+	static bool TestPath(std::pair<uint32_t, time_t>& kOut, const char* pcPath) noexcept;
+
+	static bool CreatePath(const char* pcPath) noexcept;
+
+	static VeDirectoryPtr Create(const char* pcPath = "", bool bTryCreate = true) noexcept;
+
+private:
+	VeFileDir(const char* pcPath) noexcept;
+
+	vtd::string m_kFileDirPath;
+
+};

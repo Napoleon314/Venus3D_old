@@ -3,7 +3,7 @@
 //  The MIT License (MIT)
 //  Copyright (c) 2016 Albert D Yang
 // -------------------------------------------------------------------------
-//  Module:      Archive
+//  Module:      System
 //  File name:   VeArchive.h
 //  Created:     2016/07/29 by Albert
 //  Description:
@@ -29,6 +29,8 @@
 ////////////////////////////////////////////////////////////////////////////
 
 #pragma once
+
+#define VE_MAX_PATH_LEN (2048)
 
 enum VeWhence
 {
@@ -121,11 +123,9 @@ public:
 	{
 		virtual ~ArchData() noexcept = default;
 
-		virtual ArchData* Next() noexcept = 0;
+		virtual std::tuple<const char*, size_t, time_t> Data() noexcept = 0;
 
-		const char* m_pcName;
-		size_t m_stSize;
-		time_t m_ttLastWrite;
+		virtual bool Next() noexcept = 0;
 	};
 
 	typedef vtd::intrusive_ptr<ArchData> ArchDataPtr;
@@ -136,6 +136,9 @@ public:
 		iterator(const ArchDataPtr& _Data) noexcept
 			: data(_Data) {}
 
+		iterator(ArchDataPtr&& _Data) noexcept
+			: data(_Data) {}
+
 		ArchData& operator*() noexcept
 		{
 			return *data;
@@ -143,9 +146,9 @@ public:
 
 		iterator& operator++() noexcept
 		{
-			if (data)
+			if (!data->Next())
 			{
-				data = data->Next();
+				data = nullptr;
 			}
 			return *this;
 		}
