@@ -52,7 +52,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 		VeApplication::Name(),
 		VeApplication::Version(),
 		VE_INIT_WINDOW,
-		"startup.xml"
+		"startup.cfg"
 	};
 	kData.m_hInstance = hInstance;
 	kData.m_hPrevInstance = hPrevInstance;

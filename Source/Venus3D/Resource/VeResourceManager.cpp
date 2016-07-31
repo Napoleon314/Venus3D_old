@@ -31,6 +31,19 @@
 #include "stdafx.h"
 
 //--------------------------------------------------------------------------
+VeReadCache::VeReadCache() noexcept
+{
+	m_kNode._Content = this;
+}
+//--------------------------------------------------------------------------
+VeReadCache::~VeReadCache() noexcept
+{
+	if (m_pvData)
+	{
+		VeFree(m_pvData);
+	}
+}
+//--------------------------------------------------------------------------
 VeResourceManager::VeResourceManager() noexcept
 {
 
@@ -41,11 +54,20 @@ VeResourceManager::~VeResourceManager() noexcept
 
 }
 //--------------------------------------------------------------------------
-void VeResourceManager::SetDefaultArchSource(DirCreator kDirCreator,
-	ArchCreator kArchCreator) noexcept
+void VeResourceManager::SetDefaultArchSource(const char* pcName) noexcept
 {
-	m_kDefaultArchSource.first = std::move(kDirCreator);
-	m_kDefaultArchSource.second = std::move(kArchCreator);
+	if (pcName)
+	{
+		auto it = m_kArchSourceMap.find(pcName);
+		if (it != m_kArchSourceMap.end())
+		{
+			m_kDefaultArchSource = *it;
+		}
+	}
+	else
+	{
+		m_kDefaultArchSource = { nullptr,{ nullptr, nullptr } };
+	}
 }
 //--------------------------------------------------------------------------
 void VeResourceManager::RegistArchSource(const char* pcName,
@@ -67,7 +89,7 @@ void VeResourceManager::UnregistArchSource(const char* pcName) noexcept
 //--------------------------------------------------------------------------
 void VeResourceManager::UnregistAllArchSource() noexcept
 {
-	m_kDefaultArchSource = { nullptr, nullptr };
+	m_kDefaultArchSource = { nullptr, { nullptr, nullptr } };
 	m_kArchSourceMap.clear();
 }
 //--------------------------------------------------------------------------
@@ -86,9 +108,9 @@ VeDirectoryPtr VeResourceManager::OpenDirectory(const char* pcPath,
 				return it->second.first(pcSplit + 1, bTryCreate);
 			}
 		}
-		else if (m_kDefaultArchSource.second)
+		else if (m_kDefaultArchSource.second.first)
 		{
-			return m_kDefaultArchSource.first(pcPath, bTryCreate);
+			return m_kDefaultArchSource.second.first(pcPath, bTryCreate);
 		}
 	}
 	return nullptr;
@@ -109,9 +131,9 @@ VeArchivePtr VeResourceManager::OpenArchive(const char* pcPath,
 				return it->second.second(pcSplit + 1, u32Flags);
 			}
 		}
-		else if (m_kDefaultArchSource.second)
+		else if (m_kDefaultArchSource.second.second)
 		{
-			return m_kDefaultArchSource.second(pcPath, u32Flags);
+			return m_kDefaultArchSource.second.second(pcPath, u32Flags);
 		}
 	}
 	return nullptr;

@@ -30,6 +30,25 @@
 
 #pragma once
 
+class VENUS_API VeReadCache : public VeMemObject
+{
+public:
+	~VeReadCache() noexcept;
+
+private:
+	friend class VeResourceManager;
+	VeReadCache() noexcept;
+
+	vtd::intrusive_node<VeReadCache*> m_kNode;
+	uint32_t m_u32FreeTime;
+	std::atomic<uint32_t> m_u32RefCount;
+	vtd::string m_kFullPath;
+	vtd::string m_kExt;
+	void* m_pvData = nullptr;
+	size_t m_stSize = 0;
+
+};
+
 class VENUS_API VeResourceManager : public VeSingleton<VeResourceManager>
 {
 	VeNoCopy(VeResourceManager);
@@ -71,7 +90,7 @@ public:
 
 	virtual ~VeResourceManager() noexcept;
 
-	void SetDefaultArchSource(DirCreator kDirCreator, ArchCreator kArchCreator) noexcept;
+	void SetDefaultArchSource(const char* pcName) noexcept;
 
 	void RegistArchSource(const char* pcName, DirCreator kDirCreator, ArchCreator kArchCreator) noexcept;
 
@@ -83,13 +102,13 @@ public:
 	void RegistArchClasses() noexcept
 	{
 		unpacker<_This, _Rest...>::reg_arch_src(*this);
-		SetDefaultArchSource(&_This::Create, &_This::Open);
+		SetDefaultArchSource(_This::Name());
 	}
 
 	template <class _This, class... _Rest>
 	void UnregistArchClasses() noexcept
 	{
-		SetDefaultArchSource(nullptr, nullptr);
+		SetDefaultArchSource(nullptr);
 		unpacker<_This, _Rest...>::unreg_arch_src(*this);
 	}
 
@@ -100,8 +119,16 @@ public:
 	VeBlobPtr LoadArchive(const char* pcPath) noexcept;
 
 private:
-	ArchSource m_kDefaultArchSource;
+	friend class VeReadCache;
+	std::pair<vtd::string, ArchSource> m_kDefaultArchSource;
 	VeStringMap<ArchSource> m_kArchSourceMap;
+
+	vtd::spin_lock m_kReadCacheLock;
+	VeStringMap<VeReadCache*> m_kReadCacheMap;
+	vtd::intrusive_list<VeReadCache*> m_kReadingCache;
+	VeStringMap<std::pair<uint32_t, vtd::intrusive_list<VeReadCache*>>> m_kSpecificFree;
+	vtd::intrusive_list<VeReadCache*> m_kGeneralFree;
+	uint32_t m_u32ReadCacheRemaining;
 
 };
 
