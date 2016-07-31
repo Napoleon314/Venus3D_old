@@ -78,6 +78,7 @@ MACRO(TEST_PROJ _is_shared _win _name _lib _suffix _folder)
 		ENDIF()
 	ENDIF()
 	ADD_PRECOMPILED_HEADER(${ITER}${_suffix} TEST_FILE_LIST "stdafx")
+	CREATE_PROJECT_USERFILE(${ITER}${_suffix} ${ITER}${_suffix} ${BINARY_PATH}/RunEnv)
 ENDMACRO()
 
 ADD_SUBDIRECTORY(external)

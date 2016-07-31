@@ -37,10 +37,6 @@ VeSmartPointer(VeApplication);
 class VeApplication : public VeRefObject
 {
 public:
-	inline const vtd::string& GetName() noexcept;
-
-	inline uint32_t GetVersion() noexcept;
-
 	inline void Quit() noexcept;
 
 	virtual void Init() noexcept;
@@ -65,18 +61,21 @@ public:
 
 	virtual void OnRender() noexcept {}
 
-	static VeApplicationPtr Create(int32_t argc, char * argv[]) noexcept;
+	static const char* Name() noexcept;
+
+	static uint32_t Version() noexcept;
+
+	static VeApplicationPtr Create() noexcept;
 
 protected:
-	VeApplication(const char* pcName, uint32_t u32Version) noexcept;
+	VeApplication() noexcept;
 
 	virtual ~VeApplication() noexcept;
 
-	const vtd::string m_kName;
-	const uint32_t m_u32Version;
-	bool m_bLoop = true;
+	vtd::string m_kCaption;
 	VeRendererPtr m_spRenderer;
 	VeRenderWindowPtr m_spWindow;
+	bool m_bLoop = true;
 
 };
 

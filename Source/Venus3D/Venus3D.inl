@@ -49,3 +49,9 @@ inline const VeVideoPtr& Venus3D::GetVideo() noexcept
 	return m_spVideo;
 }
 //--------------------------------------------------------------------------
+inline const char* Venus3D::GetConfig(const char* pcName) noexcept
+{
+	auto it = m_kConfig.find(pcName);
+	return it != m_kConfig.end() ? it->second : nullptr;
+}
+//--------------------------------------------------------------------------

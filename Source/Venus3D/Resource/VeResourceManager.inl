@@ -3,9 +3,9 @@
 //  The MIT License (MIT)
 //  Copyright (c) 2016 Albert D Yang
 // -------------------------------------------------------------------------
-//  Module:      Memory
-//  File name:   VeBlob.h
-//  Created:     2016/07/09 by Albert
+//  Module:      Resource
+//  File name:   VeResourceManager.inl
+//  Created:     2016/07/31 by Albert
 //  Description:
 // -------------------------------------------------------------------------
 //  Permission is hereby granted, free of charge, to any person obtaining a
@@ -28,39 +28,3 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-#pragma once
-
-class VENUS_API VeBlob : public VeRefObject
-{
-	VeNoCopy(VeBlob);
-public:
-	VeBlob() noexcept;
-
-	VeBlob(size_t stSize) noexcept;
-
-	VeBlob(void* pvBuffer, size_t stSize) noexcept;
-
-	~VeBlob() noexcept;
-
-	inline operator void*() noexcept;
-
-	inline operator const void*() const noexcept;
-
-	inline void* data() noexcept;
-
-	inline void* data(size_t stPos) noexcept;
-
-	inline size_t size() const noexcept;
-
-	void expand(size_t stSize) noexcept;
-
-protected:
-	void* m_pvBuffer = nullptr;
-	size_t m_stByteSize = 0;
-	bool m_bNeedFree = true;
-
-};
-
-VeSmartPointer(VeBlob);
-
-#include "VeBlob.inl"

@@ -66,7 +66,7 @@ void VulkanRenderWindow::Init(VulkanRenderer& kRenderer) noexcept
 			VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR,
 			NULL,
 			0,
-			Venus3D::Ref().GetInitData().m_hInstance,
+			venus3d.GetInitData().m_hInstance,
 			(HWND)(m_spTargetWindow->GetNativeHandle())
 		};
 		VE_ASSERT_EQ(vkCreateWin32SurfaceKHR(kRenderer.m_hVulkan,

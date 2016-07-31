@@ -43,9 +43,9 @@ VeRTTIImpl(WindowsVideo, VeDesktopVideo);
 WindowsVideo::WindowsVideo() noexcept
 	: VeDesktopVideo("WINAPI")
 {
-	m_hInstance = Venus3D::Ref().GetInitData().m_hInstance;
-	m_hPrevInstance = Venus3D::Ref().GetInitData().m_hPrevInstance;
-	m_i32CmdShow = Venus3D::Ref().GetInitData().m_i32CmdShow;
+	m_hInstance = venus3d.GetInitData().m_hInstance;
+	m_hPrevInstance = venus3d.GetInitData().m_hPrevInstance;
+	m_i32CmdShow = venus3d.GetInitData().m_i32CmdShow;
 }
 //--------------------------------------------------------------------------
 WindowsVideo::~WindowsVideo() noexcept
@@ -57,7 +57,7 @@ void WindowsVideo::Init()
 {
 	if (!m_wstrClassName)
 	{
-		m_wstrClassName = UTF8ToWSTR(Venus3D::Ref().GetInitData().m_pcAppName);
+		m_wstrClassName = UTF8ToWSTR(venus3d.GetInitData().m_pcAppName);
 		WNDCLASSEXW windowClass = { 0 };
 		windowClass.cbSize = sizeof(WNDCLASSEXW);
 		windowClass.style = CS_HREDRAW | CS_VREDRAW;

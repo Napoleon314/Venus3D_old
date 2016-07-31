@@ -29,12 +29,12 @@
 ////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
+#include <rapidxml.hpp>
 
 //--------------------------------------------------------------------------
 Venus3D::Venus3D(const VeInitData& kInitData) noexcept
 	: m_kInitData(kInitData), CORE(ENGINE_NAME, m_kLog)
 	, USER(kInitData.m_pcAppName, m_kLog)
-
 {
 	Init();
 }
@@ -48,12 +48,15 @@ void Venus3D::Init()
 {
 	VE_MASK_CONDITION(m_kInitData.m_u32InitMask, VE_INIT_LOG, InitLog());
 	VE_MASK_CONDITION(m_kInitData.m_u32InitMask, VE_INIT_JOB, InitJob());
+	VE_MASK_CONDITION(m_kInitData.m_u32InitMask, VE_INIT_RES, InitResource());
 	VE_MASK_CONDITION(m_kInitData.m_u32InitMask, VE_INIT_VIDEO, InitVideo());
+	LoadConfig();
 }
 //--------------------------------------------------------------------------
 void Venus3D::Term()
 {
 	VE_MASK_CONDITION(m_kInitData.m_u32InitMask, VE_INIT_VIDEO, TermVideo());
+	VE_MASK_CONDITION(m_kInitData.m_u32InitMask, VE_INIT_RES, TermResource());
 	VE_MASK_CONDITION(m_kInitData.m_u32InitMask, VE_INIT_JOB, TermJob());
 	VE_MASK_CONDITION(m_kInitData.m_u32InitMask, VE_INIT_LOG, TermLog());
 }
@@ -77,6 +80,18 @@ void Venus3D::InitJob() noexcept
 void Venus3D::TermJob() noexcept
 {
 	VeJobSystem::Destory();
+}
+//--------------------------------------------------------------------------
+void Venus3D::InitResource() noexcept
+{
+	VeResourceManager::Create();
+	ve_res_mgr.RegistArchClasses<VeFileDir>();
+}
+//--------------------------------------------------------------------------
+void Venus3D::TermResource() noexcept
+{
+	ve_res_mgr.UnregistArchClasses<VeFileDir>();
+	VeResourceManager::Destory();
 }
 //--------------------------------------------------------------------------
 #ifdef BUILD_PLATFORM_WIN
@@ -108,6 +123,51 @@ void Venus3D::TermVideo() noexcept
 		VE_TRY_CALL(m_spVideo->Term());
 	}
 	m_spVideo = nullptr;
+}
+//--------------------------------------------------------------------------
+void Venus3D::LoadConfig() noexcept
+{
+	VeBlobPtr spBlob = ve_res_mgr.LoadArchive(m_kInitData.m_pcConfigFile);
+	if (!spBlob) return;
+	rapidxml::xml_document<char> doc;
+	doc.parse<0>((char*)(spBlob->data()));
+	auto root = doc.first_node();
+	if (!root) return;
+	{
+		auto cfg = root->first_node(VE_STR_AND_LEN("cfg"));
+		if (cfg)
+		{
+			auto iter = cfg->first_node();
+			while (iter)
+			{
+				m_kConfig[iter->name()] = iter->value();
+				iter = iter->next_sibling();
+			}
+		}
+	}
+	{
+		auto res = root->first_node(VE_STR_AND_LEN("res"));
+		if (res)
+		{
+			auto iter = res->first_node();
+			while (iter)
+			{
+				VeDirectoryPtr spDir = ve_res_mgr.OpenDirectory(iter->value(), true);
+				if (spDir)
+				{
+					ve_res_mgr.RegistArchSource(iter->name(),
+						[spDir](const char* pcPath, bool bTryCreate) noexcept
+					{
+						return spDir->OpenSubdir(pcPath, bTryCreate);
+					}, [spDir](const char* pcPath, uint32_t u32Flags) noexcept
+					{
+						return spDir->OpenArchive(pcPath, u32Flags);
+					});
+				}
+				iter = iter->next_sibling();
+			}
+		}
+	}
 }
 //--------------------------------------------------------------------------
 VeStackAllocator& Venus3D::GetStackAllocator() noexcept

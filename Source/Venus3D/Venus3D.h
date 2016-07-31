@@ -473,6 +473,8 @@ inline constexpr uint32_t VeMakeVersion(uint32_t maj, uint32_t min = 0, uint32_t
 #include "System/VeArchive.h"
 #include "System/VeFile.h"
 
+#include "Resource/VeResourceManager.h"
+
 #include "Video/VeWindow.h"
 #include "Video/VeVideo.h"
 
@@ -487,10 +489,11 @@ enum VeInitMask
 	VE_INIT_NONE		= 0x0,
 	VE_INIT_LOG			= 0x1,
 	VE_INIT_JOB			= 0x2,
-	VE_INIT_VIDEO		= 0x4,
+	VE_INIT_RES			= 0x4,
+	VE_INIT_VIDEO		= 0x8,
 
-	VE_INIT_CONSOLE		= VE_INIT_LOG | VE_INIT_JOB,
-	VE_INIT_WINDOW		= VE_INIT_CONSOLE | VE_INIT_VIDEO,
+	VE_INIT_CONSOLE		= VE_INIT_LOG | VE_INIT_JOB | VE_INIT_RES,
+	VE_INIT_WINDOW		= VE_INIT_CONSOLE | VE_INIT_RES | VE_INIT_VIDEO,
 
 	VE_INIT_MASK		= 0xFFFFFFFF
 };
@@ -500,33 +503,29 @@ struct VeInitData
 	const char* m_pcAppName = nullptr;
 	uint32_t m_u32AppVersion = 0;
 	uint32_t m_u32InitMask = (uint32_t)VE_INIT_MASK;
-
-	VeInitData(const char* pcName, uint32_t u32Version, uint32_t u32InitMask) noexcept
-		: m_pcAppName(pcName), m_u32AppVersion(u32Version), m_u32InitMask(u32InitMask) {}
-
-#ifdef BUILD_PLATFORM_WIN
-
-	HINSTANCE m_hInstance = nullptr;
-	HINSTANCE m_hPrevInstance = nullptr;
-	int32_t m_i32CmdShow = 0;
+	const char* m_pcConfigFile = nullptr;
 
 	VeInitData(const char* pcName, uint32_t u32Version, uint32_t u32InitMask,
-		HINSTANCE hInstance, HINSTANCE hPrevInstance, int32_t i32Show) noexcept
+		const char* pcConfigFile = nullptr) noexcept
 		: m_pcAppName(pcName), m_u32AppVersion(u32Version), m_u32InitMask(u32InitMask)
-		, m_hInstance(hInstance), m_hPrevInstance(hPrevInstance), m_i32CmdShow(i32Show)
-		 {}
+		, m_pcConfigFile(pcConfigFile) {}
 
-	VeInitData(std::initializer_list<std::tuple<const char*,uint32_t,uint32_t,HINSTANCE,HINSTANCE,int32_t>> l) noexcept
+	VeInitData(std::initializer_list<std::tuple<const char*,uint32_t,uint32_t,const char*>> l) noexcept
 	{
 		m_pcAppName = std::get<0>(*l.begin());
 		m_u32AppVersion = std::get<1>(*l.begin());
 		m_u32InitMask = std::get<2>(*l.begin());
-		m_hInstance = std::get<3>(*l.begin());
-		m_hPrevInstance = std::get<4>(*l.begin());
-		m_i32CmdShow = std::get<5>(*l.begin());
+		m_pcConfigFile = std::get<3>(*l.begin());
 	}
 
-#endif
+#	ifdef BUILD_PLATFORM_WIN
+	HINSTANCE m_hInstance = nullptr;
+	HINSTANCE m_hPrevInstance = nullptr;
+	int32_t m_i32CmdShow = 0;
+#	endif
+
+	int32_t m_i32Argc = 0;
+	char** m_ppcArgv = nullptr;
 
 };
 
@@ -556,6 +555,8 @@ public:
 
 	inline const VeVideoPtr& GetVideo() noexcept;
 
+	inline const char* GetConfig(const char* pcName) noexcept;
+
 private:
 	void Init();
 
@@ -569,9 +570,15 @@ private:
 
 	void TermJob() noexcept;
 
+	void InitResource() noexcept;
+
+	void TermResource() noexcept;
+
 	void InitVideo() noexcept;
 
 	void TermVideo() noexcept;
+
+	void LoadConfig() noexcept;
 
 	VeInitData m_kInitData;
 	PoolAllocatorMap m_kAllocatorMap;
@@ -579,6 +586,7 @@ private:
 	VeLog m_kLog;
 	VeTime m_kTime;
 	VeVideoPtr m_spVideo;
+	VeStringMap<vtd::string> m_kConfig;
 
 public:
 	VeLog::Pack CORE;
@@ -587,10 +595,10 @@ public:
 };
 
 #define venus3d Venus3D::Ref()
-#define job_system VeJobSystem::Ref()
+#define ve_job_sys VeJobSystem::Ref()
 
-#define VeStackAlloc(t,s) (t*)(Venus3D::Ref().GetStackAllocator().Allocate(sizeof(t)*(s)))
-#define VeStackFree(p) Venus3D::Ref().GetStackAllocator().Deallocate(); (p) = nullptr
+#define VeStackAlloc(t,s) (t*)(venus3d.GetStackAllocator().Allocate(sizeof(t)*(s)))
+#define VeStackFree(p) venus3d.GetStackAllocator().Deallocate(); (p) = nullptr
 
 template <class _Ty>
 class VeDyanmicStack

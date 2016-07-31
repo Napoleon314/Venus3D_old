@@ -34,7 +34,7 @@
 VeAbortState VeReportAssertion(const char* pcCond, const char* pcFile,
 	int32_t i32Line, const char* pcFunc) noexcept
 {
-	auto& spVideo = Venus3D::Ref().GetVideo();
+	auto& spVideo = venus3d.GetVideo();
 	if (spVideo)
 	{
 		char acBuffer[VE_MAX_LOG_MESSAGE];

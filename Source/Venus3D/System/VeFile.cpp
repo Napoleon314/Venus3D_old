@@ -127,33 +127,9 @@ VeDirectoryPtr VeFileDir::OpenSubdir(const char* pcPath,
 VeArchivePtr VeFileDir::OpenArchive(const char* pcPath,
 	uint32_t u32Flags) noexcept
 {
-	FILE* hFile = nullptr;
-	if (VE_MASK_HAS_ALL(u32Flags, VE_ARCH_OPEN_CREATE))
-	{
-		switch (u32Flags & VE_ARCH_OPEN_WMOD_MASK)
-		{
-		case VE_ARCH_OPEN_WRITE:
-			hFile = fopen(pcPath, VE_MASK_HAS_ALL(u32Flags, VE_ARCH_OPEN_READ)
-				? "wb+" : "wb");
-			break;
-		case VE_ARCH_OPEN_APPEND:
-			hFile = fopen(pcPath, VE_MASK_HAS_ALL(u32Flags, VE_ARCH_OPEN_READ)
-				? "ab+" : "ab");
-			break;
-		default:
-			break;
-		}
-	}
-	else if (VE_MASK_HAS_ALL(u32Flags, VE_ARCH_OPEN_READ))
-	{
-		hFile = fopen(pcPath, VE_MASK_HAS_ALL(u32Flags, VE_ARCH_OPEN_WRITE)
-			? "rb+" : "rb");
-	}
-	if (hFile)
-	{
-		return VE_NEW VeFile(hFile, u32Flags);
-	}
-	return nullptr;
+	char acPath[VE_MAX_PATH_LEN];
+	VeSprintf(acPath, "%s/%s", m_kFileDirPath.c_str(), pcPath);
+	return Open(acPath, u32Flags);
 }
 //--------------------------------------------------------------------------
 bool VeFileDir::TestPath(std::pair<uint32_t, time_t>& kOut,
@@ -282,6 +258,41 @@ VeDirectoryPtr VeFileDir::Create(const char* pcPath,
 	else if (bTryCreate && CreatePath(pcPath))
 	{
 		return VE_NEW VeFileDir(pcPath);
+	}
+	return nullptr;
+}
+//--------------------------------------------------------------------------
+VeArchivePtr VeFileDir::Open(const char* pcPath, uint32_t u32Flags) noexcept
+{
+	FILE* hFile = nullptr;
+	if (VE_MASK_HAS_ALL(u32Flags, VE_ARCH_OPEN_CREATE))
+	{
+		switch (u32Flags & VE_ARCH_OPEN_WMOD_MASK)
+		{
+		case VE_ARCH_OPEN_WRITE:
+			hFile = fopen(pcPath, VE_MASK_HAS_ALL(u32Flags, VE_ARCH_OPEN_READ)
+				? "wb+" : "wb");
+			break;
+		case VE_ARCH_OPEN_APPEND:
+			hFile = fopen(pcPath, VE_MASK_HAS_ALL(u32Flags, VE_ARCH_OPEN_READ)
+				? "ab+" : "ab");
+			break;
+		default:
+			break;
+		}
+	}
+	else if (VE_MASK_HAS_ALL(u32Flags, VE_ARCH_OPEN_READ))
+	{
+		hFile = fopen(pcPath, VE_MASK_HAS_ALL(u32Flags, VE_ARCH_OPEN_WRITE)
+			? "rb+" : "rb");
+	}
+	if (hFile)
+	{
+		VE_MASK_CONDITION(u32Flags, VE_ARCH_OPEN_READ, VE_MASK_ADD(u32Flags, VE_ARCH_READ));
+		VE_MASK_CONDITION(u32Flags, VE_ARCH_OPEN_WRITE, VE_MASK_ADD(u32Flags, VE_ARCH_WRITE));
+		VE_MASK_CONDITION(u32Flags, VE_ARCH_OPEN_APPEND, VE_MASK_ADD(u32Flags, VE_ARCH_APPEND));
+		u32Flags |= VE_ARCH_SEEK | VE_ARCH_SEEK_BACKWARD | VE_ARCH_FILE;
+		return VE_NEW VeFile(hFile, u32Flags);
 	}
 	return nullptr;
 }

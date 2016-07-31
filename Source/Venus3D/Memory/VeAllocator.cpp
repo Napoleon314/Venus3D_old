@@ -138,6 +138,6 @@ void VePoolAllocator::_Deallocate(void* pvMemory) noexcept
 const VePoolAllocatorPtr& VePoolAllocator::GetAllocator(
 	size_t stUnitSize) noexcept
 {
-	return Venus3D::Ref().GetPoolAllocator(stUnitSize);
+	return venus3d.GetPoolAllocator(stUnitSize);
 }
 //--------------------------------------------------------------------------

@@ -42,7 +42,7 @@ VeException::VeException(const char* pcName, const char* pcDesc,
 //--------------------------------------------------------------------------
 VeAbortState VeException::Alert() noexcept
 {
-	auto& spVideo = Venus3D::Ref().GetVideo();
+	auto& spVideo = venus3d.GetVideo();
 	if (spVideo)
 	{
 		char acBuffer[VE_MAX_LOG_MESSAGE];

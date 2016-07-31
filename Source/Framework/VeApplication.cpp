@@ -31,9 +31,7 @@
 #include "stdafx.h"
 
 //--------------------------------------------------------------------------
-VeApplication::VeApplication(const char* pcName,
-	uint32_t u32Version) noexcept
-	: m_kName(pcName), m_u32Version(u32Version)
+VeApplication::VeApplication() noexcept
 {
 
 }
@@ -48,7 +46,20 @@ void VeApplication::Init() noexcept
 	m_spRenderer = VeRenderer::Create(VE_RENDER_D3D12);
 	VE_ASSERT(m_spRenderer);
 	VE_TRY_CALL(m_spRenderer->Init());
-	m_spWindow = m_spRenderer->CreateRenderWindow("D3D12", 1024, 768);
+	const char* pcCaption = venus3d.GetConfig("caption");
+	m_kCaption = pcCaption ? pcCaption : "D3D12RenderWindow";
+	uint32_t w(1024), h(768);
+	const char* pcResolution = venus3d.GetConfig("resolution");
+	if (pcResolution)
+	{
+		char acBuf[64];
+		VeStrcpy(acBuf, pcResolution);
+		char* pcHeight;
+		char* pcWidth = vtd::strtok(acBuf, "x", &pcHeight);
+		if (pcWidth) w = atoi(pcWidth);
+		if (pcHeight) h = atoi(pcHeight);
+	}
+	m_spWindow = m_spRenderer->CreateRenderWindow(m_kCaption, w, h);
 	VE_ASSERT(m_spWindow);
 	OnInit();
 }
@@ -80,7 +91,7 @@ void VeApplication::Update() noexcept
 		if (s_f32TimeCount > 1.0f)
 		{
 			char s_acFPS[64];
-			VeSprintf(s_acFPS, "%s[FPS:%d]", "D3D12", s_u32FrameCount);
+			VeSprintf(s_acFPS, "%s [FPS:%d]", m_kCaption.c_str(), s_u32FrameCount);
 			m_spWindow->SetTitle(s_acFPS);
 			s_f32TimeCount -= floorf(s_f32TimeCount);
 			s_u32FrameCount = 0;

@@ -514,4 +514,15 @@ template<class _Kty,
 	class _Alloc = venus::allocator<std::pair<const _Kty, _Ty>>>
 	class VeUnorderedMap : public std::unordered_map<_Kty, _Ty, _Hasher, _Keyeq, _Alloc> {};
 
+template<class _Hasher = vtd::string::hasher,
+	class _Keyeq = std::equal_to<vtd::string>,
+	class _Alloc = venus::allocator <vtd::string>>
+	class VeStringSet : public std::unordered_set<vtd::string, _Hasher, _Keyeq, _Alloc> {};
+
+template<class _Ty,
+	class _Hasher = vtd::string::hasher,
+	class _Keyeq = std::equal_to<vtd::string>,
+	class _Alloc = venus::allocator<std::pair<const vtd::string, _Ty>>>
+	class VeStringMap : public std::unordered_map<vtd::string, _Ty, _Hasher, _Keyeq, _Alloc> {};
+
 #include "VeAllocator.inl"

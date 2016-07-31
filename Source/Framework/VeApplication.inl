@@ -29,16 +29,6 @@
 ////////////////////////////////////////////////////////////////////////////
 
 //--------------------------------------------------------------------------
-inline const vtd::string& VeApplication::GetName() noexcept
-{
-	return m_kName;
-}
-//--------------------------------------------------------------------------
-inline uint32_t VeApplication::GetVersion() noexcept
-{
-	return m_u32Version;
-}
-//--------------------------------------------------------------------------
 inline void VeApplication::Quit() noexcept
 {
 	m_bLoop = false;

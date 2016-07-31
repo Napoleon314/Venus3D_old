@@ -30,8 +30,9 @@
 
 #include "stdafx.h"
 
+//--------------------------------------------------------------------------
 #ifdef BUILD_PLATFORM_WIN
-
+//--------------------------------------------------------------------------
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	LPSTR lpCmdLine, int nCmdShow)
 {
@@ -46,27 +47,40 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 			pcTemp = vtd::strtok<CHAR>(NULL, " ", &pcContent);
 		}
 	}
-	VeApplicationPtr spApp = VeApplication::Create(argc, argv);
-	VE_ASSERT(spApp);
-	VeInit(VeInitData(spApp->GetName(), spApp->GetVersion(), VE_INIT_WINDOW,
-		hInstance, hPrevInstance, nCmdShow));
-	spApp->Go();
-	spApp = nullptr;
+	VeInitData kData =
+	{
+		VeApplication::Name(),
+		VeApplication::Version(),
+		VE_INIT_WINDOW,
+		"startup.xml"
+	};
+	kData.m_hInstance = hInstance;
+	kData.m_hPrevInstance = hPrevInstance;
+	kData.m_i32CmdShow = nCmdShow;
+	kData.m_i32Argc = argc;
+	kData.m_ppcArgv = argv;
+	VeInit(kData);
+	{
+		VeApplicationPtr spApp = VeApplication::Create();
+		VE_ASSERT(spApp);
+		spApp->Go();
+	}
 	VeTerm();
 	return 0;
 }
-
+//--------------------------------------------------------------------------
 #elif defined(BUILD_PLATFORM_ANDROID)
-
+//--------------------------------------------------------------------------
 #else
-
+//--------------------------------------------------------------------------
 int main(int32_t argc, char * argv[])
 {
-    int32_t i32Exit(0);
-    VeInit(VeInitData(g_pcAppName, g_u32AppVersion, VE_INIT_WINDOW));
-    i32Exit = VeEntry(argc, argv);
+	VeInitData kData;
+	FillInitDataCommon(kData, argc, argv);
+    VeInit(kData);
     VeTerm();
-    return i32Exit;
+    return 0;
 }
-
+//--------------------------------------------------------------------------
 #endif
+//--------------------------------------------------------------------------

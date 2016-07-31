@@ -47,6 +47,8 @@ public:
 
 	virtual size_t Write(void* pvOutput, size_t stBytes) noexcept;
 
+	
+
 private:
 	friend class VeFileDir;
 	VeFile(FILE* hFile, uint32_t u32Flags) noexcept;
@@ -70,11 +72,15 @@ public:
 
 	virtual VeArchivePtr OpenArchive(const char* pcPath, uint32_t u32Flags) noexcept;
 
+	static inline const char* Name() noexcept;
+
 	static bool TestPath(std::pair<uint32_t, time_t>& kOut, const char* pcPath) noexcept;
 
 	static bool CreatePath(const char* pcPath) noexcept;
 
 	static VeDirectoryPtr Create(const char* pcPath = "", bool bTryCreate = true) noexcept;
+
+	static VeArchivePtr Open(const char* pcPath, uint32_t u32Flags) noexcept;
 
 private:
 	VeFileDir(const char* pcPath) noexcept;
@@ -82,3 +88,5 @@ private:
 	vtd::string m_kFileDirPath;
 
 };
+
+#include "VeFile.inl"

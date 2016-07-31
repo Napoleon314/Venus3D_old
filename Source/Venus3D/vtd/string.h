@@ -331,6 +331,13 @@ namespace vtd
 		return nullptr;
 	}
 
+	template <class _Ty, size_t n>
+	inline constexpr size_t strlen_static(const _Ty(&)[n]) noexcept
+	{
+		static_assert(is_char<_Ty>::value, "_Ty has to be a kind of char");
+		return n-1;
+	}
+
 #ifndef VTD_STR_TAB_MASK
 #	define VTD_STR_TAB_MASK (0x7FF)
 #endif
@@ -354,6 +361,13 @@ namespace vtd
 		typedef typename _Alloc::difference_type difference_type;
 		typedef pointer string_handle;
 		
+		struct hasher
+		{
+			size_t operator()(const basic_string& _Keyval) const
+			{
+				return _Keyval.hash_code();
+			}
+		};
 
 		basic_string() noexcept = default;		
 

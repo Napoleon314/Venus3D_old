@@ -125,4 +125,10 @@ namespace vtd
 		return (ptrdiff_t)(void*)static_cast<_Base*>(((_Der*)1)) - 1;
 	}
 
+	template <class _Ty, size_t s>
+	size_t count_array(_Ty(&)[s]) noexcept
+	{
+		return s;
+	}
+
 }

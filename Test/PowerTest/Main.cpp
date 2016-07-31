@@ -43,7 +43,6 @@ int main(/*int argc, char * argv[]*/)
 	VeInit(VeInitData("PowerTest", VE_MAKE_VERSION(0, 1), VE_INIT_CONSOLE));
 
 	{
-		VE_ENABLED_ASSERT(0);
 		VeCoroutine co;
 		co.prepare();
 		VeCoreLogI("main", (int)(size_t)co.start(test, (void*)1));

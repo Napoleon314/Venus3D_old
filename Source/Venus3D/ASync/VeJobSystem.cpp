@@ -34,40 +34,39 @@
 VeThreadCallbackResult VeJobSystem::FGThreadCallback(void* pvParam) noexcept
 {
 	VeThread::InitPerThread();
-	VeJobSystem& s = VeJobSystem::Ref();
 	fore_thread& t = *(fore_thread*)pvParam;
 	while (true)
 	{
 		{
-			std::unique_lock<std::mutex> ul(s.m_kFGLoop.mute);
+			std::unique_lock<std::mutex> ul(ve_job_sys.m_kFGLoop.mute);
 			while (t.cond_val <= 0)
 			{
-				s.m_kFGLoop.cond.wait(ul);
+				ve_job_sys.m_kFGLoop.cond.wait(ul);
 			}
 		}
-		switch (s.m_i32FGState.load(std::memory_order_relaxed))
+		switch (ve_job_sys.m_i32FGState.load(std::memory_order_relaxed))
 		{
 		case 0:
 			continue;
 		case -1:
 			break;
 		default:
-			if (s.m_pkParallel)
+			if (ve_job_sys.m_pkParallel)
 			{
-				s.m_pkParallel->Work(t.index);
+				ve_job_sys.m_pkParallel->Work(t.index);
 			}
 			else
 			{
-				s.ExecuteForeground(t.index);
+				ve_job_sys.ExecuteForeground(t.index);
 			}
 			t.cond_val = 0;
-			if (s.m_i32FGJoinValue.fetch_add(1, std::memory_order_relaxed)
-				== int32_t(s.m_kFGThreads.size() - 1))
+			if (ve_job_sys.m_i32FGJoinValue.fetch_add(1, std::memory_order_relaxed)
+				== int32_t(ve_job_sys.m_kFGThreads.size() - 1))
 			{
-				s.m_i32FGState.store(0, std::memory_order_relaxed);
+				ve_job_sys.m_i32FGState.store(0, std::memory_order_relaxed);
 				{
-					std::lock_guard<std::mutex> l(s.m_kFGJoin.mute);
-					s.m_kFGJoin.cond.notify_all();
+					std::lock_guard<std::mutex> l(ve_job_sys.m_kFGJoin.mute);
+					ve_job_sys.m_kFGJoin.cond.notify_all();
 				}
 			}
 			continue;
@@ -81,22 +80,21 @@ VeThreadCallbackResult VeJobSystem::FGThreadCallback(void* pvParam) noexcept
 VeThreadCallbackResult VeJobSystem::BGThreadCallback(void* pvParam) noexcept
 {
 	VeThread::InitPerThread();
-	VeJobSystem& s = VeJobSystem::Ref();
 	back_thread& t = *(back_thread*)pvParam;
 	while (true)
 	{
-		s.m_kWaitingThreads.push(&t);
-		s.m_i32BGAvailableNum.fetch_add(1, std::memory_order_relaxed);
+		ve_job_sys.m_kWaitingThreads.push(&t);
+		ve_job_sys.m_i32BGAvailableNum.fetch_add(1, std::memory_order_relaxed);
 		t.loop.wait();
-		if (s.m_i32BGState.load(std::memory_order_relaxed) == -1)
+		if (ve_job_sys.m_i32BGState.load(std::memory_order_relaxed) == -1)
 		{
 			break;
 		}
 		else
 		{
-			s.ExecuteBackground(t.index);
+			ve_job_sys.ExecuteBackground(t.index);
 			t.loop.reset();
-			s.m_i32BGAvailableNum.fetch_sub(1, std::memory_order_relaxed);
+			ve_job_sys.m_i32BGAvailableNum.fetch_sub(1, std::memory_order_relaxed);
 		}
 	}
 	VeThread::TermPerThread();

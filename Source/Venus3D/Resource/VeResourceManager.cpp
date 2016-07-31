@@ -3,9 +3,9 @@
 //  The MIT License (MIT)
 //  Copyright (c) 2016 Albert D Yang
 // -------------------------------------------------------------------------
-//  Module:      RenderTest
-//  File name:   RenderTest.cpp
-//  Created:     2016/07/23 by Albert
+//  Module:      Resource
+//  File name:   VeResourceManager.cpp
+//  Created:     2016/07/31 by Albert
 //  Description:
 // -------------------------------------------------------------------------
 //  Permission is hereby granted, free of charge, to any person obtaining a
@@ -28,51 +28,110 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-#include "RenderTest.h"
+#include "stdafx.h"
 
 //--------------------------------------------------------------------------
-RenderTest::RenderTest() noexcept
-{
-
-}
-//--------------------------------------------------------------------------
-RenderTest::~RenderTest() noexcept
+VeResourceManager::VeResourceManager() noexcept
 {
 
 }
 //--------------------------------------------------------------------------
-void RenderTest::OnInit() noexcept
-{
-	
-}
-//--------------------------------------------------------------------------
-void RenderTest::OnTerm() noexcept
+VeResourceManager::~VeResourceManager() noexcept
 {
 
 }
 //--------------------------------------------------------------------------
-void RenderTest::OnUpdate() noexcept
+void VeResourceManager::SetDefaultArchSource(DirCreator kDirCreator,
+	ArchCreator kArchCreator) noexcept
 {
-
+	m_kDefaultArchSource.first = std::move(kDirCreator);
+	m_kDefaultArchSource.second = std::move(kArchCreator);
 }
 //--------------------------------------------------------------------------
-void RenderTest::OnRender() noexcept
+void VeResourceManager::RegistArchSource(const char* pcName,
+	DirCreator kDirCreator, ArchCreator kArchCreator) noexcept
 {
-
+	ArchSource& kArchSrc = m_kArchSourceMap[pcName];
+	kArchSrc.first = std::move(kDirCreator);
+	kArchSrc.second = std::move(kArchCreator);
 }
 //--------------------------------------------------------------------------
-const char* VeApplication::Name() noexcept
+void VeResourceManager::UnregistArchSource(const char* pcName) noexcept
 {
-	return "com.venus3d.RenderTest";
+	auto it = m_kArchSourceMap.find(pcName);
+	if (it != m_kArchSourceMap.end())
+	{
+		m_kArchSourceMap.erase(it);
+	}
 }
 //--------------------------------------------------------------------------
-uint32_t VeApplication::Version() noexcept
+void VeResourceManager::UnregistAllArchSource() noexcept
 {
-	return VE_MAKE_VERSION(0, 1);
+	m_kDefaultArchSource = { nullptr, nullptr };
+	m_kArchSourceMap.clear();
 }
 //--------------------------------------------------------------------------
-VeApplicationPtr VeApplication::Create() noexcept
+VeDirectoryPtr VeResourceManager::OpenDirectory(const char* pcPath,
+	bool bTryCreate) noexcept
 {
-	return VE_NEW RenderTest();
+	if (pcPath)
+	{
+		const char* pcSplit = strchr(pcPath, '#');
+		if (pcSplit)
+		{
+			vtd::string kArchSrc(pcPath, pcSplit - pcPath);
+			auto it = m_kArchSourceMap.find(kArchSrc);
+			if (it != m_kArchSourceMap.end())
+			{
+				return it->second.first(pcSplit + 1, bTryCreate);
+			}
+		}
+		else if (m_kDefaultArchSource.second)
+		{
+			return m_kDefaultArchSource.first(pcPath, bTryCreate);
+		}
+	}
+	return nullptr;
+}
+//--------------------------------------------------------------------------
+VeArchivePtr VeResourceManager::OpenArchive(const char* pcPath,
+	uint32_t u32Flags) noexcept
+{
+	if (pcPath)
+	{
+		const char* pcSplit = strchr(pcPath, '#');
+		if (pcSplit)
+		{
+			vtd::string kArchSrc(pcPath, pcSplit - pcPath);
+			auto it = m_kArchSourceMap.find(kArchSrc);
+			if (it != m_kArchSourceMap.end())
+			{
+				return it->second.second(pcSplit + 1, u32Flags);
+			}
+		}
+		else if (m_kDefaultArchSource.second)
+		{
+			return m_kDefaultArchSource.second(pcPath, u32Flags);
+		}
+	}
+	return nullptr;
+}
+//--------------------------------------------------------------------------
+VeBlobPtr VeResourceManager::LoadArchive(const char* pcPath) noexcept
+{
+	VeArchivePtr spArch = OpenArchive(pcPath, VE_ARCH_OPEN_READ);
+	if (spArch && spArch->Seek(0, VE_SEEK_END))
+	{
+		size_t stLen = spArch->Tell();
+		if (stLen && spArch->Seek(0, VE_SEEK_SET))
+		{
+			VeBlobPtr spRet = VE_NEW VeBlob(stLen);
+			if (spArch->Read(spRet->data(), stLen) == stLen)
+			{
+				return spRet;
+			}
+		}
+	}
+	return nullptr;
 }
 //--------------------------------------------------------------------------

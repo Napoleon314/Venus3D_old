@@ -64,7 +64,7 @@ VeBlob::~VeBlob() noexcept
 	}
 }
 //--------------------------------------------------------------------------
-void VeBlob::AddSize(size_t stSize) noexcept
+void VeBlob::expand(size_t stSize) noexcept
 {
 	VE_ASSERT(m_bNeedFree && stSize);
 	if (m_pvBuffer)

@@ -177,3 +177,5 @@ struct  VeStrLinker<_This, _Params...>
 		VeStrLinker<_Params...>::Append(pcBuffer, stMax, _Pak...);
 	}
 };
+
+#define VE_STR_AND_LEN(str) str,vtd::strlen_static(str)

@@ -117,8 +117,8 @@ void VulkanRenderer::InitInstance()
 	{
 		VK_STRUCTURE_TYPE_APPLICATION_INFO,
 		NULL,
-		Venus3D::Ref().GetInitData().m_pcAppName,
-		Venus3D::Ref().GetInitData().m_u32AppVersion,
+		venus3d.GetInitData().m_pcAppName,
+		venus3d.GetInitData().m_u32AppVersion,
 		Venus3D::ENGINE_NAME,
 		Venus3D::ENGINE_VERSION,
 		VK_MAKE_VERSION(1, 0, 2),

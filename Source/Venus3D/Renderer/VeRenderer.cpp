@@ -58,7 +58,7 @@ extern VeRendererPtr CreateVulkanRenderer() noexcept;
 VeRenderWindowPtr VeRenderer::CreateRenderWindow(const char* pcTitle,
 	int32_t w, int32_t h, int32_t x, int32_t y, uint32_t u32Flags) noexcept
 {
-	VeDesktopVideoPtr spVideo = VeDynamicCast(VeDesktopVideo, Venus3D::Ref().GetVideo());
+	VeDesktopVideoPtr spVideo = VeDynamicCast(VeDesktopVideo, venus3d.GetVideo());
 	if (!spVideo) return nullptr;
 	VeDesktopWindowPtr spWindow = spVideo->Create(pcTitle, w, h, x, y, u32Flags);
 	VE_ASSERT(spWindow);
