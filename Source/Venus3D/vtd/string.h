@@ -609,7 +609,7 @@ namespace vtd
 			for (auto s : str_array)
 			{
 				if (s == str || (get_string(s) && get_length(s) == len
-					&& strcmp(get_string(s), str) == 0))
+					&& strncmp(get_string(s), str, len) == 0))
 				{
 					return s;
 				}
@@ -672,10 +672,13 @@ namespace vtd
 				hash = (hash << 5) + hash + hash2;
 				uint32_t hash3 = *(str + 3);
 				hash = (hash << 5) + hash + hash3;
-				str += 4;
+				len -= 4;
 			}
-			while (*str)
-				hash = (hash << 5) + hash + *str++;
+			for (uint32_t i(0); i < len; ++i)
+			{
+				hash = (hash << 5) + hash + str[i];
+			}
+
 			return hash;
 		}
 

@@ -3,9 +3,9 @@
 //  The MIT License (MIT)
 //  Copyright (c) 2016 Albert D Yang
 // -------------------------------------------------------------------------
-//  Module:      ASync
-//  File name:   VeJobSystem.inl
-//  Created:     2016/07/15 by Albert
+//  Module:      D3D12
+//  File name:   VeRendererD3D12.cpp
+//  Created:     2016/07/22 by Albert
 //  Description:
 // -------------------------------------------------------------------------
 //  Permission is hereby granted, free of charge, to any person obtaining a
@@ -28,24 +28,57 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
+#include "stdafx.h"
+#include "D3D12Renderer.h"
+#include "D3D12RenderWindow.h"
+#include "D3D12RenderState.h"
+
 //--------------------------------------------------------------------------
-inline VeJobFunc* VeJobSystem::AcquireJob() noexcept
+#ifdef VE_ENABLE_D3D12
+//--------------------------------------------------------------------------
+VeRTTIImpl(D3D12InputLayout, VeInputLayout);
+//--------------------------------------------------------------------------
+static constexpr const char* s_apcSematicNameMap[VE_SN_NUM] =
 {
-	return m_kJobPool.acquire();
+	"BINORMAL",
+	"BLENDINDICES",
+	"BLENDWEIGHT",
+	"COLOR",
+	"NORMAL",
+	"POSITION",
+	"POSITIONT",
+	"PSIZE",
+	"TANGENT",
+	"TEXCOORD"
+};
+//--------------------------------------------------------------------------
+D3D12InputLayout::D3D12InputLayout(
+	const VeInputLayout::ElementDesc* pkDescs, size_t stNum) noexcept
+{
+	VE_ASSERT(stNum);
+	D3D12_INPUT_ELEMENT_DESC* pkAllocated = VeAlloc(D3D12_INPUT_ELEMENT_DESC, stNum);
+	for (size_t i(0); i < stNum; ++i)
+	{
+		pkAllocated[i] =
+		{
+			s_apcSematicNameMap[pkDescs[i].m_eName],
+			pkDescs[i].m_u32Index,
+			(DXGI_FORMAT)pkDescs[i].m_eFormat,
+			pkDescs[i].m_u32Slot,
+			pkDescs[i].m_u32Offset,
+			(D3D12_INPUT_CLASSIFICATION)pkDescs[i].m_eClass,
+			pkDescs[i].m_u32Rate
+		};
+	}
+	m_kDesc = { pkAllocated, (UINT)stNum };
 }
 //--------------------------------------------------------------------------
-inline VeJobFunc* VeJobSystem::AcquireJob(VeJob::Type eType,
-	std::function<void(uint32_t)> funcWork,
-	VeJob::Priority ePriority) noexcept
+D3D12InputLayout::~D3D12InputLayout() noexcept
 {
-	VeJobFunc* pkRes = m_kJobPool.acquire();
-	pkRes->Set(eType, std::move(funcWork), ePriority);
-	return pkRes;
+	VeFree((void*)m_kDesc.pInputElementDescs);
+	m_kDesc.pInputElementDescs = nullptr;
+	m_kDesc.NumElements = 0;
 }
 //--------------------------------------------------------------------------
-inline void VeJobSystem::ReleaseJob(VeJobFunc* pkJob) noexcept
-{
-	pkJob->Set(VeJob::TYPE_MASK, nullptr, VeJob::PRI_MAX);
-	m_kJobPool.release(pkJob);
-}
+#endif
 //--------------------------------------------------------------------------

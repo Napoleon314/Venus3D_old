@@ -168,6 +168,8 @@ public:
 
 	virtual VeInputLayoutPtr CreateInputLayout(const VeInputLayout::ElementDesc* pkDescs, size_t stNum) noexcept override;
 
+	virtual void PrepareShaders(const VeDirectoryPtr& spSrc, const VeDirectoryPtr& spCache) noexcept override;
+
 protected:
 	friend class D3D12RenderWindow;
 

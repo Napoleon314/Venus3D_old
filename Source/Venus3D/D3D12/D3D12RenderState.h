@@ -32,6 +32,96 @@
 
 #ifdef VE_ENABLE_D3D12
 
+class D3D12VertexShader : public VeVertexShader
+{
+	VeNoCopy(D3D12VertexShader);
+	VeRTTIDecl(D3D12VertexShader, VeVertexShader);
+public:
+	D3D12VertexShader(size_t stSize) noexcept;
+
+	virtual ~D3D12VertexShader() noexcept;
+
+	void* m_pvData = nullptr;
+	size_t m_stSize = 0;
+};
+
+VeSmartPointer(D3D12VertexShader);
+
+class D3D12PixelShader : public VePixelShader
+{
+	VeNoCopy(D3D12PixelShader);
+	VeRTTIDecl(D3D12PixelShader, VePixelShader);
+public:
+	D3D12PixelShader(size_t stSize) noexcept;
+
+	virtual ~D3D12PixelShader() noexcept;
+
+	void* m_pvData = nullptr;
+	size_t m_stSize = 0;
+};
+
+VeSmartPointer(D3D12PixelShader);
+
+class D3DGeometryShader : public VeGeometryShader
+{
+	VeNoCopy(D3DGeometryShader);
+	VeRTTIDecl(D3DGeometryShader, VeGeometryShader);
+public:
+	D3DGeometryShader(size_t stSize) noexcept;
+
+	virtual ~D3DGeometryShader() noexcept;
+
+	void* m_pvData = nullptr;
+	size_t m_stSize = 0;
+};
+
+VeSmartPointer(D3DGeometryShader);
+
+class D3DHullShader : public VeHullShader
+{
+	VeNoCopy(D3DHullShader);
+	VeRTTIDecl(D3DHullShader, VeHullShader);
+public:
+	D3DHullShader(size_t stSize) noexcept;
+
+	virtual ~D3DHullShader() noexcept;
+
+	void* m_pvData = nullptr;
+	size_t m_stSize = 0;
+};
+
+VeSmartPointer(D3DHullShader);
+
+class D3DDomainShader : public VeDomainShader
+{
+	VeNoCopy(D3DDomainShader);
+	VeRTTIDecl(D3DDomainShader, VeDomainShader);
+public:
+	D3DDomainShader(size_t stSize) noexcept;
+
+	virtual ~D3DDomainShader() noexcept;
+
+	void* m_pvData = nullptr;
+	size_t m_stSize = 0;
+};
+
+VeSmartPointer(D3DDomainShader);
+
+class D3DComputeShader : public VeComputeShader
+{
+	VeNoCopy(D3DComputeShader);
+	VeRTTIDecl(D3DComputeShader, VeComputeShader);
+public:
+	D3DComputeShader(size_t stSize) noexcept;
+
+	virtual ~D3DComputeShader() noexcept;
+
+	void* m_pvData = nullptr;
+	size_t m_stSize = 0;
+};
+
+VeSmartPointer(D3DComputeShader);
+
 class D3D12InputLayout : public VeInputLayout
 {
 	VeNoCopy(D3D12InputLayout);

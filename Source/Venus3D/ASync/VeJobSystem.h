@@ -94,7 +94,6 @@ protected:
 private:
 	VeCoroutine* m_pkFiber = nullptr;
 	void* m_pvData = nullptr;
-	vtd::ring_buffer<VeJob*, nullptr, VE_JOB_DEP_SIZE> m_kDependences;
 
 };
 

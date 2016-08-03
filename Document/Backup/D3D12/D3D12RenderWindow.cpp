@@ -29,96 +29,99 @@
 ////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
-#include "VeRenderWindowD3D12.h"
+#include "D3D12Renderer.h"
+#include "D3D12RenderWindow.h"
+#include "D3D12RenderState.h"
 
 //--------------------------------------------------------------------------
-VeRTTIImpl(VeRenderWindowD3D12, VeRenderWindow);
+#ifdef VE_ENABLE_D3D12
 //--------------------------------------------------------------------------
-VeRenderWindowD3D12::VeRenderWindowD3D12(
-	const VeWindowPtr& spWindow) noexcept : VeRenderWindow(spWindow)
+VeRTTIImpl(D3D12RenderWindow, VeRenderWindow);
+//--------------------------------------------------------------------------
+D3D12RenderWindow::D3D12RenderWindow(const VeWindowPtr& spWindow) noexcept
+	: VeRenderWindow(spWindow)
 {
 	m_kNode._Content = this;
 }
 //--------------------------------------------------------------------------
-VeRenderWindowD3D12::~VeRenderWindowD3D12() noexcept
+D3D12RenderWindow::~D3D12RenderWindow() noexcept
 {
 	Term();
 }
 //--------------------------------------------------------------------------
-void VeRenderWindowD3D12::Init(VeRendererD3D12& kRenderer) noexcept
+void D3D12RenderWindow::Init(D3D12Renderer& kRenderer) noexcept
 {
 	if ((!m_kNode.is_attach()) && m_spTargetWindow)
 	{
 		D3D12_COMMAND_QUEUE_DESC kQueueDesc = {};
 		kQueueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
 		kQueueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
-		assert_eq(VE_SUCCEEDED(kRenderer.m_pkDevice->CreateCommandQueue(
-			&kQueueDesc, IID_PPV_ARGS(&m_pkCommandQueue))), true);
+		VE_ASSERT_GE(kRenderer.m_pkDevice->CreateCommandQueue(&kQueueDesc, IID_PPV_ARGS(&m_pkCommandQueue)), S_OK);
 		DXGI_SWAP_CHAIN_DESC kSwapChainDesc = {};
-		kSwapChainDesc.BufferCount = VeRendererD3D12::FRAME_COUNT;
+		kSwapChainDesc.BufferCount = D3D12Renderer::FRAME_COUNT;
 		kSwapChainDesc.BufferDesc.Width = m_spTargetWindow->GetWidth();
 		kSwapChainDesc.BufferDesc.Height = m_spTargetWindow->GetHeight();
 		kSwapChainDesc.BufferDesc.Format = DXGI_FORMAT_R10G10B10A2_UNORM;
 		kSwapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 		kSwapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
-		kSwapChainDesc.OutputWindow = m_spTargetWindow->GetWMInfo().win.window;
+		kSwapChainDesc.OutputWindow = (HWND)(m_spTargetWindow->GetNativeHandle());
 		kSwapChainDesc.SampleDesc.Count = 1;
 		kSwapChainDesc.Windowed = TRUE;
 		IDXGISwapChain* pkSwapChain;
-		assert_eq(VE_SUCCEEDED(kRenderer.m_pkDXGIFactory->CreateSwapChain(
-			m_pkCommandQueue, &kSwapChainDesc, &pkSwapChain)), true);
-		assert_eq(VE_SUCCEEDED(pkSwapChain->QueryInterface(
-			IID_PPV_ARGS(&m_pkSwapChain))), true);
+		VE_ASSERT_GE(kRenderer.m_pkDXGIFactory->CreateSwapChain(m_pkCommandQueue, &kSwapChainDesc, &pkSwapChain), S_OK);
+		VE_ASSERT_GE(pkSwapChain->QueryInterface(IID_PPV_ARGS(&m_pkSwapChain)), S_OK);
 		VE_SAFE_RELEASE(pkSwapChain);
-		assert(m_pkCommandQueue && m_pkSwapChain);
-		for (uint32_t i(0); i < VeRendererD3D12::FRAME_COUNT; ++i)
+		VE_ASSERT(m_pkCommandQueue && m_pkSwapChain);
+		for (uint32_t i(0); i < D3D12Renderer::FRAME_COUNT; ++i)
 		{
 			FrameCache& kFrame = m_akFrameCache[i];
-			assert_ge(m_pkSwapChain->GetBuffer(i, IID_PPV_ARGS(&kFrame.m_pkBufferResource)), S_OK);
+			VE_ASSERT_GE(m_pkSwapChain->GetBuffer(i, IID_PPV_ARGS(&kFrame.m_pkBufferResource)), S_OK);
 			kFrame.m_hHandle.ptr = kRenderer.m_kRTVHeap.GetCPUStart().ptr + kRenderer.m_kRTVHeap.Alloc();
 			kRenderer.m_pkDevice->CreateRenderTargetView(
 				kFrame.m_pkBufferResource, nullptr, kFrame.m_hHandle);
-			assert_ge(kRenderer.m_pkDevice->CreateCommandAllocator(
+			VE_ASSERT_GE(kRenderer.m_pkDevice->CreateCommandAllocator(
 				D3D12_COMMAND_LIST_TYPE_DIRECT,
 				IID_PPV_ARGS(&kFrame.m_pkDirectAllocator)), S_OK);
-			assert_ge(kRenderer.m_pkDevice->CreateCommandAllocator(
+			VE_ASSERT_GE(kRenderer.m_pkDevice->CreateCommandAllocator(
 				D3D12_COMMAND_LIST_TYPE_BUNDLE,
 				IID_PPV_ARGS(&kFrame.m_pkBundleAllocator)), S_OK);
 			kFrame.m_u64FenceValue = 0;
 
-			assert_ge(kRenderer.m_pkDevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT,
+			VE_ASSERT_GE(kRenderer.m_pkDevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT,
 				kFrame.m_pkDirectAllocator, nullptr, IID_PPV_ARGS(&kFrame.m_pkTestList)), S_OK);
-			assert_ge(kFrame.m_pkTestList->Close(), S_OK);
+			VE_ASSERT_GE(kFrame.m_pkTestList->Close(), S_OK);
 		}
 
 		m_u64FenceValue = 0;
-		assert_ge(kRenderer.m_pkDevice->CreateFence(m_u64FenceValue++,
+		VE_ASSERT_GE(kRenderer.m_pkDevice->CreateFence(m_u64FenceValue++,
 			D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_pkFence)), S_OK);
 		m_kFenceEvent = CreateEventEx(nullptr, FALSE, FALSE, EVENT_ALL_ACCESS);
-		assert(m_kFenceEvent);
+		VE_ASSERT(m_kFenceEvent);
 		const uint64_t u64FenceToWaitFor = m_u64FenceValue++;
-		assert_ge(m_pkCommandQueue->Signal(m_pkFence, u64FenceToWaitFor), S_OK);
-		assert_ge(m_pkFence->SetEventOnCompletion(u64FenceToWaitFor, m_kFenceEvent), S_OK);
+		VE_ASSERT_GE(m_pkCommandQueue->Signal(m_pkFence, u64FenceToWaitFor), S_OK);
+		VE_ASSERT_GE(m_pkFence->SetEventOnCompletion(u64FenceToWaitFor, m_kFenceEvent), S_OK);
 		WaitForSingleObject(m_kFenceEvent, INFINITE);
 		m_u32FramePtr = m_pkSwapChain->GetCurrentBackBufferIndex();
 		m_u64FrameIndex = 0;
+
+		m_spTargetWindow->Show();
 
 		kRenderer.m_kRenderWindowList.attach_back(m_kNode);
 	}
 }
 //--------------------------------------------------------------------------
-void VeRenderWindowD3D12::Term() noexcept
+void D3D12RenderWindow::Term() noexcept
 {
 	if (m_kNode.is_attach())
 	{
-		VeRendererD3D12& kRenderer = *vtd::member_cast(
-			&VeRendererD3D12::m_kRenderWindowList, m_kNode.get_list());
+		D3D12Renderer& kRenderer = *vtd::member_cast(
+			&D3D12Renderer::m_kRenderWindowList, m_kNode.get_list());
 
 		const uint64_t u64LastCompleted = m_pkFence->GetCompletedValue();
-		assert_ge(m_pkCommandQueue->Signal(m_pkFence, m_u64FenceValue), S_OK);
+		VE_ASSERT_GE(m_pkCommandQueue->Signal(m_pkFence, m_u64FenceValue), S_OK);
 		if (u64LastCompleted < m_u64FenceValue)
 		{
-			assert_ge(m_pkFence->SetEventOnCompletion(m_u64FenceValue, m_kFenceEvent), S_OK);
+			VE_ASSERT_GE(m_pkFence->SetEventOnCompletion(m_u64FenceValue, m_kFenceEvent), S_OK);
 			WaitForSingleObject(m_kFenceEvent, INFINITE);
 		}
 		CloseHandle(m_kFenceEvent);
@@ -149,18 +152,18 @@ void VeRenderWindowD3D12::Term() noexcept
 	}
 }
 //--------------------------------------------------------------------------
-bool VeRenderWindowD3D12::IsValid() noexcept
+bool D3D12RenderWindow::IsValid() noexcept
 {
 	return VeRenderWindow::IsValid() ? m_kNode.is_attach() : false;
 }
 //--------------------------------------------------------------------------
-void VeRenderWindowD3D12::Begin() noexcept
+void D3D12RenderWindow::Begin() noexcept
 {
-	assert(IsValid() && m_u32FramePtr < VeRendererD3D12::FRAME_COUNT);
+	VE_ASSERT(IsValid() && m_u32FramePtr < D3D12Renderer::FRAME_COUNT);
 	FrameCache& kFrame = m_akFrameCache[m_u32FramePtr];
 	if (kFrame.m_u64FenceValue > m_pkFence->GetCompletedValue())
 	{
-		assert_ge(m_pkFence->SetEventOnCompletion(
+		VE_ASSERT_GE(m_pkFence->SetEventOnCompletion(
 			kFrame.m_u64FenceValue, m_kFenceEvent), S_OK);
 		WaitForSingleObject(m_kFenceEvent, INFINITE);
 	}
@@ -170,15 +173,15 @@ void VeRenderWindowD3D12::Begin() noexcept
 	{
 		m_pkCommandQueue->Wait(kRenderer.m_pkCopyFence, kRenderer.m_u64CopyFenceValue);
 	}*/
-	assert_ge(kFrame.m_pkDirectAllocator->Reset(), S_OK);
+	VE_ASSERT_GE(kFrame.m_pkDirectAllocator->Reset(), S_OK);
 }
 //--------------------------------------------------------------------------
-void VeRenderWindowD3D12::End() noexcept
+void D3D12RenderWindow::End() noexcept
 {
-	assert(IsValid() && m_u32FramePtr < VeRendererD3D12::FRAME_COUNT);
+	VE_ASSERT(IsValid() && m_u32FramePtr < D3D12Renderer::FRAME_COUNT);
 	FrameCache& kFrame = m_akFrameCache[m_u32FramePtr];
 
-	assert_ge(kFrame.m_pkTestList->Reset(kFrame.m_pkDirectAllocator, nullptr), S_OK);
+	VE_ASSERT_GE(kFrame.m_pkTestList->Reset(kFrame.m_pkDirectAllocator, nullptr), S_OK);
 
 	{
 		auto kTrans = BarrierTransition(kFrame.m_pkBufferResource, D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
@@ -194,14 +197,16 @@ void VeRenderWindowD3D12::End() noexcept
 		kFrame.m_pkTestList->ResourceBarrier(1, &kTrans);
 	}
 
-	assert_ge(kFrame.m_pkTestList->Close(), S_OK);
+	VE_ASSERT_GE(kFrame.m_pkTestList->Close(), S_OK);
 
 	m_pkCommandQueue->ExecuteCommandLists(1, (ID3D12CommandList*const*)&kFrame.m_pkTestList);
 
-	assert_ge(m_pkSwapChain->Present(m_bSync ? 1 : 0, 0), S_OK);
+	VE_ASSERT_GE(m_pkSwapChain->Present(m_bSync ? 1 : 0, 0), S_OK);
 	m_u32FramePtr = m_pkSwapChain->GetCurrentBackBufferIndex();
 	kFrame.m_u64FenceValue = m_u64FenceValue;
-	assert_ge(m_pkCommandQueue->Signal(m_pkFence, m_u64FenceValue++), S_OK);
+	VE_ASSERT_GE(m_pkCommandQueue->Signal(m_pkFence, m_u64FenceValue++), S_OK);
 	++m_u64FrameIndex;
 }
+//--------------------------------------------------------------------------
+#endif
 //--------------------------------------------------------------------------

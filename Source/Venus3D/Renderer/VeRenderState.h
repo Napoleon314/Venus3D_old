@@ -190,6 +190,78 @@ public:
 
 VeSmartPointer(VeRenderState);
 
+class VENUS_API VeVertexShader : public VeRenderState
+{
+	VeNoCopy(VeVertexShader);
+	VeRTTIDecl(VeVertexShader, VeRenderState);
+public:
+	VeVertexShader() noexcept = default;
+
+	virtual ~VeVertexShader() noexcept = default;
+};
+
+VeSmartPointer(VeVertexShader);
+
+class VENUS_API VePixelShader : public VeRenderState
+{
+	VeNoCopy(VePixelShader);
+	VeRTTIDecl(VePixelShader, VeRenderState);
+public:
+	VePixelShader() noexcept = default;
+
+	virtual ~VePixelShader() noexcept = default;
+};
+
+VeSmartPointer(VePixelShader);
+
+class VENUS_API VeGeometryShader : public VeRenderState
+{
+	VeNoCopy(VeGeometryShader);
+	VeRTTIDecl(VeGeometryShader, VeRenderState);
+public:
+	VeGeometryShader() noexcept = default;
+
+	virtual ~VeGeometryShader() noexcept = default;
+};
+
+VeSmartPointer(VeGeometryShader);
+
+class VENUS_API VeHullShader : public VeRenderState
+{
+	VeNoCopy(VeHullShader);
+	VeRTTIDecl(VeHullShader, VeRenderState);
+public:
+	VeHullShader() noexcept = default;
+
+	virtual ~VeHullShader() noexcept = default;
+};
+
+VeSmartPointer(VeHullShader);
+
+class VENUS_API VeDomainShader : public VeRenderState
+{
+	VeNoCopy(VeDomainShader);
+	VeRTTIDecl(VeDomainShader, VeRenderState);
+public:
+	VeDomainShader() noexcept = default;
+
+	virtual ~VeDomainShader() noexcept = default;
+};
+
+VeSmartPointer(VeDomainShader);
+
+class VENUS_API VeComputeShader : public VeRenderState
+{
+	VeNoCopy(VeComputeShader);
+	VeRTTIDecl(VeComputeShader, VeRenderState);
+public:
+	VeComputeShader() noexcept = default;
+
+	virtual ~VeComputeShader() noexcept = default;
+};
+
+VeSmartPointer(VeComputeShader);
+
 class VENUS_API VeInputLayout : public VeRenderState
 {
 	VeNoCopy(VeInputLayout);

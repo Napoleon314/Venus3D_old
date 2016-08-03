@@ -67,6 +67,17 @@ VeRenderWindowPtr VeRenderer::CreateRenderWindow(const char* pcTitle,
 	return spRes;
 }
 //--------------------------------------------------------------------------
+void VeRenderer::PrepareShaders(const char* pcSrcPath,
+	const char* pcCachePath) noexcept
+{
+	auto src = ve_res_mgr.OpenDirectory(pcSrcPath, false);
+	auto cache = ve_res_mgr.OpenDirectory(pcCachePath, true);
+	if (src)
+	{
+		PrepareShaders(src, cache);
+	}
+}
+//--------------------------------------------------------------------------
 VeRendererPtr VeRenderer::Create(VeRenderAPI eAPI) noexcept
 {
 	switch (eAPI)

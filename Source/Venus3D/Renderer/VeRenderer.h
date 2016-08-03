@@ -75,11 +75,27 @@ public:
 
 	inline VeInputLayoutPtr CreateInputLayout(const VeDyanmicStack<VeInputLayout::ElementDesc>& kDesc) noexcept;
 
+	inline void PrepareShaders() noexcept;
+
+	inline VeVertexShaderPtr FindVertexShader(const char* pcName) noexcept;
+
+	inline VePixelShaderPtr FindPixelShader(const char* pcName) noexcept;
+
+	inline VeGeometryShaderPtr FindGeometryShader(const char* pcName) noexcept;
+
+	inline VeHullShaderPtr FindHullShader(const char* pcName) noexcept;
+
+	inline VeDomainShaderPtr FindDomainShader(const char* pcName) noexcept;
+
+	inline VeComputeShaderPtr FindComputeShader(const char* pcName) noexcept;
+
 	template <size_t n>
 	VeInputLayoutPtr CreateInputLayout(const VeInputLayout::ElementDesc(&desc)[n]) noexcept
 	{
 		return CreateInputLayout(desc, n);
 	}
+
+	void PrepareShaders(const char* pcSrcPath, const char* pcCachePath) noexcept;
 
 	virtual void Init() = 0;
 
@@ -92,13 +108,18 @@ public:
 	virtual VeRenderWindowPtr CreateRenderWindow(const VeWindowPtr& spWindow) noexcept = 0;
 
 	virtual VeInputLayoutPtr CreateInputLayout(const VeInputLayout::ElementDesc* pkDescs, size_t stNum) noexcept = 0;
+
+	virtual void PrepareShaders(const VeDirectoryPtr& spSrc, const VeDirectoryPtr& spCache) noexcept = 0;
 	
 	static VeRendererPtr Create(VeRenderAPI eAPI) noexcept;
 
 protected:
-	
-
-	
+	VeStringMap<VeVertexShaderPtr> m_kVertexShaderMap;
+	VeStringMap<VePixelShaderPtr> m_kPixelShaderMap;
+	VeStringMap<VeGeometryShaderPtr> m_kGeometryShaderMap;
+	VeStringMap<VeHullShaderPtr> m_kHullShaderMap;
+	VeStringMap<VeDomainShaderPtr> m_kDomainShaderMap;
+	VeStringMap<VeComputeShaderPtr> m_kComputeShaderMap;	
 
 };
 

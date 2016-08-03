@@ -3,9 +3,9 @@
 //  The MIT License (MIT)
 //  Copyright (c) 2016 Albert D Yang
 // -------------------------------------------------------------------------
-//  Module:      ASync
-//  File name:   VeJobSystem.inl
-//  Created:     2016/07/15 by Albert
+//  Module:      D3D12
+//  File name:   D3D12RenderState.h
+//  Created:     2016/07/29 by Albert
 //  Description:
 // -------------------------------------------------------------------------
 //  Permission is hereby granted, free of charge, to any person obtaining a
@@ -28,24 +28,33 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-//--------------------------------------------------------------------------
-inline VeJobFunc* VeJobSystem::AcquireJob() noexcept
+#pragma once
+
+#ifdef VE_ENABLE_D3D12
+
+class D3D12InputLayout : public VeInputLayout
 {
-	return m_kJobPool.acquire();
-}
-//--------------------------------------------------------------------------
-inline VeJobFunc* VeJobSystem::AcquireJob(VeJob::Type eType,
-	std::function<void(uint32_t)> funcWork,
-	VeJob::Priority ePriority) noexcept
-{
-	VeJobFunc* pkRes = m_kJobPool.acquire();
-	pkRes->Set(eType, std::move(funcWork), ePriority);
-	return pkRes;
-}
-//--------------------------------------------------------------------------
-inline void VeJobSystem::ReleaseJob(VeJobFunc* pkJob) noexcept
-{
-	pkJob->Set(VeJob::TYPE_MASK, nullptr, VeJob::PRI_MAX);
-	m_kJobPool.release(pkJob);
-}
-//--------------------------------------------------------------------------
+	VeNoCopy(D3D12InputLayout);
+	VeRTTIDecl(D3D12InputLayout, VeInputLayout);
+public:
+	D3D12InputLayout(const VeInputLayout::ElementDesc* pkDescs, size_t stNum) noexcept;
+
+	virtual ~D3D12InputLayout() noexcept;
+
+	operator const D3D12_INPUT_LAYOUT_DESC&() noexcept
+	{
+		return m_kDesc;
+	}
+
+	const D3D12_INPUT_LAYOUT_DESC& Get() noexcept
+	{
+		return m_kDesc;
+	}
+
+private:
+	D3D12_INPUT_LAYOUT_DESC m_kDesc;
+
+};
+
+
+#endif

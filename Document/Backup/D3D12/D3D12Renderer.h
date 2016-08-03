@@ -58,10 +58,10 @@ inline D3D12_RESOURCE_BARRIER BarrierTransition(
 }
 
 template <D3D12_DESCRIPTOR_HEAP_TYPE TYPE, uint32_t NUM, D3D12_DESCRIPTOR_HEAP_FLAGS FLAGS>
-class VeHeapShellD3D12
+class D3D12HeapShell
 {
 public:
-	VeHeapShellD3D12() noexcept
+	D3D12HeapShell() noexcept
 	{
 		m_u32FreeStart.store(0, std::memory_order_relaxed);
 	}
@@ -72,15 +72,15 @@ public:
 		{
 			TYPE, NUM, FLAGS, 0
 		};
-		assert_eq(VE_SUCCEEDED(pkDevice->CreateDescriptorHeap(
-			&kHeapDesc, IID_PPV_ARGS(&m_pkHeap))), true);
-		assert(m_pkHeap);
+		VE_ASSERT_GE(pkDevice->CreateDescriptorHeap(
+			&kHeapDesc, IID_PPV_ARGS(&m_pkHeap)), S_OK);
+		VE_ASSERT(m_pkHeap);
 		m_u32DescIncSize = pkDevice->GetDescriptorHandleIncrementSize(TYPE);
 	}
 
 	void Term() noexcept
 	{
-		assert(m_u32FreeStart == m_kFreeIndexList.size());
+		VE_ASSERT(m_u32FreeStart == m_kFreeIndexList.size());
 		VE_SAFE_RELEASE(m_pkHeap);
 	}
 
@@ -98,7 +98,7 @@ public:
 				u32Res = m_u32FreeStart.load(std::memory_order_relaxed);
 				if (u32Res >= NUM)
 				{
-					assert(!"Can not alloc descriptor heap.");
+					VE_ASSERT(!"Can not alloc descriptor heap.");
 					return UINT_MAX;
 				}
 			} while (! m_u32FreeStart.compare_exchange_weak(u32Res, u32Res + 1, std::memory_order_relaxed));
@@ -109,7 +109,7 @@ public:
 
 	void Free(uint32_t u32Pointer) noexcept
 	{
-		assert(u32Pointer % m_u32DescIncSize == 0
+		VE_ASSERT(u32Pointer % m_u32DescIncSize == 0
 			&& (u32Pointer / m_u32DescIncSize) < NUM);
 		m_kFreeIndexList.push(u32Pointer);
 	}
@@ -137,10 +137,10 @@ private:
 
 };
 
-class VeRendererD3D12 : public VeRenderer
+class D3D12Renderer : public VeRenderer
 {
-	VeNoCopy(VeRendererD3D12);
-	VeRTTIDecl(VeRendererD3D12);
+	VeNoCopy(D3D12Renderer);
+	VeRTTIDecl(D3D12Renderer);
 public:
 	static constexpr uint32_t FRAME_COUNT = 3;
 	static constexpr uint32_t MAX_MRT_COUNT = 8;
@@ -148,13 +148,13 @@ public:
 	static constexpr uint32_t DSV_COUNT = 32;
 	static constexpr uint32_t SRV_COUNT = 4096;
 
-	typedef VeHeapShellD3D12<D3D12_DESCRIPTOR_HEAP_TYPE_RTV, RTV_COUNT, D3D12_DESCRIPTOR_HEAP_FLAG_NONE> RTVHeap;
-	typedef VeHeapShellD3D12<D3D12_DESCRIPTOR_HEAP_TYPE_DSV, DSV_COUNT, D3D12_DESCRIPTOR_HEAP_FLAG_NONE> DSVHeap;
-	typedef VeHeapShellD3D12<D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, SRV_COUNT, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE> SRVHeap;
+	typedef D3D12HeapShell<D3D12_DESCRIPTOR_HEAP_TYPE_RTV, RTV_COUNT, D3D12_DESCRIPTOR_HEAP_FLAG_NONE> RTVHeap;
+	typedef D3D12HeapShell<D3D12_DESCRIPTOR_HEAP_TYPE_DSV, DSV_COUNT, D3D12_DESCRIPTOR_HEAP_FLAG_NONE> DSVHeap;
+	typedef D3D12HeapShell<D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, SRV_COUNT, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE> SRVHeap;
 
-	VeRendererD3D12() noexcept;
+	D3D12Renderer() noexcept;
 
-	virtual ~VeRendererD3D12() noexcept;
+	virtual ~D3D12Renderer() noexcept;
 
 	virtual void Init() override;
 
@@ -166,8 +166,12 @@ public:
 
 	virtual VeRenderWindowPtr CreateRenderWindow(const VeWindowPtr& spWindow) noexcept override;
 
+	virtual VeInputLayoutPtr CreateInputLayout(const VeInputLayout::ElementDesc* pkDescs, size_t stNum) noexcept override;
+
+	virtual void PrepareShaders(const VeDirectoryPtr& spSrc, const VeDirectoryPtr& spCache) noexcept override;
+
 protected:
-	friend class VeRenderWindowD3D12;
+	friend class D3D12RenderWindow;
 
 	VeSharedLibPtr m_spD3D12;
 	VeSharedLibPtr m_spDXGI;
@@ -181,7 +185,7 @@ protected:
 	DSVHeap m_kDSVHeap;
 	SRVHeap m_kSRVHeap;
 
-	vtd::intrusive_list<VeRenderWindowD3D12*> m_kRenderWindowList;
+	vtd::intrusive_list<D3D12RenderWindow*> m_kRenderWindowList;
 
 	HRESULT(WINAPI* D3D12GetDebugInterface)(
 		_In_ REFIID riid, _COM_Outptr_opt_ void** ppvDebug) = nullptr;
@@ -208,7 +212,5 @@ protected:
 		ID3DBlob** ppCode, ID3DBlob** ppErrorMsgs) = nullptr;
 
 };
-
-VeRendererPtr CreateRendererD3D12() noexcept;
 
 #endif

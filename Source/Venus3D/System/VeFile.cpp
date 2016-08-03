@@ -89,26 +89,35 @@ bool VeFileDir::Access(const char* pcPath, uint32_t u32Flags) noexcept
 	return _access(acPath, u32Flags) == 0;
 }
 //--------------------------------------------------------------------------
-struct FindData : VeDirectory::ArchData
+struct FindData : VeDirectory::Child
 {
-	virtual std::tuple<const char*, size_t, time_t> Data() noexcept
+	virtual VeDirectory::ChildData data() noexcept override
 	{
-		return std::make_tuple(m_kData.name, m_kData.size, m_kData.time_write);
+		return{ m_kData.name, m_kData.size, m_kData.time_write, m_kData.attrib };
 	}
 
-	virtual bool Next() noexcept
+	virtual bool next() noexcept
 	{
-		return _findnext32i64(m_hFind, &m_kData) != EOF;
+		return _findnext(m_hFind, &m_kData) != EOF;
 	}
 
 	intptr_t m_hFind;
-	_finddata32i64_t m_kData;
+	_finddata_t m_kData;
 };
 //--------------------------------------------------------------------------
-VeDirectory::ArchDataPtr VeFileDir::FindFirst(const char* pcDesc) noexcept
+VeDirectory::ChildPtr VeFileDir::FindFirst(const char* pcDesc) noexcept
 {
 	vtd::intrusive_ptr<FindData> spData = VE_NEW FindData();
-	spData->m_hFind = _findfirst32i64(pcDesc, &(spData->m_kData));
+	if (pcDesc)
+	{
+		char acBuffer[VE_MAX_PATH_LEN];
+		VeSprintf(acBuffer, "%s/%s", m_kFileDirPath.c_str(), pcDesc);
+		spData->m_hFind = _findfirst(acBuffer, &(spData->m_kData));
+	}
+	else
+	{
+		spData->m_hFind = _findfirst(m_kFileDirPath, &(spData->m_kData));
+	}
 	if (spData->m_hFind != EOF)
 	{
 		return spData;

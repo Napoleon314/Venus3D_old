@@ -36,6 +36,114 @@
 //--------------------------------------------------------------------------
 #ifdef VE_ENABLE_D3D12
 //--------------------------------------------------------------------------
+VeRTTIImpl(D3D12VertexShader, VeVertexShader);
+//--------------------------------------------------------------------------
+D3D12VertexShader::D3D12VertexShader(size_t stSize) noexcept
+{
+	m_pvData = VeMalloc(stSize);
+	m_stSize = stSize;
+}
+//--------------------------------------------------------------------------
+D3D12VertexShader::~D3D12VertexShader() noexcept
+{
+	if (m_pvData)
+	{
+		VeFree(m_pvData);
+		m_pvData = nullptr;
+	}
+	m_stSize = 0;
+}
+//--------------------------------------------------------------------------
+VeRTTIImpl(D3D12PixelShader, VePixelShader);
+//--------------------------------------------------------------------------
+D3D12PixelShader::D3D12PixelShader(size_t stSize) noexcept
+{
+	m_pvData = VeMalloc(stSize);
+	m_stSize = stSize;
+}
+//--------------------------------------------------------------------------
+D3D12PixelShader::~D3D12PixelShader() noexcept
+{
+	if (m_pvData)
+	{
+		VeFree(m_pvData);
+		m_pvData = nullptr;
+	}
+	m_stSize = 0;
+}
+//--------------------------------------------------------------------------
+VeRTTIImpl(D3DGeometryShader, VeGeometryShader);
+//--------------------------------------------------------------------------
+D3DGeometryShader::D3DGeometryShader(size_t stSize) noexcept
+{
+	m_pvData = VeMalloc(stSize);
+	m_stSize = stSize;
+}
+//--------------------------------------------------------------------------
+D3DGeometryShader::~D3DGeometryShader() noexcept
+{
+	if (m_pvData)
+	{
+		VeFree(m_pvData);
+		m_pvData = nullptr;
+	}
+	m_stSize = 0;
+}
+//--------------------------------------------------------------------------
+VeRTTIImpl(D3DHullShader, VeHullShader);
+//--------------------------------------------------------------------------
+D3DHullShader::D3DHullShader(size_t stSize) noexcept
+{
+	m_pvData = VeMalloc(stSize);
+	m_stSize = stSize;
+}
+//--------------------------------------------------------------------------
+D3DHullShader::~D3DHullShader() noexcept
+{
+	if (m_pvData)
+	{
+		VeFree(m_pvData);
+		m_pvData = nullptr;
+	}
+	m_stSize = 0;
+}
+//--------------------------------------------------------------------------
+VeRTTIImpl(D3DDomainShader, VeDomainShader);
+//--------------------------------------------------------------------------
+D3DDomainShader::D3DDomainShader(size_t stSize) noexcept
+{
+	m_pvData = VeMalloc(stSize);
+	m_stSize = stSize;
+}
+//--------------------------------------------------------------------------
+D3DDomainShader::~D3DDomainShader() noexcept
+{
+	if (m_pvData)
+	{
+		VeFree(m_pvData);
+		m_pvData = nullptr;
+	}
+	m_stSize = 0;
+}
+//--------------------------------------------------------------------------
+VeRTTIImpl(D3DComputeShader, VeComputeShader);
+//--------------------------------------------------------------------------
+D3DComputeShader::D3DComputeShader(size_t stSize) noexcept
+{
+	m_pvData = VeMalloc(stSize);
+	m_stSize = stSize;
+}
+//--------------------------------------------------------------------------
+D3DComputeShader::~D3DComputeShader() noexcept
+{
+	if (m_pvData)
+	{
+		VeFree(m_pvData);
+		m_pvData = nullptr;
+	}
+	m_stSize = 0;
+}
+//--------------------------------------------------------------------------
 VeRTTIImpl(D3D12InputLayout, VeInputLayout);
 //--------------------------------------------------------------------------
 static constexpr const char* s_apcSematicNameMap[VE_SN_NUM] =

@@ -35,3 +35,50 @@ inline VeInputLayoutPtr VeRenderer::CreateInputLayout(
 	return CreateInputLayout(kDesc.data(), kDesc.size());
 }
 //--------------------------------------------------------------------------
+inline void VeRenderer::PrepareShaders() noexcept
+{
+	PrepareShaders(venus3d.GetConfig("vsc_src"), venus3d.GetConfig("vsc_cache"));
+}
+//--------------------------------------------------------------------------
+inline VeVertexShaderPtr VeRenderer::FindVertexShader(
+	const char* pcName) noexcept
+{
+	auto it = m_kVertexShaderMap.find(pcName);
+	return it == m_kVertexShaderMap.end() ? nullptr : it->second;
+}
+//--------------------------------------------------------------------------
+inline VePixelShaderPtr VeRenderer::FindPixelShader(
+	const char* pcName) noexcept
+{
+	auto it = m_kPixelShaderMap.find(pcName);
+	return it == m_kPixelShaderMap.end() ? nullptr : it->second;
+}
+//--------------------------------------------------------------------------
+inline VeGeometryShaderPtr VeRenderer::FindGeometryShader(
+	const char* pcName) noexcept
+{
+	auto it = m_kGeometryShaderMap.find(pcName);
+	return it == m_kGeometryShaderMap.end() ? nullptr : it->second;
+}
+//--------------------------------------------------------------------------
+inline VeHullShaderPtr VeRenderer::FindHullShader(
+	const char* pcName) noexcept
+{
+	auto it = m_kHullShaderMap.find(pcName);
+	return it == m_kHullShaderMap.end() ? nullptr : it->second;
+}
+//--------------------------------------------------------------------------
+inline VeDomainShaderPtr VeRenderer::FindDomainShader(
+	const char* pcName) noexcept
+{
+	auto it = m_kDomainShaderMap.find(pcName);
+	return it == m_kDomainShaderMap.end() ? nullptr : it->second;
+}
+//--------------------------------------------------------------------------
+inline VeComputeShaderPtr VeRenderer::FindComputeShader(
+	const char* pcName) noexcept
+{
+	auto it = m_kComputeShaderMap.find(pcName);
+	return it == m_kComputeShaderMap.end() ? nullptr : it->second;
+}
+//--------------------------------------------------------------------------

@@ -30,18 +30,18 @@
 
 #pragma once
 
-#include "VeRendererD3D12.h"
+#ifdef VE_ENABLE_D3D12
 
-class VeRenderWindowD3D12 : public VeRenderWindow
+class D3D12RenderWindow : public VeRenderWindow
 {
-	VeNoCopy(VeRenderWindowD3D12);
-	VeRTTIDecl(VeRenderWindowD3D12, VeRenderWindow);
+	VeNoCopy(D3D12RenderWindow);
+	VeRTTIDecl(D3D12RenderWindow, VeRenderWindow);
 public:
-	VeRenderWindowD3D12(const VeWindowPtr& spWindow) noexcept;
+	D3D12RenderWindow(const VeWindowPtr& spWindow) noexcept;
 
-	virtual ~VeRenderWindowD3D12() noexcept;
+	virtual ~D3D12RenderWindow() noexcept;
 
-	void Init(VeRendererD3D12& kRenderer) noexcept;
+	void Init(D3D12Renderer& kRenderer) noexcept;
 
 	void Term() noexcept;
 
@@ -52,7 +52,7 @@ public:
 	virtual void End() noexcept override;
 
 protected:
-	vtd::intrusive_node<VeRenderWindowD3D12*> m_kNode;
+	vtd::intrusive_node<D3D12RenderWindow*> m_kNode;
 	ID3D12CommandQueue* m_pkCommandQueue = nullptr;
 	IDXGISwapChain3* m_pkSwapChain = nullptr;
 
@@ -68,7 +68,7 @@ protected:
 
 		ID3D12GraphicsCommandList* m_pkTestList = nullptr;
 
-	} m_akFrameCache[VeRendererD3D12::FRAME_COUNT];
+	} m_akFrameCache[D3D12Renderer::FRAME_COUNT];
 
 	ID3D12Fence* m_pkFence = nullptr;
 	HANDLE m_kFenceEvent = nullptr;
@@ -76,3 +76,5 @@ protected:
 	uint32_t m_u32FramePtr = 0;
 
 };
+
+#endif

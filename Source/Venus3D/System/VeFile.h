@@ -66,7 +66,7 @@ public:
 
 	virtual bool Access(const char* pcPath, uint32_t u32Flags) noexcept;
 
-	virtual ArchDataPtr FindFirst(const char* pcDesc = nullptr) noexcept;
+	virtual ChildPtr FindFirst(const char* pcDesc = nullptr) noexcept;
 
 	virtual VeDirectoryPtr OpenSubdir(const char* pcPath, bool bTryCreate) noexcept;
 

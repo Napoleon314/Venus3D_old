@@ -46,6 +46,7 @@ void VeApplication::Init() noexcept
 	m_spRenderer = VeRenderer::Create(VE_RENDER_D3D12);
 	VE_ASSERT(m_spRenderer);
 	VE_TRY_CALL(m_spRenderer->Init());
+	m_spRenderer->PrepareShaders();
 	const char* pcCaption = venus3d.GetConfig("caption");
 	m_kCaption = pcCaption ? pcCaption : "D3D12RenderWindow";
 	uint32_t w(1024), h(768);

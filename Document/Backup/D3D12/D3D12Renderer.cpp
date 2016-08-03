@@ -192,71 +192,134 @@ VeInputLayoutPtr D3D12Renderer::CreateInputLayout(
 	return VE_NEW D3D12InputLayout(pkDescs, stNum);
 }
 //--------------------------------------------------------------------------
+struct ShaderCache
+{
+	ShaderCache() noexcept = default;
+
+	ShaderCache(const char* n, size_t s) noexcept
+		: name(n), size(s) {}
+
+	ShaderCache(const ShaderCache& copy) noexcept
+		: name(copy.name), size(copy.size) {}
+
+	~ShaderCache() noexcept
+	{
+		if (content)
+		{
+			VeFree(content);
+			content = nullptr;
+		}
+	}
+
+	std::string name;
+	size_t size = 0;
+	void* content = nullptr;
+};
+//--------------------------------------------------------------------------
+struct CompileConfig : public VeMemObject
+{
+	std::string m_kFile;
+	std::string m_kEntry;
+	std::string m_kTarget;
+	vtd::vector<std::pair<std::string, std::string>> m_kMacros;
+};
+//--------------------------------------------------------------------------
 void D3D12Renderer::PrepareShaders(const VeDirectoryPtr& spSrc,
 	const VeDirectoryPtr&) noexcept
 {
-	char acBuffer[VE_MAX_PATH_LEN];
-	auto c = spSrc->FindFirst("hlsl/*.?so_5_0");
-	if (c)
+	vtd::vector<ShaderCache> kShaderList;
+	time_t tiShaderModify = 0;
 	{
-		do
+		auto c = spSrc->FindFirst("hlsl/*");
+		if (c)
 		{
-			auto d = c->data();
-			if (VE_MASK_HAS_ANY(d.m_u32Attribute, VE_PATTR_ARCH))
+			do
 			{
-				VeSprintf(acBuffer, "hlsl/%s", d.m_pcName);
-				VeArchivePtr spArchive = spSrc->OpenArchive(acBuffer);
-				VE_ASSERT(spArchive);
-				const char* dot = vtd::strrchr(d.m_pcName, '.');
-				switch (dot[1])
+				auto d = c->data();
+				if (VE_MASK_HAS_ANY(d.m_u32Attribute, VE_PATTR_ARCH))
 				{
-				case 'v':
-				{
-					D3D12VertexShader* pkShader = VE_NEW D3D12VertexShader(d.m_stSize);
-					VE_ASSERT_EQ(spArchive->Read(pkShader->m_pvData, d.m_stSize), d.m_stSize);
-					m_kVertexShaderMap[vtd::string(d.m_pcName, (size_t)(dot - d.m_pcName))] = pkShader;
-					break;
+					kShaderList.push_back(ShaderCache(d.m_pcName, d.m_stSize));
+					tiShaderModify = vtd::max(tiShaderModify, d.m_tiLastModify);
 				}
-				case 'p':
+			} while (c->next());
+		}
+	}
+	vtd::vector<std::pair<std::string, size_t>> kConfigList;
+	{
+		auto c = spSrc->FindFirst("*.vsc");
+		if (c)
+		{
+			do
+			{
+				auto d = c->data();
+				if (VE_MASK_HAS_ANY(d.m_u32Attribute, VE_PATTR_ARCH))
 				{
-					D3D12PixelShader* pkShader = VE_NEW D3D12PixelShader(d.m_stSize);
-					VE_ASSERT_EQ(spArchive->Read(pkShader->m_pvData, d.m_stSize), d.m_stSize);
-					m_kPixelShaderMap[vtd::string(d.m_pcName, (size_t)(dot - d.m_pcName))] = pkShader;
-					break;
+					kConfigList.push_back({ d.m_pcName, d.m_stSize });
 				}
-				case 'g':
+			} while (c->next());
+		}
+	}
+	if (kConfigList.size())
+	{
+		vtd::ring_buffer<CompileConfig*, nullptr> kConfigBuffer;
+		std::atomic<uint32_t> idx(0);
+		ve_job_sys.ParallelCompute([&](uint32_t) noexcept
+		{
+			char acBuffer[VE_MAX_PATH_LEN];
+			while (true)
+			{
+				uint32_t i = idx.fetch_add(1, std::memory_order_relaxed);
+				if (i < kShaderList.size())
 				{
-					D3DGeometryShader* pkShader = VE_NEW D3DGeometryShader(d.m_stSize);
-					VE_ASSERT_EQ(spArchive->Read(pkShader->m_pvData, d.m_stSize), d.m_stSize);
-					m_kGeometryShaderMap[vtd::string(d.m_pcName, (size_t)(dot - d.m_pcName))] = pkShader;
-					break;
+					auto& s = kShaderList[i];
+					VeSprintf(acBuffer, "hlsl/%s", s.name.c_str());
+					VeArchivePtr spFile = spSrc->OpenArchive(acBuffer);
+					if (!spFile) continue;
+					s.content = VeMalloc(s.size);
+					if (spFile->Read(s.content, s.size) != s.size)
+					{
+						VeFree(s.content);
+						s.content = nullptr;
+						continue;
+					}
 				}
-				case 'h':
+				else
 				{
-					D3DHullShader* pkShader = VE_NEW D3DHullShader(d.m_stSize);
-					VE_ASSERT_EQ(spArchive->Read(pkShader->m_pvData, d.m_stSize), d.m_stSize);
-					m_kHullShaderMap[vtd::string(d.m_pcName, (size_t)(dot - d.m_pcName))] = pkShader;
-					break;
-				}
-				case 'd':
-				{
-					D3DDomainShader* pkShader = VE_NEW D3DDomainShader(d.m_stSize);
-					VE_ASSERT_EQ(spArchive->Read(pkShader->m_pvData, d.m_stSize), d.m_stSize);
-					m_kDomainShaderMap[vtd::string(d.m_pcName, (size_t)(dot - d.m_pcName))] = pkShader;
-					break;
-				}
-				case 'c':
-				{
-					D3DComputeShader* pkShader = VE_NEW D3DComputeShader(d.m_stSize);
-					VE_ASSERT_EQ(spArchive->Read(pkShader->m_pvData, d.m_stSize), d.m_stSize);
-					m_kComputeShaderMap[vtd::string(d.m_pcName, (size_t)(dot - d.m_pcName))] = pkShader;
-					break;
-				}
-				default:
-					break;
+					i -= (uint32_t)(kShaderList.size());
+					if (i >= kConfigList.size()) break;
+					auto& s = kConfigList[i];
+					VeArchivePtr spFile = spSrc->OpenArchive(s.first.c_str());
+					if (!spFile) continue;
+					VeDyanmicStack<char> kContent(s.second + 1);
+					if (spFile->Read(kContent.data(), s.second) != s.second) continue;
+					kContent[s.second] = 0;
+					rapidxml::xml_document<char> doc;
+					doc.parse<0>(kContent.data());
+					auto root = doc.first_node();
+					if (!root) continue;
+					/*CompileConfig* con = VE_NEW CompileConfig;
+					auto file = root->first_node(VE_STR_AND_LEN("file"));
+
+
+					auto file = root->first_node(VE_STR_AND_LEN("file"));
+					auto file = root->first_node();
+					if (!temp) continue;
+					con->m_kFile = root->first_node()->*/
+
+
 				}
 			}
-		} while (c->next());
+			
+		});
+		/*VeStringMap<uint32_t> kShaderNameMap;
+		for (uint32_t i(0); i < kShaderList.size(); ++i)
+		{
+			kShaderNameMap[kShaderList[i].name] = i;
+		}
+		ve_job_sys.ParallelCompute([&](uint32_t) noexcept
+		{
+
+		});*/
 	}
 }
 //--------------------------------------------------------------------------

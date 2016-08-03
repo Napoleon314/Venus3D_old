@@ -30,7 +30,7 @@
 
 #pragma once
 
-#define VE_MAX_PATH_LEN (2048)
+#define VE_MAX_PATH_LEN (1024)
 
 enum VeWhence
 {
@@ -119,34 +119,52 @@ class VENUS_API VeDirectory : public VeRefObject
 	VeNoCopy(VeDirectory);
 	VeRTTIDecl(VeDirectory);
 public:
-	struct ArchData : public VeRefObject
+	struct ChildData
 	{
-		virtual ~ArchData() noexcept = default;
-
-		virtual std::tuple<const char*, size_t, time_t> Data() noexcept = 0;
-
-		virtual bool Next() noexcept = 0;
+		const char* m_pcName;
+		size_t m_stSize;
+		time_t m_tiLastModify;
+		uint32_t m_u32Attribute;
 	};
 
-	typedef vtd::intrusive_ptr<ArchData> ArchDataPtr;
+	struct Child : public VeRefObject
+	{
+		virtual ~Child() noexcept = default;
+
+		virtual ChildData data() noexcept = 0;
+
+		virtual bool next() noexcept = 0;
+	};
+
+	typedef vtd::intrusive_ptr<Child> ChildPtr;
 
 	class iterator
 	{
 	public:
-		iterator(const ArchDataPtr& _Data) noexcept
+		iterator(const ChildPtr& _Data) noexcept
 			: data(_Data) {}
 
-		iterator(ArchDataPtr&& _Data) noexcept
+		iterator(ChildPtr&& _Data) noexcept
 			: data(_Data) {}
 
-		ArchData& operator*() noexcept
+		bool operator == (const iterator& iter) const noexcept
+		{
+			return data == iter.data;
+		}
+
+		bool operator != (const iterator& iter) const noexcept
+		{
+			return data != iter.data;
+		}
+
+		Child& operator*() noexcept
 		{
 			return *data;
 		}
 
 		iterator& operator++() noexcept
 		{
-			if (!data->Next())
+			if (!data->next())
 			{
 				data = nullptr;
 			}
@@ -154,7 +172,7 @@ public:
 		}
 
 	private:
-		ArchDataPtr data = nullptr;
+		ChildPtr data = nullptr;
 
 	};
 
@@ -164,11 +182,11 @@ public:
 
 	virtual bool Access(const char* pcPath, uint32_t u32Flags) noexcept = 0;
 
-	virtual ArchDataPtr FindFirst(const char* pcDesc = nullptr) noexcept = 0;
+	virtual ChildPtr FindFirst(const char* pcDesc = nullptr) noexcept = 0;
 
 	virtual VeDirectoryPtr OpenSubdir(const char* pcPath, bool bTryCreate = true) noexcept = 0;
 
-	virtual VeArchivePtr OpenArchive(const char* pcPath, uint32_t u32Flags) noexcept = 0;
+	virtual VeArchivePtr OpenArchive(const char* pcPath, uint32_t u32Flags = VE_ARCH_OPEN_READ) noexcept = 0;
 	
 	inline iterator begin() noexcept;
 
