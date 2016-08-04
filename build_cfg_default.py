@@ -8,6 +8,7 @@ external_path		= "External"
 include_path		= "Include"
 source_path			= "Source"
 test_path			= "Test"
+install_path		= "SDK"
 
 dependent_list		= [("maker", "https://github.com/Napoleon314/maker"),("vulkan_loader", "https://github.com/Napoleon314/vulkan_loader")]
 

@@ -211,7 +211,7 @@ VeRenderWindowPtr VulkanRenderer::CreateRenderWindow(
 //--------------------------------------------------------------------------
 VeRendererPtr CreateVulkanRenderer() noexcept
 {
-	return VE_NEW VulkanRenderer();
+	return nullptr;
 }
 //--------------------------------------------------------------------------
 #endif

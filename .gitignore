@@ -1,5 +1,6 @@
 _*
 *.py*
+SDK/*
 Binary/*
 Build/*
 Dependent/*

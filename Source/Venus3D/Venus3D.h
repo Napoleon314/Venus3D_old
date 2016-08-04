@@ -233,7 +233,7 @@
 #ifdef BUILD_PLATFORM_APPLE
 #	define VE_ENABLE_METAL
 #else
-//#	define VE_ENABLE_VULKAN
+#	define VE_ENABLE_VULKAN
 #endif
 
 #define VE_OK (0)
