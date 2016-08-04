@@ -7,3 +7,5 @@ Dependent/*
 *vulkan.h
 *vk_platform.h
 *vulkan_loader.h
+*.suo
+*.db
