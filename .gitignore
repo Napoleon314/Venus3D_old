@@ -9,3 +9,4 @@ Dependent/*
 *vulkan_loader.h
 *.suo
 *.db
+*.opendb
