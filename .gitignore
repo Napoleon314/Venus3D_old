@@ -1,7 +1,8 @@
 _*
 *.py*
 SDK/*
-Binary/*
+Binary/Tool/*
+Binary/vc*
 Build/*
 Dependent/*
 *vulkan.h
