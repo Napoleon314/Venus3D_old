@@ -37,7 +37,7 @@ inline VeInputLayoutPtr VeRenderer::CreateInputLayout(
 //--------------------------------------------------------------------------
 inline void VeRenderer::PrepareShaders() noexcept
 {
-	PrepareShaders(venus3d.GetConfig("vsc_src"), venus3d.GetConfig("vsc_cache"));
+	//PrepareShaders(venus3d.GetConfig("vsc_src"), venus3d.GetConfig("vsc_cache"));
 }
 //--------------------------------------------------------------------------
 inline VeVertexShaderPtr VeRenderer::FindVertexShader(

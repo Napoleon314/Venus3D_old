@@ -32,7 +32,7 @@
 inline size_t VeMemReader::read(void* pvBuffer, size_t stBytes) noexcept
 {
 	stBytes = vtd::min(remaining(), stBytes);
-	memcpy(m_pvData, pvBuffer, stBytes);
+	memcpy(pvBuffer, (char*)m_pvData + m_stPointer, stBytes);
 	m_stPointer += stBytes;
 	return stBytes;
 }
@@ -57,7 +57,7 @@ inline size_t VeBlobReader::read(void* pvBuffer, size_t stBytes) noexcept
 {
 	VE_ASSERT(m_spBlob);
 	stBytes = vtd::min(remaining(), stBytes);
-	memcpy(m_spBlob->data(), pvBuffer, stBytes);
+	memcpy(pvBuffer, (char*)m_spBlob->data() + m_stPointer, stBytes);
 	m_stPointer += stBytes;
 	return stBytes;
 }

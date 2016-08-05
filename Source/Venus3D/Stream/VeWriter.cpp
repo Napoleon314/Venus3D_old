@@ -61,3 +61,18 @@ void VeMemWriter::expand(size_t stSize) noexcept
 	}
 }
 //--------------------------------------------------------------------------
+VeBlobWriter::VeBlobWriter() noexcept
+{
+	m_spBlob = VE_NEW VeBlob();
+}
+//--------------------------------------------------------------------------
+VeBlobWriter::VeBlobWriter(const VeBlobPtr& spBlob) noexcept
+{
+	m_spBlob = spBlob;
+}
+//--------------------------------------------------------------------------
+VeBlobWriter::~VeBlobWriter() noexcept
+{
+
+}
+//--------------------------------------------------------------------------

@@ -30,7 +30,7 @@
 
 #pragma once
 
-class VeMemReader : public VeStackObject
+class VENUS_API VeMemReader : public VeStackObject
 {
 public:
 	VeMemReader(void* pvData, size_t stSize) noexcept;
@@ -53,14 +53,14 @@ public:
 		return true;
 	}
 
-protected:
+private:
 	void* m_pvData = nullptr;
 	size_t m_stSize = 0;
 	size_t m_stPointer = 0;
 
 };
 
-class VeBlobReader : public VeStackObject
+class VENUS_API VeBlobReader : public VeStackObject
 {
 public:
 	VeBlobReader(const VeBlobPtr& spBlob) noexcept;
@@ -75,7 +75,7 @@ public:
 
 	inline void restart() noexcept;
 
-protected:
+private:
 	VeBlobPtr m_spBlob;
 	size_t m_stPointer = 0;
 

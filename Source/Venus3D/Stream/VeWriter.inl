@@ -61,3 +61,31 @@ inline size_t VeMemWriter::size() noexcept
 	return m_stWritten;
 }
 //--------------------------------------------------------------------------
+inline size_t VeBlobWriter::write(void* pvBuffer, size_t stBytes) noexcept
+{
+	VE_ASSERT(m_spBlob);
+	if (stBytes > capacity())
+	{
+		m_spBlob->expand(vtd::max(m_spBlob->size(), VE_WRITER_UNIT));
+	}
+	memcpy((char*)m_spBlob->data() + m_stWritten, pvBuffer, stBytes);
+	m_stWritten += stBytes;
+	return stBytes;
+}
+//--------------------------------------------------------------------------
+inline size_t VeBlobWriter::capacity() noexcept
+{
+	VE_ASSERT(m_spBlob->size() >= m_stWritten);
+	return m_spBlob->size() - m_stWritten;
+}
+//--------------------------------------------------------------------------
+inline void VeBlobWriter::clear() noexcept
+{
+	m_stWritten = 0;
+}
+//--------------------------------------------------------------------------
+inline const VeBlobPtr& VeBlobWriter::blob() noexcept
+{
+	return m_spBlob;
+}
+//--------------------------------------------------------------------------

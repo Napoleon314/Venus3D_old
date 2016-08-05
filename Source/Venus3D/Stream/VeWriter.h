@@ -32,7 +32,7 @@
 
 #define VE_WRITER_UNIT (1024)
 
-class VeMemWriter : public VeStackObject
+class VENUS_API VeMemWriter : public VeStackObject
 {
 public:
 	VeMemWriter() noexcept;
@@ -51,11 +51,34 @@ public:
 
 	inline size_t size() noexcept;
 
-protected:
+private:
 	void expand(size_t stSize) noexcept;
 
 	void* m_pvBuffer = nullptr;
 	size_t m_stSize = 0;
+	size_t m_stWritten = 0;
+
+};
+
+class VENUS_API VeBlobWriter : public VeStackObject
+{
+public:
+	VeBlobWriter() noexcept;
+
+	VeBlobWriter(const VeBlobPtr& spBlob) noexcept;
+
+	~VeBlobWriter() noexcept;
+
+	inline size_t write(void* pvBuffer, size_t stBytes) noexcept;
+
+	inline size_t capacity() noexcept;
+
+	inline void clear() noexcept;
+
+	inline const VeBlobPtr& blob() noexcept;
+
+private:
+	VeBlobPtr m_spBlob;
 	size_t m_stWritten = 0;
 
 };
