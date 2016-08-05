@@ -21,6 +21,7 @@ if __name__ == "__main__":
 	cfg = cfg_from_argv(sys.argv)
 	bi = build_info(cfg.compiler, cfg.archs, cfg.cfg)
 
+	file_copy(build_cfg.external_path + "/fcontext/include", build_cfg.install_path + "/include", "*.h")
 	file_copy(build_cfg.source_path, build_cfg.install_path + "/include", "*.h")
 	file_copy(build_cfg.source_path, build_cfg.install_path + "/include", "*.inl")
 
@@ -34,3 +35,4 @@ if __name__ == "__main__":
 			file_copy(lib_path, build_cfg.install_path + "/" + config_path, "*.a")
 			file_copy(lib_path, build_cfg.install_path + "/" + config_path, "*.so")
 			file_copy(lib_path, build_cfg.install_path + "/" + config_path, "*.elf")
+			

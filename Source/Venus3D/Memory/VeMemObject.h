@@ -66,6 +66,19 @@ public:
 
 };
 
+class VENUS_API VeStackObject
+{
+public:
+	static void* operator new (size_t stSize) noexcept = delete;
+
+	static void* operator new[](size_t stSize) noexcept = delete;
+
+	static void operator delete (void* pvMem) noexcept = delete;
+
+	static void operator delete[](void* pvMem) noexcept = delete;
+
+};
+
 template <class _Ty>
 class VeSingleton : public VeMemObject
 {

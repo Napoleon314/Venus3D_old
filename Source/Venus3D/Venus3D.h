@@ -473,6 +473,10 @@ inline constexpr uint32_t VeMakeVersion(uint32_t maj, uint32_t min = 0, uint32_t
 #include "System/VeArchive.h"
 #include "System/VeFile.h"
 
+#include "Stream/VeStream.h"
+#include "Stream/VeReader.h"
+#include "Stream/VeWriter.h"
+
 #include "Resource/VeResourceManager.h"
 
 #include "Video/VeWindow.h"

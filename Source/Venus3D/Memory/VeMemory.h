@@ -142,36 +142,4 @@ inline void _VeAlignedFree(void* pvMemory) noexcept;
 
 #define VE_SAFE_RELEASE(p)			{ if(p) { (p)->Release(); (p) = nullptr; } }
 
-class VeMemReader
-{
-public:
-	VeMemReader(void* data, size_t len) noexcept
-		: _Data(data), _Len(len), _Ptr(0) {}
-
-	size_t remaining() noexcept
-	{
-		VE_ASSERT(_Ptr <= _Len);
-		return _Len - _Ptr;
-	}
-
-	void set(size_t ptr) noexcept
-	{
-		_Ptr = vtd::min(ptr, _Len);
-	}
-
-	size_t read(void* buf, size_t size) noexcept
-	{
-		size = vtd::min(remaining(), size);
-		memcpy(buf, _Data, size);
-		_Ptr += size;
-		return size;
-	}
-
-private:
-	void* _Data;
-	size_t _Len;
-	size_t _Ptr;
-
-};
-
 #include "VeMemory.inl"
