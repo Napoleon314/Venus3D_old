@@ -59,13 +59,38 @@ namespace venus
 	};
 
 	template <class _Ty>
-	struct output_simple
+	struct output_arithmetic
 	{
+		static_assert(std::is_arithmetic<_Ty>::value, "Type has to be arithmetic.");
+
+		typedef _Ty value_type;
+
 		template <class _Writer>
-		static void write(_Ty&& val, VeOStream<_Writer>& s) noexcept
+		static void write(value_type val, VeOStream<_Writer>& s) noexcept
 		{
 			VE_ASSERT_EQ(s.write(&val, sizeof(_Ty)), sizeof(_Ty));
 		}
+	};
+
+	template <class _Ty>
+	struct output_pod_struct
+	{
+		static_assert(std::is_class<_Ty>::value, "Type has to be a class.");
+
+		typedef const _Ty& value_type;
+
+		template <class _Writer>
+		static void write(value_type val, VeOStream<_Writer>& s) noexcept
+		{
+			VE_ASSERT_EQ(s.write(&val, sizeof(_Ty)), sizeof(_Ty));
+		}
+	};
+
+	template <class _Ty>
+	struct output_simple : std::conditional<std::is_arithmetic<_Ty>::value,
+		output_arithmetic<_Ty>, output_pod_struct<_Ty>>::type
+	{
+
 	};
 
 	template <class _Ty>
@@ -113,9 +138,9 @@ public:
 	~VeOStream() noexcept = default;
 
 	template <class _Ty>
-	VeOStream<_Writer>& operator << (_Ty val) noexcept
+	VeOStream<_Writer>& operator << (const _Ty& val) noexcept
 	{
-		venus::output<_Ty>::write(std::move(val), *this);
+		venus::output<_Ty>::write(val, *this);
 		return *this;
 	}
 
