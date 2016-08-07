@@ -4,7 +4,7 @@
 //  Copyright (c) 2016 Albert D Yang
 // -------------------------------------------------------------------------
 //  Module:      MeshConvertor
-//  File name:   Main.cpp
+//  File name:   FBXConvertor.h
 //  Created:     2016/08/06 by Albert
 //  Description:
 // -------------------------------------------------------------------------
@@ -28,32 +28,8 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-#include <Venus3D/Venus3D.h>
-#include "FBXConvertor.h"
+#pragma once
 
-int main(int argc, char** argv)
-{
-	if (argc <= 1)
-	{
-		printf("Mesh full path need to be specified by parameter.\n");
-		exit(-1);
-	}
-	VeInitData kData =
-	{
-		"MeshConvertor",
-		VE_MAKE_VERSION(0, 1),
-		VE_INIT_CONSOLE,
-		nullptr
-	};
-	VeInit(kData);
-	{
-		const char* lFilename = argv[argc - 1];
-		const char* lExt = vtd::strrchr(lFilename, '.');
-		if (VE_SUCCEEDED(vtd::stricmp(lExt, ".fbx")))
-		{
-			ConvertorFBX(lFilename);
-		}
-	}
-	VeTerm();
-	return 0;
-}
+#include <Venus3D/Venus3D.h>
+
+void ConvertorFBX(const char* lFilename) noexcept;

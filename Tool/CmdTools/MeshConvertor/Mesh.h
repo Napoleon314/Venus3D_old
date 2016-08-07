@@ -4,8 +4,8 @@
 //  Copyright (c) 2016 Albert D Yang
 // -------------------------------------------------------------------------
 //  Module:      MeshConvertor
-//  File name:   Main.cpp
-//  Created:     2016/08/06 by Albert
+//  File name:   Mesh.h
+//  Created:     2016/08/07 by Albert
 //  Description:
 // -------------------------------------------------------------------------
 //  Permission is hereby granted, free of charge, to any person obtaining a
@@ -28,32 +28,41 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-#include <Venus3D/Venus3D.h>
-#include "FBXConvertor.h"
+#pragma once
 
-int main(int argc, char** argv)
+#include <Venus3D/Venus3D.h>
+#include "Utility/DirectXMesh.h"
+
+struct Mesh
 {
-	if (argc <= 1)
-	{
-		printf("Mesh full path need to be specified by parameter.\n");
-		exit(-1);
-	}
-	VeInitData kData =
-	{
-		"MeshConvertor",
-		VE_MAKE_VERSION(0, 1),
-		VE_INIT_CONSOLE,
-		nullptr
-	};
-	VeInit(kData);
-	{
-		const char* lFilename = argv[argc - 1];
-		const char* lExt = vtd::strrchr(lFilename, '.');
-		if (VE_SUCCEEDED(vtd::stricmp(lExt, ".fbx")))
-		{
-			ConvertorFBX(lFilename);
-		}
-	}
-	VeTerm();
-	return 0;
-}
+	vtd::string m_kName;
+	size_t m_stFaces;
+	size_t m_stVerts;
+	std::vector<uint32_t> m_kIndices;
+	std::vector<uint32_t> m_kAttributes;
+	std::vector<uint32_t> m_kRepeat;
+	std::vector<uint32_t> m_kAdjacency;
+	std::vector<DirectX::XMFLOAT3> m_kPosition;
+	std::vector<std::vector<DirectX::XMFLOAT3>> m_kNormals;
+	std::vector<std::vector<DirectX::XMFLOAT4>> m_kTangents;
+	std::vector<std::vector<DirectX::XMFLOAT3>> m_kBiTangents;
+	std::vector<std::vector<DirectX::XMFLOAT2>> m_kTexcoords;
+	std::vector<std::vector<DirectX::XMFLOAT4>> m_kColors;
+
+	void Clear() noexcept;
+
+	void Process(float fEpsilon = 0) noexcept;
+
+	void GenerateAdj(float fEpsilon = 0) noexcept;
+
+	void ValidateRepeats(float fEpsilon = 0) noexcept;
+
+	void RemoveDuplicates(float fEpsilon) noexcept;
+
+	void CleanMesh() noexcept;
+
+	void Optimize(uint32_t vertexCache = DirectX::OPTFACES_V_DEFAULT, uint32_t restart = DirectX::OPTFACES_R_DEFAULT) noexcept;
+
+	bool EqualVertexInSamePosition(uint32_t u32First, uint32_t u32Second, float fEpsilon = 0) noexcept;
+
+};
