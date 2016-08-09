@@ -19,9 +19,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{DFD8A097-9A85-4212-8219-8A7AB03638B2}</ProjectGuid>
+    <ProjectGuid>{18AE8B84-F71A-4E38-958E-9F1BC1B9293E}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>MeshConvertor</RootNamespace>
+    <RootNamespace>MaterialCompiler</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.10586.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -97,13 +97,13 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>BUILD_PLATFORM_WIN;BUILD_STATIC_LIB;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(FBX_SDK_PATH)\include;..\..\..\SDK\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\SDK\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(FBX_SDK_PATH)\lib\vs2015\$(PlatformShortName)\$(Configuration)\;..\..\..\SDK\vc140_win_$(PlatformShortName)\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libfbxsdk.lib;fcontext.lib;Venus3D_static.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\..\..\SDK\vc140_win_$(PlatformShortName)\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>fcontext.lib;Venus3D_static.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -114,13 +114,13 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>BUILD_PLATFORM_WIN;BUILD_STATIC_LIB;BUILD_ARCH_X86;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(FBX_SDK_PATH)\include;..\..\..\SDK\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\SDK\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(FBX_SDK_PATH)\lib\vs2015\$(PlatformShortName)\$(Configuration)\;..\..\..\SDK\vc140_win_$(PlatformShortName)\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libfbxsdk.lib;fcontext.lib;Venus3D_static.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\..\..\SDK\vc140_win_$(PlatformShortName)\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>fcontext.lib;Venus3D_static.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -133,16 +133,15 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>BUILD_PLATFORM_WIN;BUILD_STATIC_LIB;BUILD_SHIP;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(FBX_SDK_PATH)\include;..\..\..\SDK\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\SDK\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(FBX_SDK_PATH)\lib\vs2015\$(PlatformShortName)\$(Configuration)\;..\..\..\SDK\vc140_win_$(PlatformShortName)\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libfbxsdk.lib;fcontext.lib;Venus3D_static.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+      <AdditionalLibraryDirectories>..\..\..\SDK\vc140_win_$(PlatformShortName)\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>fcontext.lib;Venus3D_static.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -155,42 +154,19 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>BUILD_PLATFORM_WIN;BUILD_STATIC_LIB;BUILD_SHIP;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(FBX_SDK_PATH)\include;..\..\..\SDK\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\SDK\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(FBX_SDK_PATH)\lib\vs2015\$(PlatformShortName)\$(Configuration)\;..\..\..\SDK\vc140_win_$(PlatformShortName)\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libfbxsdk.lib;fcontext.lib;Venus3D_static.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\..\..\SDK\vc140_win_$(PlatformShortName)\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>fcontext.lib;Venus3D_static.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="FBXConvertor.cpp" />
     <ClCompile Include="Main.cpp" />
-    <ClCompile Include="Mesh.cpp" />
-    <ClCompile Include="Utility\DirectXMeshAdjacency.cpp" />
-    <ClCompile Include="Utility\DirectXMeshClean.cpp" />
-    <ClCompile Include="Utility\DirectXMeshGSAdjacency.cpp" />
-    <ClCompile Include="Utility\DirectXMeshNormals.cpp" />
-    <ClCompile Include="Utility\DirectXMeshOptimize.cpp" />
-    <ClCompile Include="Utility\DirectXMeshRemap.cpp" />
-    <ClCompile Include="Utility\DirectXMeshTangentFrame.cpp" />
-    <ClCompile Include="Utility\DirectXMeshUtil.cpp" />
-    <ClCompile Include="Utility\DirectXMeshValidate.cpp" />
-    <ClCompile Include="Utility\DirectXMeshVBReader.cpp" />
-    <ClCompile Include="Utility\DirectXMeshVBWriter.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="FBXConvertor.h" />
-    <ClInclude Include="Mesh.h" />
-    <ClInclude Include="Utility\DirectXMesh.h" />
-    <ClInclude Include="Utility\DirectXMeshP.h" />
-    <ClInclude Include="Utility\scoped.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Utility\DirectXMesh.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
