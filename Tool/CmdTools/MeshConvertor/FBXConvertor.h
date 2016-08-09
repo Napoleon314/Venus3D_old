@@ -32,4 +32,4 @@
 
 #include <Venus3D/Venus3D.h>
 
-void ConvertorFBX(const char* lFilename) noexcept;
+void ConvertorFBX(const char* lFilename, const VeDirectoryPtr& spDest) noexcept;

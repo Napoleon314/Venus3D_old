@@ -44,8 +44,7 @@ struct Mesh
 	std::vector<uint32_t> m_kAdjacency;
 	std::vector<DirectX::XMFLOAT3> m_kPosition;
 	std::vector<std::vector<DirectX::XMFLOAT3>> m_kNormals;
-	std::vector<std::vector<DirectX::XMFLOAT4>> m_kTangents;
-	std::vector<std::vector<DirectX::XMFLOAT3>> m_kBiTangents;
+	std::vector<DirectX::XMFLOAT4> m_kTangent;
 	std::vector<std::vector<DirectX::XMFLOAT2>> m_kTexcoords;
 	std::vector<std::vector<DirectX::XMFLOAT4>> m_kColors;
 
@@ -62,6 +61,10 @@ struct Mesh
 	void CleanMesh() noexcept;
 
 	void Optimize(uint32_t vertexCache = DirectX::OPTFACES_V_DEFAULT, uint32_t restart = DirectX::OPTFACES_R_DEFAULT) noexcept;
+
+	void ComputeTangent() noexcept;
+
+	void Save(const VeDirectoryPtr& spDest) noexcept;
 
 	bool EqualVertexInSamePosition(uint32_t u32First, uint32_t u32Second, float fEpsilon = 0) noexcept;
 

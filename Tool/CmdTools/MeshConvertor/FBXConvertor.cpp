@@ -36,10 +36,7 @@
 using namespace DirectX;
 using namespace vtd;
 //--------------------------------------------------------------------------
-//std::unordered_map
-
-//--------------------------------------------------------------------------
-void SaveMesh(FbxNode* pNode) noexcept
+void SaveMesh(FbxNode* pNode, const VeDirectoryPtr& spDest) noexcept
 {
 	Mesh kMesh;
 	FbxMesh* pMesh = (FbxMesh*)pNode->GetNodeAttribute();
@@ -245,9 +242,10 @@ void SaveMesh(FbxNode* pNode) noexcept
 		}
 	}
 	kMesh.Process();
+	kMesh.Save(spDest);
 }
 //--------------------------------------------------------------------------
-void SaveContent(FbxNode* pNode) noexcept
+void SaveContent(FbxNode* pNode, const VeDirectoryPtr& spDest) noexcept
 {
 	if (!pNode->GetNodeAttribute())
 	{
@@ -267,7 +265,7 @@ void SaveContent(FbxNode* pNode) noexcept
 			break;
 
 		case FbxNodeAttribute::eMesh:
-			SaveMesh(pNode);
+			SaveMesh(pNode, spDest);
 			break;
 
 		case FbxNodeAttribute::eNurbs:
@@ -295,19 +293,20 @@ void SaveContent(FbxNode* pNode) noexcept
 	}
 }
 //--------------------------------------------------------------------------
-void SaveContent(FbxScene* pScene) noexcept
+void SaveContent(FbxScene* pScene, const VeDirectoryPtr& spDest) noexcept
 {
 	FbxNode* lNode = pScene->GetRootNode();
 	if (lNode)
 	{
 		for (int i = 0; i < lNode->GetChildCount(); i++)
 		{
-			SaveContent(lNode->GetChild(i));
+			SaveContent(lNode->GetChild(i), spDest);
 		}
 	}
 }
 //--------------------------------------------------------------------------
-void ConvertorFBX(const char* lFilename) noexcept
+void ConvertorFBX(const char* lFilename,
+	const VeDirectoryPtr& spDest) noexcept
 {
 	FbxManager* lSdkManager = FbxManager::Create();
 	VE_ASSERT_ALWAYS(lSdkManager);
@@ -319,7 +318,7 @@ void ConvertorFBX(const char* lFilename) noexcept
 	VE_ASSERT_ALWAYS(lImporter->Initialize(lFilename, -1, lSdkManager->GetIOSettings()));
 	FbxScene* lScene = FbxScene::Create(lSdkManager, "ImportedScnee");
 	VE_ASSERT_ALWAYS(lImporter->Import(lScene));
-	SaveContent(lScene);
+	SaveContent(lScene, spDest);
 	lSdkManager->Destroy();
 }
 //--------------------------------------------------------------------------

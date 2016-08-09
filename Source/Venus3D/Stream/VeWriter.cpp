@@ -43,7 +43,12 @@ VeMemWriter::VeMemWriter(size_t stReserve) noexcept
 //--------------------------------------------------------------------------
 VeMemWriter::~VeMemWriter() noexcept
 {
-
+	if (m_pvBuffer)
+	{
+		VeFree(m_pvBuffer);
+		m_pvBuffer = nullptr;
+		m_stSize = 0;
+	}
 }
 //--------------------------------------------------------------------------
 void VeMemWriter::expand(size_t stSize) noexcept

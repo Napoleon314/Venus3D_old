@@ -48,10 +48,13 @@ int main(int argc, char** argv)
 	VeInit(kData);
 	{
 		const char* lFilename = argv[argc - 1];
+		VeDirectoryPtr spPath = ve_res_mgr.OpenDirectory(
+			vtd::string(lFilename, (vtd::max(vtd::strrchr(lFilename, '/'),
+				vtd::strrchr(lFilename, '\\')) - lFilename)));
 		const char* lExt = vtd::strrchr(lFilename, '.');
 		if (VE_SUCCEEDED(vtd::stricmp(lExt, ".fbx")))
 		{
-			ConvertorFBX(lFilename);
+			ConvertorFBX(lFilename, spPath);
 		}
 	}
 	VeTerm();
