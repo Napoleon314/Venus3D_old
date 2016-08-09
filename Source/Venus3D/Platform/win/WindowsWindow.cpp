@@ -189,7 +189,7 @@ void WindowsWindow::SetTitle(const char* pcTitle) noexcept
 	int32_t i32Num = MultiByteToWideChar(CP_UTF8, 0, pcTitle, -1, nullptr, 0);
 	VE_ASSERT(i32Num >= 0);
 	VeDyanmicStack<WCHAR> kBuf(i32Num + 1);
-	kBuf[i32Num] = 0;
+	kBuf[size_t(i32Num)] = 0;
 	MultiByteToWideChar(CP_UTF8, 0, pcTitle, -1, kBuf, i32Num);
 	SetWindowTextW(m_hHandle, kBuf);
 }

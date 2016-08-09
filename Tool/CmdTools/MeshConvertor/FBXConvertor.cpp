@@ -80,7 +80,7 @@ void SaveMesh(FbxNode* pNode, const VeDirectoryPtr& spDest) noexcept
 	}
 
 	FbxVector4* lControlPoints = pMesh->GetControlPoints();
-	for (int i(0); i < kMesh.m_stFaces; ++i)
+	for (int i(0); i < (int)(kMesh.m_stFaces); ++i)
 	{
 		int lPolygonSize = pMesh->GetPolygonSize(i);
 		VE_ASSERT_ALWAYS(lPolygonSize == 3);
@@ -94,7 +94,7 @@ void SaveMesh(FbxNode* pNode, const VeDirectoryPtr& spDest) noexcept
 			pos.y = (float)lControlPoints[lControlPointIndex][1];
 			pos.z = (float)lControlPoints[lControlPointIndex][2];
 			
-			for (int k(0); k < kMesh.m_kColors.size(); ++k)
+			for (int k(0); k < (int)(kMesh.m_kColors.size()); ++k)
 			{
 				FbxColor c;
 				FbxGeometryElementVertexColor* leVtxc = pMesh->GetElementVertexColor(k);
@@ -149,7 +149,7 @@ void SaveMesh(FbxNode* pNode, const VeDirectoryPtr& spDest) noexcept
 				color.w = (float)c[3];
 			}
 
-			for (int k(0); k < kMesh.m_kTexcoords.size(); ++k)
+			for (int k(0); k < (int)(kMesh.m_kTexcoords.size()); ++k)
 			{
 				FbxVector2 uv;
 				FbxGeometryElementUV* leUV = pMesh->GetElementUV(k);
@@ -202,7 +202,7 @@ void SaveMesh(FbxNode* pNode, const VeDirectoryPtr& spDest) noexcept
 				texcoord.y = (float)uv[1];
 			}
 			
-			for (int k(0); k < kMesh.m_kNormals.size(); ++k)
+			for (int k(0); k < (int)(kMesh.m_kNormals.size()); ++k)
 			{
 				FbxVector4 n;
 				FbxGeometryElementNormal* leNormal = pMesh->GetElementNormal(k);

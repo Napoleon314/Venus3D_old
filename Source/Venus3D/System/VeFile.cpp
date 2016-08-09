@@ -51,12 +51,16 @@ VeFile::~VeFile() noexcept
 //--------------------------------------------------------------------------
 bool VeFile::Seek(ptrdiff_t pdOffset, VeWhence eWhence) noexcept
 {
+#ifdef BUILD_ARCH_X64
 	return _fseeki64(m_hFile, pdOffset, eWhence) == 0;
+#else
+	return fseek(m_hFile, pdOffset, eWhence) == 0;
+#endif
 }
 //--------------------------------------------------------------------------
 size_t VeFile::Tell() noexcept
 {
-	return _ftelli64(m_hFile);
+	return ftell(m_hFile);
 }
 //--------------------------------------------------------------------------
 size_t VeFile::Read(void* pvOutput, size_t stBytes) noexcept
