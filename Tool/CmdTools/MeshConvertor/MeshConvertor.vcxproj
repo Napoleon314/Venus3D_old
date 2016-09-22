@@ -97,7 +97,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>BUILD_PLATFORM_WIN;BUILD_STATIC_LIB;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(FBX_SDK_PATH)\include;..\..\..\SDK\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(FBX_SDK_PATH)\include;..\..\..\SDK\include;..\..\..\External\rapidxml;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -114,7 +114,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>BUILD_PLATFORM_WIN;BUILD_STATIC_LIB;BUILD_ARCH_X86;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(FBX_SDK_PATH)\include;..\..\..\SDK\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(FBX_SDK_PATH)\include;..\..\..\SDK\include;..\..\..\External\rapidxml;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -133,7 +133,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>BUILD_PLATFORM_WIN;BUILD_STATIC_LIB;BUILD_SHIP;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(FBX_SDK_PATH)\include;..\..\..\SDK\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(FBX_SDK_PATH)\include;..\..\..\SDK\include;..\..\..\External\rapidxml;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -155,7 +155,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>BUILD_PLATFORM_WIN;BUILD_STATIC_LIB;BUILD_SHIP;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(FBX_SDK_PATH)\include;..\..\..\SDK\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(FBX_SDK_PATH)\include;..\..\..\SDK\include;..\..\..\External\rapidxml;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

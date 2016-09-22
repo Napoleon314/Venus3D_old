@@ -464,6 +464,9 @@ inline constexpr uint32_t VeMakeVersion(uint32_t maj, uint32_t min = 0, uint32_t
 #include "Log/VeLog.h"
 #include "Log/VeException.h"
 
+#include "Parser/VeParser.h"
+#include "Parser/VeXMLParser.h"
+
 #include "ASync/VeThread.h"
 #include "ASync/VeCoroutine.h"
 #include "ASync/VeJobSystem.h"

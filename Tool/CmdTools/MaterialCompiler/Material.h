@@ -3,9 +3,9 @@
 //  The MIT License (MIT)
 //  Copyright (c) 2016 Albert D Yang
 // -------------------------------------------------------------------------
-//  Module:      PowerTest
-//  File name:   Main.cpp
-//  Created:     2016/07/01 by Albert
+//  Module:      MaterialCompiler
+//  File name:   Material.h
+//  Created:     2016/08/11 by Albert
 //  Description:
 // -------------------------------------------------------------------------
 //  Permission is hereby granted, free of charge, to any person obtaining a
@@ -28,37 +28,70 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-#include <Venus3D.h>
+#pragma once
 
-void* test(void* data) noexcept
+#include <Venus3D/Venus3D.h>
+#include <d3dcompiler.h>
+#include <d3d12.h>
+
+struct CD3DX12_ROOT_SIGNATURE_DESC : public D3D12_ROOT_SIGNATURE_DESC
 {
-	VeCoreLogI("co", (int)(size_t)data);
-	VeCoreLogI("co", (int)(size_t)VeCoenvironment::yield((void*)1));
-	VeCoreLogI("co", (int)(size_t)VeCoenvironment::yield((void*)2));
-	return (void*)3;
-}
-
-int main(/*int argc, char * argv[]*/)
-{
-	VeInit(VeInitData("PowerTest", VE_MAKE_VERSION(0, 1), VE_INIT_CONSOLE));
-
+	CD3DX12_ROOT_SIGNATURE_DESC() noexcept
 	{
-		VeCoroutine co;
-		co.prepare();
-		VeCoreLogI("main", (int)(size_t)co.start(test, (void*)1));
-		VeCoreLogI("main", (int)(size_t)co.resume((void*)2));
-		VeCoreLogI("main", (int)(size_t)co.resume((void*)3));
-	}
-	{
-		using namespace venus;
-
-		auto val = convert_str(nullptr, false);
-
-		val = 0;
-
+		memset(this, 0, sizeof(CD3DX12_ROOT_SIGNATURE_DESC));
 	}
 
-	VeTerm();
+	~CD3DX12_ROOT_SIGNATURE_DESC() noexcept
+	{
+		if (pParameters)
+		{
+			VeFree((void*)pParameters);
+		}
 
-	return 0;
-}
+		if (pStaticSamplers)
+		{
+			VeFree((void*)pStaticSamplers);
+		}
+	}
+};
+
+class Material : public VeStackObject
+{
+public:
+	enum ShaderType
+	{
+		VERTEX_SHADER,
+		PIXEL_SHADER,
+		GEOMETRY_SHADER,
+		HULL_SHADER,
+		DOMAIN_SHADER,
+		COMPUTE_SHADER,
+		SHADER_MAX
+	};
+
+	Material(const char* pcPath) noexcept;
+
+	~Material() noexcept;
+
+	bool Init(const char* pcPath) noexcept;
+
+	bool Compile() noexcept;
+
+private:
+	void AddConfig(const VeDirectoryPtr& spDir, VeDirectory::ChildData& data) noexcept;
+
+	bool CompileShaders() noexcept;
+
+	bool CompileShader(ShaderType eType, venus::xml_node* pkNode) noexcept;
+
+	bool CompileRootSignatures() noexcept;
+
+	bool CompileRootSignature(venus::xml_node* pkNode) noexcept;
+
+	vtd::string m_kName;
+	vtd::string m_kPath;
+	VeVector<std::pair<VeBlobPtr, venus::xml_document>> m_kSourceArray;
+	VeStringMap<VeBlobPtr> m_akShaderCodes[SHADER_MAX];
+	VeStringMap<VeBlobPtr> m_kRootSignature;
+
+};

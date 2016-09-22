@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+	<vertex_shaders>
+		<basic>
+			<file>shaders.hlsl</file>
+			<entry>VSMain</entry>
+			<macros>
+				<D3D12/>
+			</macros>
+		</basic>
+	</vertex_shaders>
+	<pixel_shaders>
+		<basic>
+			<file>shaders.hlsl</file>
+			<entry>PSMain</entry>
+		</basic>
+	</pixel_shaders>
+	<root_signatures>
+		<basic input_layout="true">
+			<parameters>
+				<table>
+					
+				</table>
+			</parameters>
+			<samplers/>
+		</basic>
+	</root_signatures>
+</root>

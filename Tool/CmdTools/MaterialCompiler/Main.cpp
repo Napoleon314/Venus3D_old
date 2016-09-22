@@ -28,9 +28,35 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-#include <Venus3D/Venus3D.h>
+#include "Material.h"
+
+VE_PARSER_ENUM(D3D12_ROOT_PARAMETER_TYPE)
+{
+	VE_PARSER_ENUM_ITEM("table", D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE);
+	VE_PARSER_ENUM_ITEM("32bit", D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS);
+	VE_PARSER_ENUM_ITEM("cbv", D3D12_ROOT_PARAMETER_TYPE_CBV);
+	VE_PARSER_ENUM_ITEM("srv", D3D12_ROOT_PARAMETER_TYPE_SRV);
+	VE_PARSER_ENUM_ITEM("uav", D3D12_ROOT_PARAMETER_TYPE_UAV);
+}
 
 int main(int argc, char** argv)
 {
+	VE_ASSERT_ALWAYS(argc == 3);
+	VeInitData kData =
+	{
+		"MaterialCompiler",
+		VE_MAKE_VERSION(0, 1),
+		VE_INIT_CONSOLE,
+		nullptr
+	};
+	VeInit(kData);
+	{
+		Material kMaterial(argv[1]);
+		if (kMaterial.Init(argv[2]))
+		{
+			kMaterial.Compile();
+		}
+	}
+	VeTerm();
 	return 0;
 }
