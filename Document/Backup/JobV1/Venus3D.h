@@ -317,6 +317,11 @@
 
 #include "VeAssert.h"
 
+#ifdef BUILD_PLATFORM_PC
+#	define VE_ENABLE_COROUTINE
+#	include <fcontext/fcontext.h>
+#endif
+
 #ifndef BUILD_PLATFORM_APPLE
 #	define VE_USE_THREAD_LOCAL
 #endif
@@ -463,6 +468,7 @@ inline constexpr uint32_t VeMakeVersion(uint32_t maj, uint32_t min = 0, uint32_t
 #include "Parser/VeXMLParser.h"
 
 #include "ASync/VeThread.h"
+#include "ASync/VeCoroutine.h"
 #include "ASync/VeJobSystem.h"
 
 #include "System/VeSharedLib.h"
@@ -481,6 +487,7 @@ inline constexpr uint32_t VeMakeVersion(uint32_t maj, uint32_t min = 0, uint32_t
 
 struct VENUS_API VeThreadLocalSingleton : public VeMemObject
 {
+	VeCoenvironment m_kCoenviron;
 	VeStackAllocator m_kAllocator;
 };
 

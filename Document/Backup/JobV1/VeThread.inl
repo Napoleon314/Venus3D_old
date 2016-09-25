@@ -3,9 +3,9 @@
 //  The MIT License (MIT)
 //  Copyright (c) 2016 Albert D Yang
 // -------------------------------------------------------------------------
-//  Module:      PowerTest
-//  File name:   Main.cpp
-//  Created:     2016/07/01 by Albert
+//  Module:      Venus3D
+//  File name:   VeThread.inl
+//  Created:     2016/07/11 by Albert
 //  Description:
 // -------------------------------------------------------------------------
 //  Permission is hereby granted, free of charge, to any person obtaining a
@@ -28,13 +28,49 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-#include <Venus3D.h>
-
-int main(/*int argc, char * argv[]*/)
+//--------------------------------------------------------------------------
+inline bool VeThread::IsRunning() noexcept
 {
-	VeInit(VeInitData("PowerTest", VE_MAKE_VERSION(0, 1), VE_INIT_CONSOLE));
-
-	VeTerm();
-
-	return 0;
+	return m_u32State.load(std::memory_order_relaxed) == 1;
 }
+//--------------------------------------------------------------------------
+void VeThread::Start(Entry pfuncEntry, void* pvData) noexcept
+{
+	uint32_t u32Stop(0);
+	if (m_u32State.compare_exchange_weak(u32Stop, 1u, std::memory_order_relaxed))
+	{
+		m_pfuncEntry = pfuncEntry;
+		m_pvData = pvData;
+		m_pkParams->m_kEventLoop.set();
+		m_pkParams->m_kEvent.reset();
+	}
+}
+//--------------------------------------------------------------------------
+inline void VeThread::Restart() noexcept
+{
+	if (m_pfuncEntry)
+	{
+		uint32_t u32Stop(0);
+		if (m_u32State.compare_exchange_weak(u32Stop, 1u, std::memory_order_relaxed))
+		{
+			m_pkParams->m_kEventLoop.set();
+			m_pkParams->m_kEvent.reset();
+		}
+	}
+}
+//--------------------------------------------------------------------------
+inline void VeThread::Join() noexcept
+{
+	m_pkParams->m_kEvent.wait();
+}
+//--------------------------------------------------------------------------
+inline void VeThread::Suspend() noexcept
+{
+	VeSuspendThread(m_hThread);
+}
+//--------------------------------------------------------------------------
+inline void VeThread::Resume() noexcept
+{
+	VeResumeThread(m_hThread);
+}
+//--------------------------------------------------------------------------

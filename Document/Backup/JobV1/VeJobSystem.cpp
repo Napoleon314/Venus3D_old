@@ -247,13 +247,13 @@ VeJob* VeJobSystem::FetchForeground(size_t stFrame) noexcept
 		pkJob = queue.waiting.pop();
 		if (pkJob)
 		{
-			//VE_ASSERT(pkJob->m_pkFiber);
+			VE_ASSERT(pkJob->m_pkFiber);
 			return pkJob;
 		}
 		pkJob = queue.main.pop();
 		if (pkJob)
 		{
-			//VE_ASSERT(!(pkJob->m_pkFiber));
+			VE_ASSERT(!(pkJob->m_pkFiber));
 			return pkJob;
 		}
 	}
@@ -291,13 +291,13 @@ VeJob* VeJobSystem::FetchBackground() noexcept
 		pkJob = queue.waiting.pop();
 		if (pkJob)
 		{
-			//VE_ASSERT(pkJob->m_pkFiber);
+			VE_ASSERT(pkJob->m_pkFiber);
 			return pkJob;
 		}
 		pkJob = queue.main.pop();
 		if (pkJob)
 		{
-			//VE_ASSERT(!(pkJob->m_pkFiber));
+			VE_ASSERT(!(pkJob->m_pkFiber));
 			return pkJob;
 		}
 	}
@@ -319,7 +319,7 @@ void VeJobSystem::Execute(VeJob* pkJob, uint32_t u32Index) noexcept
 	else
 	{
 		VE_ASSERT(type == 2 || type == 3);
-		/*if (pkJob->m_pkFiber)
+		if (pkJob->m_pkFiber)
 		{
 			pkJob->m_pvData = pkJob->m_pkFiber->resume(pkJob);
 		}
@@ -353,7 +353,7 @@ void VeJobSystem::Execute(VeJob* pkJob, uint32_t u32Index) noexcept
 			{
 				m_kJobPool.release((VeJobFunc*)pkJob);
 			}
-		}*/
+		}
 	}
 }
 //--------------------------------------------------------------------------

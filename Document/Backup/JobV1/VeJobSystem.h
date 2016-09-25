@@ -92,7 +92,7 @@ protected:
 	Priority m_ePriority;
 
 private:
-	//VeCoroutine* m_pkFiber = nullptr;
+	VeCoroutine* m_pkFiber = nullptr;
 	void* m_pvData = nullptr;
 
 };
@@ -191,17 +191,17 @@ private:
 		uint32_t index;
 	};
 
-	class co_normal// : public VeCoroutine
+	class co_normal : public VeCoroutine
 	{
 	public:
-		co_normal() /*: VeCoroutine(VE_JOB_FIBER_STACK)*/ {}
+		co_normal() : VeCoroutine(VE_JOB_FIBER_STACK) {}
 
 	};
 
-	class co_large// : public VeCoroutine
+	class co_large : public VeCoroutine
 	{
 	public:
-		co_large() /*: VeCoroutine(VE_JOB_LARGEB_FIBER_STACK)*/ {}
+		co_large() : VeCoroutine(VE_JOB_LARGEB_FIBER_STACK) {}
 
 	};
 

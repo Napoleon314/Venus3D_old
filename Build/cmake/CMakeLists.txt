@@ -81,6 +81,6 @@ MACRO(TEST_PROJ _is_shared _win _name _lib _suffix _folder)
 	CREATE_PROJECT_USERFILE(${ITER}${_suffix} ${ITER}${_suffix} ${BINARY_PATH}/RunEnv)
 ENDMACRO()
 
-ADD_SUBDIRECTORY(external)
+#ADD_SUBDIRECTORY(external)
 ADD_SUBDIRECTORY(static)
 ADD_SUBDIRECTORY(shared)

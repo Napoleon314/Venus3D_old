@@ -30,9 +30,33 @@
 
 #include <Venus3D.h>
 
+void* test(void* data) noexcept
+{
+	VeCoreLogI("co", (int)(size_t)data);
+	VeCoreLogI("co", (int)(size_t)VeCoenvironment::yield((void*)1));
+	VeCoreLogI("co", (int)(size_t)VeCoenvironment::yield((void*)2));
+	return (void*)3;
+}
+
 int main(/*int argc, char * argv[]*/)
 {
 	VeInit(VeInitData("PowerTest", VE_MAKE_VERSION(0, 1), VE_INIT_CONSOLE));
+
+	{
+		VeCoroutine co;
+		co.prepare();
+		VeCoreLogI("main", (int)(size_t)co.start(test, (void*)1));
+		VeCoreLogI("main", (int)(size_t)co.resume((void*)2));
+		VeCoreLogI("main", (int)(size_t)co.resume((void*)3));
+	}
+	{
+		using namespace venus;
+
+		auto val = convert_str(nullptr, false);
+
+		val = 0;
+
+	}
 
 	VeTerm();
 
