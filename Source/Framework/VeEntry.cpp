@@ -75,10 +75,22 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 //--------------------------------------------------------------------------
 int main(int32_t argc, char * argv[])
 {
-	VeInitData kData;
-	FillInitDataCommon(kData, argc, argv);
-    VeInit(kData);
-    VeTerm();
+	VeInitData kData =
+	{
+		VeApplication::Name(),
+		VeApplication::Version(),
+		VE_INIT_WINDOW,
+		"startup.cfg"
+	};
+	kData.m_i32Argc = argc;
+	kData.m_ppcArgv = argv;
+	VeInit(kData);
+	{
+		VeApplicationPtr spApp = VeApplication::Create();
+		VE_ASSERT(spApp);
+		spApp->Go();
+	}
+	VeTerm();
     return 0;
 }
 //--------------------------------------------------------------------------
