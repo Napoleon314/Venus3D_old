@@ -35,10 +35,18 @@
 #define ve_fseek64 _fseeki64
 #define ve_ftell64 _ftelli64
 #define ve_access _access
+#define ve_getcwd _getcwd
+#define ve_chdir _chdir
+#define ve_mkdir _mkdir
+#define ve_rmdir _rmdir
 #else
 #define ve_fseek64 fseeko
 #define ve_ftell64 ftello
 #define ve_access access
+#define ve_getcwd getcwd
+#define ve_chdir chdir
+#define ve_mkdir(n) mkdir(n,S_IRWXU)
+#define ve_rmdir rmdir
 #endif
 //--------------------------------------------------------------------------
 VeRTTIImpl(VeFile, VeArchive);
@@ -225,7 +233,7 @@ bool VeFileDir::CreatePath(const char* pcPath) noexcept
 			}
 		}
 
-		if (VE_SUCCEEDED(_access(acBuffer, 2)))
+		if (VE_SUCCEEDED(ve_access(acBuffer, 2)))
 		{
 			bAllowCreate = true;
 			if (pcTemp < pcEnd)
@@ -235,7 +243,7 @@ bool VeFileDir::CreatePath(const char* pcPath) noexcept
 			}
 
 		}
-		else if (VE_SUCCEEDED(_access(acBuffer, 0)))
+		else if (VE_SUCCEEDED(ve_access(acBuffer, 0)))
 		{
 			bAllowCreate = false;
 			if (pcTemp < pcEnd)
@@ -246,7 +254,7 @@ bool VeFileDir::CreatePath(const char* pcPath) noexcept
 		}
 		else if (bAllowCreate)
 		{
-			if (VE_SUCCEEDED(_mkdir(acBuffer)))
+			if (VE_SUCCEEDED(ve_mkdir(acBuffer)))
 			{
 				if (pcTemp < pcEnd)
 				{
