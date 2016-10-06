@@ -31,6 +31,16 @@
 #include "stdafx.h"
 
 //--------------------------------------------------------------------------
+#ifdef BUILD_PLATFORM_WIN
+#define ve_fseek64 _fseeki64
+#define ve_ftell64 _ftelli64
+#define ve_access _access
+#else
+#define ve_fseek64 fseeko
+#define ve_ftell64 ftello
+#define ve_access access
+#endif
+//--------------------------------------------------------------------------
 VeRTTIImpl(VeFile, VeArchive);
 //--------------------------------------------------------------------------
 VeFile::VeFile(FILE* hFile, uint32_t u32Flags) noexcept
@@ -52,7 +62,7 @@ VeFile::~VeFile() noexcept
 bool VeFile::Seek(ptrdiff_t pdOffset, VeWhence eWhence) noexcept
 {
 #ifdef BUILD_ARCH_X64
-	return _fseeki64(m_hFile, pdOffset, eWhence) == 0;
+	return ve_fseek64(m_hFile, pdOffset, eWhence) == 0;
 #else
 	return fseek(m_hFile, pdOffset, eWhence) == 0;
 #endif
@@ -60,7 +70,11 @@ bool VeFile::Seek(ptrdiff_t pdOffset, VeWhence eWhence) noexcept
 //--------------------------------------------------------------------------
 size_t VeFile::Tell() noexcept
 {
+#ifdef BUILD_ARCH_X64
+	return ve_ftell64(m_hFile);
+#else
 	return ftell(m_hFile);
+#endif
 }
 //--------------------------------------------------------------------------
 size_t VeFile::Read(void* pvOutput, size_t stBytes) noexcept
@@ -90,7 +104,7 @@ bool VeFileDir::Access(const char* pcPath, uint32_t u32Flags) noexcept
 {
 	char acPath[VE_MAX_PATH_LEN];
 	VeSprintf(acPath, "%s/%s", m_kFileDirPath.c_str(), pcPath);
-	return _access(acPath, u32Flags) == 0;
+	return ve_access(acPath, u32Flags) == 0;
 }
 //--------------------------------------------------------------------------
 struct FindData : VeDirectory::Child
