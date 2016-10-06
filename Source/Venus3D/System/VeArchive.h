@@ -147,6 +147,16 @@ public:
 		iterator(ChildPtr&& _Data) noexcept
 			: data(_Data) {}
 
+		iterator(iterator&& move) noexcept
+		{
+			data = move.data;
+			move.data = nullptr;
+		}
+
+		iterator(const iterator&) noexcept = delete;
+
+		iterator& operator = (const iterator&) noexcept = delete;
+
 		bool operator == (const iterator& iter) const noexcept
 		{
 			return data == iter.data;

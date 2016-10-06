@@ -115,8 +115,14 @@ bool VeFileDir::Access(const char* pcPath, uint32_t u32Flags) noexcept
 	return ve_access(acPath, u32Flags) == 0;
 }
 //--------------------------------------------------------------------------
+#ifdef BUILD_PLATFORM_WIN
 struct FindData : VeDirectory::Child
 {
+	virtual ~FindData() noexcept
+	{
+		_findclose(m_hFind);
+	}
+
 	virtual VeDirectory::ChildData data() noexcept override
 	{
 		return{ m_kData.name, m_kData.size, m_kData.time_write, m_kData.attrib };
@@ -130,9 +136,11 @@ struct FindData : VeDirectory::Child
 	intptr_t m_hFind;
 	_finddata_t m_kData;
 };
+#endif
 //--------------------------------------------------------------------------
 VeDirectory::ChildPtr VeFileDir::FindFirst(const char* pcDesc) noexcept
 {
+#ifdef BUILD_PLATFORM_WIN
 	vtd::intrusive_ptr<FindData> spData = VE_NEW FindData();
 	if (pcDesc)
 	{
@@ -148,6 +156,7 @@ VeDirectory::ChildPtr VeFileDir::FindFirst(const char* pcDesc) noexcept
 	{
 		return spData;
 	}
+#endif
 	return nullptr;
 }
 //--------------------------------------------------------------------------
@@ -170,15 +179,17 @@ VeArchivePtr VeFileDir::OpenArchive(const char* pcPath,
 bool VeFileDir::TestPath(std::pair<uint32_t, time_t>& kOut,
 	const char* pcPath) noexcept
 {
-	_finddata32i64_t kData;
-	size_t stHandle = _findfirst32i64(pcPath, &kData);
-	if (stHandle != VE_ELF)
+#ifdef BUILD_PLATFORM_WIN
+	_finddata_t kData;
+	intptr_t hHandle = _findfirst(pcPath, &kData);
+	if (hHandle != VE_ELF)
 	{
 
 		kOut.first = kData.attrib & 0xf0;
 		kOut.second = kData.time_write;
 		return true;
 	}
+#endif
 	return false;
 }
 //--------------------------------------------------------------------------
