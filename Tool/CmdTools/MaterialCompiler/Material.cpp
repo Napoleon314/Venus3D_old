@@ -282,7 +282,7 @@ bool Material::CompileRootSignatures() noexcept
 bool Material::CompileRootSignature(venus::xml_node* pkNode) noexcept
 {
 	const char* pcName = pkNode->name();
-	VeVector<D3D12_ROOT_PARAMETER> kParameters;
+	VeVector<CD3D12_ROOT_PARAMETER> kParameters;
 	{
 		auto para = pkNode->first_node("parameters");
 		if (para)
@@ -291,20 +291,59 @@ bool Material::CompileRootSignature(venus::xml_node* pkNode) noexcept
 			while (it)
 			{
 				kParameters.resize(kParameters.size() + 1);
-				D3D12_ROOT_PARAMETER& obj = kParameters.back();
+				CD3D12_ROOT_PARAMETER& obj = kParameters.back();
 				obj.ParameterType = venus::convert_str(it->name(),
 					D3D12_ROOT_PARAMETER_TYPE(UINT32_MAX));
+				obj.ShaderVisibility = ((venus::xml_node*)it)->convert_attribute(
+					"shader_visibility", D3D12_SHADER_VISIBILITY_ALL);
 				switch (obj.ParameterType)
 				{
 				case D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE:
+				{
+					obj.DescriptorTable = { 0, nullptr };
+					auto itRange = it->first_node("range");
+					while (itRange)
+					{
+						D3D12_DESCRIPTOR_RANGE kRange;
+						kRange.RangeType = ((venus::xml_node*)itRange)->convert_attribute(
+							"type", D3D12_DESCRIPTOR_RANGE_TYPE_SRV);
+						kRange.NumDescriptors = ((venus::xml_node*)itRange)->convert_attribute(
+							"num", 1);
+						kRange.BaseShaderRegister = ((venus::xml_node*)itRange)->convert_attribute(
+							"base", 0);
+						kRange.RegisterSpace = ((venus::xml_node*)itRange)->convert_attribute(
+							"space", 0);
+						kRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+						obj.AddDescriptorRange(kRange);
+						itRange = itRange->next_sibling("range");
+					}
 					break;
+				}
 				case D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS:
+					obj.Constants.ShaderRegister = ((venus::xml_node*)it)->convert_attribute(
+						"base", 0);
+					obj.Constants.RegisterSpace = ((venus::xml_node*)it)->convert_attribute(
+						"space", 0);
+					obj.Constants.Num32BitValues = ((venus::xml_node*)it)->convert_attribute(
+						"num", 1);
 					break;
 				case D3D12_ROOT_PARAMETER_TYPE_CBV:
+					obj.Descriptor.ShaderRegister = ((venus::xml_node*)it)->convert_attribute(
+						"base", 0);
+					obj.Descriptor.RegisterSpace = ((venus::xml_node*)it)->convert_attribute(
+						"space", 0);
 					break;
 				case D3D12_ROOT_PARAMETER_TYPE_SRV:
+					obj.Descriptor.ShaderRegister = ((venus::xml_node*)it)->convert_attribute(
+						"base", 0);
+					obj.Descriptor.RegisterSpace = ((venus::xml_node*)it)->convert_attribute(
+						"space", 0);
 					break;
 				case D3D12_ROOT_PARAMETER_TYPE_UAV:
+					obj.Descriptor.ShaderRegister = ((venus::xml_node*)it)->convert_attribute(
+						"base", 0);
+					obj.Descriptor.RegisterSpace = ((venus::xml_node*)it)->convert_attribute(
+						"space", 0);
 					break;
 				default:
 					break;
@@ -323,47 +362,85 @@ bool Material::CompileRootSignature(venus::xml_node* pkNode) noexcept
 			auto it = para->first_node();
 			while (it)
 			{
+				kSamplers.resize(kSamplers.size() + 1);
+				D3D12_STATIC_SAMPLER_DESC& obj = kSamplers.back();
+				obj.Filter = ((venus::xml_node*)it)->convert_attribute(
+					"filter", D3D12_FILTER_MIN_MAG_MIP_POINT);
+				obj.AddressU = ((venus::xml_node*)it)->convert_attribute(
+					"add_u", D3D12_TEXTURE_ADDRESS_MODE_WRAP);
+				obj.AddressV = ((venus::xml_node*)it)->convert_attribute(
+					"add_v", D3D12_TEXTURE_ADDRESS_MODE_WRAP);
+				obj.AddressW = ((venus::xml_node*)it)->convert_attribute(
+					"add_w", D3D12_TEXTURE_ADDRESS_MODE_WRAP);
+				obj.MipLODBias = ((venus::xml_node*)it)->convert_attribute(
+					"lod_bias", 0.0f);
+				obj.MaxAnisotropy = ((venus::xml_node*)it)->convert_attribute(
+					"max_anis", 1);
+				obj.ComparisonFunc = ((venus::xml_node*)it)->convert_attribute(
+					"compare", D3D12_COMPARISON_FUNC_ALWAYS);
+				obj.BorderColor = ((venus::xml_node*)it)->convert_attribute(
+					"border", D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK);
+				obj.MinLOD = ((venus::xml_node*)it)->convert_attribute(
+					"min_lod", 0.0f);
+				obj.MaxLOD = ((venus::xml_node*)it)->convert_attribute(
+					"max_lod", D3D12_FLOAT32_MAX);
+				obj.ShaderRegister = ((venus::xml_node*)it)->convert_attribute(
+					"base", 0);
+				obj.RegisterSpace = ((venus::xml_node*)it)->convert_attribute(
+					"space", 0);
+				obj.ShaderVisibility = ((venus::xml_node*)it)->convert_attribute(
+					"shader_visibility", D3D12_SHADER_VISIBILITY_PIXEL);
+
 				it = it->next_sibling();
 			}
 		}
 	}
 	D3D12_ROOT_SIGNATURE_DESC kDesc;
+
 	kDesc.NumParameters = (UINT)kParameters.size();
 	kDesc.pParameters = kParameters.size() ? kParameters.data() : nullptr;
 	kDesc.NumStaticSamplers = (UINT)kSamplers.size();
 	kDesc.pStaticSamplers = kSamplers.size() ? kSamplers.data() : nullptr;
 	kDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_NONE;
-	if (pkNode->first_attribute("input_layout", false))
+	if (pkNode->convert_attribute("input_layout", false))
 	{
 		kDesc.Flags |= D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
 	}
-	if (pkNode->first_attribute("stream_out", false))
+	if (pkNode->convert_attribute("stream_out", false))
 	{
 		kDesc.Flags |= D3D12_ROOT_SIGNATURE_FLAG_ALLOW_STREAM_OUTPUT;
 	}
-	if (pkNode->first_attribute("deny_vs", false))
+	if (pkNode->convert_attribute("deny_vs", false))
 	{
 		kDesc.Flags |= D3D12_ROOT_SIGNATURE_FLAG_DENY_VERTEX_SHADER_ROOT_ACCESS;
 	}
-	if (pkNode->first_attribute("deny_ps", false))
+	if (pkNode->convert_attribute("deny_ps", false))
 	{
 		kDesc.Flags |= D3D12_ROOT_SIGNATURE_FLAG_DENY_PIXEL_SHADER_ROOT_ACCESS;
 	}
-	if (pkNode->first_attribute("deny_gs", false))
+	if (pkNode->convert_attribute("deny_gs", false))
 	{
 		kDesc.Flags |= D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS;
 	}
-	if (pkNode->first_attribute("deny_hs", false))
+	if (pkNode->convert_attribute("deny_hs", false))
 	{
 		kDesc.Flags |= D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS;
 	}
-	if (pkNode->first_attribute("deny_ds", false))
+	if (pkNode->convert_attribute("deny_ds", false))
 	{
 		kDesc.Flags |= D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS;
 	}
-	
-	
-	//pkNode->first_attribute("input_layout")
+	ID3DBlob* pkBlob = nullptr;
+	ID3DBlob* pkErr = nullptr;
+	if (SUCCEEDED(D3D12SerializeRootSignature(&kDesc, D3D_ROOT_SIGNATURE_VERSION_1_0,
+		&pkBlob, &pkErr)))
+	{
+		auto& blob = m_kRootSignature[pcName];
+		blob = VE_NEW VeBlob(pkBlob->GetBufferSize());
+		memcpy(blob->data(), pkBlob->GetBufferPointer(), pkBlob->GetBufferSize());
+	}
+	VE_SAFE_RELEASE(pkBlob);
+	VE_SAFE_RELEASE(pkErr);
 
 	return true;
 }

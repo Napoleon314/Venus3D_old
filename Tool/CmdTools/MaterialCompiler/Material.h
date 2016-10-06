@@ -34,25 +34,45 @@
 #include <d3dcompiler.h>
 #include <d3d12.h>
 
-struct CD3DX12_ROOT_SIGNATURE_DESC : public D3D12_ROOT_SIGNATURE_DESC
+struct CD3D12_ROOT_PARAMETER : D3D12_ROOT_PARAMETER
 {
-	CD3DX12_ROOT_SIGNATURE_DESC() noexcept
+	~CD3D12_ROOT_PARAMETER() noexcept
 	{
-		memset(this, 0, sizeof(CD3DX12_ROOT_SIGNATURE_DESC));
-	}
-
-	~CD3DX12_ROOT_SIGNATURE_DESC() noexcept
-	{
-		if (pParameters)
+		if (ParameterType == D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE
+			&& DescriptorTable.pDescriptorRanges)
 		{
-			VeFree((void*)pParameters);
-		}
-
-		if (pStaticSamplers)
-		{
-			VeFree((void*)pStaticSamplers);
+			VeFree((void*)DescriptorTable.pDescriptorRanges);
+			DescriptorTable = { 0, nullptr };
 		}
 	}
+
+	void AddDescriptorRange(const D3D12_DESCRIPTOR_RANGE& kRange) noexcept
+	{
+		VE_ASSERT(ParameterType == D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE);
+		if (DescriptorTable.pDescriptorRanges)
+		{
+			VE_ASSERT(DescriptorTable.NumDescriptorRanges);
+			auto pRange = (D3D12_DESCRIPTOR_RANGE*)VeRealloc((void*)DescriptorTable.pDescriptorRanges, sizeof(D3D12_DESCRIPTOR_RANGE) * (++DescriptorTable.NumDescriptorRanges));
+			pRange[DescriptorTable.NumDescriptorRanges - 1] = kRange;
+			DescriptorTable.pDescriptorRanges = pRange;
+		}
+		else
+		{
+			VE_ASSERT(!DescriptorTable.NumDescriptorRanges);
+			auto pRange = (D3D12_DESCRIPTOR_RANGE*)VeMalloc(sizeof(D3D12_DESCRIPTOR_RANGE));
+			*pRange = kRange;
+			DescriptorTable.pDescriptorRanges = pRange;
+			DescriptorTable.NumDescriptorRanges = 1;
+		}
+	}
+
+};
+
+enum RootDescriptorLevel
+{
+	LEVEL_STATIC = 8,
+	LEVEL_FRAME_STATIC = 4,
+	LEVEL_DYNAMIC = 0
 };
 
 class Material : public VeStackObject

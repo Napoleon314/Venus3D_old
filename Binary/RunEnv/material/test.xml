@@ -17,12 +17,19 @@
 	</pixel_shaders>
 	<root_signatures>
 		<basic input_layout="true">
-			<parameters>
-				<table>
-					
+			<!--parameters>
+				<table shader_visibility="vs">
+					<range type="cbv" num="1" base="0" space="0" level="static"/>
+					<range type="srv" num="1" base="0" space="0" level="static"/>
 				</table>
+				<const base="0" space="0" num="1"/>
+				<srv base="1" space="2" level="static"/>
+				<cbv base="2" space="3" level="static"/>
+				<uav base="3" space="4" level="static"/>
 			</parameters>
-			<samplers/>
+			<samplers>
+
+			</samplers-->
 		</basic>
 	</root_signatures>
 </root>

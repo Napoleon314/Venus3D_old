@@ -80,7 +80,7 @@ namespace venus
 		{
 			if (_Str)
 			{
-				if (isalnum(*_Str))
+				if ((*_Str) >= '0' && (*_Str) <= '9')
 				{
 					_Out = atoi(_Str) != 0;
 					return true;
