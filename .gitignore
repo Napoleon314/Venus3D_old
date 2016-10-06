@@ -3,6 +3,7 @@ _*
 SDK/*
 Binary/Tool/*
 Binary/vc*
+Binary/gcc*
 Build/*
 Dependent/*
 *vulkan.h
