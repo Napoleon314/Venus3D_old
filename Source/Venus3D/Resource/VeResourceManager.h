@@ -40,12 +40,12 @@ private:
 	VeReadCache() noexcept;
 
 	vtd::intrusive_node<VeReadCache*> m_kNode;
-	uint32_t m_u32FreeTime;
-	std::atomic<uint32_t> m_u32RefCount;
+	//uint32_t m_u32FreeTime;
+	//std::atomic<uint32_t> m_u32RefCount;
 	vtd::string m_kFullPath;
 	vtd::string m_kExt;
 	void* m_pvData = nullptr;
-	size_t m_stSize = 0;
+	//size_t m_stSize = 0;
 
 };
 
@@ -56,8 +56,8 @@ public:
 	template<class... _Types>
 	struct unpacker;
 
-	template<>
-	struct unpacker<>
+	template<class _This>
+	struct unpacker<_This>
 	{
 		static void reg_arch_src(VeResourceManager&) noexcept {}
 
@@ -128,7 +128,7 @@ private:
 	vtd::intrusive_list<VeReadCache*> m_kReadingCache;
 	VeStringMap<std::pair<uint32_t, vtd::intrusive_list<VeReadCache*>>> m_kSpecificFree;
 	vtd::intrusive_list<VeReadCache*> m_kGeneralFree;
-	uint32_t m_u32ReadCacheRemaining;
+	//uint32_t m_u32ReadCacheRemaining;
 
 };
 
