@@ -205,10 +205,7 @@ class build_info:
 				elif "vc110" == compiler:
 					toolset = "v110"
 			elif "android" == target_platform:
-				if target_api_level >= 21:
-					toolset = "4.9"
-				else:
-					toolset = "4.6"
+				toolset = "4.9"
 				
 		if "" == archs:
 			archs = build_cfg.arch
@@ -342,7 +339,7 @@ def log_info(message):
 def log_warning(message):
 	print("[W] %s" % message)
 
-def build_project(name, build_path, build_info, compiler_info, need_install = False, additional_options = ""):
+def build_project(name, build_path, build_info, script_path, compiler_info, need_build = False, need_install = False, additional_options = ""):
 	curdir = os.path.abspath(os.curdir)
 	
 	toolset_name = ""
@@ -408,11 +405,29 @@ def build_project(name, build_path, build_info, compiler_info, need_install = Fa
 		os.chdir(build_dir)
 
 		cmake_cmd = batch_command(build_info.host_platform)
-		cmake_cmd.add_command('cmake -G "%s" %s %s %s' % (compiler_info.generator, toolset_name, additional_options, "../cmake"))
+		cmake_cmd.add_command('cmake -G "%s" %s %s %s' % (compiler_info.generator, toolset_name, additional_options, script_path))
 		if cmake_cmd.execute() != 0:
 			log_error("Config %s failed." % name)
 
+		if need_build:
+			build_cmd = batch_command(build_info.host_platform)
+			if "vc" == build_info.compiler_name:
+				build_cmd.add_command('@CALL "%%VS%dCOMNTOOLS%%..\\..\\VC\\vcvarsall.bat" %s' % (build_info.compiler_version, vc_option))
+			for config in build_info.cfg:
+				if "vc" == build_info.compiler_name:
+					build_info.msvc_add_build_command(build_cmd, name, "ALL_BUILD", config, vc_arch)
+					if need_install:
+						build_info.msvc_add_build_command(build_cmd, name, "INSTALL", config, vc_arch)
+				elif "clang" == build_info.compiler_name:
+					build_info.xcodebuild_add_build_command(build_cmd, "ALL_BUILD", config)
+					if need_install and (not build_info.prefer_static):
+						build_info.xcodebuild_add_build_command(build_cmd, "install", config)
+			if build_cmd.execute() != 0:
+				log_error("Build %s failed." % name)
+
 		os.chdir(curdir)
+
+		print("")
 	else:
 		if "win" == build_info.host_platform:
 			if build_info.target_platform != "android":
@@ -437,6 +452,7 @@ def build_project(name, build_path, build_info, compiler_info, need_install = Fa
 			config_options = "-DCMAKE_BUILD_TYPE:STRING=\"%s\"" % config
 			if "android" == build_info.target_platform:
 				config_options += " -DANDROID_ABI=%s" % compiler_info.arch
+
 				if "x86" == compiler_info.arch:
 					config_options += " -DANDROID_TOOLCHAIN_NAME=x86-%s" % compiler_info.toolset
 				elif "x86_64" == compiler_info.arch:
@@ -445,10 +461,29 @@ def build_project(name, build_path, build_info, compiler_info, need_install = Fa
 					config_options += " -DANDROID_TOOLCHAIN_NAME=aarch64-linux-android-%s" % compiler_info.toolset
 				else:
 					config_options += " -DANDROID_TOOLCHAIN_NAME=arm-linux-androideabi-%s" % compiler_info.toolset
+
+				if "clang" == build_info.compiler_name:
+					config_options += " -DANDROID_STL=c++_static"
 			
 			cmake_cmd = batch_command(build_info.host_platform)
-			cmake_cmd.add_command('cmake -G "%s" %s %s %s %s' % (compiler_info.generator, toolset_name, additional_options, config_options, "../cmake"))
+			cmake_cmd.add_command('cmake -G "%s" %s %s %s %s' % (compiler_info.generator, toolset_name, additional_options, config_options, script_path))
 			if cmake_cmd.execute() != 0:
-				log_error("Config %s failed." % name)		
+				log_error("Config %s failed." % name)
+
+			if need_build:
+				install_str = ""
+				if need_install and (not build_info.prefer_static):
+					install_str = "install"
+				build_cmd = batch_command(build_info.host_platform)
+				if "win" == build_info.host_platform:
+					build_cmd.add_command("@%s %s" % (make_name, install_str))
+					build_cmd.add_command('@if ERRORLEVEL 1 exit /B 1')
+				else:
+					build_cmd.add_command("%s %s" % (make_name, install_str))
+					build_cmd.add_command('if [ $? -ne 0 ]; then exit 1; fi')
+				if build_cmd.execute() != 0:
+					log_error("Build %s failed." % name)
 
 			os.chdir(curdir)
+
+			print("")

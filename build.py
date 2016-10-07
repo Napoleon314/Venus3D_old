@@ -50,4 +50,5 @@ if __name__ == "__main__":
 
 	print("Building %s..." % (build_cfg.project_name))
 	for info in bi.compilers:
-		build_project(build_cfg.project_name, build_cfg.build_path, bi, info, info.is_windows, additional_options)
+		build_project(build_cfg.project_name, build_cfg.build_path, bi, "../cmake", info, False, False, additional_options)
+
