@@ -28,24 +28,3 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-//--------------------------------------------------------------------------
-inline VeJobFunc* VeJobSystem::AcquireJob() noexcept
-{
-	return m_kJobPool.acquire();
-}
-//--------------------------------------------------------------------------
-inline VeJobFunc* VeJobSystem::AcquireJob(VeJob::Type eType,
-	std::function<void(uint32_t)> funcWork,
-	VeJob::Priority ePriority) noexcept
-{
-	VeJobFunc* pkRes = m_kJobPool.acquire();
-	pkRes->Set(eType, std::move(funcWork), ePriority);
-	return pkRes;
-}
-//--------------------------------------------------------------------------
-inline void VeJobSystem::ReleaseJob(VeJobFunc* pkJob) noexcept
-{
-	pkJob->Set(VeJob::TYPE_MASK, nullptr, VeJob::PRI_MAX);
-	m_kJobPool.release(pkJob);
-}
-//--------------------------------------------------------------------------

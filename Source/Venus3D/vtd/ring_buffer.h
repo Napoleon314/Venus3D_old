@@ -64,7 +64,7 @@ namespace vtd
 			assert(_Size.fetch_add(1, std::memory_order_acquire) < _Max);
 #endif
 			size_type cur = _Cursor.fetch_add(1, std::memory_order_acquire);
-			buffer[cur & _Mask] = _Val;
+			buffer[cur & _Mask] = std::move(_Val);
 			_Head.fetch_add(1, std::memory_order_release);
 		}
 
@@ -81,11 +81,11 @@ namespace vtd
 				}
 			} while (!_Tail.compare_exchange_weak(t, t + 1, std::memory_order_relaxed));
 #if defined(DEBUG) | defined(_DEBUG)
-			value_type res = buffer[t & _Mask];
+			auto res = std::move(buffer[t & _Mask]);
 			assert(_Size.fetch_sub(1, std::memory_order_release) > 0);
-			return res;
+			return std::move(res);
 #else
-			return buffer[t & _Mask];
+			return std::move(buffer[t & _Mask]);
 #endif
 		}
 

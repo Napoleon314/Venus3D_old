@@ -34,6 +34,8 @@ int main(/*int argc, char * argv[]*/)
 {
 	VeInit(VeInitData("PowerTest", VE_MAKE_VERSION(0, 1), VE_INIT_CONSOLE));
 
+	
+
 	VeTerm();
 
 	return 0;

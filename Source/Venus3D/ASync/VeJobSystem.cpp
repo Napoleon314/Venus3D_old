@@ -31,6 +31,156 @@
 #include "stdafx.h"
 
 //--------------------------------------------------------------------------
+VeJob::~VeJob() noexcept
+{
+
+}
+//--------------------------------------------------------------------------
+void VeJob::ClearTasks() noexcept
+{
+	std::lock_guard<vtd::spin_lock> lock(m_kLock);
+	if (m_u32Pointer < m_kTaskArray.size())
+	{
+		m_kTaskArray.resize(m_u32Pointer);
+	}
+}
+//--------------------------------------------------------------------------
+void VeJob::AddTask(Task funcTask, Execute eExecute,
+	Priority ePriority) noexcept
+{
+	m_kTaskArray.push_back({ eExecute, ePriority, funcTask });
+}
+//--------------------------------------------------------------------------
+bool VeJob::Start() noexcept
+{
+	IncRefCount();
+	{
+		std::lock_guard<vtd::spin_lock> lock(m_kLock);
+		if (m_u32Pointer == 0 && m_u32Wait == 0 && m_kTaskArray.size())
+		{
+			VE_ASSERT(m_kRelatedJobs.empty());
+			m_u32Pointer = 1;
+		}
+		else
+		{
+			return false;
+		}
+	}
+	auto& kAtom = m_kTaskArray.front();
+	if (kAtom.m_eExecute == VeJob::EXE_BACKGROUND)
+	{
+		ve_job_sys.m_akBGQueues[kAtom.m_ePriority].push(this);
+		ve_job_sys.m_i32BGJobNum.fetch_add(1, std::memory_order_relaxed);
+		auto pt = ve_job_sys.m_kWaitingThreads.pop();
+		if (pt)
+		{
+			pt->loop.set();
+		}
+	}
+	else
+	{
+		size_t stFrame = ve_job_sys.m_u32FrameCount.load(std::memory_order_relaxed) & 1;
+		stFrame = kAtom.m_eExecute == VeJob::EXE_FG_CURRENT ? stFrame : (!stFrame);
+		ve_job_sys.m_akFGQueues[stFrame][kAtom.m_ePriority].push(this);
+	}
+	return true;
+}
+//--------------------------------------------------------------------------
+void VeJob::Wait(const VeJobPtr& spJob) noexcept
+{
+	if (spJob)
+	{
+		std::lock_guard<vtd::spin_lock> lock(spJob->m_kLock);
+		if (spJob->m_u32Pointer)
+		{
+			spJob->m_kRelatedJobs.push_back(this);
+			++m_u32Wait;
+		}
+	}
+}
+//--------------------------------------------------------------------------
+void VeJob::Run(uint32_t u32Index) noexcept
+{
+	VE_ASSERT(m_u32Pointer <= m_kTaskArray.size());
+	auto& atom = m_kTaskArray[m_u32Pointer - 1];
+	if (atom.m_funcTask(u32Index))
+	{
+		if (!m_u32Wait)
+		{
+			Resume();
+		}
+	}
+	else
+	{
+		End(false);
+	}
+}
+//--------------------------------------------------------------------------
+void VeJob::End(bool bSuccess) noexcept
+{
+	VeVector<VeJobPtr> kRelatedJobs;
+	{
+		std::lock_guard<vtd::spin_lock> lock(m_kLock);
+		VE_ASSERT(!m_u32Wait);
+		m_u32Pointer = 0;
+		kRelatedJobs = std::move(m_kRelatedJobs);
+	}
+	if (bSuccess)
+	{
+		for (auto& job : kRelatedJobs)
+		{
+			job->Resume();
+		}
+	}
+	else
+	{
+		for (auto& job : kRelatedJobs)
+		{
+			job->End(false);
+		}
+	}
+	OnEnd(bSuccess);
+	DecRefCount();
+}
+//--------------------------------------------------------------------------
+void VeJob::Resume() noexcept
+{
+	VE_ASSERT(!m_u32Wait);
+	bool bEnd = true;
+	{
+		std::lock_guard<vtd::spin_lock> lock(m_kLock);
+		if (m_u32Pointer < m_kTaskArray.size())
+		{
+			++m_u32Pointer;
+			bEnd = false;
+		}
+	}
+	if (bEnd)
+	{
+		End(true);
+	}
+	else
+	{
+		auto& kAtom = m_kTaskArray[m_u32Pointer - 1];
+		if (kAtom.m_eExecute == VeJob::EXE_BACKGROUND)
+		{
+			ve_job_sys.m_akBGQueues[kAtom.m_ePriority].push(this);
+			ve_job_sys.m_i32BGJobNum.fetch_add(1, std::memory_order_relaxed);
+			auto pt = ve_job_sys.m_kWaitingThreads.pop();
+			if (pt)
+			{
+				pt->loop.set();
+			}
+		}
+		else
+		{
+			size_t stFrame = ve_job_sys.m_u32FrameCount.load(std::memory_order_relaxed) & 1;
+			stFrame = kAtom.m_eExecute == VeJob::EXE_FG_CURRENT ? stFrame : (!stFrame);
+			ve_job_sys.m_akFGQueues[stFrame][kAtom.m_ePriority].push(this);
+		}
+	}
+}
+//--------------------------------------------------------------------------
 VeThreadCallbackResult VeJobSystem::FGThreadCallback(void* pvParam) noexcept
 {
 	VeThread::InitPerThread();
@@ -51,14 +201,7 @@ VeThreadCallbackResult VeJobSystem::FGThreadCallback(void* pvParam) noexcept
 		case -1:
 			break;
 		default:
-			if (ve_job_sys.m_pkParallel)
-			{
-				ve_job_sys.m_pkParallel->Work(t.index);
-			}
-			else
-			{
-				ve_job_sys.ExecuteForeground(t.index);
-			}
+			ve_job_sys.ExecuteForeground(t.index);
 			t.cond_val = 0;
 			if (ve_job_sys.m_i32FGJoinValue.fetch_add(1, std::memory_order_relaxed)
 				== int32_t(ve_job_sys.m_kFGThreads.size() - 1))
@@ -161,49 +304,13 @@ VeJobSystem::~VeJobSystem() noexcept
 	}
 }
 //--------------------------------------------------------------------------
-void VeJobSystem::ParallelCompute(VeJob* pkJob) noexcept
-{
-	VE_ASSERT(pkJob && pkJob->GetType() == VeJob::TYPE_PARALLEL_COMPUTE);
-	int32_t check(0);
-	if (m_i32FGState.compare_exchange_weak(check, 1, std::memory_order_relaxed))
-	{
-		m_pkParallel = pkJob;
-		RunForeground();
-		m_pkParallel = nullptr;
-	}
-}
-//--------------------------------------------------------------------------
 void VeJobSystem::ProcessForegroundJobs() noexcept
 {
-	VE_ASSERT(!m_pkParallel);
 	int32_t check(0);
 	if (m_i32FGState.compare_exchange_weak(check, 1, std::memory_order_relaxed))
 	{
 		RunForeground();
 		m_u32FrameCount.fetch_add(1, std::memory_order_relaxed);
-	}
-}
-//--------------------------------------------------------------------------
-void VeJobSystem::Appointment(VeJob* pkJob, bool bCurrentFrame) noexcept
-{
-	VE_ASSERT(pkJob && pkJob->GetType() && pkJob->GetPriority() < VeJob::PRI_MAX);
-	if (pkJob->GetType() & 0xF0)
-	{
-		VE_ASSERT(m_kBGThreads.size());
-		size_t stFrame = m_u32FrameCount.load(std::memory_order_relaxed) & 1;
-		stFrame = bCurrentFrame ? stFrame : (!stFrame);
-		auto& queue = m_akFGQueues[stFrame][pkJob->GetPriority()];
-		queue.main.push(pkJob);
-		m_i32BGJobNum.fetch_add(1, std::memory_order_relaxed);
-		auto pt = m_kWaitingThreads.pop();
-		if (pt)
-		{
-			pt->loop.set();
-		}
-	}
-	else
-	{
-		m_akBGQueues[pkJob->GetPriority()].main.push(pkJob);
 	}
 }
 //--------------------------------------------------------------------------
@@ -233,31 +340,23 @@ void VeJobSystem::ExecuteForeground(uint32_t u32Index) noexcept
 	VeJob* pkJob = FetchForeground(stFrame);
 	while (pkJob)
 	{
-		VE_ASSERT(!(pkJob->GetType() & 0xF0));
-		Execute(pkJob, u32Index);
+		pkJob->Run(u32Index);
 		pkJob = FetchForeground(stFrame);
 	}
 }
 //--------------------------------------------------------------------------
 VeJob* VeJobSystem::FetchForeground(size_t stFrame) noexcept
 {
-	VeJob* pkJob;
+	VeJob* pkJob(nullptr);
 	for (auto& queue : m_akFGQueues[stFrame])
 	{
-		pkJob = queue.waiting.pop();
+		pkJob = queue.pop();
 		if (pkJob)
 		{
-			//VE_ASSERT(pkJob->m_pkFiber);
-			return pkJob;
-		}
-		pkJob = queue.main.pop();
-		if (pkJob)
-		{
-			//VE_ASSERT(!(pkJob->m_pkFiber));
-			return pkJob;
+			break;
 		}
 	}
-	return nullptr;
+	return pkJob;
 }
 //--------------------------------------------------------------------------
 void VeJobSystem::RunBackground() noexcept
@@ -277,89 +376,23 @@ void VeJobSystem::ExecuteBackground(uint32_t u32Index) noexcept
 	VeJob* pkJob = FetchBackground();
 	while (pkJob)
 	{
-		VE_ASSERT(pkJob->GetType() & 0xF0);
-		Execute(pkJob, u32Index);
+		pkJob->Run(u32Index);
 		pkJob = FetchBackground();
 	}
 }
 //--------------------------------------------------------------------------
 VeJob* VeJobSystem::FetchBackground() noexcept
 {
-	VeJob* pkJob;
+	VeJob* pkJob(nullptr);
 	for (auto& queue : m_akBGQueues)
 	{
-		pkJob = queue.waiting.pop();
+		pkJob = queue.pop();
 		if (pkJob)
 		{
-			//VE_ASSERT(pkJob->m_pkFiber);
-			return pkJob;
-		}
-		pkJob = queue.main.pop();
-		if (pkJob)
-		{
-			//VE_ASSERT(!(pkJob->m_pkFiber));
-			return pkJob;
+			m_i32BGJobNum.fetch_sub(1, std::memory_order_relaxed);
+			break;
 		}
 	}
-	return nullptr;
-}
-//--------------------------------------------------------------------------
-void VeJobSystem::Execute(VeJob* pkJob, uint32_t u32Index) noexcept
-{
-	auto type = pkJob->GetType() & 0xF;
-	VE_ASSERT(type >= 1 && type <= 3);
-	if (type == 1)
-	{
-		pkJob->Work(u32Index);
-		if (m_kJobPool.vertify(pkJob))
-		{
-			m_kJobPool.release((VeJobFunc*)pkJob);
-		}
-	}
-	else
-	{
-		VE_ASSERT(type == 2 || type == 3);
-		/*if (pkJob->m_pkFiber)
-		{
-			pkJob->m_pvData = pkJob->m_pkFiber->resume(pkJob);
-		}
-		else
-		{
-			if (type == 2)
-			{
-				pkJob->m_pkFiber = m_kFiberPool.acquire();
-			}
-			else
-			{
-				pkJob->m_pkFiber = m_kLargeFiberPool.acquire();
-			}
-			pkJob->m_pkFiber->prepare();
-			pkJob->m_pvData = (void*)(size_t)u32Index;
-			pkJob->m_pvData = pkJob->m_pkFiber->start(&RunJob, pkJob);
-		}
-		if (pkJob->m_pkFiber->GetState() == VeCoroutine::STATE_DEAD)
-		{
-			if (m_kFiberPool.vertify(pkJob->m_pkFiber))
-			{
-				m_kFiberPool.release((co_normal*)pkJob->m_pkFiber);
-			}
-			else
-			{
-				VE_ASSERT(m_kLargeFiberPool.vertify(pkJob->m_pkFiber));
-				m_kLargeFiberPool.release((co_large*)pkJob->m_pkFiber);
-			}
-			pkJob->m_pkFiber = nullptr;
-			if (m_kJobPool.vertify(pkJob))
-			{
-				m_kJobPool.release((VeJobFunc*)pkJob);
-			}
-		}*/
-	}
-}
-//--------------------------------------------------------------------------
-void* VeJobSystem::RunJob(void* pvJob) noexcept
-{
-	((VeJob*)pvJob)->Work((uint32_t)(size_t)(((VeJob*)pvJob)->m_pvData));
-	return nullptr;
+	return pkJob;
 }
 //--------------------------------------------------------------------------
